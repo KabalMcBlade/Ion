@@ -105,6 +105,12 @@
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryLog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="App\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\VulkanWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -120,6 +126,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="App\VulkanWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

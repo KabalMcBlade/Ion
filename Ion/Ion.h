@@ -4,12 +4,14 @@
 // that uses this DLL. This way any other project whose source files include this file see 
 // ION_API functions as being imported from a DLL, whereas this DLL sees symbols
 // defined with this macro as being exported.
+
 #ifdef ION_EXPORTS
 #define ION_API __declspec(dllexport)
 #else
 #define ION_API __declspec(dllimport)
 #endif
 
+/*
 // This class is exported from the Ion.dll
 class ION_API CIon {
 public:
@@ -20,3 +22,11 @@ public:
 extern ION_API int nIon;
 
 ION_API int fnIon(void);
+*/
+
+#include "Dependencies/Eos/Eos/Eos.h"
+#include "Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
+#include "Dependencies/Nix/Nix/Nix.h"
+
+#include "App/VulkanWrapper.h"
+#include "App/Window.h"

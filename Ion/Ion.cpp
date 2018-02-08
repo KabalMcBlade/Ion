@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "Ion.h"
 
-
+/*
 // This is an example of an exported variable
 ION_API int nIon=0;
 
@@ -20,3 +20,4 @@ CIon::CIon()
 {
     return;
 }
+*/
