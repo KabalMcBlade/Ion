@@ -19,6 +19,7 @@
 #include "App/VulkanWrapper.h"
 #include "App/Window.h"
 
+#include "Wrapper/Memory.h"
 
 
 ION_NAMESPACE_BEGIN

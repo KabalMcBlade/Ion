@@ -1,0 +1,33 @@
+#include "Memory.h"
+
+
+ION_NAMESPACE_BEGIN
+
+
+ION_DLL void InitializeAllocators(eosSize _uiHeapSize, eosSize _uiLinearSize, eosSize _uiStackBlockSize, eosSize _uiStackBlockCount)
+{
+    MemoryManager::Instance().GetHeapAllocator().Init(_uiHeapSize);
+    MemoryManager::Instance().GetLinearAllocator().Init(_uiLinearSize);
+    MemoryManager::Instance().GetStackAllocator().Init(_uiStackBlockSize, _uiStackBlockCount);
+}
+
+ION_DLL void ShutdownAllocators()
+{
+    MemoryManager::Instance().GetHeapAllocator().Shutdown();
+    MemoryManager::Instance().GetLinearAllocator().Shutdown();
+    MemoryManager::Instance().GetStackAllocator().Shutdown();
+}
+
+
+ION_DLL void InitializeVulkanAllocators(vkaSize _uiSizeCommand, vkaSize _uiSizeObject, vkaSize _uiSizeCache, vkaSize _uiSizeDevice, vkaSize _uiSizeInstace)
+{
+    vkMemoryInit(_uiSizeCommand, _uiSizeObject, _uiSizeCache, _uiSizeDevice, _uiSizeInstace);
+}
+
+ION_DLL void ShutdownVulkanAllocators()
+{
+    vkMemoryShutdown();
+}
+
+
+ION_NAMESPACE_END
