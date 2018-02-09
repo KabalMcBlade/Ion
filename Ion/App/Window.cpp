@@ -2,6 +2,8 @@
 
 #define APP_NAME     L"Ion Demo"
 
+ION_NAMESPACE_BEGIN
+
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
@@ -34,7 +36,7 @@ Window::~Window()
     }
 }
 
-bool Window::Create()
+ionBool Window::Create()
 {
     m_instance = GetModuleHandle(nullptr);
 
@@ -71,7 +73,7 @@ bool Window::Create()
 }
 
 
-bool Window::Loop()
+ionBool Window::Loop()
 {
     // Display window
     ShowWindow(m_handle, SW_SHOWNORMAL);
@@ -79,8 +81,8 @@ bool Window::Loop()
 
     // Main message loop
     MSG message;
-    bool loop = true;
-    bool result = true;
+    ionBool loop = true;
+    ionBool result = true;
 
     while (loop)
     {
@@ -107,3 +109,5 @@ bool Window::Loop()
 
     return result;
 }
+
+ION_NAMESPACE_END

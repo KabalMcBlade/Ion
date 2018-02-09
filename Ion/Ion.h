@@ -11,18 +11,6 @@
 #define ION_API __declspec(dllimport)
 #endif
 
-/*
-// This class is exported from the Ion.dll
-class ION_API CIon {
-public:
-	CIon(void);
-	// TODO: add your methods here.
-};
-
-extern ION_API int nIon;
-
-ION_API int fnIon(void);
-*/
 
 #include "Dependencies/Eos/Eos/Eos.h"
 #include "Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
@@ -30,3 +18,21 @@ ION_API int fnIon(void);
 
 #include "App/VulkanWrapper.h"
 #include "App/Window.h"
+
+
+
+ION_NAMESPACE_BEGIN
+
+// External Linkage Class 
+class ION_DLL Linkage
+{
+private:
+    ionS32 m_iCounterLinks;
+
+    void IncrementLinkage();
+
+public:
+    Linkage();
+};
+
+ION_NAMESPACE_END

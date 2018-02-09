@@ -41,15 +41,18 @@
 
 EOS_USING_NAMESPACE
 VK_ALLOCATOR_USING_NAMESPACE
+ION_USING_NAMESPACE
 
 
 int main()
 {
+    /*
     MemoryManager::Instance().GetHeapAllocator().Init(ALL_HEAP_MEMORY);
     MemoryManager::Instance().GetLinearAllocator().Init(ALL_LINEAR_MEMORY);
     MemoryManager::Instance().GetStackAllocator().Init(ALL_STACK_MEMORY, MAX_STACK_MEMORY_BLOCK);
+    */
 
-    vkMemoryInit(VULKAN_COMMAND_MEMORY_MB, VULKAN_OBJECT_MEMORY_MB, VULKAN_CACHE_MEMORY_MB, VULKAN_DEVICE_MEMORY_MB, VULKAN_INSTANCE_MEMORY_MB);
+    //vkMemoryInit(VULKAN_COMMAND_MEMORY_MB, VULKAN_OBJECT_MEMORY_MB, VULKAN_CACHE_MEMORY_MB, VULKAN_DEVICE_MEMORY_MB, VULKAN_INSTANCE_MEMORY_MB);
 
     Window window;
 
@@ -63,12 +66,13 @@ int main()
         return -1;
     }
 
-    vkMemoryShutdown();
+    //vkMemoryShutdown();
 
+    /*
     MemoryManager::Instance().GetHeapAllocator().Shutdown();
     MemoryManager::Instance().GetLinearAllocator().Shutdown();
     MemoryManager::Instance().GetStackAllocator().Shutdown();
-
+    */
     return 0;
 }
 

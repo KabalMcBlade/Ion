@@ -4,20 +4,17 @@
 #include "stdafx.h"
 #include "Ion.h"
 
-/*
-// This is an example of an exported variable
-ION_API int nIon=0;
 
-// This is an example of an exported function.
-ION_API int fnIon(void)
+
+ION_NAMESPACE_BEGIN
+
+
+Linkage::Linkage() : m_iCounterLinks(0) { IncrementLinkage(); }
+
+void Linkage::IncrementLinkage()
 {
-    return 42;
+    ++m_iCounterLinks;
 }
 
-// This is the constructor of a class that has been exported.
-// see Ion.h for the class definition
-CIon::CIon()
-{
-    return;
-}
-*/
+
+ION_NAMESPACE_END

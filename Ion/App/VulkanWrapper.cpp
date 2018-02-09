@@ -8,7 +8,9 @@
 VK_ALLOCATOR_USING_NAMESPACE
 EOS_USING_NAMESPACE
 
-bool VulkanWrapper::InitPresentationSurface(HINSTANCE _instance, HWND _handle)
+ION_NAMESPACE_BEGIN
+
+ionBool VulkanWrapper::InitPresentationSurface(HINSTANCE _instance, HWND _handle)
 {
     VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
     surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -20,7 +22,7 @@ bool VulkanWrapper::InitPresentationSurface(HINSTANCE _instance, HWND _handle)
     return (vkCreateWin32SurfaceKHR(m_vkInstance, &surfaceCreateInfo, vkMemory, &m_vkSurface) == VK_SUCCESS);
 }
 
-bool VulkanWrapper::InitInstance()
+ionBool VulkanWrapper::InitInstance()
 {
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -44,7 +46,7 @@ bool VulkanWrapper::InitInstance()
     return (result == VK_SUCCESS);
 }
 
-bool VulkanWrapper::Init(HINSTANCE _instance, HWND _handle)
+ionBool VulkanWrapper::Init(HINSTANCE _instance, HWND _handle)
 {
     if (!InitInstance())
     {
@@ -71,3 +73,5 @@ void VulkanWrapper::Shutdown()
         vkDestroyInstance(m_vkInstance, vkMemory);
     }
 }
+
+ION_NAMESPACE_END
