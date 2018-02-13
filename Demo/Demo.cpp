@@ -51,6 +51,8 @@ int main()
 
     Window window;
 
+    //eosString test;
+
     if (!window.Create())
     {
         return -1;

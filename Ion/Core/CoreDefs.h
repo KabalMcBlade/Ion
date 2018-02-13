@@ -3,7 +3,7 @@
 #include "StandardIncludes.h"
 
 
-#ifdef ION_EXPORT_DLL
+#ifdef ION_EXPORTS
 #define ION_DLL __declspec(dllexport)
 #else
 #define ION_DLL __declspec(dllimport)
