@@ -42,6 +42,11 @@
 #define ION_BIT_TOGGLE(value, bitpos)       ((value) ^= (1<<(bitpos)))
 #define ION_BIT_GET(value, mask)	        ((value) & (mask)) 
 
+#define ION_SCOPE_BEGIN \
+{
+
+#define ION_SCOPE_END \
+}
 
 //////////////////////////////////////////////////////////////////////////
 // TYPEDEFS

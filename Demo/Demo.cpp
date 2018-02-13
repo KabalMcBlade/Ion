@@ -43,15 +43,17 @@ EOS_USING_NAMESPACE
 VK_ALLOCATOR_USING_NAMESPACE
 ION_USING_NAMESPACE
 
+EOS_OPTIMIZATION_OFF
+ION_OPTIMIZATION_OFF
 
 int main()
 {
     InitializeAllocators(ALL_HEAP_MEMORY, ALL_LINEAR_MEMORY, ALL_STACK_MEMORY, MAX_STACK_MEMORY_BLOCK);
     InitializeVulkanAllocators(VULKAN_COMMAND_MEMORY_MB, VULKAN_OBJECT_MEMORY_MB, VULKAN_CACHE_MEMORY_MB, VULKAN_DEVICE_MEMORY_MB, VULKAN_INSTANCE_MEMORY_MB);
 
+    ION_SCOPE_BEGIN
+        
     Window window;
-
-    //eosString test;
 
     if (!window.Create())
     {
@@ -62,6 +64,9 @@ int main()
     {
         return -1;
     }
+
+
+    ION_SCOPE_END
 
     ShutdownVulkanAllocators();
     ShutdownAllocators();
