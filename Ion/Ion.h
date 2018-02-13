@@ -5,19 +5,19 @@
 // ION_API functions as being imported from a DLL, whereas this DLL sees symbols
 // defined with this macro as being exported.
 
-#ifdef ION_EXPORTS
-#define ION_API __declspec(dllexport)
-#else
-#define ION_API __declspec(dllimport)
-#endif
-
 
 #include "Dependencies/Eos/Eos/Eos.h"
 #include "Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 #include "Dependencies/Nix/Nix/Nix.h"
 
+
+#include "Core/StandardIncludes.h"
+#include "Core/CoreDefs.h"
+
+
 #include "App/VulkanWrapper.h"
 #include "App/Window.h"
+
 
 #include "Wrapper/Memory.h"
 
