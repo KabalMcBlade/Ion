@@ -23,9 +23,12 @@ Window::~Window()
     }
 }
 
-ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name)
+ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width, ionU32 _height, ionBool _fullScreen)
 {
     m_name = _name;
+    m_width = _width;
+    m_height = _height;
+    m_fullScreen = _fullScreen;
 
     m_instance = GetModuleHandle(nullptr);
 
@@ -38,24 +41,101 @@ ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name)
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = 0;
     wcex.hInstance = m_instance;
-    wcex.hIcon = NULL;
-    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wcex.lpszMenuName = NULL;
+    wcex.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);//(HBRUSH)(COLOR_WINDOW + 1);
+    wcex.lpszMenuName = nullptr;
     wcex.lpszClassName = m_name.c_str();
-    wcex.hIconSm = NULL;
+    wcex.hIconSm = LoadIcon(nullptr, IDI_WINLOGO);
 
     if (!RegisterClassEx(&wcex))
     {
         return false;
     }
 
+    ionS32 screenWidth = GetSystemMetrics(SM_CXSCREEN);
+    ionS32 screenHeight = GetSystemMetrics(SM_CYSCREEN);
+
+    if (m_fullScreen)
+    {
+        DEVMODE dmScreenSettings;
+        memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
+        dmScreenSettings.dmSize = sizeof(dmScreenSettings);
+        dmScreenSettings.dmPelsWidth = screenWidth;
+        dmScreenSettings.dmPelsHeight = screenHeight;
+        dmScreenSettings.dmBitsPerPel = 32;
+        dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+
+        if ((m_width != (ionU32)screenWidth) && (m_height != (ionU32)screenHeight))
+        {
+            if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
+            {
+                if (MessageBox(NULL, L"Fullscreen Mode not supported!\n Switch to window mode?", L"Error", MB_YESNO | MB_ICONEXCLAMATION) == IDYES)
+                {
+                    m_fullScreen = false;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+    }
+
+    DWORD dwExStyle;
+    DWORD dwStyle;
+
+    if (m_fullScreen)
+    {
+        dwExStyle = WS_EX_APPWINDOW;
+        dwStyle = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+    }
+    else
+    {
+        dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+        dwStyle = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+    }
+
+    RECT windowRect;
+    windowRect.left = 0L;
+    windowRect.top = 0L;
+    windowRect.right = m_fullScreen ? (long)screenWidth : (long)m_width;
+    windowRect.bottom = m_fullScreen ? (long)screenHeight : (long)m_height;
+
+    AdjustWindowRectEx(&windowRect, dwStyle, FALSE, dwExStyle);
+
     // Create window
-    m_handle = CreateWindow(m_name.c_str(), m_name.c_str(), WS_OVERLAPPEDWINDOW, 20, 20, 640, 480, nullptr, nullptr, m_instance, nullptr);
+    m_handle = CreateWindowEx(0,
+        m_name.c_str(),
+        m_name.c_str(),
+        dwStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        0,
+        0,
+        windowRect.right - windowRect.left,
+        windowRect.bottom - windowRect.top,
+        nullptr,
+        nullptr,
+        m_instance,
+        nullptr);
+
+    if (!m_fullScreen)
+    {
+        // Center on screen
+        uint32_t x = (GetSystemMetrics(SM_CXSCREEN) - windowRect.right) / 2;
+        uint32_t y = (GetSystemMetrics(SM_CYSCREEN) - windowRect.bottom) / 2;
+        SetWindowPos(m_handle, 0, x, y, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+    }
+
     if (!m_handle)
     {
+        std::cout << "Could not create window!" << std::endl;
         return false;
     }
+
+    ShowWindow(m_handle, SW_SHOW);
+    SetForegroundWindow(m_handle);
+    SetFocus(m_handle);
 
     return m_vulkan.Init(m_instance, m_handle);
 }
@@ -64,7 +144,7 @@ ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name)
 ionBool Window::Loop()
 {
     // Display window
-    ShowWindow(m_handle, SW_SHOWNORMAL);
+    //ShowWindow(m_handle, SW_SHOWNORMAL);
     UpdateWindow(m_handle);
 
     // Main message loop

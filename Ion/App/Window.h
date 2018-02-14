@@ -18,7 +18,7 @@ public:
     Window();
     ~Window();
 
-    ionBool        Create(WNDPROC _wndproc, const eosTString& _name);
+    ionBool        Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width, ionU32 _height, ionBool _fullScreen);
     ionBool        Loop();
 
 private:
@@ -26,6 +26,9 @@ private:
     HINSTANCE       m_instance;
     HWND            m_handle;
     VulkanWrapper   m_vulkan;
+    ionU32          m_width;
+    ionU32          m_height;
+    ionBool         m_fullScreen;
 };
 
 ION_NAMESPACE_END

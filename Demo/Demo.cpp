@@ -51,7 +51,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
-    case WM_KEYDOWN:
+    //case WM_KEYDOWN:
     case WM_CLOSE:
         PostMessage(hWnd, WM_USER + 1, wParam, lParam);
         break;
@@ -71,7 +71,7 @@ int main()
         
     Window window;
 
-    if (!window.Create(WndProc, L"Ion Demo"))
+    if (!window.Create(WndProc, L"Ion Demo", 640, 480, false))
     {
         return -1;
     }
