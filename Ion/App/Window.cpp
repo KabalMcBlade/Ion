@@ -1,22 +1,9 @@
 #include "Window.h"
 
-#define APP_NAME     L"Ion Demo"
+EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    switch (message)
-    {
-    case WM_KEYDOWN:
-    case WM_CLOSE:
-        PostMessage(hWnd, WM_USER + 1, wParam, lParam);
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-    return 0;
-}
 
 Window::Window() : m_instance(), m_handle()
 {
@@ -32,21 +19,22 @@ Window::~Window()
 
     if (m_instance)
     {
-        UnregisterClass(APP_NAME, m_instance);
+        UnregisterClass(m_name.c_str(), m_instance);
     }
 }
 
-ionBool Window::Create()
+ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name)
 {
+    m_name = _name;
+
     m_instance = GetModuleHandle(nullptr);
 
     // Register window class
     WNDCLASSEX wcex;
 
     wcex.cbSize = sizeof(WNDCLASSEX);
-
     wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = WndProc;
+    wcex.lpfnWndProc = _wndproc;
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = 0;
     wcex.hInstance = m_instance;
@@ -54,7 +42,7 @@ ionBool Window::Create()
     wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszMenuName = NULL;
-    wcex.lpszClassName = APP_NAME;
+    wcex.lpszClassName = m_name.c_str();
     wcex.hIconSm = NULL;
 
     if (!RegisterClassEx(&wcex))
@@ -63,7 +51,7 @@ ionBool Window::Create()
     }
 
     // Create window
-    m_handle = CreateWindow(APP_NAME, APP_NAME, WS_OVERLAPPEDWINDOW, 20, 20, 640, 480, nullptr, nullptr, m_instance, nullptr);
+    m_handle = CreateWindow(m_name.c_str(), m_name.c_str(), WS_OVERLAPPEDWINDOW, 20, 20, 640, 480, nullptr, nullptr, m_instance, nullptr);
     if (!m_handle)
     {
         return false;

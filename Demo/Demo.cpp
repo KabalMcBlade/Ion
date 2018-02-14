@@ -46,6 +46,22 @@ ION_USING_NAMESPACE
 EOS_OPTIMIZATION_OFF
 ION_OPTIMIZATION_OFF
 
+
+LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case WM_KEYDOWN:
+    case WM_CLOSE:
+        PostMessage(hWnd, WM_USER + 1, wParam, lParam);
+        break;
+    default:
+        return DefWindowProc(hWnd, uMsg, wParam, lParam);
+    }
+    return 0;
+}
+
+
 int main()
 {
     InitializeAllocators(ALL_HEAP_MEMORY, ALL_LINEAR_MEMORY, ALL_STACK_MEMORY, MAX_STACK_MEMORY_BLOCK);
@@ -55,7 +71,7 @@ int main()
         
     Window window;
 
-    if (!window.Create())
+    if (!window.Create(WndProc, L"Ion Demo"))
     {
         return -1;
     }
