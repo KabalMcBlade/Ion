@@ -51,7 +51,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
-    //case WM_KEYDOWN:
+    case WM_KEYDOWN:
+        switch (wParam)
+        {
+        case VK_ESCAPE:
+            //PostQuitMessage(0);
+            PostMessage(hWnd, WM_USER + 1, wParam, lParam);
+            break;
+        }
     case WM_CLOSE:
         PostMessage(hWnd, WM_USER + 1, wParam, lParam);
         break;

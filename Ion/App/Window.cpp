@@ -70,14 +70,7 @@ ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width,
         {
             if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
             {
-                if (MessageBox(NULL, L"Fullscreen Mode not supported!\n Switch to window mode?", L"Error", MB_YESNO | MB_ICONEXCLAMATION) == IDYES)
-                {
-                    m_fullScreen = false;
-                }
-                else
-                {
-                    return false;
-                }
+                m_fullScreen = false;
             }
         }
 
@@ -119,21 +112,13 @@ ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width,
         m_instance,
         nullptr);
 
-    if (!m_fullScreen)
-    {
-        // Center on screen
-        uint32_t x = (GetSystemMetrics(SM_CXSCREEN) - windowRect.right) / 2;
-        uint32_t y = (GetSystemMetrics(SM_CYSCREEN) - windowRect.bottom) / 2;
-        SetWindowPos(m_handle, 0, x, y, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
-    }
-
     if (!m_handle)
     {
         std::cout << "Could not create window!" << std::endl;
         return false;
     }
 
-    ShowWindow(m_handle, SW_SHOW);
+    ShowWindow(m_handle, SW_SHOW);  //SW_SHOWNORMAL
     SetForegroundWindow(m_handle);
     SetFocus(m_handle);
 
@@ -144,7 +129,6 @@ ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width,
 ionBool Window::Loop()
 {
     // Display window
-    //ShowWindow(m_handle, SW_SHOWNORMAL);
     UpdateWindow(m_handle);
 
     // Main message loop
@@ -169,6 +153,7 @@ ionBool Window::Loop()
         }
         else
         {
+            //m_vulkan.RenderFrame();
             Sleep(100);
         }
     }
