@@ -22,6 +22,9 @@
 #include "Wrapper/Memory.h"
 
 
+#include "Scene/Transform.h"
+#include "Scene/Node.h"
+
 ION_NAMESPACE_BEGIN
 
 // External Linkage Class 

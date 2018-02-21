@@ -52,7 +52,10 @@
 // TYPEDEFS
 //////////////////////////////////////////////////////////////////////////
 
-typedef	bool			ionBool;
+typedef bool            ionBool;
+typedef float           ionFloat;
+typedef double          ionDouble;
+
 typedef uint_fast8_t    ionU8;
 typedef uint_fast32_t   ionU32;
 typedef uint_fast64_t   ionU64;
