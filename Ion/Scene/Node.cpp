@@ -54,7 +54,7 @@ void Node::AttachToParent(NodeHandle& _parent)
 void Node::DetachFromParent()
 {
     m_parent->GetChildren().erase(std::remove(m_parent->GetChildren().begin(), m_parent->GetChildren().end(), this), m_parent->GetChildren().end());
-    m_parent = nullptr; // still need? TODO: CHECK!
+    m_parent = nullptr; // still need? 
 }
 
 ION_NAMESPACE_END
