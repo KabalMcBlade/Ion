@@ -187,6 +187,7 @@
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryHeapAllocator.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryLog.h" />
     <ClInclude Include="Ion.h" />
+    <ClInclude Include="Scene\BaseCamera.h" />
     <ClInclude Include="Scene\Node.h" />
     <ClInclude Include="Scene\Transform.h" />
     <ClInclude Include="stdafx.h" />
@@ -213,6 +214,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Ion.cpp" />
+    <ClCompile Include="Scene\BaseCamera.cpp" />
     <ClCompile Include="Scene\Node.cpp" />
     <ClCompile Include="Scene\Transform.cpp" />
     <ClCompile Include="stdafx.cpp" />

@@ -29,8 +29,8 @@ public:
     void AttachToParent(NodeHandle& _parent);
     void DetachFromParent();
 
-    const Node &GetParent() const { return *m_parent; }
-    const Transform &GetTransform() const { return *m_transform; }
+    const NodeHandle &GetParentHandle() const { return m_parent; }
+    const TransformHandle &GetTransformHandle() const { return m_transform; }
 
     eosVector(NodeHandle) &GetChildren() { return m_children; };
 

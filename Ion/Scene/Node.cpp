@@ -13,6 +13,7 @@ Node::Node()
 {
     m_nodeIndex = g_nextValidNodeIndex;
     ++g_nextValidNodeIndex;
+    m_parent = nullptr;
     SetName(ION_BASE_NODE_NAME);
 }
 
@@ -20,6 +21,7 @@ Node::Node(const eosString & _name)
 {
     m_nodeIndex = g_nextValidNodeIndex;
     ++g_nextValidNodeIndex;
+    m_parent = nullptr;
     SetName(_name);
 }
 

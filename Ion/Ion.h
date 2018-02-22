@@ -24,6 +24,7 @@
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"
+#include "Scene/BaseCamera.h"
 
 ION_NAMESPACE_BEGIN
 
