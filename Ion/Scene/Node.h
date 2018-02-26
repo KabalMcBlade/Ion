@@ -24,7 +24,8 @@ public:
     void SetName(const eosString & _name);
     const eosString &GetName() const  { return m_name; }
     const eosString &GetNameInternal() const  { return m_nameInternal; }
-    ionSize GetHash() const { return m_nodeIndex;  }
+    ionU32 GetNodeIndex() const { return m_nodeIndex;  }
+    ionSize GetHash() const { return m_hash; }
 
     void AttachToParent(NodeHandle& _parent);
     void DetachFromParent();

@@ -45,7 +45,7 @@ Transform::~Transform()
 
 void Transform::UpdateTransform(const Matrix& _parentMatrix /* = Matrix() */)
 {
-    m_matrix = Matrix() * _parentMatrix;
+    m_matrix = _parentMatrix;
     m_matrix = m_matrix.Translate(m_position);
     m_matrix = m_matrix * m_rotation.ToMatrix();
     m_matrix = m_matrix.Scale(m_scale);
