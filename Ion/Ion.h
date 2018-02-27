@@ -10,21 +10,20 @@
 #include "Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 #include "Dependencies/Nix/Nix/Nix.h"
 
-
 #include "Core/StandardIncludes.h"
 #include "Core/CoreDefs.h"
 
-
-#include "App/VulkanWrapper.h"
-#include "App/Window.h"
-
-
-#include "Wrapper/Memory.h"
-
+#include "Renderer/RenderDefs.h"
+#include "Renderer/GPU.h"
+#include "Renderer/RenderManager.h"
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"
 #include "Scene/BaseCamera.h"
+
+#include "Wrapper/Memory.h"
+
+#include "App/Window.h"
 
 ION_NAMESPACE_BEGIN
 

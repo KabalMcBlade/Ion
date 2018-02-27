@@ -105,9 +105,6 @@
     <ClInclude Include="App\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="App\VulkanWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Core\CoreDefs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -124,6 +121,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Scene\BaseCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderDefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\GPU.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -146,9 +152,6 @@
     <ClCompile Include="App\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="App\VulkanWrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Wrapper\Memory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -159,6 +162,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Scene\BaseCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\GPU.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -156,7 +156,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="App\VulkanWrapper.h" />
     <ClInclude Include="App\Window.h" />
     <ClInclude Include="Core\CoreDefs.h" />
     <ClInclude Include="Core\StandardIncludes.h" />
@@ -187,6 +186,9 @@
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryHeapAllocator.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryLog.h" />
     <ClInclude Include="Ion.h" />
+    <ClInclude Include="Renderer\GPU.h" />
+    <ClInclude Include="Renderer\RenderDefs.h" />
+    <ClInclude Include="Renderer\RenderManager.h" />
     <ClInclude Include="Scene\BaseCamera.h" />
     <ClInclude Include="Scene\Node.h" />
     <ClInclude Include="Scene\Transform.h" />
@@ -195,7 +197,6 @@
     <ClInclude Include="Wrapper\Memory.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="App\VulkanWrapper.cpp" />
     <ClCompile Include="App\Window.cpp" />
     <ClCompile Include="Dependencies\Eos\Eos\MemoryManager.cpp" />
     <ClCompile Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryFunctions.cpp" />
@@ -214,6 +215,8 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Ion.cpp" />
+    <ClCompile Include="Renderer\GPU.cpp" />
+    <ClCompile Include="Renderer\RenderManager.cpp" />
     <ClCompile Include="Scene\BaseCamera.cpp" />
     <ClCompile Include="Scene\Node.cpp" />
     <ClCompile Include="Scene\Transform.cpp" />

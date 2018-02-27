@@ -7,8 +7,6 @@
 #include "../Core/CoreDefs.h"
 
 
-#include "VulkanWrapper.h"
-
 EOS_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
@@ -25,7 +23,6 @@ private:
     eosTString      m_name;
     HINSTANCE       m_instance;
     HWND            m_handle;
-    VulkanWrapper   m_vulkan;
     ionU32          m_width;
     ionU32          m_height;
     ionBool         m_fullScreen;
