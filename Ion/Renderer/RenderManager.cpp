@@ -1,7 +1,5 @@
 #include "RenderManager.h"
 
-#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
-
 #include "RenderDefs.h"
 
 #define VK_NAME                     "Ion"

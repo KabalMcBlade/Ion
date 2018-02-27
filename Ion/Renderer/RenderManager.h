@@ -5,12 +5,14 @@
 #include <vulkan/vulkan.h>
 
 #include "../Dependencies/Eos/Eos/Eos.h"
+#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
 #include "../Core/CoreDefs.h"
 
 #include "GPU.h"
 
 EOS_USING_NAMESPACE
+VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
@@ -57,7 +59,6 @@ private:
 
     VkQueue			    m_vkGraphicsQueue;
     VkQueue			    m_vkPresentQueue;
-    // array of max images
 
 
     ionBool             m_vkValidationEnabled;

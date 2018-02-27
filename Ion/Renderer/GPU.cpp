@@ -1,8 +1,6 @@
 #include "GPU.h"
 
-//#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
-//VK_ALLOCATOR_USING_NAMESPACE
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
