@@ -15,8 +15,8 @@ ION_NAMESPACE_BEGIN
 
 struct GPU final
 {
-    GPU() {}
-    ~GPU() {}
+    GPU();
+    ~GPU();
 
     ionBool Set(const VkInstance& _vkInstance, const VkSurfaceKHR& _vkSurface, const VkPhysicalDevice& _vkDevice);
 

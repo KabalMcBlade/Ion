@@ -19,6 +19,9 @@ public:
     ionBool        Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width, ionU32 _height, ionBool _fullScreen);
     ionBool        Loop();
 
+    const HINSTANCE& GetInstance() const { return m_instance; }
+    const HWND& GetHandle() const { return m_handle; }
+
 private:
     eosTString      m_name;
     HINSTANCE       m_instance;

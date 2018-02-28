@@ -13,15 +13,19 @@
 #define MEMORY_4_MB                 MEMORY_1_MB * 4
 #define MEMORY_8_MB                 MEMORY_4_MB * 2
 #define MEMORY_16_MB                MEMORY_8_MB * 2
+#define MEMORY_32_MB                MEMORY_16_MB * 2
+#define MEMORY_64_MB                MEMORY_32_MB * 2
+#define MEMORY_128_MB               MEMORY_64_MB * 2
 
-#define STL_MAX_HEAP_MEMORY         MEMORY_16_MB
-#define STL_MAX_STACK_MEMORY_SIZE   MEMORY_4_MB
-#define STL_MAX_LINEAR_MEMORY       MEMORY_8_MB
+
+#define STL_MAX_HEAP_MEMORY         MEMORY_128_MB
+#define STL_MAX_STACK_MEMORY_SIZE   MEMORY_8_MB
+#define STL_MAX_LINEAR_MEMORY       MEMORY_16_MB
 
 
 #define MAX_STACK_MEMORY_BLOCK      1024
-#define ALL_HEAP_MEMORY             STL_MAX_HEAP_MEMORY + (MEMORY_16_MB)
-#define ALL_LINEAR_MEMORY           STL_MAX_LINEAR_MEMORY + (MEMORY_16_MB * 2)
+#define ALL_HEAP_MEMORY             STL_MAX_HEAP_MEMORY + (MEMORY_128_MB)
+#define ALL_LINEAR_MEMORY           STL_MAX_LINEAR_MEMORY + (MEMORY_32_MB * 2)
 #define ALL_STACK_MEMORY            STL_MAX_STACK_MEMORY_SIZE
 
 
@@ -32,11 +36,18 @@
 #define MEMORY_1_MB                 1048576        
 #define VULKAN_BASE_MEMORY_MB       MEMORY_1_MB
 
-#define VULKAN_COMMAND_MEMORY_MB    VULKAN_BASE_MEMORY_MB * 64
-#define VULKAN_OBJECT_MEMORY_MB     VULKAN_BASE_MEMORY_MB * 4
-#define VULKAN_CACHE_MEMORY_MB      VULKAN_BASE_MEMORY_MB
-#define VULKAN_DEVICE_MEMORY_MB     VULKAN_BASE_MEMORY_MB
-#define VULKAN_INSTANCE_MEMORY_MB   VULKAN_BASE_MEMORY_MB * 16
+#define VULKAN_COMMAND_MEMORY_MB    VULKAN_BASE_MEMORY_MB * 8
+#define VULKAN_OBJECT_MEMORY_MB     VULKAN_BASE_MEMORY_MB * 8
+#define VULKAN_CACHE_MEMORY_MB      VULKAN_BASE_MEMORY_MB * 8
+#define VULKAN_DEVICE_MEMORY_MB     VULKAN_BASE_MEMORY_MB * 8
+#define VULKAN_INSTANCE_MEMORY_MB   VULKAN_BASE_MEMORY_MB * 32
+
+
+#ifdef _DEBUG
+#   define ION_VULKAN_VALIDATION_LAYER true
+#else
+#   define ION_VULKAN_VALIDATION_LAYER false
+#endif
 
 
 EOS_USING_NAMESPACE
@@ -75,24 +86,29 @@ int main()
     InitializeVulkanAllocators(VULKAN_COMMAND_MEMORY_MB, VULKAN_OBJECT_MEMORY_MB, VULKAN_CACHE_MEMORY_MB, VULKAN_DEVICE_MEMORY_MB, VULKAN_INSTANCE_MEMORY_MB);
 
     ION_SCOPE_BEGIN
-        
+
+    ionBool rendererInitialized = false;
     Window window;
+    RenderContext renderer;
 
-    if (!window.Create(WndProc, L"Ion Demo", 640, 480, false))
+    if (window.Create(WndProc, L"Ion Demo", 640, 480, false))
     {
-        return -1;
+        rendererInitialized = renderer.Init(window.GetInstance(), window.GetHandle(), ION_VULKAN_VALIDATION_LAYER);
     }
 
-    if (!window.Loop())
+    if (rendererInitialized)
     {
-        return -1;
+        window.Loop();
     }
 
+    renderer.Shutdown();
 
     ION_SCOPE_END
 
     ShutdownVulkanAllocators();
     ShutdownAllocators();
+
+    getchar();
 
     return 0;
 }

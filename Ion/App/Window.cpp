@@ -1,16 +1,8 @@
 #include "Window.h"
 
-#include "../Renderer/RenderManager.h"
-
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
-
-#ifdef _DEBUG
-#   define ION_VULKAN_VALIDATION_LAYER true
-#else
-#   define ION_VULKAN_VALIDATION_LAYER false
-#endif
 
 Window::Window() : m_instance(), m_handle()
 {
@@ -129,7 +121,7 @@ ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width,
     SetForegroundWindow(m_handle);
     SetFocus(m_handle);
 
-    return IonRenderManager().Init(m_instance, m_handle, ION_VULKAN_VALIDATION_LAYER);
+    return true;
 }
 
 
@@ -160,12 +152,10 @@ ionBool Window::Loop()
         }
         else
         {
-            //IonRenderManager().RenderFrame();
+            // RENDER FRAME HERE, POSSIBLY USE AN OVERRIDE VCALL
             Sleep(100);
         }
     }
-
-    IonRenderManager().Shutdown();
 
     return result;
 }

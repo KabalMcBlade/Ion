@@ -15,7 +15,7 @@
 
 #include "Renderer/RenderDefs.h"
 #include "Renderer/GPU.h"
-#include "Renderer/RenderManager.h"
+#include "Renderer/RenderContext.h"
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"

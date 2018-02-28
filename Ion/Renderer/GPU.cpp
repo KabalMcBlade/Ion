@@ -5,6 +5,19 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+GPU::GPU() : m_vkPhysicalDevice(VK_NULL_HANDLE)
+{
+
+}
+
+GPU::~GPU()
+{
+    m_vkSurfaceFormats.clear();
+    m_vkPresentModes.clear();
+    m_vkQueueFamilyProps.clear();
+    m_vkExtensionProps.clear();
+}
+
 ionBool GPU::Set(const VkInstance& _vkInstance, const VkSurfaceKHR& _vkSurface, const VkPhysicalDevice& _vkDevice)
 {
     m_vkPhysicalDevice = _vkDevice;
@@ -21,12 +34,12 @@ ionBool GPU::Set(const VkInstance& _vkInstance, const VkSurfaceKHR& _vkSurface, 
     VkResult result = vkEnumerateDeviceExtensionProperties(m_vkPhysicalDevice, nullptr, &numExtension, nullptr);
     ionAssertReturnValue(result == VK_SUCCESS, "Cannot enumerate device extension!", false);
     ionAssertReturnValue(numExtension > 0, "vkEnumerateDeviceExtensionProperties returned zero extensions.", false);
-
+   
     m_vkExtensionProps.resize(numExtension);
     result = vkEnumerateDeviceExtensionProperties(m_vkPhysicalDevice, nullptr, &numExtension, m_vkExtensionProps.data());
     ionAssertReturnValue(result == VK_SUCCESS, "Cannot enumerate device extension!", false);
-    ionAssertReturnValue(result == VK_SUCCESS, "vkEnumerateDeviceExtensionProperties returned zero extensions.", false);
-
+    ionAssertReturnValue(numExtension > 0, "vkEnumerateDeviceExtensionProperties returned zero extensions.", false);
+    
     result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_vkPhysicalDevice, _vkSurface, &m_vkSurfaceCaps);
     ionAssertReturnValue(result == VK_SUCCESS, "vkGetPhysicalDeviceSurfaceCapabilitiesKHR returned not capabilities for the surface selected.", false);
 
