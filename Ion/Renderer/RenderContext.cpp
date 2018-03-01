@@ -57,11 +57,11 @@ ionBool RenderContext::CreateInstance(ionBool _enableValidationLayer)
         ionAssertReturnValue(found, "Cannot find validation layer", false);
         // here break
 
-        createInfo.enabledLayerCount = enabledLayers.size();
+        createInfo.enabledLayerCount = (ionU32)enabledLayers.size();
         createInfo.ppEnabledLayerNames = enabledLayers.data();
     }
 
-    createInfo.enabledExtensionCount = enabledExtensions.size();
+    createInfo.enabledExtensionCount = (ionU32)enabledExtensions.size();
     createInfo.ppEnabledExtensionNames = enabledExtensions.data();
 
     VkResult result = vkCreateInstance(&createInfo, vkMemory, &m_vkInstance);
@@ -71,14 +71,14 @@ ionBool RenderContext::CreateInstance(ionBool _enableValidationLayer)
 
 ionBool RenderContext::CreatePresentationSurface(HINSTANCE _instance, HWND _handle)
 {
-    VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
-    surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-    surfaceCreateInfo.pNext = nullptr;
-    surfaceCreateInfo.flags = 0;
-    surfaceCreateInfo.hinstance = _instance;
-    surfaceCreateInfo.hwnd = _handle;
+    VkWin32SurfaceCreateInfoKHR createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+    createInfo.pNext = nullptr;
+    createInfo.flags = 0;
+    createInfo.hinstance = _instance;
+    createInfo.hwnd = _handle;
 
-    return (vkCreateWin32SurfaceKHR(m_vkInstance, &surfaceCreateInfo, vkMemory, &m_vkSurface) == VK_SUCCESS);
+    return (vkCreateWin32SurfaceKHR(m_vkInstance, &createInfo, vkMemory, &m_vkSurface) == VK_SUCCESS);
 }
 
 ionBool RenderContext::CreatePhysicalDevice()
@@ -150,7 +150,7 @@ ionBool RenderContext::CreatePhysicalDevice()
 
              if (props.queueFlags & VK_QUEUE_GRAPHICS_BIT)
              {
-                 graphicsIdx = j;
+                 graphicsIdx = (ionS32)j;
                  break;
              }
          }
@@ -165,10 +165,10 @@ ionBool RenderContext::CreatePhysicalDevice()
              }
 
              VkBool32 supportsPresent = VK_FALSE;
-             vkGetPhysicalDeviceSurfaceSupportKHR(gpu.m_vkPhysicalDevice, j, m_vkSurface, &supportsPresent);
+             vkGetPhysicalDeviceSurfaceSupportKHR(gpu.m_vkPhysicalDevice, (ionS32)j, m_vkSurface, &supportsPresent);
              if (supportsPresent) 
              {
-                 presentIdx = j;
+                 presentIdx = (ionS32)j;
                  break;
              }
          }
@@ -199,37 +199,37 @@ ionBool RenderContext::CreateLogicalDeviceAndQueues()
     if (m_vkGraphicsFamilyIndex != m_vkPresentFamilyIndex)
     {
         {
-            VkDeviceQueueCreateInfo info = {};
-            info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-            info.queueFamilyIndex = m_vkGraphicsFamilyIndex;
-            info.queueCount = 1;
-            info.pQueuePriorities = &priority;
-            info.pNext = nullptr;
+            VkDeviceQueueCreateInfo createInfo = {};
+            createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            createInfo.queueFamilyIndex = m_vkGraphicsFamilyIndex;
+            createInfo.queueCount = 1;
+            createInfo.pQueuePriorities = &priority;
+            createInfo.pNext = nullptr;
 
-            deviceQueueInfo.push_back(info);
+            deviceQueueInfo.push_back(createInfo);
         }
 
         {
-            VkDeviceQueueCreateInfo info = {};
-            info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-            info.queueFamilyIndex = m_vkPresentFamilyIndex;
-            info.queueCount = 1;
-            info.pQueuePriorities = &priority;
-            info.pNext = nullptr;
+            VkDeviceQueueCreateInfo createInfo = {};
+            createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            createInfo.queueFamilyIndex = m_vkPresentFamilyIndex;
+            createInfo.queueCount = 1;
+            createInfo.pQueuePriorities = &priority;
+            createInfo.pNext = nullptr;
 
-            deviceQueueInfo.push_back(info);
+            deviceQueueInfo.push_back(createInfo);
         }
     }
     else
     {
-        VkDeviceQueueCreateInfo info = {};
-        info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        info.queueFamilyIndex = m_vkGraphicsFamilyIndex;        // Just one queue! because they come from the same family and Vulkan do not need 2 identical queue!
-        info.queueCount = 1;
-        info.pQueuePriorities = &priority;
-        info.pNext = nullptr;
+        VkDeviceQueueCreateInfo createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        createInfo.queueFamilyIndex = m_vkGraphicsFamilyIndex;        // Just one queue! because they come from the same family and Vulkan do not need 2 identical queue!
+        createInfo.queueCount = 1;
+        createInfo.pQueuePriorities = &priority;
+        createInfo.pNext = nullptr;
 
-        deviceQueueInfo.push_back(info);
+        deviceQueueInfo.push_back(createInfo);
     }
 
     VkPhysicalDeviceFeatures deviceFeatures = {};
@@ -240,28 +240,28 @@ ionBool RenderContext::CreateLogicalDeviceAndQueues()
     deviceFeatures.depthBounds = m_vkGPU.m_vkPhysicalDevFeatures.depthBounds;
     deviceFeatures.fillModeNonSolid = VK_TRUE;
 
-    VkDeviceCreateInfo info = {};
-    info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    info.queueCreateInfoCount = deviceQueueInfo.size();
-    info.pQueueCreateInfos = deviceQueueInfo.data();
-    info.pEnabledFeatures = &deviceFeatures;
-    info.enabledExtensionCount = enabledExtensions.size();
-    info.ppEnabledExtensionNames = enabledExtensions.data();
+    VkDeviceCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.queueCreateInfoCount = (ionU32)deviceQueueInfo.size();
+    createInfo.pQueueCreateInfos = deviceQueueInfo.data();
+    createInfo.pEnabledFeatures = &deviceFeatures;
+    createInfo.enabledExtensionCount = (ionU32)enabledExtensions.size();
+    createInfo.ppEnabledExtensionNames = enabledExtensions.data();
 
     if (m_vkValidationEnabled)
     {
         eosVector(const char*) enabledLayers;
         enabledLayers.push_back(VK_LUNAR_VALIDATION_LAYER);
 
-        info.enabledLayerCount = enabledLayers.size();
-        info.ppEnabledLayerNames = enabledLayers.data();
+        createInfo.enabledLayerCount = (ionU32)enabledLayers.size();
+        createInfo.ppEnabledLayerNames = enabledLayers.data();
     }
     else
     {
-        info.enabledLayerCount = 0;
+        createInfo.enabledLayerCount = 0;
     }
 
-    VkResult result = vkCreateDevice(m_vkGPU.m_vkPhysicalDevice, &info, vkMemory, &m_vkDevice);
+    VkResult result = vkCreateDevice(m_vkGPU.m_vkPhysicalDevice, &createInfo, vkMemory, &m_vkDevice);
     ionAssertReturnValue(result == VK_SUCCESS, "Cannot create logical device!", false);
 
     vkGetDeviceQueue(m_vkDevice, m_vkGraphicsFamilyIndex, 0, &m_vkGraphicsQueue);
@@ -272,17 +272,47 @@ ionBool RenderContext::CreateLogicalDeviceAndQueues()
 
 ionBool RenderContext::CreateSemaphores()
 {
-    return false;   // TO DO
+    VkSemaphoreCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i)
+    {
+        VkResult result = vkCreateSemaphore(m_vkDevice, &createInfo, vkMemory, &m_vkAcquiringSemaphores[i]);
+        ionAssertReturnValue(result == VK_SUCCESS, "Cannot create semaphore for locking!", false);
+
+        result = vkCreateSemaphore(m_vkDevice, &createInfo, vkMemory, &m_vkCompletedSemaphores[i]);
+        ionAssertReturnValue(result == VK_SUCCESS, "Cannot create semaphore for unlocking!", false);
+    }
+    return true;
 }
 
 ionBool RenderContext::CreateQueryPool()
 {
-    return false;   // TO DO
+    VkQueryPoolCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
+    createInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
+    createInfo.queryCount = ION_QUERY_COUNT;
+
+    for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i) 
+    {
+        VkResult result = vkCreateQueryPool(m_vkDevice, &createInfo, vkMemory, &m_vkQueryPools[i]);
+        ionAssertReturnValue(result == VK_SUCCESS, "Cannot create query pool!", false);
+    }
+
+    return true;
 }
 
 ionBool RenderContext::CreateCommandPool()
 {
-    return false;   // TO DO
+    VkCommandPoolCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    createInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    createInfo.queueFamilyIndex = m_vkGraphicsFamilyIndex;
+
+    VkResult result = vkCreateCommandPool(m_vkDevice, &createInfo, vkMemory, &m_vkCommandPool);
+    ionAssertReturnValue(result == VK_SUCCESS, "Cannot create query pool!", false);
+
+    return true;
 }
 
 ionBool RenderContext::CreateCommandBuffer()
@@ -315,6 +345,16 @@ ionBool RenderContext::CreateRenderPass()
     return false;   // TO DO
 }
 
+ionBool RenderContext::CreatePipelineCache()
+{
+    return false;   // TO DO
+}
+
+void RenderContext::DestroyPipelineCache()
+{
+
+}
+
 ionBool RenderContext::CreateFrameBuffers()
 {
     return false;   // TO DO
@@ -332,16 +372,21 @@ RenderContext::RenderContext() :
     m_vkInstance(VK_NULL_HANDLE),
     m_vkGraphicsQueue(VK_NULL_HANDLE),
     m_vkPresentQueue(VK_NULL_HANDLE),
+    m_vkCommandPool(VK_NULL_HANDLE),
     m_vkGraphicsFamilyIndex(-1),
     m_vkPresentFamilyIndex(-1),
     m_vkValidationEnabled(false)
 {
-
+    m_vkAcquiringSemaphores.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
+    m_vkCompletedSemaphores.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
+    m_vkQueryPools.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
 }
 
 RenderContext::~RenderContext()
 {
-
+    m_vkQueryPools.clear();
+    m_vkCompletedSemaphores.clear();
+    m_vkAcquiringSemaphores.clear();
 }
 
 
@@ -367,11 +412,46 @@ ionBool RenderContext::Init(HINSTANCE _instance, HWND _handle, ionBool _enableVa
         return false;
     }
 
+    if (!CreateSemaphores())
+    {
+        return false;
+    }
+
+    if (!CreateQueryPool())
+    {
+        return false;
+    }
+
     return true;
 }
 
 void RenderContext::Shutdown()
 {
+    if (m_vkCommandPool != VK_NULL_HANDLE)
+    {
+        vkDestroyCommandPool(m_vkDevice, m_vkCommandPool, vkMemory);
+    }
+
+    for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i)
+    {
+        if (m_vkQueryPools[i] != VK_NULL_HANDLE)
+        {
+            vkDestroyQueryPool(m_vkDevice, m_vkQueryPools[i], vkMemory);
+        }
+    }
+
+    for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i)
+    {
+        if (m_vkAcquiringSemaphores[i] != VK_NULL_HANDLE)
+        {
+            vkDestroySemaphore(m_vkDevice, m_vkAcquiringSemaphores[i], vkMemory);
+        }
+        if (m_vkCompletedSemaphores[i] != VK_NULL_HANDLE)
+        {
+            vkDestroySemaphore(m_vkDevice, m_vkCompletedSemaphores[i], vkMemory);
+        }
+    }
+
     if (m_vkDevice != VK_NULL_HANDLE)
     {
         vkDestroyDevice(m_vkDevice, vkMemory);
