@@ -42,12 +42,18 @@
 #define VULKAN_DEVICE_MEMORY_MB     VULKAN_BASE_MEMORY_MB * 32
 #define VULKAN_INSTANCE_MEMORY_MB   VULKAN_BASE_MEMORY_MB * 32
 
-
 #ifdef _DEBUG
 #   define ION_VULKAN_VALIDATION_LAYER true
 #else
 #   define ION_VULKAN_VALIDATION_LAYER false
 #endif
+
+//////////////////////////////////////////////////////////////////////////
+
+
+#define DEMO_WIDTH 640
+#define DEMO_HEIGHT 480
+
 
 
 EOS_USING_NAMESPACE
@@ -91,9 +97,9 @@ int main()
     Window window;
     RenderContext renderer;
 
-    if (window.Create(WndProc, L"Ion Demo", 640, 480, false))
+    if (window.Create(WndProc, L"Ion Demo", DEMO_WIDTH, DEMO_HEIGHT, false))
     {
-        rendererInitialized = renderer.Init(window.GetInstance(), window.GetHandle(), ION_VULKAN_VALIDATION_LAYER);
+        rendererInitialized = renderer.Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER);
     }
 
     if (rendererInitialized)

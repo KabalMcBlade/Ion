@@ -10,6 +10,67 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+VkSurfaceFormatKHR RenderContext::SelectSurfaceFormat(eosVector(VkSurfaceFormatKHR)& _vkFormats) const
+{
+    VkSurfaceFormatKHR result;
+
+    if (_vkFormats.size() == 1 && _vkFormats[0].format == VK_FORMAT_UNDEFINED)
+    {
+        result.format = VK_FORMAT_B8G8R8A8_UNORM;
+        result.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+        return result;
+    }
+
+    for (ionSize i = 0; i < _vkFormats.size(); ++i)
+    {
+        VkSurfaceFormatKHR& surfaceFormat = _vkFormats[i];
+        if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM && surfaceFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+        {
+            return surfaceFormat;
+        }
+    }
+
+    return _vkFormats[0];
+}
+
+VkPresentModeKHR RenderContext::SelectPresentMode(eosVector(VkPresentModeKHR)& _vkModes) const
+{
+    for (ionSize i = 0; i < _vkModes.size(); i++)
+    {
+        if (_vkModes[i] == VK_PRESENT_MODE_MAILBOX_KHR) // I WANT THIS FOR TRIPLE BUFFERING!, BUT IF NOT POSSIBLE....
+        {
+            return VK_PRESENT_MODE_MAILBOX_KHR;
+        }
+
+        if ((_vkModes[i] != VK_PRESENT_MODE_MAILBOX_KHR) && (_vkModes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR))
+        {
+            return VK_PRESENT_MODE_IMMEDIATE_KHR;
+        }
+    }
+
+    return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+
+VkExtent2D RenderContext::SelectSurfaceExtent(VkSurfaceCapabilitiesKHR& _vkCaps, ionU32 _width, ionU32 _height) const
+{
+    VkExtent2D extent;
+
+    if (_vkCaps.currentExtent.width != std::numeric_limits<ionU32>::max())
+    {
+        extent = _vkCaps.currentExtent;
+    }
+    else 
+    {
+        extent.width = std::max(_vkCaps.minImageExtent.width, std::min(_vkCaps.maxImageExtent.width, _width));
+        extent.height = std::max(_vkCaps.minImageExtent.height, std::min(_vkCaps.maxImageExtent.height, _height));
+    }
+
+    return extent;
+}
+
+
+
 
 ionBool RenderContext::CreateInstance(ionBool _enableValidationLayer)
 {
@@ -317,17 +378,123 @@ ionBool RenderContext::CreateCommandPool()
 
 ionBool RenderContext::CreateCommandBuffer()
 {
-    return false;   // TO DO
+    {
+        VkCommandBufferAllocateInfo createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        createInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        createInfo.commandPool = m_vkCommandPool;
+        createInfo.commandBufferCount = ION_RENDER_TRIPLE_BUFFER;
+
+        VkResult result = vkAllocateCommandBuffers(m_vkDevice, &createInfo, m_vkCommandBuffers.data());
+        ionAssertReturnValue(result == VK_SUCCESS, "Cannot create command buffer!", false);
+    }
+
+    {
+        VkFenceCreateInfo createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+
+        for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i)
+        {
+            VkResult result = vkCreateFence(m_vkDevice, &createInfo, vkMemory, &m_vkCommandBufferFences[i]);
+            ionAssertReturnValue(result == VK_SUCCESS, "Cannot create fence!", false);
+        }
+    }
+
+    return true;
 }
 
-ionBool RenderContext::CreateSwapChain()
+ionBool RenderContext::CreateSwapChain(ionU32 _width, ionU32 _height, ionBool _fullScreen)
 {
-    return false;   // TO DO
+    VkSurfaceFormatKHR surfaceFormat = SelectSurfaceFormat(m_vkGPU.m_vkSurfaceFormats);
+    VkPresentModeKHR presentMode = SelectPresentMode(m_vkGPU.m_vkPresentModes);
+    VkExtent2D extent = SelectSurfaceExtent(m_vkGPU.m_vkSurfaceCaps, _width, _height);
+
+    VkSwapchainCreateInfoKHR info = {};
+    info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    info.surface = m_vkSurface;
+    info.minImageCount = ION_RENDER_TRIPLE_BUFFER;
+    info.imageFormat = surfaceFormat.format;
+    info.imageColorSpace = surfaceFormat.colorSpace;
+    info.imageExtent = extent;
+    info.imageArrayLayers = 1;
+    info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+
+    if (m_vkGraphicsFamilyIndex != m_vkPresentFamilyIndex)
+    {
+        ionU32 indices[] = { (ionU32)m_vkGraphicsFamilyIndex, (ionU32)m_vkPresentFamilyIndex };
+
+        info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+        info.queueFamilyIndexCount = 2;
+        info.pQueueFamilyIndices = indices;
+    }
+    else 
+    {
+        info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    }
+
+    info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+    info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    info.presentMode = presentMode;
+    info.clipped = VK_TRUE;
+
+    VkResult result = vkCreateSwapchainKHR(m_vkDevice, &info, vkMemory, &m_vkSwapchain);
+    ionAssertReturnValue(result == VK_SUCCESS, "Cannot create swap chain!", false);
+
+    m_vkSwapchainFormat = surfaceFormat.format;
+    m_vkPresentMode = presentMode;
+    m_vkSwapchainExtent = extent;
+    m_vkFullScreen = _fullScreen;
+
+    ionU32 numImages = 0;
+    result = vkGetSwapchainImagesKHR(m_vkDevice, m_vkSwapchain, &numImages, nullptr);
+    ionAssertReturnValue(result == VK_SUCCESS, "Cannot get swap chain image!", false);
+    ionAssertReturnValue(numImages > 0, "vkGetSwapchainImagesKHR returned a zero image count.", false);
+
+    result = vkGetSwapchainImagesKHR(m_vkDevice, m_vkSwapchain, &numImages, m_vkSwapchainImages.data());
+    ionAssertReturnValue(result == VK_SUCCESS, "Cannot get swap chain image!", false);
+    ionAssertReturnValue(numImages > 0, "vkGetSwapchainImagesKHR returned a zero image count.", false);
+
+    // Triple buffer so I've 3 images
+    for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i)
+    {
+        VkImageViewCreateInfo createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        createInfo.image = m_vkSwapchainImages[i];
+        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        createInfo.format = m_vkSwapchainFormat;
+        createInfo.components.r = VK_COMPONENT_SWIZZLE_R;
+        createInfo.components.g = VK_COMPONENT_SWIZZLE_G;
+        createInfo.components.b = VK_COMPONENT_SWIZZLE_B;
+        createInfo.components.a = VK_COMPONENT_SWIZZLE_A;
+        createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        createInfo.subresourceRange.baseMipLevel = 0;
+        createInfo.subresourceRange.levelCount = 1;
+        createInfo.subresourceRange.baseArrayLayer = 0;
+        createInfo.subresourceRange.layerCount = 1;
+        createInfo.flags = 0;
+
+        result = vkCreateImageView(m_vkDevice, &createInfo, vkMemory, &m_vkSwapchainViews[i]);
+        ionAssertReturnValue(result == VK_SUCCESS, "Cannot create image!", false);
+    }
+
+    return true;
 }
 
 void RenderContext::DestroySwapChain()
 {
+    for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i)
+    {
+        if (m_vkSwapchainViews[i] != VK_NULL_HANDLE)
+        {
+            vkDestroyImageView(m_vkDevice, m_vkSwapchainViews[i], vkMemory);
+        }
+    }
+    m_vkSwapchainViews.clear();
 
+    if (m_vkSwapchain != VK_NULL_HANDLE)
+    {
+        vkDestroySwapchainKHR(m_vkDevice, m_vkSwapchain, vkMemory);
+    }
 }
 
 ionBool RenderContext::CreateRenderTargets()
@@ -373,24 +540,37 @@ RenderContext::RenderContext() :
     m_vkGraphicsQueue(VK_NULL_HANDLE),
     m_vkPresentQueue(VK_NULL_HANDLE),
     m_vkCommandPool(VK_NULL_HANDLE),
+    m_vkSwapchain(VK_NULL_HANDLE),
+    //m_vkSwapchainFormat(VK_NULL_HANDLE),
+    //m_vkPresentMode(VK_NULL_HANDLE),
+    //m_vkSwapchainExtent(VK_NULL_HANDLE),
     m_vkGraphicsFamilyIndex(-1),
     m_vkPresentFamilyIndex(-1),
+    m_vkFullScreen(false),
     m_vkValidationEnabled(false)
 {
     m_vkAcquiringSemaphores.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
     m_vkCompletedSemaphores.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
     m_vkQueryPools.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
+    m_vkCommandBuffers.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
+    m_vkCommandBufferFences.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
+    m_vkSwapchainImages.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
+    m_vkSwapchainViews.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
 }
 
 RenderContext::~RenderContext()
 {
+    m_vkSwapchainViews.clear();
+    m_vkSwapchainImages.clear();
+    m_vkCommandBufferFences.clear();
+    m_vkCommandBuffers.clear();
     m_vkQueryPools.clear();
     m_vkCompletedSemaphores.clear();
     m_vkAcquiringSemaphores.clear();
 }
 
 
-ionBool RenderContext::Init(HINSTANCE _instance, HWND _handle, ionBool _enableValidationLayer)
+ionBool RenderContext::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer)
 {
     if (!CreateInstance(_enableValidationLayer))
     {
@@ -422,11 +602,37 @@ ionBool RenderContext::Init(HINSTANCE _instance, HWND _handle, ionBool _enableVa
         return false;
     }
 
+    if (!CreateCommandPool())
+    {
+        return false;
+    }
+
+    if(!CreateCommandBuffer())
+    {
+        return false;
+    }
+
+    if (!CreateSwapChain(_width, _height, _fullScreen))
+    {
+        return false;
+    }
     return true;
 }
 
 void RenderContext::Shutdown()
 {
+    DestroySwapChain();
+
+    for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i)
+    {
+        if (m_vkCommandBufferFences[i] != VK_NULL_HANDLE)
+        {
+            vkDestroyFence(m_vkDevice, m_vkCommandBufferFences[i], vkMemory);
+        }
+    }
+
+    // Deallocate command buffer?
+
     if (m_vkCommandPool != VK_NULL_HANDLE)
     {
         vkDestroyCommandPool(m_vkDevice, m_vkCommandPool, vkMemory);

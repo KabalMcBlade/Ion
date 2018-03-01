@@ -19,7 +19,7 @@ ION_NAMESPACE_BEGIN
 class ION_DLL RenderContext
 {
 public:
-    ionBool    Init(HINSTANCE _instance, HWND _handle, ionBool _enableValidationLayer);
+    ionBool    Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer);
     void       Shutdown();
 
     RenderContext();
@@ -30,6 +30,11 @@ private:
     RenderContext& operator = (const RenderContext&) = delete;
 
 private:
+    // Utility functions
+    VkSurfaceFormatKHR SelectSurfaceFormat(eosVector(VkSurfaceFormatKHR)& _vkFormats) const;
+    VkPresentModeKHR SelectPresentMode(eosVector(VkPresentModeKHR)& _vkModes) const;
+    VkExtent2D SelectSurfaceExtent(VkSurfaceCapabilitiesKHR& _vkCaps, ionU32 _width, ionU32 _height) const;
+
     // They are in order to call
     // No matter about the "destroy" functions. NOTE: destroy functions are added for the vulkan type worth to have own destroy function, because more complex of a single call
     ionBool CreateInstance(ionBool _enableValidationLayer);
@@ -40,7 +45,7 @@ private:
     ionBool CreateQueryPool();
     ionBool CreateCommandPool();
     ionBool CreateCommandBuffer();
-    ionBool CreateSwapChain();
+    ionBool CreateSwapChain(ionU32 _width, ionU32 _height, ionBool _fullScreen);
     void    DestroySwapChain();
     ionBool CreateRenderTargets();
     void    DestroyRenderTargets();
@@ -51,21 +56,31 @@ private:
     void    DestroyFrameBuffers();
 
 private:
-    GPU                     m_vkGPU;                  //  access through this component to get value such m_vkPhysicalDevice
-    VkDevice                m_vkDevice;
-    VkSurfaceKHR            m_vkSurface;
-    VkInstance              m_vkInstance;
-    VkQueue			        m_vkGraphicsQueue;
-    VkQueue			        m_vkPresentQueue;
-    VkCommandPool			m_vkCommandPool;
-    eosVector(VkSemaphore)	m_vkAcquiringSemaphores;
-    eosVector(VkSemaphore)	m_vkCompletedSemaphores;
-    eosVector(VkQueryPool)	m_vkQueryPools;
+    GPU                         m_vkGPU;                  //  access through this component to get value such m_vkPhysicalDevice
+    VkDevice                    m_vkDevice;
+    VkSurfaceKHR                m_vkSurface;
+    VkInstance                  m_vkInstance;
+    VkQueue			            m_vkGraphicsQueue;
+    VkQueue			            m_vkPresentQueue;
+    VkCommandPool			    m_vkCommandPool;
+    VkSwapchainKHR				m_vkSwapchain;
+    VkFormat					m_vkSwapchainFormat;
+    VkExtent2D					m_vkSwapchainExtent;
+    VkPresentModeKHR			m_vkPresentMode;
 
-    ionS32			        m_vkGraphicsFamilyIndex;
-    ionS32			        m_vkPresentFamilyIndex;
+    eosVector(VkSemaphore)	    m_vkAcquiringSemaphores;
+    eosVector(VkSemaphore)	    m_vkCompletedSemaphores;
+    eosVector(VkQueryPool)	    m_vkQueryPools;
+    eosVector(VkCommandBuffer)	m_vkCommandBuffers;
+    eosVector(VkFence)			m_vkCommandBufferFences;
+    eosVector(VkImage)			m_vkSwapchainImages;
+    eosVector(VkImageView)		m_vkSwapchainViews;
 
-    ionBool                 m_vkValidationEnabled;
+    ionS32			            m_vkGraphicsFamilyIndex;
+    ionS32			            m_vkPresentFamilyIndex;
+
+    ionBool                     m_vkFullScreen;
+    ionBool                     m_vkValidationEnabled;
 };
 
 ION_NAMESPACE_END
