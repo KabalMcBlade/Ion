@@ -196,21 +196,35 @@ ionBool RenderContext::CreateLogicalDeviceAndQueues()
 
     eosVector(VkDeviceQueueCreateInfo) deviceQueueInfo;
 
+    if (m_vkGraphicsFamilyIndex != m_vkPresentFamilyIndex)
     {
-        VkDeviceQueueCreateInfo info = {};
-        info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        info.queueFamilyIndex = m_vkGraphicsFamilyIndex;
-        info.queueCount = 1;
-        info.pQueuePriorities = &priority;
-        info.pNext = nullptr;
+        {
+            VkDeviceQueueCreateInfo info = {};
+            info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            info.queueFamilyIndex = m_vkGraphicsFamilyIndex;
+            info.queueCount = 1;
+            info.pQueuePriorities = &priority;
+            info.pNext = nullptr;
 
-        deviceQueueInfo.push_back(info);
+            deviceQueueInfo.push_back(info);
+        }
+
+        {
+            VkDeviceQueueCreateInfo info = {};
+            info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            info.queueFamilyIndex = m_vkPresentFamilyIndex;
+            info.queueCount = 1;
+            info.pQueuePriorities = &priority;
+            info.pNext = nullptr;
+
+            deviceQueueInfo.push_back(info);
+        }
     }
-
+    else
     {
         VkDeviceQueueCreateInfo info = {};
         info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        info.queueFamilyIndex = m_vkPresentFamilyIndex;
+        info.queueFamilyIndex = m_vkGraphicsFamilyIndex;        // Just one queue! because they come from the same family and Vulkan do not need 2 identical queue!
         info.queueCount = 1;
         info.pQueuePriorities = &priority;
         info.pNext = nullptr;
