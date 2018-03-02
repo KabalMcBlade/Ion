@@ -110,6 +110,7 @@ int main()
     }
 
     renderMgr.Shutdown();
+    textureMgr.Shutdown();
 
     ION_SCOPE_END
 

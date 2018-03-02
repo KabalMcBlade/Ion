@@ -667,7 +667,23 @@ ionBool RenderManager::CreateRenderTargets()
 
 void RenderManager::DestroyRenderTargets()
 {
+    if (m_vkMSAAImageView != VK_NULL_HANDLE)
+    {
+        vkDestroyImageView(m_vkDevice, m_vkMSAAImageView, vkMemory);
 
+        if (m_vkMSAAImage != VK_NULL_HANDLE)
+        {
+            vkDestroyImage(m_vkDevice, m_vkMSAAImage, vkMemory);
+            
+            /*
+            DEALLOCATE THE NEW "FURTHER" VULKAN DEVICE ALLOCATOR HERE FOR BOUND IMAGE!
+            */
+
+            m_vkMSAAImage = VK_NULL_HANDLE;
+        }
+
+        m_vkMSAAImageView = VK_NULL_HANDLE;
+    }
 }
 
 ionBool RenderManager::CreateRenderPass()

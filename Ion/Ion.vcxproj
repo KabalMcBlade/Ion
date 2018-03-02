@@ -185,7 +185,6 @@
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryFunctions.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryHeapAllocator.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryLog.h" />
-    <ClInclude Include="Renderer\VulkanDeviceMemory.h" />
     <ClInclude Include="Texture\Texture.h" />
     <ClInclude Include="Texture\TextureManager.h" />
     <ClInclude Include="Texture\TextureOptions.h" />
@@ -223,7 +222,6 @@
     <ClCompile Include="Ion.cpp" />
     <ClCompile Include="Renderer\GPU.cpp" />
     <ClCompile Include="Renderer\RenderManager.cpp" />
-    <ClCompile Include="Renderer\VulkanDeviceMemory.cpp" />
     <ClCompile Include="Scene\BaseCamera.cpp" />
     <ClCompile Include="Scene\Node.cpp" />
     <ClCompile Include="Scene\Transform.cpp" />
