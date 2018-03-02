@@ -185,10 +185,16 @@
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryFunctions.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryHeapAllocator.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryLog.h" />
+    <ClInclude Include="Renderer\VulkanDeviceMemory.h" />
+    <ClInclude Include="Texture\Texture.h" />
+    <ClInclude Include="Texture\TextureManager.h" />
+    <ClInclude Include="Texture\TextureOptions.h" />
+    <ClInclude Include="Texture\TextureCommon.h" />
     <ClInclude Include="Ion.h" />
     <ClInclude Include="Renderer\GPU.h" />
+    <ClInclude Include="Renderer\RenderCommon.h" />
     <ClInclude Include="Renderer\RenderDefs.h" />
-    <ClInclude Include="Renderer\RenderContext.h" />
+    <ClInclude Include="Renderer\RenderManager.h" />
     <ClInclude Include="Scene\BaseCamera.h" />
     <ClInclude Include="Scene\Node.h" />
     <ClInclude Include="Scene\Transform.h" />
@@ -216,11 +222,15 @@
     </ClCompile>
     <ClCompile Include="Ion.cpp" />
     <ClCompile Include="Renderer\GPU.cpp" />
-    <ClCompile Include="Renderer\RenderContext.cpp" />
+    <ClCompile Include="Renderer\RenderManager.cpp" />
+    <ClCompile Include="Renderer\VulkanDeviceMemory.cpp" />
     <ClCompile Include="Scene\BaseCamera.cpp" />
     <ClCompile Include="Scene\Node.cpp" />
     <ClCompile Include="Scene\Transform.cpp" />
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="Texture\Texture.cpp" />
+    <ClCompile Include="Texture\TextureManager.cpp" />
+    <ClCompile Include="Texture\TextureOptions.cpp" />
     <ClCompile Include="Wrapper\Memory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

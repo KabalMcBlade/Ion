@@ -13,9 +13,15 @@
 #include "Core/StandardIncludes.h"
 #include "Core/CoreDefs.h"
 
+#include "Texture/TextureCommon.h"
+#include "Texture/TextureOptions.h"
+#include "Texture/Texture.h"
+#include "Texture/TextureManager.h"
+
 #include "Renderer/RenderDefs.h"
+#include "Renderer/RenderCommon.h"
 #include "Renderer/GPU.h"
-#include "Renderer/RenderContext.h"
+#include "Renderer/RenderManager.h"
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"
