@@ -25,7 +25,7 @@ class TextureManager;
 class ION_DLL RenderManager final
 {
 public:
-    ionBool    Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer);
+    ionBool    Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize);
     void       Shutdown();
 
     RenderManager(TextureManager& _textureMgr);
@@ -64,6 +64,9 @@ private:
 
 private:
     TextureManager&             m_textureMgrRef;
+
+    vkGpuMemoryAllocator        m_gpuAllocator;
+    vkGpuMemoryAllocation       m_vkMSAAAllocation;
 
     GPU                         m_vkGPU;                  //  access through this component to get value such m_vkPhysicalDevice
     VkDevice                    m_vkDevice;

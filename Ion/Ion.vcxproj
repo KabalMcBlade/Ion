@@ -180,11 +180,14 @@
     <ClInclude Include="Dependencies\Nix\Nix\Types.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Vector.h" />
     <ClInclude Include="Dependencies\Nix\Nix\VectorHelper.h" />
+    <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuMemory.h" />
+    <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuMemoryStructs.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryAllocator.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryCoreDefs.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryFunctions.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryHeapAllocator.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryLog.h" />
+    <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkStlMemory.h" />
     <ClInclude Include="Texture\Texture.h" />
     <ClInclude Include="Texture\TextureManager.h" />
     <ClInclude Include="Texture\TextureOptions.h" />
@@ -204,6 +207,7 @@
   <ItemGroup>
     <ClCompile Include="App\Window.cpp" />
     <ClCompile Include="Dependencies\Eos\Eos\MemoryManager.cpp" />
+    <ClCompile Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuMemory.cpp" />
     <ClCompile Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryFunctions.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>

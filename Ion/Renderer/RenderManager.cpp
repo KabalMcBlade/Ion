@@ -619,33 +619,20 @@ ionBool RenderManager::CreateRenderTargets()
         VkMemoryRequirements memoryRequirements = {};
         vkGetImageMemoryRequirements(m_vkDevice, m_vkMSAAImage, &memoryRequirements);
 
+        {
+            vkGpuMemoryCreateInfo createInfo = {};
+            createInfo.m_size = memoryRequirements.size;
+            createInfo.m_align = memoryRequirements.alignment;
+            createInfo.m_memoryTypeBits = memoryRequirements.memoryTypeBits;
+            createInfo.m_usage = EMemoryUsage_GPU;
+            createInfo.m_type = EGpuMemoryType_ImageOptimal;
 
+            m_vkMSAAAllocation =  m_gpuAllocator.Alloc(createInfo);
+            ionAssertReturnValue(m_vkMSAAAllocation.m_result == VK_SUCCESS, "Cannot Allocate memory!", false);
 
-        //////////////////////////////////////////////////////////////////////////
-        /*
-            REWORK ON THIS ON THE NEW VULKAN ALLOCATOR
-        */
-
-        VkMemoryPropertyFlags properties = { VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT };
-        VkDeviceMemory imageMemory;
-
-        VkMemoryAllocateInfo allocInfo = {};
-        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        allocInfo.allocationSize = memoryRequirements.size;
-        allocInfo.memoryTypeIndex = FindMemoryType(m_vkGPU.m_vkPhysicalDevice, memoryRequirements.memoryTypeBits, properties);
-
-        result = vkAllocateMemory(m_vkDevice, &allocInfo, vkMemory, &imageMemory);
-        ionAssertReturnValue(result == VK_SUCCESS, "Filed to allocate image memory!", false);
-
-
-        result = vkBindImageMemory(m_vkDevice, m_vkMSAAImage, imageMemory, 0);
-        //result = vkBindImageMemory(m_vkDevice, m_vkMSAAImage, deviceMemory, offset);
-        ionAssertReturnValue(result == VK_SUCCESS, "Cannot bind the image memory!", false);
-
-        //////////////////////////////////////////////////////////////////////////
-
-
-
+            result = vkBindImageMemory(m_vkDevice, m_vkMSAAImage, m_vkMSAAAllocation.m_memory, m_vkMSAAAllocation.m_offset);
+            ionAssertReturnValue(result == VK_SUCCESS, "Cannot bind the image memory!", false);
+        }
 
         VkImageViewCreateInfo viewInfo = {};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -675,9 +662,8 @@ void RenderManager::DestroyRenderTargets()
         {
             vkDestroyImage(m_vkDevice, m_vkMSAAImage, vkMemory);
             
-            /*
-            DEALLOCATE THE NEW "FURTHER" VULKAN DEVICE ALLOCATOR HERE FOR BOUND IMAGE!
-            */
+            m_gpuAllocator.Free(m_vkMSAAAllocation);
+            m_vkMSAAAllocation = vkGpuMemoryAllocation();
 
             m_vkMSAAImage = VK_NULL_HANDLE;
         }
@@ -698,7 +684,7 @@ ionBool RenderManager::CreatePipelineCache()
 
 void RenderManager::DestroyPipelineCache()
 {
-
+    // TO DO
 }
 
 ionBool RenderManager::CreateFrameBuffers()
@@ -708,7 +694,7 @@ ionBool RenderManager::CreateFrameBuffers()
 
 void RenderManager::DestroyFrameBuffers()
 {
-
+    // TO DO
 }
 
 
@@ -749,7 +735,7 @@ RenderManager::~RenderManager()
 }
 
 
-ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer)
+ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize)
 {
     if (!CreateInstance(_enableValidationLayer))
     {
@@ -770,6 +756,8 @@ ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, io
     {
         return false;
     }
+
+    m_gpuAllocator.Init(m_vkGPU.m_vkPhysicalDevice, m_vkDevice, _vkDeviceLocalSize, _vkHostVisibleSize, m_vkGPU.m_vkPhysicalDeviceProps.limits.bufferImageGranularity);
 
     if (!CreateSemaphores())
     {
@@ -844,6 +832,8 @@ void RenderManager::Shutdown()
             vkDestroySemaphore(m_vkDevice, m_vkCompletedSemaphores[i], vkMemory);
         }
     }
+
+    m_gpuAllocator.Shutdown();
 
     if (m_vkDevice != VK_NULL_HANDLE)
     {

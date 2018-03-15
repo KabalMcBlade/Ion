@@ -19,13 +19,15 @@ ION_DLL void ShutdownAllocators()
 }
 
 
-ION_DLL void InitializeVulkanAllocators(vkaSize _uiSizeCommand, vkaSize _uiSizeObject, vkaSize _uiSizeCache, vkaSize _uiSizeDevice, vkaSize _uiSizeInstace)
+ION_DLL void InitializeVulkanAllocators(vkaSize _uiSizeCommand, vkaSize _uiSizeObject, vkaSize _uiSizeCache, vkaSize _uiSizeDevice, vkaSize _uiSizeInstace, vkaSize _uiGpuMaxMemoryBlocks)
 {
     vkMemoryInit(_uiSizeCommand, _uiSizeObject, _uiSizeCache, _uiSizeDevice, _uiSizeInstace);
+    vkGpuMemoryInit(_uiGpuMaxMemoryBlocks);
 }
 
 ION_DLL void ShutdownVulkanAllocators()
 {
+    vkGpuMemoryShutdown();
     vkMemoryShutdown();
 }
 
