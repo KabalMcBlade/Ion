@@ -25,7 +25,7 @@ class TextureManager;
 class ION_DLL RenderManager final
 {
 public:
-    ionBool    Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize);
+    ionBool    Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ERenderType _renderType);
     void       Shutdown();
 
     RenderManager(TextureManager& _textureMgr);
@@ -91,6 +91,8 @@ private:
     eosVector(VkFence)			m_vkCommandBufferFences;
     eosVector(VkImage)			m_vkSwapchainImages;
     eosVector(VkImageView)		m_vkSwapchainViews;
+
+    ERenderType                 m_vkRenderType;
 
     ionU32                      m_width;
     ionU32                      m_height;

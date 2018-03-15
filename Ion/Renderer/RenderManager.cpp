@@ -383,7 +383,7 @@ ionBool RenderManager::CreateSemaphores()
     VkSemaphoreCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i)
+    for (ionU32 i = 0; i < m_vkRenderType; ++i)
     {
         VkResult result = vkCreateSemaphore(m_vkDevice, &createInfo, vkMemory, &m_vkAcquiringSemaphores[i]);
         ionAssertReturnValue(result == VK_SUCCESS, "Cannot create semaphore for locking!", false);
@@ -401,7 +401,7 @@ ionBool RenderManager::CreateQueryPool()
     createInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
     createInfo.queryCount = ION_QUERY_COUNT;
 
-    for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i) 
+    for (ionU32 i = 0; i < m_vkRenderType; ++i)
     {
         VkResult result = vkCreateQueryPool(m_vkDevice, &createInfo, vkMemory, &m_vkQueryPools[i]);
         ionAssertReturnValue(result == VK_SUCCESS, "Cannot create query pool!", false);
@@ -430,7 +430,7 @@ ionBool RenderManager::CreateCommandBuffer()
         createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         createInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         createInfo.commandPool = m_vkCommandPool;
-        createInfo.commandBufferCount = ION_RENDER_TRIPLE_BUFFER;
+        createInfo.commandBufferCount = m_vkRenderType;
 
         VkResult result = vkAllocateCommandBuffers(m_vkDevice, &createInfo, m_vkCommandBuffers.data());
         ionAssertReturnValue(result == VK_SUCCESS, "Cannot create command buffer!", false);
@@ -440,7 +440,7 @@ ionBool RenderManager::CreateCommandBuffer()
         VkFenceCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 
-        for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i)
+        for (ionU32 i = 0; i < m_vkRenderType; ++i)
         {
             VkResult result = vkCreateFence(m_vkDevice, &createInfo, vkMemory, &m_vkCommandBufferFences[i]);
             ionAssertReturnValue(result == VK_SUCCESS, "Cannot create fence!", false);
@@ -462,7 +462,7 @@ ionBool RenderManager::CreateSwapChain(ionU32 _width, ionU32 _height, ionBool _f
     VkSwapchainCreateInfoKHR info = {};
     info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     info.surface = m_vkSurface;
-    info.minImageCount = ION_RENDER_TRIPLE_BUFFER;
+    info.minImageCount = m_vkRenderType;
     info.imageFormat = surfaceFormat.format;
     info.imageColorSpace = surfaceFormat.colorSpace;
     info.imageExtent = extent;
@@ -505,7 +505,7 @@ ionBool RenderManager::CreateSwapChain(ionU32 _width, ionU32 _height, ionBool _f
     ionAssertReturnValue(numImages > 0, "vkGetSwapchainImagesKHR returned a zero image count.", false);
 
     // Triple buffer so I've 3 images
-    for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i)
+    for (ionU32 i = 0; i < m_vkRenderType; ++i)
     {
         VkImageViewCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -532,7 +532,7 @@ ionBool RenderManager::CreateSwapChain(ionU32 _width, ionU32 _height, ionBool _f
 
 void RenderManager::DestroySwapChain()
 {
-    for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i)
+    for (ionU32 i = 0; i < m_vkRenderType; ++i)
     {
         if (m_vkSwapchainViews[i] != VK_NULL_HANDLE)
         {
@@ -714,13 +714,6 @@ RenderManager::RenderManager(TextureManager& _textureMgr) :
     m_vkFullScreen(false),
     m_vkValidationEnabled(false)
 {
-    m_vkAcquiringSemaphores.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
-    m_vkCompletedSemaphores.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
-    m_vkQueryPools.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
-    m_vkCommandBuffers.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
-    m_vkCommandBufferFences.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
-    m_vkSwapchainImages.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
-    m_vkSwapchainViews.resize(ION_RENDER_TRIPLE_BUFFER, VK_NULL_HANDLE);
 }
 
 RenderManager::~RenderManager()
@@ -735,8 +728,16 @@ RenderManager::~RenderManager()
 }
 
 
-ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize)
+ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ERenderType _renderType)
 {
+    m_vkAcquiringSemaphores.resize(_renderType, VK_NULL_HANDLE);
+    m_vkCompletedSemaphores.resize(_renderType, VK_NULL_HANDLE);
+    m_vkQueryPools.resize(_renderType, VK_NULL_HANDLE);
+    m_vkCommandBuffers.resize(_renderType, VK_NULL_HANDLE);
+    m_vkCommandBufferFences.resize(_renderType, VK_NULL_HANDLE);
+    m_vkSwapchainImages.resize(_renderType, VK_NULL_HANDLE);
+    m_vkSwapchainViews.resize(_renderType, VK_NULL_HANDLE);
+
     if (!CreateInstance(_enableValidationLayer))
     {
         return false;
@@ -798,7 +799,7 @@ void RenderManager::Shutdown()
 
     DestroySwapChain();
 
-    for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i)
+    for (ionU32 i = 0; i < m_vkRenderType; ++i)
     {
         if (m_vkCommandBufferFences[i] != VK_NULL_HANDLE)
         {
@@ -813,7 +814,7 @@ void RenderManager::Shutdown()
         vkDestroyCommandPool(m_vkDevice, m_vkCommandPool, vkMemory);
     }
 
-    for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i)
+    for (ionU32 i = 0; i < m_vkRenderType; ++i)
     {
         if (m_vkQueryPools[i] != VK_NULL_HANDLE)
         {
@@ -821,7 +822,7 @@ void RenderManager::Shutdown()
         }
     }
 
-    for (ionU32 i = 0; i < ION_RENDER_TRIPLE_BUFFER; ++i)
+    for (ionU32 i = 0; i < m_vkRenderType; ++i)
     {
         if (m_vkAcquiringSemaphores[i] != VK_NULL_HANDLE)
         {
