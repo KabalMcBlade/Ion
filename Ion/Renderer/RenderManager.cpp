@@ -674,17 +674,80 @@ void RenderManager::DestroyRenderTargets()
 
 ionBool RenderManager::CreateRenderPass()
 {
-    return false;   // TO DO
+    VkAttachmentDescription attachments[3];
+    memset(attachments, 0, sizeof(attachments));
+
+    const ionBool resolve = m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT;
+
+    VkAttachmentDescription& colorAttachment = attachments[0];
+    colorAttachment.format = m_vkSwapchainFormat;
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    VkAttachmentDescription& depthAttachment = attachments[1];
+    depthAttachment.format = m_vkDepthFormat;
+    depthAttachment.samples = m_vkSampleCount;
+    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentDescription& resolveAttachment = attachments[2];
+    resolveAttachment.format = m_vkSwapchainFormat;
+    resolveAttachment.samples = m_vkSampleCount;
+    resolveAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    resolveAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    resolveAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    resolveAttachment.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    VkAttachmentReference colorRef = {};
+    colorRef.attachment = resolve ? 2 : 0;
+    colorRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference depthRef = {};
+    depthRef.attachment = 1;
+    depthRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference resolveRef = {};
+    resolveRef.attachment = 0;
+    resolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkSubpassDescription subpass = {};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorRef;
+    subpass.pDepthStencilAttachment = &depthRef;
+    if (resolve) 
+    {
+        subpass.pResolveAttachments = &resolveRef;
+    }
+
+    VkRenderPassCreateInfo renderPassCreateInfo = {};
+    renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassCreateInfo.attachmentCount = resolve ? 3 : 2;
+    renderPassCreateInfo.pAttachments = attachments;
+    renderPassCreateInfo.subpassCount = 1;
+    renderPassCreateInfo.pSubpasses = &subpass;
+    renderPassCreateInfo.dependencyCount = 0;
+
+    VkResult result = vkCreateRenderPass(m_vkDevice, &renderPassCreateInfo, vkMemory, &m_vkRenderPass);
+    ionAssertReturnValue(result == VK_SUCCESS, "Cannot create render pass!", false);
+
+    return true;
 }
 
 ionBool RenderManager::CreatePipelineCache()
 {
-    return false;   // TO DO
-}
+    VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
+    pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
 
-void RenderManager::DestroyPipelineCache()
-{
-    // TO DO
+    VkResult result = vkCreatePipelineCache(m_vkDevice, &pipelineCacheCreateInfo, vkMemory, &m_vkPipelineCache);
+    ionAssertReturnValue(result == VK_SUCCESS, "Cannot create pipeline cache!", false);
+
+    return true;
 }
 
 ionBool RenderManager::CreateFrameBuffers()
@@ -697,7 +760,6 @@ void RenderManager::DestroyFrameBuffers()
     // TO DO
 }
 
-
 RenderManager::RenderManager(TextureManager& _textureMgr) :
     m_textureMgrRef(_textureMgr),
     m_vkDevice(VK_NULL_HANDLE),
@@ -709,6 +771,8 @@ RenderManager::RenderManager(TextureManager& _textureMgr) :
     m_vkSwapchain(VK_NULL_HANDLE),
     m_vkMSAAImage(VK_NULL_HANDLE),
     m_vkMSAAImageView(VK_NULL_HANDLE),
+    m_vkRenderPass(VK_NULL_HANDLE),
+    m_vkPipelineCache(VK_NULL_HANDLE),
     m_vkGraphicsFamilyIndex(-1),
     m_vkPresentFamilyIndex(-1),
     m_vkFullScreen(false),
@@ -795,6 +859,16 @@ ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, io
 
 void RenderManager::Shutdown()
 {
+    if (m_vkPipelineCache != VK_NULL_HANDLE)
+    {
+        vkDestroyPipelineCache(m_vkDevice, m_vkPipelineCache, vkMemory);
+    }
+
+    if (m_vkRenderPass != VK_NULL_HANDLE)
+    {
+        vkDestroyRenderPass(m_vkDevice, m_vkRenderPass, vkMemory);
+    }
+
     DestroyRenderTargets();
 
     DestroySwapChain();

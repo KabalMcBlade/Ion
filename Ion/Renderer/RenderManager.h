@@ -58,7 +58,6 @@ private:
     void    DestroyRenderTargets();
     ionBool CreateRenderPass();
     ionBool CreatePipelineCache();
-    void    DestroyPipelineCache();
     ionBool CreateFrameBuffers();
     void    DestroyFrameBuffers();
 
@@ -83,6 +82,8 @@ private:
     VkFormat					m_vkDepthFormat;
     VkImage						m_vkMSAAImage;
     VkImageView					m_vkMSAAImageView;
+    VkRenderPass				m_vkRenderPass;
+    VkPipelineCache				m_vkPipelineCache;
 
     eosVector(VkSemaphore)	    m_vkAcquiringSemaphores;
     eosVector(VkSemaphore)	    m_vkCompletedSemaphores;
