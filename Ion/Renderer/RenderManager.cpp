@@ -752,12 +752,47 @@ ionBool RenderManager::CreatePipelineCache()
 
 ionBool RenderManager::CreateFrameBuffers()
 {
-    return false;   // TO DO
+    VkImageView attachments[3] = {};
+
+    // depth attachment is the same
+    Texture* depthTexture = m_textureMgrRef.GetTexture("_ION_ViewDepth");
+
+    ionAssertReturnValue(depthTexture != nullptr, "No view depth texture found.", false);
+
+    attachments[1] = depthTexture->GetView();
+
+    const ionBool resolve = m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT;
+    if (resolve)
+    {
+        attachments[2] = m_vkMSAAImageView;
+    }
+
+    VkFramebufferCreateInfo frameBufferCreateInfo = {};
+    frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    frameBufferCreateInfo.renderPass = m_vkRenderPass;
+    frameBufferCreateInfo.attachmentCount = resolve ? 3 : 2;
+    frameBufferCreateInfo.pAttachments = attachments;
+    frameBufferCreateInfo.width = m_width;
+    frameBufferCreateInfo.height = m_height;
+    frameBufferCreateInfo.layers = 1;
+
+    for (ionU32 i = 0; i < m_vkRenderType; ++i)
+    {
+        attachments[0] = m_vkSwapchainViews[i];
+        VkResult result = vkCreateFramebuffer(m_vkDevice, &frameBufferCreateInfo, vkMemory, &m_vkFrameBuffers[i]);
+        ionAssertReturnValue(result == VK_SUCCESS, "Impossible to create frame buffer.", false);
+    }
+
+    return true;
 }
 
 void RenderManager::DestroyFrameBuffers()
 {
-    // TO DO
+    for (ionU32 i = 0; i < m_vkRenderType; ++i)
+    {
+        vkDestroyFramebuffer(m_vkDevice, m_vkFrameBuffers[i], vkMemory);
+    }
+    m_vkFrameBuffers.clear();
 }
 
 RenderManager::RenderManager(TextureManager& _textureMgr) :
@@ -782,6 +817,7 @@ RenderManager::RenderManager(TextureManager& _textureMgr) :
 
 RenderManager::~RenderManager()
 {
+    m_vkFrameBuffers.clear();
     m_vkSwapchainViews.clear();
     m_vkSwapchainImages.clear();
     m_vkCommandBufferFences.clear();
@@ -794,6 +830,8 @@ RenderManager::~RenderManager()
 
 ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ERenderType _renderType)
 {
+    m_vkRenderType = _renderType;
+
     m_vkAcquiringSemaphores.resize(_renderType, VK_NULL_HANDLE);
     m_vkCompletedSemaphores.resize(_renderType, VK_NULL_HANDLE);
     m_vkQueryPools.resize(_renderType, VK_NULL_HANDLE);
@@ -801,6 +839,7 @@ ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, io
     m_vkCommandBufferFences.resize(_renderType, VK_NULL_HANDLE);
     m_vkSwapchainImages.resize(_renderType, VK_NULL_HANDLE);
     m_vkSwapchainViews.resize(_renderType, VK_NULL_HANDLE);
+    m_vkFrameBuffers.resize(_renderType, VK_NULL_HANDLE);
 
     if (!CreateInstance(_enableValidationLayer))
     {
@@ -854,11 +893,28 @@ ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, io
         return false;
     }
 
+    if (!CreateRenderPass())
+    {
+        return false;
+    }
+
+    if (!CreatePipelineCache())
+    {
+        return false;
+    }
+ 
+    if (!CreateFrameBuffers())
+    {
+        return false;
+    }
+
     return true;
 }
 
 void RenderManager::Shutdown()
 {
+    DestroyFrameBuffers();
+
     if (m_vkPipelineCache != VK_NULL_HANDLE)
     {
         vkDestroyPipelineCache(m_vkDevice, m_vkPipelineCache, vkMemory);

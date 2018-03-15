@@ -92,6 +92,7 @@ private:
     eosVector(VkFence)			m_vkCommandBufferFences;
     eosVector(VkImage)			m_vkSwapchainImages;
     eosVector(VkImageView)		m_vkSwapchainViews;
+    eosVector(VkFramebuffer)	m_vkFrameBuffers;
 
     ERenderType                 m_vkRenderType;
 
