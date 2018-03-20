@@ -20,7 +20,7 @@ enum ETextureSamplesPerBit
     ETextureSamplesPerBit_8  = 0b00001000,
     ETextureSamplesPerBit_16 = 0b00010000,
     ETextureSamplesPerBit_32 = 0b00100000,
-    ETextureSamplesPerBit_64 = 0b01000000,
+    ETextureSamplesPerBit_64 = 0b01000000
 };
 
 enum ETextureFormat 
@@ -44,20 +44,45 @@ enum ETextureFormat
     ETextureFormat_DXT5,	// 8 bpp
 
     // depth buffer
-    ETextureFormat_Depth,   // 24 bpp
-
-    // Other not-standard but widely supported
-    ETextureFormat_X16,			// 16 bpp
-    ETextureFormat_Y16_X16,		// 32 bpp
-    ETextureFormat_RGB565,		// 16 bpp
+    ETextureFormat_Depth    // 24 bpp
 };
 
 enum ETextureColor
 {
     ETextureColor_Default   = 0,	// RGBA
     ETextureColor_Normal_DXT5,		// XY format and use the fast DXT5 compressor
-    ETextureColor_YCOCG_DXT5,		// convert RGBA to CoCg_Y format
     ETextureColor_Green_To_Aalpha	// Copy the alpha channel to green
 };
+
+ enum ETextureUsage
+ {
+    ETextureUsage_Specular,			// maybe compressed, and always zeros the alpha channel
+    ETextureUsage_Diffuse,			// maybe compressed
+    ETextureUsage_Default,			// RGBA texture
+    ETextureUsage_Bump,				// maybe compressed with 8 bit lookup
+    ETextureUsage_Font,				// Font image
+    ETextureUsage_Light,			// Light image
+    ETextureUsage_LookUp_Mono,	    // Mono lookup table (including alpha) used for falloff for instance
+    ETextureUsage_LookUp_Alpha,	    // Alpha lookup table with a white color channel
+    ETextureUsage_LookUp_RGB1,	    // RGB lookup table with a solid white alpha
+    ETextureUsage_LookUp_RGBA,	    // RGBA lookup table
+    ETextureUsage_Coverage,			// coverage map for fill depth pass when YCoCG is used
+    ETextureUsage_Depth,			// depth buffer copy for motion blur
+};
+
+ enum ETextureFilter
+ {
+     ETextureFilter_Linear,
+     ETextureFilter_Nearest,
+     ETextureFilter_Default
+ };
+
+ enum ETextureRepeat
+ {
+     ETextureRepeat_Repeat,
+     ETextureRepeat_Clamp,
+     ETextureRepeat_ClampZero,	// guarantee 0,0,0,255 edge for projected textures
+     ETextureRepeat_ClampAlpha	// guarantee 0 alpha edge for projected textures
+ };
 
 ION_NAMESPACE_END

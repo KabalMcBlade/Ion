@@ -196,7 +196,7 @@
     <ClInclude Include="Renderer\GPU.h" />
     <ClInclude Include="Renderer\RenderCommon.h" />
     <ClInclude Include="Renderer\RenderDefs.h" />
-    <ClInclude Include="Renderer\RenderManager.h" />
+    <ClInclude Include="Renderer\RenderCore.h" />
     <ClInclude Include="Scene\BaseCamera.h" />
     <ClInclude Include="Scene\Node.h" />
     <ClInclude Include="Scene\Transform.h" />
@@ -225,7 +225,7 @@
     </ClCompile>
     <ClCompile Include="Ion.cpp" />
     <ClCompile Include="Renderer\GPU.cpp" />
-    <ClCompile Include="Renderer\RenderManager.cpp" />
+    <ClCompile Include="Renderer\RenderCore.cpp" />
     <ClCompile Include="Scene\BaseCamera.cpp" />
     <ClCompile Include="Scene\Node.cpp" />
     <ClCompile Include="Scene\Transform.cpp" />

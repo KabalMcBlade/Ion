@@ -22,18 +22,20 @@ ION_NAMESPACE_BEGIN
 
 class TextureManager;
 
-class ION_DLL RenderManager final
+class ION_DLL RenderCore final
 {
 public:
     ionBool    Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ERenderType _renderType);
     void       Shutdown();
 
-    RenderManager(TextureManager& _textureMgr);
-    ~RenderManager();
+    RenderCore();
+    ~RenderCore();
+
+    vkGpuMemoryAllocator& GetGpuAllocator() { return m_gpuAllocator; }
 
 private:
-    RenderManager(const RenderManager& _Orig) = delete;
-    RenderManager& operator = (const RenderManager&) = delete;
+    RenderCore(const RenderCore& _Orig) = delete;
+    RenderCore& operator = (const RenderCore&) = delete;
 
 private:
     // Utility functions
@@ -62,8 +64,6 @@ private:
     void    DestroyFrameBuffers();
 
 private:
-    TextureManager&             m_textureMgrRef;
-
     vkGpuMemoryAllocator        m_gpuAllocator;
     vkGpuMemoryAllocation       m_vkMSAAAllocation;
 

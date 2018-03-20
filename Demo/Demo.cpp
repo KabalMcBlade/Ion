@@ -101,13 +101,13 @@ int main()
 
     ionBool rendererInitialized = false;
     Window window;
-    TextureManager textureMgr;
-    RenderManager renderMgr(textureMgr);
+    
+    RenderCore renderCore;
 
     if (window.Create(WndProc, L"Ion Demo", DEMO_WIDTH, DEMO_HEIGHT, false))
     {
-        textureMgr.Init(ion::ETextureSamplesPerBit_16);
-        rendererInitialized = renderMgr.Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, ERenderType_TripleBuffer);
+        ionTextureManger().Init(ion::ETextureSamplesPerBit_16, renderCore);
+        rendererInitialized = renderCore.Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, ERenderType_TripleBuffer);
     }
 
     if (rendererInitialized)
@@ -115,8 +115,8 @@ int main()
         window.Loop();
     }
 
-    renderMgr.Shutdown();
-    textureMgr.Shutdown();
+    renderCore.Shutdown();
+    ionTextureManger().Shutdown();
 
     ION_SCOPE_END
 

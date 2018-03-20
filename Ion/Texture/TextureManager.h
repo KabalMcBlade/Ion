@@ -12,30 +12,38 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+class RenderCore;
+
 class ION_DLL TextureManager final
 {
 public:
     TextureManager();
     ~TextureManager();
 
-    void        Init(ETextureSamplesPerBit _textureSample);
+    ION_NO_INLINE static TextureManager& Instance();
+
+    void        Init(ETextureSamplesPerBit _textureSample, RenderCore& _renderCore);
     void        Shutdown();
 
-    Texture*    CreateTextureFromOptions(const eosString& _name, const TextureOptions& _options);
+    Texture*    CreateTextureFromOptions(VkDevice _vkDevice, const eosString& _name, const TextureOptions& _options);
     Texture*    GetTexture(const eosString& _name) const;
 
     const ETextureSamplesPerBit& GetMainSamplePerBits() const { return m_mainSamplesPerBit; }
 
 private:
-    Texture*    CreateTexture(const eosString& _name);
+    Texture*    CreateTexture(VkDevice _vkDevice, const eosString& _name);
     void        DestroyTexture(Texture* _texture);
     void        DestroyTexture(ionSize _hash);
 
 private:
     eosMap(ionSize, Texture*) m_hashTexture;
 
+    RenderCore* m_RenderCorePtr;
+
     ETextureSamplesPerBit m_mainSamplesPerBit;
 };
 
-
 ION_NAMESPACE_END
+
+
+#define ionTextureManger() TextureManager::Instance()

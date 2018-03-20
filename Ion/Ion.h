@@ -21,7 +21,7 @@
 #include "Renderer/RenderDefs.h"
 #include "Renderer/RenderCommon.h"
 #include "Renderer/GPU.h"
-#include "Renderer/RenderManager.h"
+#include "Renderer/RenderCore.h"
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"
@@ -32,6 +32,7 @@
 #include "App/Window.h"
 
 ION_NAMESPACE_BEGIN
+
 
 // External Linkage Class 
 class ION_DLL Linkage

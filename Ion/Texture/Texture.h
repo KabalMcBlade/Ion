@@ -18,7 +18,7 @@ ION_NAMESPACE_BEGIN
 class Texture final
 {
 public:
-    Texture(const eosString& _name);
+    Texture(VkDevice _vkDevice, const eosString& _name);
     ~Texture();
 
     const eosString& GetName() const { return m_name; }
@@ -33,8 +33,19 @@ public:
 
 private:
     eosString       m_name;
+    VkDevice        m_vkDevice;
     TextureOptions	m_options;
     VkImageView		m_view;
+    VkFormat		m_format;
+    VkImage			m_image;
+    VkImageLayout	m_layout;
+    VkSampler		m_sampler;
+    ETextureUsage	m_usage;
+    ETextureFilter	m_filter;
+    ETextureRepeat	m_repeat;
+    ionBool         m_isCubeMap;
+    ionBool			m_isSwapChainImage;
+    ionBool			m_isProvedurallyGenerated;
 };
 
 

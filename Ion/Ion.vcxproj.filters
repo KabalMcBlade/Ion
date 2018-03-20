@@ -144,9 +144,6 @@
     <ClInclude Include="Texture\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\RenderManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuMemoryStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -154,6 +151,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkStlMemory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderCore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -200,10 +200,10 @@
     <ClCompile Include="Texture\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\RenderManager.cpp">
+    <ClCompile Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuMemory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuMemory.cpp">
+    <ClCompile Include="Renderer\RenderCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,5 +1,6 @@
 #include "TextureManager.h"
 
+#include "../Renderer/RenderCore.h"
 
 EOS_USING_NAMESPACE
 
@@ -8,16 +9,21 @@ ION_NAMESPACE_BEGIN
 
 TextureManager::TextureManager()
 {
-
 }
 
 TextureManager::~TextureManager()
 {
-
 }
 
-void TextureManager::Init(ETextureSamplesPerBit _textureSample)
+TextureManager& TextureManager::Instance()
 {
+    static TextureManager instance;
+    return instance;
+}
+
+void TextureManager::Init(ETextureSamplesPerBit _textureSample, RenderCore& _renderCore)
+{
+    m_RenderCorePtr = &_renderCore;
     m_mainSamplesPerBit = _textureSample;
 }
 
@@ -32,7 +38,7 @@ void TextureManager::Shutdown()
     m_hashTexture.clear();
 }
 
-Texture* TextureManager::CreateTextureFromOptions(const eosString& _name, const TextureOptions& _options)
+Texture* TextureManager::CreateTextureFromOptions(VkDevice _vkDevice, const eosString& _name, const TextureOptions& _options)
 {
     if (_name.empty())
     {
@@ -42,7 +48,7 @@ Texture* TextureManager::CreateTextureFromOptions(const eosString& _name, const 
     Texture* texture = GetTexture(_name);
     if (texture == nullptr)
     {
-        texture = CreateTexture(_name);
+        texture = CreateTexture(_vkDevice, _name);
     }
     else 
     {
@@ -75,7 +81,7 @@ Texture* TextureManager::GetTexture(const eosString& _name) const
     }
 }
 
-Texture* TextureManager::CreateTexture(const eosString& _name)
+Texture* TextureManager::CreateTexture(VkDevice _vkDevice, const eosString& _name)
 {
     if (_name.empty())
     {
@@ -88,7 +94,7 @@ Texture* TextureManager::CreateTexture(const eosString& _name)
     auto search = m_hashTexture.find(hash);
     ionAssert(!(search != m_hashTexture.end()), "An image with the same name has already added!");
 
-    Texture* texture = eosNew(Texture, EOS_MEMORY_ALIGNMENT_SIZE, _name);
+    Texture* texture = eosNew(Texture, EOS_MEMORY_ALIGNMENT_SIZE, _vkDevice, _name);
 
     m_hashTexture[hash] = texture;
 

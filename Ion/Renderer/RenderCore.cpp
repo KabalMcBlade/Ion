@@ -1,4 +1,4 @@
-#include "RenderManager.h"
+#include "RenderCore.h"
 
 #include "RenderDefs.h"
 
@@ -14,8 +14,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-
-VkSurfaceFormatKHR RenderManager::SelectSurfaceFormat(eosVector(VkSurfaceFormatKHR)& _vkFormats) const
+VkSurfaceFormatKHR RenderCore::SelectSurfaceFormat(eosVector(VkSurfaceFormatKHR)& _vkFormats) const
 {
     VkSurfaceFormatKHR result;
 
@@ -38,7 +37,7 @@ VkSurfaceFormatKHR RenderManager::SelectSurfaceFormat(eosVector(VkSurfaceFormatK
     return _vkFormats[0];
 }
 
-VkPresentModeKHR RenderManager::SelectPresentMode(eosVector(VkPresentModeKHR)& _vkModes) const
+VkPresentModeKHR RenderCore::SelectPresentMode(eosVector(VkPresentModeKHR)& _vkModes) const
 {
     for (ionSize i = 0; i < _vkModes.size(); i++)
     {
@@ -57,7 +56,7 @@ VkPresentModeKHR RenderManager::SelectPresentMode(eosVector(VkPresentModeKHR)& _
 }
 
 
-VkExtent2D RenderManager::SelectSurfaceExtent(VkSurfaceCapabilitiesKHR& _vkCaps, ionU32 _width, ionU32 _height) const
+VkExtent2D RenderCore::SelectSurfaceExtent(VkSurfaceCapabilitiesKHR& _vkCaps, ionU32 _width, ionU32 _height) const
 {
     VkExtent2D extent;
 
@@ -74,7 +73,7 @@ VkExtent2D RenderManager::SelectSurfaceExtent(VkSurfaceCapabilitiesKHR& _vkCaps,
     return extent;
 }
 
-VkFormat RenderManager::SelectSupportedFormat(VkPhysicalDevice _vkPhysicalDevice, VkFormat* _vkFormats, ionU32 _vkNumFormats, VkImageTiling _vkTiling, VkFormatFeatureFlags _vkFeatures) const
+VkFormat RenderCore::SelectSupportedFormat(VkPhysicalDevice _vkPhysicalDevice, VkFormat* _vkFormats, ionU32 _vkNumFormats, VkImageTiling _vkTiling, VkFormatFeatureFlags _vkFeatures) const
 {
     for (ionU32 i = 0; i < _vkNumFormats; ++i)
     {
@@ -119,7 +118,7 @@ ionU32 FindMemoryType(VkPhysicalDevice _vkPhysicalDevice, ionU32 typeFilter, VkM
 
 //////////////////////////////////////////////////////////////////////////
 
-ionBool RenderManager::CreateInstance(ionBool _enableValidationLayer)
+ionBool RenderCore::CreateInstance(ionBool _enableValidationLayer)
 {
     m_vkValidationEnabled = _enableValidationLayer;
 
@@ -177,7 +176,7 @@ ionBool RenderManager::CreateInstance(ionBool _enableValidationLayer)
     return (result == VK_SUCCESS);
 }
 
-ionBool RenderManager::CreatePresentationSurface(HINSTANCE _instance, HWND _handle)
+ionBool RenderCore::CreatePresentationSurface(HINSTANCE _instance, HWND _handle)
 {
     VkWin32SurfaceCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -189,7 +188,7 @@ ionBool RenderManager::CreatePresentationSurface(HINSTANCE _instance, HWND _hand
     return (vkCreateWin32SurfaceKHR(m_vkInstance, &createInfo, vkMemory, &m_vkSurface) == VK_SUCCESS);
 }
 
-ionBool RenderManager::CreatePhysicalDevice()
+ionBool RenderCore::CreatePhysicalDevice()
 {
     ionU32 numDevices = 0;
 
@@ -294,7 +293,7 @@ ionBool RenderManager::CreatePhysicalDevice()
     return (m_vkGraphicsFamilyIndex > -1 && m_vkPresentFamilyIndex > -1);
 }
 
-ionBool RenderManager::CreateLogicalDeviceAndQueues()
+ionBool RenderCore::CreateLogicalDeviceAndQueues()
 {
     const ionFloat priority = 1.0f;
 
@@ -378,7 +377,7 @@ ionBool RenderManager::CreateLogicalDeviceAndQueues()
     return true;
 }
 
-ionBool RenderManager::CreateSemaphores()
+ionBool RenderCore::CreateSemaphores()
 {
     VkSemaphoreCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -394,7 +393,7 @@ ionBool RenderManager::CreateSemaphores()
     return true;
 }
 
-ionBool RenderManager::CreateQueryPool()
+ionBool RenderCore::CreateQueryPool()
 {
     VkQueryPoolCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
@@ -410,7 +409,7 @@ ionBool RenderManager::CreateQueryPool()
     return true;
 }
 
-ionBool RenderManager::CreateCommandPool()
+ionBool RenderCore::CreateCommandPool()
 {
     VkCommandPoolCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -423,7 +422,7 @@ ionBool RenderManager::CreateCommandPool()
     return true;
 }
 
-ionBool RenderManager::CreateCommandBuffer()
+ionBool RenderCore::CreateCommandBuffer()
 {
     {
         VkCommandBufferAllocateInfo createInfo = {};
@@ -450,7 +449,7 @@ ionBool RenderManager::CreateCommandBuffer()
     return true;
 }
 
-ionBool RenderManager::CreateSwapChain(ionU32 _width, ionU32 _height, ionBool _fullScreen)
+ionBool RenderCore::CreateSwapChain(ionU32 _width, ionU32 _height, ionBool _fullScreen)
 {
     m_width = _width;
     m_height = _height;
@@ -530,7 +529,7 @@ ionBool RenderManager::CreateSwapChain(ionU32 _width, ionU32 _height, ionBool _f
     return true;
 }
 
-void RenderManager::DestroySwapChain()
+void RenderCore::DestroySwapChain()
 {
     for (ionU32 i = 0; i < m_vkRenderType; ++i)
     {
@@ -547,13 +546,13 @@ void RenderManager::DestroySwapChain()
     }
 }
 
-ionBool RenderManager::CreateRenderTargets()
+ionBool RenderCore::CreateRenderTargets()
 {
     // Determine samples before creating depth
     VkImageFormatProperties formatProperties = {};
     vkGetPhysicalDeviceImageFormatProperties(m_vkGPU.m_vkPhysicalDevice, m_vkSwapchainFormat, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, 0, &formatProperties);
 
-    const ETextureSamplesPerBit samples = m_textureMgrRef.GetMainSamplePerBits();
+    const ETextureSamplesPerBit samples = ionTextureManger().GetMainSamplePerBits();
     if (samples >= ETextureSamplesPerBit_64 && (formatProperties.sampleCounts & VK_SAMPLE_COUNT_64_BIT))
     {
         m_vkSampleCount = VK_SAMPLE_COUNT_64_BIT;
@@ -593,7 +592,7 @@ ionBool RenderManager::CreateRenderTargets()
     depthTextureOptions.m_numLevels = 1;
     depthTextureOptions.m_samples = static_cast<ETextureSamplesPerBit>(m_vkSampleCount);
 
-    m_textureMgrRef.CreateTextureFromOptions("_ION_ViewDepth", depthTextureOptions);
+    ionTextureManger().CreateTextureFromOptions(m_vkDevice, "_ION_ViewDepth", depthTextureOptions);
 
     if (m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT) 
     {
@@ -652,7 +651,7 @@ ionBool RenderManager::CreateRenderTargets()
     return true;
 }
 
-void RenderManager::DestroyRenderTargets()
+void RenderCore::DestroyRenderTargets()
 {
     if (m_vkMSAAImageView != VK_NULL_HANDLE)
     {
@@ -672,7 +671,7 @@ void RenderManager::DestroyRenderTargets()
     }
 }
 
-ionBool RenderManager::CreateRenderPass()
+ionBool RenderCore::CreateRenderPass()
 {
     VkAttachmentDescription attachments[3];
     memset(attachments, 0, sizeof(attachments));
@@ -739,7 +738,7 @@ ionBool RenderManager::CreateRenderPass()
     return true;
 }
 
-ionBool RenderManager::CreatePipelineCache()
+ionBool RenderCore::CreatePipelineCache()
 {
     VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
     pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
@@ -750,12 +749,12 @@ ionBool RenderManager::CreatePipelineCache()
     return true;
 }
 
-ionBool RenderManager::CreateFrameBuffers()
+ionBool RenderCore::CreateFrameBuffers()
 {
     VkImageView attachments[3] = {};
 
     // depth attachment is the same
-    Texture* depthTexture = m_textureMgrRef.GetTexture("_ION_ViewDepth");
+    Texture* depthTexture = ionTextureManger().GetTexture("_ION_ViewDepth");
 
     ionAssertReturnValue(depthTexture != nullptr, "No view depth texture found.", false);
 
@@ -786,7 +785,7 @@ ionBool RenderManager::CreateFrameBuffers()
     return true;
 }
 
-void RenderManager::DestroyFrameBuffers()
+void RenderCore::DestroyFrameBuffers()
 {
     for (ionU32 i = 0; i < m_vkRenderType; ++i)
     {
@@ -795,8 +794,7 @@ void RenderManager::DestroyFrameBuffers()
     m_vkFrameBuffers.clear();
 }
 
-RenderManager::RenderManager(TextureManager& _textureMgr) :
-    m_textureMgrRef(_textureMgr),
+RenderCore::RenderCore() :
     m_vkDevice(VK_NULL_HANDLE),
     m_vkSurface(VK_NULL_HANDLE),
     m_vkInstance(VK_NULL_HANDLE),
@@ -815,7 +813,7 @@ RenderManager::RenderManager(TextureManager& _textureMgr) :
 {
 }
 
-RenderManager::~RenderManager()
+RenderCore::~RenderCore()
 {
     m_vkFrameBuffers.clear();
     m_vkSwapchainViews.clear();
@@ -828,7 +826,7 @@ RenderManager::~RenderManager()
 }
 
 
-ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ERenderType _renderType)
+ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ERenderType _renderType)
 {
     m_vkRenderType = _renderType;
 
@@ -911,7 +909,7 @@ ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, io
     return true;
 }
 
-void RenderManager::Shutdown()
+void RenderCore::Shutdown()
 {
     DestroyFrameBuffers();
 
