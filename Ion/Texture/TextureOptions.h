@@ -1,5 +1,8 @@
 #pragma once
 
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <vulkan/vulkan.h>
+
 #include "../Core/CoreDefs.h"
 
 #include "TextureCommon.h"
@@ -13,6 +16,8 @@ struct TextureOptions final
     ~TextureOptions();
 
     ionBool	operator==(const TextureOptions& _other);
+
+    VkFormat                m_vkDepthFormat;
 
     ETextureType		    m_textureType;
     ETextureSamplesPerBit	m_samples;

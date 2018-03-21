@@ -17,12 +17,15 @@ class RenderCore;
 class ION_DLL TextureManager final
 {
 public:
-    TextureManager();
-    ~TextureManager();
+    ION_NO_INLINE static void Create();
+    ION_NO_INLINE static void Destroy();
 
     ION_NO_INLINE static TextureManager& Instance();
 
-    void        Init(ETextureSamplesPerBit _textureSample, RenderCore& _renderCore);
+    TextureManager();
+    ~TextureManager();
+
+    void        Init(ETextureSamplesPerBit _textureSample);
     void        Shutdown();
 
     Texture*    CreateTextureFromOptions(VkDevice _vkDevice, const eosString& _name, const TextureOptions& _options);
@@ -38,9 +41,9 @@ private:
 private:
     eosMap(ionSize, Texture*) m_hashTexture;
 
-    RenderCore* m_RenderCorePtr;
-
     ETextureSamplesPerBit m_mainSamplesPerBit;
+
+    static TextureManager *s_instance;
 };
 
 ION_NAMESPACE_END

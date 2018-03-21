@@ -13,6 +13,8 @@
 #include "Core/StandardIncludes.h"
 #include "Core/CoreDefs.h"
 
+#include "Renderer/GPUMemoryManager.h"
+
 #include "Texture/TextureCommon.h"
 #include "Texture/TextureOptions.h"
 #include "Texture/Texture.h"

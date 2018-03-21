@@ -31,8 +31,6 @@ public:
     RenderCore();
     ~RenderCore();
 
-    vkGpuMemoryAllocator& GetGpuAllocator() { return m_gpuAllocator; }
-
 private:
     RenderCore(const RenderCore& _Orig) = delete;
     RenderCore& operator = (const RenderCore&) = delete;
@@ -64,9 +62,7 @@ private:
     void    DestroyFrameBuffers();
 
 private:
-    vkGpuMemoryAllocator        m_gpuAllocator;
     vkGpuMemoryAllocation       m_vkMSAAAllocation;
-
     GPU                         m_vkGPU;                  //  access through this component to get value such m_vkPhysicalDevice
     VkDevice                    m_vkDevice;
     VkSurfaceKHR                m_vkSurface;

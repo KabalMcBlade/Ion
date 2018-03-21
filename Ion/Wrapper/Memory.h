@@ -19,6 +19,8 @@ ION_DLL void ShutdownAllocators();
 ION_DLL void InitializeVulkanAllocators(vkaSize _uiSizeCommand, vkaSize _uiSizeObject, vkaSize _uiSizeCache, vkaSize _uiSizeDevice, vkaSize _uiSizeInstace, vkaSize _uiGpuMaxMemoryBlocks);
 ION_DLL void ShutdownVulkanAllocators();
 
+ION_DLL void InitializeManagers();
+ION_DLL void ShutdownManagers();
 
 
 ION_NAMESPACE_END

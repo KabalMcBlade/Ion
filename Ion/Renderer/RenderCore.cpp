@@ -1,6 +1,7 @@
 #include "RenderCore.h"
 
 #include "RenderDefs.h"
+#include "GPUMemoryManager.h"
 
 #include "../Texture/TextureOptions.h"
 #include "../Texture/Texture.h"
@@ -586,6 +587,7 @@ ionBool RenderCore::CreateRenderTargets()
     m_vkDepthFormat = SelectSupportedFormat(m_vkGPU.m_vkPhysicalDevice, formats, 3, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
     
     TextureOptions depthTextureOptions;
+    depthTextureOptions.m_vkDepthFormat = m_vkDepthFormat;
     depthTextureOptions.m_format = ETextureFormat_Depth;
     depthTextureOptions.m_width = m_width;
     depthTextureOptions.m_height = m_height;
@@ -626,7 +628,7 @@ ionBool RenderCore::CreateRenderTargets()
             createInfo.m_usage = EMemoryUsage_GPU;
             createInfo.m_type = EGpuMemoryType_ImageOptimal;
 
-            m_vkMSAAAllocation =  m_gpuAllocator.Alloc(createInfo);
+            m_vkMSAAAllocation = ionGPUMemoryManager().Alloc(createInfo);
             ionAssertReturnValue(m_vkMSAAAllocation.m_result == VK_SUCCESS, "Cannot Allocate memory!", false);
 
             result = vkBindImageMemory(m_vkDevice, m_vkMSAAImage, m_vkMSAAAllocation.m_memory, m_vkMSAAAllocation.m_offset);
@@ -661,7 +663,7 @@ void RenderCore::DestroyRenderTargets()
         {
             vkDestroyImage(m_vkDevice, m_vkMSAAImage, vkMemory);
             
-            m_gpuAllocator.Free(m_vkMSAAAllocation);
+            ionGPUMemoryManager().Free(m_vkMSAAAllocation);
             m_vkMSAAAllocation = vkGpuMemoryAllocation();
 
             m_vkMSAAImage = VK_NULL_HANDLE;
@@ -859,7 +861,7 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
         return false;
     }
 
-    m_gpuAllocator.Init(m_vkGPU.m_vkPhysicalDevice, m_vkDevice, _vkDeviceLocalSize, _vkHostVisibleSize, m_vkGPU.m_vkPhysicalDeviceProps.limits.bufferImageGranularity);
+    ionGPUMemoryManagerInit(m_vkGPU.m_vkPhysicalDevice, m_vkDevice, _vkDeviceLocalSize, _vkHostVisibleSize, m_vkGPU.m_vkPhysicalDeviceProps.limits.bufferImageGranularity);
 
     if (!CreateSemaphores())
     {
@@ -962,7 +964,7 @@ void RenderCore::Shutdown()
         }
     }
 
-    m_gpuAllocator.Shutdown();
+    ionGPUMemoryManagerShutdown();
 
     if (m_vkDevice != VK_NULL_HANDLE)
     {

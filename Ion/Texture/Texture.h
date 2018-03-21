@@ -10,6 +10,8 @@
 #include "TextureCommon.h"
 #include "TextureOptions.h"
 
+#include "../Renderer/GPUMemoryManager.h"
+
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
@@ -28,24 +30,30 @@ public:
 
     void SetOptions(const TextureOptions& _options);
 
-    void Create();
+    ionBool Create();
     void Destroy();
 
 private:
-    eosString       m_name;
-    VkDevice        m_vkDevice;
-    TextureOptions	m_options;
-    VkImageView		m_view;
-    VkFormat		m_format;
-    VkImage			m_image;
-    VkImageLayout	m_layout;
-    VkSampler		m_sampler;
-    ETextureUsage	m_usage;
-    ETextureFilter	m_filter;
-    ETextureRepeat	m_repeat;
-    ionBool         m_isCubeMap;
-    ionBool			m_isSwapChainImage;
-    ionBool			m_isProvedurallyGenerated;
+    ionBool CreateSampler();
+    VkFormat GetVulkanFormatFromTextureFormat(ETextureFormat _format);
+    VkComponentMapping GetVulkanComponentMappingFromTextureFormat(ETextureFormat _format, ETextureColor _color);
+
+private:
+    eosString               m_name;
+    VkDevice                m_vkDevice;
+    vkGpuMemoryAllocation	m_allocation;
+    TextureOptions	        m_options;
+    VkImageView		        m_view;
+    VkFormat		        m_format;
+    VkImage			        m_image;
+    VkImageLayout	        m_layout;
+    VkSampler		        m_sampler;
+    ETextureUsage	        m_usage;
+    ETextureFilter	        m_filter;
+    ETextureRepeat	        m_repeat;
+    ionBool                 m_isCubeMap;
+    ionBool			        m_isSwapChainImage;
+    ionBool			        m_isProvedurallyGenerated;
 };
 
 

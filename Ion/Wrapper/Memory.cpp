@@ -1,5 +1,7 @@
 #include "Memory.h"
 
+#include "../Renderer/GPUMemoryManager.h"
+#include "../Texture/TextureManager.h"
 
 ION_NAMESPACE_BEGIN
 
@@ -22,13 +24,25 @@ ION_DLL void ShutdownAllocators()
 ION_DLL void InitializeVulkanAllocators(vkaSize _uiSizeCommand, vkaSize _uiSizeObject, vkaSize _uiSizeCache, vkaSize _uiSizeDevice, vkaSize _uiSizeInstace, vkaSize _uiGpuMaxMemoryBlocks)
 {
     vkMemoryInit(_uiSizeCommand, _uiSizeObject, _uiSizeCache, _uiSizeDevice, _uiSizeInstace);
-    vkGpuMemoryInit(_uiGpuMaxMemoryBlocks);
+    vkGpuMemoryInit(_uiGpuMaxMemoryBlocks); 
 }
 
 ION_DLL void ShutdownVulkanAllocators()
 {
     vkGpuMemoryShutdown();
     vkMemoryShutdown();
+}
+
+ION_DLL void InitializeManagers()
+{
+    GPUMemoryManager::Create();
+    TextureManager::Create();
+}
+
+ION_DLL void ShutdownManagers()
+{
+    TextureManager::Destroy();
+    GPUMemoryManager::Destroy();
 }
 
 

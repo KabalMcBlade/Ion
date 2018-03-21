@@ -1,11 +1,16 @@
 #include "TextureManager.h"
 
+#include "../Dependencies/Eos/Eos/Eos.h"
+
 #include "../Renderer/RenderCore.h"
+
 
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+
+TextureManager *TextureManager::s_instance = nullptr;
 
 TextureManager::TextureManager()
 {
@@ -15,15 +20,32 @@ TextureManager::~TextureManager()
 {
 }
 
-TextureManager& TextureManager::Instance()
+void TextureManager::Create()
 {
-    static TextureManager instance;
-    return instance;
+    if (!s_instance)
+    {
+        s_instance = eosNew(TextureManager, EOS_MEMORY_ALIGNMENT_SIZE);
+    }
 }
 
-void TextureManager::Init(ETextureSamplesPerBit _textureSample, RenderCore& _renderCore)
+void TextureManager::Destroy()
 {
-    m_RenderCorePtr = &_renderCore;
+    if (s_instance)
+    {
+        eosDelete(s_instance);
+        s_instance = nullptr;
+    }
+}
+
+TextureManager& TextureManager::Instance()
+{
+    //static TextureManager instance;
+    //return instance;
+    return *s_instance;
+}
+
+void TextureManager::Init(ETextureSamplesPerBit _textureSample)
+{
     m_mainSamplesPerBit = _textureSample;
 }
 
@@ -56,9 +78,14 @@ Texture* TextureManager::CreateTextureFromOptions(VkDevice _vkDevice, const eosS
     }
 
     texture->SetOptions(_options);
-    texture->Create();
-
-    return texture;
+    if (texture->Create())
+    {
+        return texture;
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 Texture* TextureManager::GetTexture(const eosString& _name) const

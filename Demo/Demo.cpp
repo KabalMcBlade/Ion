@@ -96,6 +96,7 @@ int main()
 {
     InitializeAllocators(ALL_HEAP_MEMORY, ALL_LINEAR_MEMORY, ALL_STACK_MEMORY, MAX_STACK_MEMORY_BLOCK);
     InitializeVulkanAllocators(VULKAN_COMMAND_MEMORY_MB, VULKAN_OBJECT_MEMORY_MB, VULKAN_CACHE_MEMORY_MB, VULKAN_DEVICE_MEMORY_MB, VULKAN_INSTANCE_MEMORY_MB, VULKAN_GPU_MEMORY_MB);
+    InitializeManagers();
 
     ION_SCOPE_BEGIN
 
@@ -104,9 +105,10 @@ int main()
     
     RenderCore renderCore;
 
+    ionTextureManger().Init(ion::ETextureSamplesPerBit_16); // init AFTER render core (not important)
+
     if (window.Create(WndProc, L"Ion Demo", DEMO_WIDTH, DEMO_HEIGHT, false))
     {
-        ionTextureManger().Init(ion::ETextureSamplesPerBit_16, renderCore);
         rendererInitialized = renderCore.Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, ERenderType_TripleBuffer);
     }
 
@@ -115,11 +117,14 @@ int main()
         window.Loop();
     }
 
+    ionTextureManger().Shutdown();  // Shutdown BEFORE render core (VERY IMPORTANT)
+
     renderCore.Shutdown();
-    ionTextureManger().Shutdown();
+    
 
     ION_SCOPE_END
-
+        
+    ShutdownManagers();
     ShutdownVulkanAllocators();
     ShutdownAllocators();
 
