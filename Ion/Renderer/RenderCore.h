@@ -20,16 +20,29 @@ VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-class TextureManager;
+
 
 class ION_DLL RenderCore final
 {
 public:
-    ionBool    Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ERenderType _renderType);
+    ionBool    Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize, ERenderType _renderType);
     void       Shutdown();
 
     RenderCore();
     ~RenderCore();
+
+    VkDevice& GetDevice() { return m_vkDevice; }
+    const VkDevice& GetDevice() const { return m_vkDevice; }
+
+    VkQueue& GetGraphicQueue() { return m_vkGraphicsQueue; }
+    const VkQueue& GetGraphicQueue() const { return m_vkGraphicsQueue; }
+
+    VkQueue& GetPresentQueue() { return m_vkPresentQueue; }
+    const VkQueue& GetPresentQueue() const { return m_vkPresentQueue; }
+
+    const ionS32& GetGraphicFamilyIndex() const { return m_vkGraphicsFamilyIndex; }
+    const ionS32& GetPresentFamilyIndex() const { return m_vkPresentFamilyIndex; }
+
 
 private:
     RenderCore(const RenderCore& _Orig) = delete;

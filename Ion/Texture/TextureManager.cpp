@@ -39,8 +39,6 @@ void TextureManager::Destroy()
 
 TextureManager& TextureManager::Instance()
 {
-    //static TextureManager instance;
-    //return instance;
     return *s_instance;
 }
 

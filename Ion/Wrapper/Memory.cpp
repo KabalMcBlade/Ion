@@ -1,6 +1,7 @@
 #include "Memory.h"
 
 #include "../Renderer/GPUMemoryManager.h"
+#include "../Renderer/StagingBufferManager.h"
 #include "../Texture/TextureManager.h"
 
 ION_NAMESPACE_BEGIN
@@ -36,12 +37,14 @@ ION_DLL void ShutdownVulkanAllocators()
 ION_DLL void InitializeManagers()
 {
     GPUMemoryManager::Create();
+    StagingBufferManager::Create();
     TextureManager::Create();
 }
 
 ION_DLL void ShutdownManagers()
 {
     TextureManager::Destroy();
+    StagingBufferManager::Destroy();
     GPUMemoryManager::Destroy();
 }
 

@@ -159,6 +159,12 @@
     <ClInclude Include="Renderer\GPUMemoryManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer\StagingBufferManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuAllocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -210,6 +216,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\GPUMemoryManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\StagingBufferManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

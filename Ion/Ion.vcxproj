@@ -180,6 +180,7 @@
     <ClInclude Include="Dependencies\Nix\Nix\Types.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Vector.h" />
     <ClInclude Include="Dependencies\Nix\Nix\VectorHelper.h" />
+    <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuAllocator.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuMemory.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuMemoryStructs.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryAllocator.h" />
@@ -189,6 +190,7 @@
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryLog.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkStlMemory.h" />
     <ClInclude Include="Renderer\GPUMemoryManager.h" />
+    <ClInclude Include="Renderer\StagingBufferManager.h" />
     <ClInclude Include="Texture\Texture.h" />
     <ClInclude Include="Texture\TextureManager.h" />
     <ClInclude Include="Texture\TextureOptions.h" />
@@ -228,6 +230,7 @@
     <ClCompile Include="Renderer\GPU.cpp" />
     <ClCompile Include="Renderer\GPUMemoryManager.cpp" />
     <ClCompile Include="Renderer\RenderCore.cpp" />
+    <ClCompile Include="Renderer\StagingBufferManager.cpp" />
     <ClCompile Include="Scene\BaseCamera.cpp" />
     <ClCompile Include="Scene\Node.cpp" />
     <ClCompile Include="Scene\Transform.cpp" />

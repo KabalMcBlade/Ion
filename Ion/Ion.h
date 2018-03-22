@@ -14,6 +14,7 @@
 #include "Core/CoreDefs.h"
 
 #include "Renderer/GPUMemoryManager.h"
+#include "Renderer/StagingBufferManager.h"
 
 #include "Texture/TextureCommon.h"
 #include "Texture/TextureOptions.h"

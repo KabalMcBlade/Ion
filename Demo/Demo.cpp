@@ -47,6 +47,7 @@
 #define VULKAN_GPU_DEVICE_LOCAL_MB  VULKAN_BASE_MEMORY_MB * 128
 #define VULKAN_GPU_HOST_VISIBLE_MB  VULKAN_BASE_MEMORY_MB * 64
 
+#define VULKAN_STAGING_BUFFER_MB    VULKAN_BASE_MEMORY_MB * 64
 
 #ifdef _DEBUG
 #   define ION_VULKAN_VALIDATION_LAYER true
@@ -109,7 +110,7 @@ int main()
 
     if (window.Create(WndProc, L"Ion Demo", DEMO_WIDTH, DEMO_HEIGHT, false))
     {
-        rendererInitialized = renderCore.Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, ERenderType_TripleBuffer);
+        rendererInitialized = renderCore.Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB, ERenderType_TripleBuffer);
     }
 
     if (rendererInitialized)

@@ -38,8 +38,6 @@ void GPUMemoryManager::Destroy()
 
 GPUMemoryManager& GPUMemoryManager::Instance()
 {
-    //static GPUMemoryManager instance;
-    //return instance;
     return *s_instance;
 }
 

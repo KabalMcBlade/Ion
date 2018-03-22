@@ -39,5 +39,3 @@ private:
 ION_NAMESPACE_END
 
 #define ionGPUMemoryManager() ion::GPUMemoryManager::Instance().GetAllocator()
-#define ionGPUMemoryManagerInit(_vkPhysicalDevice, _vkDevice, _uiDeviceLocalSize, _uiHostVisibleSize, _uiGranularity) ionGPUMemoryManager().Init(_vkPhysicalDevice, _vkDevice, _uiDeviceLocalSize, _uiHostVisibleSize, _uiGranularity)
-#define ionGPUMemoryManagerShutdown() ionGPUMemoryManager().Shutdown()

@@ -7,6 +7,9 @@
 #include "../Texture/Texture.h"
 #include "../Texture/TextureManager.h"
 
+#include "StagingBufferManager.h"
+
+
 #define VK_NAME                     "Ion"
 #define VK_LUNAR_VALIDATION_LAYER   "VK_LAYER_LUNARG_standard_validation"
 
@@ -828,7 +831,7 @@ RenderCore::~RenderCore()
 }
 
 
-ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ERenderType _renderType)
+ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize, ERenderType _renderType)
 {
     m_vkRenderType = _renderType;
 
@@ -861,7 +864,9 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
         return false;
     }
 
-    ionGPUMemoryManagerInit(m_vkGPU.m_vkPhysicalDevice, m_vkDevice, _vkDeviceLocalSize, _vkHostVisibleSize, m_vkGPU.m_vkPhysicalDeviceProps.limits.bufferImageGranularity);
+    ionGPUMemoryManager().Init(m_vkGPU.m_vkPhysicalDevice, m_vkDevice, _vkDeviceLocalSize, _vkHostVisibleSize, m_vkGPU.m_vkPhysicalDeviceProps.limits.bufferImageGranularity);
+
+    ionStagingBufferManager().Init(_vkStagingBufferSize, _renderType, m_vkDevice, m_vkGraphicsQueue, m_vkGraphicsFamilyIndex);
 
     if (!CreateSemaphores())
     {
@@ -964,7 +969,9 @@ void RenderCore::Shutdown()
         }
     }
 
-    ionGPUMemoryManagerShutdown();
+    ionStagingBufferManager().Shutdown();
+
+    ionGPUMemoryManager().Shutdown();
 
     if (m_vkDevice != VK_NULL_HANDLE)
     {
