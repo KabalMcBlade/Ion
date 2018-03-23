@@ -10,6 +10,10 @@
 #include "Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 #include "Dependencies/Nix/Nix/Nix.h"
 
+#include "Dependencies/Miscellaneous/stb_image.h"
+#include "Dependencies/Miscellaneous/json.hpp"
+#include "Dependencies/Miscellaneous/tiny_gltf.h"
+
 #include "Core/StandardIncludes.h"
 #include "Core/CoreDefs.h"
 

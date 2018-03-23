@@ -170,6 +170,9 @@
     <ClInclude Include="Dependencies\Eos\Eos\StackAllocator.h" />
     <ClInclude Include="Dependencies\Eos\Eos\StlAllocators.h" />
     <ClInclude Include="Dependencies\Eos\Eos\StlAllocatorsMacro.h" />
+    <ClInclude Include="Dependencies\Miscellaneous\json.hpp" />
+    <ClInclude Include="Dependencies\Miscellaneous\stb_image.h" />
+    <ClInclude Include="Dependencies\Miscellaneous\tiny_gltf.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Architecture.h" />
     <ClInclude Include="Dependencies\Nix\Nix\CoreDefs.h" />
     <ClInclude Include="Dependencies\Nix\Nix\MathHelper.h" />
