@@ -58,6 +58,37 @@ void TextureManager::Shutdown()
     m_hashTexture.clear();
 }
 
+Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosString& _name, const eosString& _path, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_Default*/, ETextureType _type /*= ETextureType_2D*/)
+{
+    if (_name.empty() || _path.empty())
+    {
+        return nullptr;
+    }
+
+    Texture* texture = GetTexture(_name);
+    if (texture == nullptr)
+    {
+        texture = CreateTexture(_vkDevice, _name);
+    }
+    else
+    {
+        DestroyTexture(texture);
+    }
+
+    texture->m_isCubeMap = _type == ETextureType_Cubic;
+    texture->m_usage = _usage;
+    texture->m_filter = _filter;
+    texture->m_repeat = _repeat;
+    if (texture->CreateFromFile(_path, _filter, _repeat, _usage, _type))
+    {
+        return texture;
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
 Texture* TextureManager::CreateTextureFromOptions(VkDevice _vkDevice, const eosString& _name, const TextureOptions& _options)
 {
     if (_name.empty())

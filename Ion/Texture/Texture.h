@@ -28,12 +28,16 @@ public:
 
     const VkImageView& GetView() const { return m_view; }
 
+private:
+    friend class TextureManager;
+
     void SetOptions(const TextureOptions& _options);
 
+    ionBool CreateFromFile(const eosString& _path, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureUsage _usage = ETextureUsage_Default, ETextureType _type = ETextureType_2D);
     ionBool Create();
+
     void Destroy();
 
-private:
     ionBool CreateSampler();
     VkFormat GetVulkanFormatFromTextureFormat(ETextureFormat _format);
     VkComponentMapping GetVulkanComponentMappingFromTextureFormat(ETextureFormat _format, ETextureColor _color);

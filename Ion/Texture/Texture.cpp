@@ -7,6 +7,8 @@
 
 #include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
+#include "../Dependencies/Miscellaneous/stb_image.h"
+
 
 EOS_USING_NAMESPACE
 VK_ALLOCATOR_USING_NAMESPACE
@@ -41,6 +43,16 @@ Texture::~Texture()
 void Texture::SetOptions(const TextureOptions& _options)
 {
     m_options = _options;
+}
+
+ionBool Texture::CreateFromFile(const eosString& _path, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_Default*/, ETextureType /*_type = ETextureType_2D*/)
+{
+    // clear before create
+    Destroy();
+
+    // TODO
+
+    return false;
 }
 
 ionBool Texture::Create()
