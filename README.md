@@ -6,6 +6,16 @@ I'm not a render or engine programmer and this work MUST NOT BE USED for any com
 > Ion in the Greek Mythology is the illegitimate child of Creüsa, daughter of Erechtheus and wife of Xuthus
 
 
+## Important
+
+As I wrote before, this is made to learn something about this API.
+Most of the code has been studied and inspired by:
+. Dustin Land (https://www.fasterthan.life/) and his GitHub: https://github.com/DustinHLand/vkDOOM3
+. Sascha Willems and his GitHub: https://github.com/SaschaWillems
+
+For some base initialization (like the whole Vulkan base pipeline initialization I just copied and past, adding or removing what I need or not.
+
+
 ## Status
 
 For now it compile only and run without showing anything!
