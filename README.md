@@ -10,10 +10,12 @@ I'm not a render or engine programmer and this work MUST NOT BE USED for any com
 
 As I wrote before, this is made to learn something about this API.
 Most of the code has been studied and inspired by:
-. Dustin Land (https://www.fasterthan.life/) and his GitHub: https://github.com/DustinHLand/vkDOOM3
-. Sascha Willems and his GitHub: https://github.com/SaschaWillems
+- Dustin Land (https://www.fasterthan.life/) 
+	- GitHub: https://github.com/DustinHLand/vkDOOM3
+- Sascha Willems (https://www.saschawillems.de/)
+	- GitHub: https://github.com/SaschaWillems
 
-For some base initialization (like the whole Vulkan base pipeline initialization I just copied and past, adding or removing what I need or not.
+For some code such initialization, setup, etc, most of the whole Vulkan base start-up, I just copied and pasted, adding or removing what I need or not.
 
 
 ## Status
