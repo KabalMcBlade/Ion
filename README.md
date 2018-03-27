@@ -1,2 +1,57 @@
 # Ion
-Vulkan Render Engine
+
+Ion is a Vulkan Render Engine, made just to learn something about this new graphic API.
+I'm not a render or engine programmer and this work MUST NOT BE USED for any commercial purpose.
+
+> Ion in the Greek Mythology is the illegitimate child of Creüsa, daughter of Erechtheus and wife of Xuthus
+
+
+## Status
+
+For now it compile only and run without showing anything!
+When I'll finish the interface I'll add some things to render!
+
+
+### Almost self inclusive
+
+I tried to reduce external dependencies to the minimum.
+All the dependencies are inside DEPENDENCIES folder.
+The main dependencies at the moment are the memory allocators for CPU and GPU, made by me (Eos and vkMemoryAllocator)
+Other dependencies are single file, like json and stb_image
+
+
+### About dependencies
+
+About how to use the dependencies please take a look to their own owner. (also for the mine!)
+
+
+
+## Example
+
+In the Demo folder you will find a demo project using ION Library
+
+
+# Build Status
+
+| Platform | Build Status |
+|:--------:|:------------:|
+| Windows (Visual Studio 2015) | [![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/kabal2013/ion?branch=master&svg=true)](https://ci.appveyor.com/project/Kabal2013/ion) |
+
+
+# License
+
+```
+// Copyright 2017 Michele Condo'
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+```
