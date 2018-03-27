@@ -2,11 +2,14 @@
 
 #include "TextureManager.h"
 
+#include "../Renderer/StagingBufferManager.h"
+
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.h>
 
 #include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
+#define STB_IMAGE_IMPLEMENTATION
 #include "../Dependencies/Miscellaneous/stb_image.h"
 
 
@@ -40,17 +43,189 @@ Texture::~Texture()
     }
 }
 
+
+ionBool Texture::LoadTexture2D(const eosString& _path)
+{
+    ionS32 w = 0, h = 0, c = 0;
+    ionU8* buffer = stbi_load(_path.c_str(), &w, &h, &c, 0);
+
+    m_options.m_width = w;
+    m_options.m_height = h;
+    m_options.m_numChannels = c;
+    m_options.m_numLevels = 0;
+
+    GenerateOptions();
+
+    if (Create())
+    {
+        UploadTextureToMemory(m_options.m_numLevels, m_options.m_width, m_options.m_height, buffer, 0);
+    }
+
+    stbi_image_free(buffer);
+
+    return true;
+}
+
+// Adding the side name to the file with "_": for instance: "test.png" become "test_left.png", "test_top.png" etc etc
+ionBool Texture::LoadTexture3D(const eosString& _path)
+{
+    eosString ext;
+    eosString path;
+    ionSize i = _path.rfind('.', _path.length());
+    if (i != std::string::npos) 
+    {
+        path = _path.substr(0, i);
+        ext = _path.substr(i + 1, _path.length() - i);
+    }
+
+    if (ext.empty())
+    {
+        return false;
+    }
+
+    eosString suffix[6]{ "_left", "_top", "_front", "_bottom", "_right", "_back" };
+
+    ionS32 w = 0, h = 0, c = 0;
+    for(ionU8 i = 0; i < 6; ++i)
+    {
+        eosString newPath = path + suffix[i] + ext;
+        ionU8* buffer = stbi_load(newPath.c_str(), &w, &h, &c, 0);
+
+        m_options.m_width = w;
+        m_options.m_height = h;
+        m_options.m_numChannels = c;
+        m_options.m_numLevels = 0;
+
+        GenerateOptions();
+
+        if (Create())
+        {
+            UploadTextureToMemory(m_options.m_numLevels, m_options.m_width, m_options.m_height, buffer, i);
+        }
+
+        stbi_image_free(buffer);
+    }
+
+    return true;
+}
+
 void Texture::SetOptions(const TextureOptions& _options)
 {
     m_options = _options;
 }
 
-ionBool Texture::CreateFromFile(const eosString& _path, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_Default*/, ETextureType /*_type = ETextureType_2D*/)
+void Texture::GenerateOptions()
+{
+    if (m_options.m_format == ETextureFormat_None)
+    {
+        m_options.m_colorFormat = ETextureColor_Default;
+        switch (m_usage) 
+        {
+        case ETextureUsage_Coverage:
+            m_options.m_format = ETextureFormat_DXT1;
+            m_options.m_colorFormat = ETextureColor_Green_To_Aalpha;
+            break;
+        case ETextureUsage_Depth:
+            m_options.m_format = ETextureFormat_Depth;
+            break;
+        case ETextureUsage_Diffuse:
+            m_options.m_useGammaMips = true;
+            m_options.m_format = ETextureFormat_DXT5;
+            m_options.m_colorFormat = ETextureColor_RGBA_To_CoCgY;
+            break;
+        case ETextureUsage_Specular:
+            m_options.m_useGammaMips = true;
+            m_options.m_format = ETextureFormat_DXT1;
+            m_options.m_colorFormat = ETextureColor_Default;
+            break;
+        case ETextureUsage_Default:
+            m_options.m_useGammaMips = true;
+            m_options.m_format = ETextureFormat_DXT5;
+            m_options.m_colorFormat = ETextureColor_Default;
+            break;
+        case ETextureUsage_Bump:
+            m_options.m_format = ETextureFormat_DXT5;
+            m_options.m_colorFormat = ETextureColor_Normal_DXT5;
+            break;
+        case ETextureUsage_Font:
+            m_options.m_format = ETextureFormat_DXT1;
+            m_options.m_colorFormat = ETextureColor_Green_To_Aalpha;
+            m_options.m_numLevels = 4; 
+            m_options.m_useGammaMips = true;
+            break;
+        case ETextureUsage_Light:
+            m_options.m_format = ETextureFormat_RGB565;
+            m_options.m_useGammaMips = true;
+            break;
+        case ETextureUsage_LookUp_Mono:
+            m_options.m_format = ETextureFormat_Intensity8;
+            break;
+        case ETextureUsage_LookUp_Alpha:
+            m_options.m_format = ETextureFormat_Alpha;
+            break;
+        case ETextureUsage_LookUp_RGB1:
+        case ETextureUsage_LookUp_RGBA:
+            m_options.m_format = ETextureFormat_RGBA8;
+            break;
+        default:
+            ionAssertReturnVoid(false, "Cannot generate proper texture options!");
+            m_options.m_format = ETextureFormat_RGBA8;
+        }
+    }
+
+    if (m_options.m_numLevels == 0) 
+    {
+        m_options.m_numLevels = 1;
+
+        if (m_filter != ETextureFilter_Linear && m_filter != ETextureFilter_Nearest)
+        {
+            ionS32 width = m_options.m_width;
+            ionS32 height = m_options.m_height;
+            while (width > 1 || height > 1)
+            {
+                width >>= 1;
+                height >>= 1;
+                if ((m_options.m_format == ETextureFormat_DXT1 || m_options.m_format == ETextureFormat_DXT5) && ((width & 0x3) != 0 || (height & 0x3) != 0))
+                {
+                    break;
+                }
+                m_options.m_numLevels++;
+            }
+        }
+    }
+}
+
+ionBool Texture::CreateFromFile(const eosString& _path, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_Default*/, ETextureType _type /*= ETextureType_2D*/)
 {
     // clear before create
     Destroy();
 
-    // TODO
+    m_options.m_textureType = _type;
+
+    m_filter = _filter;
+    m_repeat = _repeat;
+    m_usage = _usage;
+    
+    if (m_options.m_textureType == ETextureType_Cubic)
+    {
+        m_repeat = ETextureRepeat_Clamp;
+        if (LoadTexture3D(_path))
+        {
+            ionAssertReturnValue(false, "Cannot load 3d texture!", false);
+        }
+    }
+    else if (m_options.m_textureType == ETextureType_Cubic)
+    {
+        if (LoadTexture2D(_path))
+        {
+            ionAssertReturnValue(false, "Cannot load 2d texture!", false);
+        }
+    }
+    else
+    {
+        ionAssertReturnValue(false, "Texture type invalid!", false);
+    }
+
 
     return false;
 }
@@ -137,6 +312,100 @@ ionBool Texture::Create()
     }
 }
 
+ionU32 Texture::BitsPerFormat(ETextureFormat _format)
+{
+    switch (_format) 
+    {
+    case ETextureFormat_None:		        return 0;
+    case ETextureFormat_RGBA8:		        return 32;
+    case ETextureFormat_XRGB8:		        return 32;
+    case ETextureFormat_RGB565:	            return 16;
+    case ETextureFormat_Luminance8Alpha8:	return 16;
+    case ETextureFormat_Alpha:		        return 8;
+    case ETextureFormat_Luminance8:		    return 8;
+    case ETextureFormat_Intensity8:		    return 8;
+    case ETextureFormat_DXT1:		        return 4;
+    case ETextureFormat_DXT5:		        return 8;
+    case ETextureFormat_Depth:		        return 32;
+    case ETextureFormat_X16:		        return 16;
+    case ETextureFormat_Y16_X16:	        return 32;
+    default:
+        ionAssertReturnValue(false, "Invalid format!", 0);
+        return 0;
+    }
+}
+
+void Texture::UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _height, const ionU8* _buffer, ionU32 _index /* = 0 // index of texture for cube-map, 0 by default */ )
+{
+    if (IsCompressed()) 
+    {
+        _width = (_width + 3) & ~3;
+        _height = (_height + 3) & ~3;
+    }
+
+    ionSize size = _width * _height * BitsPerFormat(m_options.m_format) / 8;
+
+    VkBuffer buffer;
+    VkCommandBuffer commandBuffer;
+    ionSize offset = 0;
+    ionU8* data = ionStagingBufferManager().Stage(size, 16, commandBuffer, buffer, offset);
+    if (m_options.m_format == ETextureFormat_RGB565)
+    {
+        ionU8* tmpData = (ionU8*)_buffer;
+        for (int i = 0; i < size; i += 2) 
+        {
+            data[i] = tmpData[i + 1];
+            data[i + 1] = tmpData[i];
+        }
+    }
+    else 
+    {
+        memcpy(data, _buffer, size);
+    }
+
+    VkBufferImageCopy imgCopy = {};
+    imgCopy.bufferOffset = offset;
+    imgCopy.bufferRowLength = 0;
+    imgCopy.bufferImageHeight = _height;
+    imgCopy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    imgCopy.imageSubresource.layerCount = 1;
+    imgCopy.imageSubresource.mipLevel = _mipMapLevel;
+    imgCopy.imageSubresource.baseArrayLayer = _index;
+    imgCopy.imageOffset.x = 0;
+    imgCopy.imageOffset.y = 0;
+    imgCopy.imageOffset.z = 0;
+    imgCopy.imageExtent.width = _width;
+    imgCopy.imageExtent.height = _height;
+    imgCopy.imageExtent.depth = 1;
+
+    VkImageMemoryBarrier barrier = {};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image = m_image;
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = m_options.m_numLevels;
+    barrier.subresourceRange.baseArrayLayer = _index;
+    barrier.subresourceRange.layerCount = 1;
+
+    barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    barrier.srcAccessMask = 0;
+    barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+    vkCmdCopyBufferToImage(commandBuffer, buffer, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgCopy);
+
+    barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+    m_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+}
+
 VkFormat Texture::GetVulkanFormatFromTextureFormat(ETextureFormat _format)
 {
     switch (_format)
@@ -150,6 +419,9 @@ VkFormat Texture::GetVulkanFormatFromTextureFormat(ETextureFormat _format)
     case ETextureFormat_DXT1: return VK_FORMAT_BC1_RGB_UNORM_BLOCK;
     case ETextureFormat_DXT5: return VK_FORMAT_BC3_UNORM_BLOCK;
     case ETextureFormat_Depth: return m_options.m_vkDepthFormat;
+    case ETextureFormat_X16: return VK_FORMAT_R16_UNORM;
+    case ETextureFormat_Y16_X16: return VK_FORMAT_R16G16_UNORM;
+    case ETextureFormat_RGB565: return VK_FORMAT_R5G6B5_UNORM_PACK16;
     default:
         return VK_FORMAT_UNDEFINED;
     }

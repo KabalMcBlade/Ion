@@ -27,6 +27,7 @@ struct TextureOptions final
     ionU32					m_width;
     ionU32					m_height;			// not needed for cube maps, actually.. it is a cube and so.. all same width :)
     ionU32					m_numLevels;		// if 0, will be 1 for NEAREST / LINEAR filters, otherwise based on size
+    ionU32                  m_numChannels;      // channel amount in the texture file (only valid for file!)
     ionBool				    m_useGammaMips;		// if true, mipsmap will be generated with gamma correction
 };
 

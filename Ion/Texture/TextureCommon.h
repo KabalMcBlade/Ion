@@ -44,13 +44,19 @@ enum ETextureFormat
     ETextureFormat_DXT5,	// 8 bpp
 
     // depth buffer
-    ETextureFormat_Depth    // 24 bpp
+    ETextureFormat_Depth,    // 24 bpp
+
+    // Other formats
+    ETextureFormat_X16,			// 16 bpp
+    ETextureFormat_Y16_X16,		// 32 bpp
+    ETextureFormat_RGB565,		// 16 bpp
 };
 
 enum ETextureColor
 {
     ETextureColor_Default   = 0,	// RGBA
     ETextureColor_Normal_DXT5,		// XY format and use the fast DXT5 compressor
+    ETextureColor_RGBA_To_CoCgY,
     ETextureColor_Green_To_Aalpha	// Copy the alpha channel to green
 };
 

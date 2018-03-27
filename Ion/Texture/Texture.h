@@ -25,13 +25,13 @@ public:
 
     const eosString& GetName() const { return m_name; }
     const TextureOptions& GetOptions() const { return m_options; }
-
     const VkImageView& GetView() const { return m_view; }
 
 private:
     friend class TextureManager;
 
     void SetOptions(const TextureOptions& _options);
+    ionBool IsCompressed() const { return (m_options.m_format == ETextureFormat_DXT1 || m_options.m_format == ETextureFormat_DXT5); }
 
     ionBool CreateFromFile(const eosString& _path, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureUsage _usage = ETextureUsage_Default, ETextureType _type = ETextureType_2D);
     ionBool Create();
@@ -41,6 +41,14 @@ private:
     ionBool CreateSampler();
     VkFormat GetVulkanFormatFromTextureFormat(ETextureFormat _format);
     VkComponentMapping GetVulkanComponentMappingFromTextureFormat(ETextureFormat _format, ETextureColor _color);
+
+    ionBool LoadTexture2D(const eosString& _path);
+    ionBool LoadTexture3D(const eosString& _path);
+
+    ionU32 BitsPerFormat(ETextureFormat _format);
+    void GenerateOptions();
+
+    void UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _height, const ionU8* _buffer, ionU32 _index /* = 0 // index of texture for cube-map, 0 by default */);
 
 private:
     eosString               m_name;
