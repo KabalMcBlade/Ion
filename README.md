@@ -15,7 +15,7 @@ Most of the code has been studied and inspired by:
 - Sascha Willems (https://www.saschawillems.de/)
 	- GitHub: https://github.com/SaschaWillems
 
-For some code such initialization, setup, etc, most of the whole Vulkan base start-up, I just copied and pasted, adding or removing what I need or not.
+For many part of the initialization and setup of the Vulkan code I just merely copied and pasted, adding or removing what I had needed or not.
 
 
 ## Status
