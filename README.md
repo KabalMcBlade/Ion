@@ -11,7 +11,7 @@ I'm not a render or engine programmer and this work MUST NOT BE USED for any com
 As I wrote before, this is made to learn something about this API.
 Most of the code has been studied and inspired by:
 - Dustin Land (https://www.fasterthan.life/) 
-	- GitHub: https://github.com/DustinHLand/vkDOOM3
+	- GitHub: https://github.com/DustinHLand
 - Sascha Willems (https://www.saschawillems.de/)
 	- GitHub: https://github.com/SaschaWillems
 
@@ -47,4 +47,4 @@ In the Demo folder you will find a demo project using ION Library
 
 | Platform | Build Status |
 |:--------:|:------------:|
-| Windows (Visual Studio 2015) | [![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/kabal2013/ion?branch=master&svg=true)](https://ci.appveyor.com/project/Kabal2013/ion) |
+| Windows (Visual Studio 2015) | [![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/kabalmcblade/ion?branch=master&svg=true)](https://ci.appveyor.com/project/kabalmcblade/ion) |
