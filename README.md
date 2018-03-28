@@ -47,4 +47,4 @@ In the Demo folder you will find a demo project using ION Library
 
 | Platform | Build Status |
 |:--------:|:------------:|
-| Windows (Visual Studio 2015) | [![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/kabal2013/ion?branch=master&svg=true)](https://ci.appveyor.com/project/Kabal2013/ion) |
+| Windows (Visual Studio 2015) | [![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/kabalmcblade/ion?branch=master&svg=true)](https://ci.appveyor.com/project/kabalmcblade/ion) |
