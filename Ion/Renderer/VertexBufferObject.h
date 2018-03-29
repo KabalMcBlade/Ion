@@ -6,9 +6,36 @@
 
 #include "../Core/CoreDefs.h"
 
+#include "BaseBufferObject.h"
+
 
 ION_NAMESPACE_BEGIN
 
+
+class VertexBuffer : public BaseBufferObject 
+{
+public:
+    VertexBuffer();
+    ~VertexBuffer();
+
+    ionBool				Alloc(const VkDevice& _device, const void* _data, ionSize _allocSize, EBufferUsage _usage);
+    void				Free();
+
+    void				ReferenceTo(const VertexBuffer& _other);
+    void				ReferenceTo(const VertexBuffer& _other, ionSize _refOffset, ionSize _refSize);
+
+    void				Update(const void* _data, ionSize _size, ionSize _offset = 0) const;
+
+    void*				MapBuffer(EBufferMappingType _mapType);
+    void				UnmapBuffer();
+
+private:
+    void				ClearWithoutFreeing();
+
+private:
+    VertexBuffer(const VertexBuffer& _Orig) = delete;
+    VertexBuffer& operator = (const VertexBuffer&) = delete;
+};
 
 
 
