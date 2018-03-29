@@ -29,6 +29,11 @@
 #include "Renderer/RenderCommon.h"
 #include "Renderer/GPU.h"
 #include "Renderer/RenderCore.h"
+#include "Renderer/BaseBufferObject.h"
+#include "Renderer/VertexBufferObject.h"
+#include "Renderer/IndexBufferObject.h"
+#include "Renderer/UniformBufferObject.h"
+#include "Renderer/ShaderProgram.h"
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"
