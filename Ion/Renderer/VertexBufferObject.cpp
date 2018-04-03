@@ -7,12 +7,12 @@ ION_NAMESPACE_BEGIN
 
 VertexBuffer::VertexBuffer()
 {
-
+    SetUnmapped();
 }
 
 VertexBuffer::~VertexBuffer()
 {
-    SetUnmapped();
+    Free();
 }
 
 ionBool VertexBuffer::Alloc(const VkDevice& _device, const void* _data, ionSize _allocSize, EBufferUsage _usage)
@@ -29,7 +29,7 @@ ionBool VertexBuffer::Alloc(const VkDevice& _device, const void* _data, ionSize 
     createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     createInfo.pNext = nullptr;
     createInfo.size = GetAllocedSize();
-    createInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    createInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
     createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     if (m_usage == EBufferUsage_Static) 
