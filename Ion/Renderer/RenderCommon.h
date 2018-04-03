@@ -51,7 +51,7 @@ enum EVertexLayout
     EVertexLayout_Unknow = -1,
     EVertexLayout_Vertices,
     EVertexLayout_Vertices_Shadow,
-    EVertexLayout_Vertices_Displacement,
+    EVertexLayout_Vertices_Skinned,
     EVertexLayout_Count
 };
 

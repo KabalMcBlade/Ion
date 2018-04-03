@@ -33,6 +33,7 @@
 #include "Renderer/VertexBufferObject.h"
 #include "Renderer/IndexBufferObject.h"
 #include "Renderer/UniformBufferObject.h"
+#include "Renderer/ShaderProgramHelper.h"
 #include "Renderer/ShaderProgram.h"
 
 #include "Scene/Transform.h"

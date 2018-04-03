@@ -42,6 +42,33 @@ struct Shader
     eosVector(ionS32)			m_parameterIndices;
 };
 
+class ShaderProgram
+{
+    ShaderProgram();
+
+    struct PipelineState 
+    {
+        PipelineState();
+
+        ionU64		m_stateBits;
+        VkPipeline	m_pipeline;
+    };
+
+    VkPipeline GetOrCreatePipeline(ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationShader, VkShaderModule _geometryShader);
+
+    eosString				    m_name;
+    ionBool						m_usesJoints;
+    ionBool						m_usesSkinning;
+    ionS32						m_vertexShaderIndex;
+    ionS32						m_fragmentShaderIndex;
+    ionS32						m_tessellationShaderIndex;
+    ionS32						m_geometryShaderIndex;
+    EVertexLayout			    m_vertexLayoutType;
+    VkPipelineLayout			m_pipelineLayout;
+    VkDescriptorSetLayout		m_descriptorSetLayout;
+    eosVector(EShaderBinding)	m_bindings;
+    eosVector(PipelineState)	m_pipelines;
+};
 
 
 ION_NAMESPACE_END
