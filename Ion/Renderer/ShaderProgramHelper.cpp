@@ -4,6 +4,7 @@
 
 
 #include "ShaderProgram.h"
+#include "RenderState.h"
 
 
 EOS_USING_NAMESPACE
@@ -232,6 +233,50 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
 
         vkCreatePipelineLayout(_device, &createInfo, vkMemory, &_shaderProgram.m_pipelineLayout);
     }
+}
+
+VkStencilOpState ShaderProgramHelper::GetStencilOpState(ionU64 _stencilStateBits)
+{
+    VkStencilOpState state = {};
+
+
+    switch (_stencilStateBits & EStencilFrontOperator_Fail_Bits)
+    {
+    case EStencilFrontOperator_Fail_Keep:		    state.failOp = VK_STENCIL_OP_KEEP; break;
+    case EStencilFrontOperator_Fail_Zero:		    state.failOp = VK_STENCIL_OP_ZERO; break;
+    case EStencilFrontOperator_Fail_Replace:	    state.failOp = VK_STENCIL_OP_REPLACE; break;
+    case EStencilFrontOperator_Fail_Increment:	    state.failOp = VK_STENCIL_OP_INCREMENT_AND_CLAMP; break;
+    case EStencilFrontOperator_Fail_Decrement:	    state.failOp = VK_STENCIL_OP_DECREMENT_AND_CLAMP; break;
+    case EStencilFrontOperator_Fail_Invert:	        state.failOp = VK_STENCIL_OP_INVERT; break;
+    case EStencilFrontOperator_Fail_Increment_Wrap: state.failOp = VK_STENCIL_OP_INCREMENT_AND_WRAP; break;
+    case EStencilFrontOperator_Fail_Decrement_Wrap: state.failOp = VK_STENCIL_OP_DECREMENT_AND_WRAP; break;
+    }
+
+    switch (_stencilStateBits & EStencilFrontOperator_ZFail_Bits)
+    {
+    case EStencilFrontOperator_ZFail_Keep:		        state.depthFailOp = VK_STENCIL_OP_KEEP; break;
+    case EStencilFrontOperator_ZFail_Zero:		        state.depthFailOp = VK_STENCIL_OP_ZERO; break;
+    case EStencilFrontOperator_ZFail_Replace:	        state.depthFailOp = VK_STENCIL_OP_REPLACE; break;
+    case EStencilFrontOperator_ZFail_Increment:		    state.depthFailOp = VK_STENCIL_OP_INCREMENT_AND_CLAMP; break;
+    case EStencilFrontOperator_ZFail_Decrement:		    state.depthFailOp = VK_STENCIL_OP_DECREMENT_AND_CLAMP; break;
+    case EStencilFrontOperator_ZFail_Invert:	        state.depthFailOp = VK_STENCIL_OP_INVERT; break;
+    case EStencilFrontOperator_ZFail_Increment_Wrap:    state.depthFailOp = VK_STENCIL_OP_INCREMENT_AND_WRAP; break;
+    case EStencilFrontOperator_ZFail_Decrement_Wrap:    state.depthFailOp = VK_STENCIL_OP_DECREMENT_AND_WRAP; break;
+    }
+
+    switch (_stencilStateBits & EStencilFrontOperator_Pass_Bits)
+    {
+    case EStencilFrontOperator_Pass_Keep:		    state.passOp = VK_STENCIL_OP_KEEP; break;
+    case EStencilFrontOperator_Pass_Zero:		    state.passOp = VK_STENCIL_OP_ZERO; break;
+    case EStencilFrontOperator_Pass_Replace:	    state.passOp = VK_STENCIL_OP_REPLACE; break;
+    case EStencilFrontOperator_Pass_Increment:		state.passOp = VK_STENCIL_OP_INCREMENT_AND_CLAMP; break;
+    case EStencilFrontOperator_Pass_Decrement:		state.passOp = VK_STENCIL_OP_DECREMENT_AND_CLAMP; break;
+    case EStencilFrontOperator_Pass_Invert:	        state.passOp = VK_STENCIL_OP_INVERT; break;
+    case EStencilFrontOperator_Pass_Increment_Wrap:	state.passOp = VK_STENCIL_OP_INCREMENT_AND_WRAP; break;
+    case EStencilFrontOperator_Pass_Decrement_Wrap:	state.passOp = VK_STENCIL_OP_DECREMENT_AND_WRAP; break;
+    }
+
+    return state;
 }
 
 VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(VkPipelineLayout _pipelineLayout, ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationControlShader  /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationEvaluatorShader /*= VK_NULL_HANDLE*/, VkShaderModule _geometryShader /*= VK_NULL_HANDLE*/)

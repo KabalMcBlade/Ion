@@ -28,6 +28,7 @@ public:
 
 private:
     static VkDescriptorType GetDescriptorType(EShaderBinding _type);
+    static VkStencilOpState GetStencilOpState(ionU64 _stencilStateBits);
 
 private:
     static ShaderVertexLayout m_vertexLayouts[EVertexLayout::EVertexLayout_Count];

@@ -195,6 +195,7 @@
     <ClInclude Include="Renderer\BaseBufferObject.h" />
     <ClInclude Include="Renderer\GPUMemoryManager.h" />
     <ClInclude Include="Renderer\IndexBufferObject.h" />
+    <ClInclude Include="Renderer\RenderState.h" />
     <ClInclude Include="Renderer\ShaderProgram.h" />
     <ClInclude Include="Renderer\ShaderProgramHelper.h" />
     <ClInclude Include="Renderer\StagingBufferManager.h" />
