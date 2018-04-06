@@ -15,14 +15,13 @@ ShaderProgram::ShaderProgram() :
     m_fragmentShaderIndex(-1),
     m_tessellationShaderIndex(-1),
     m_geometryShaderIndex(-1),
-    m_vertexLayoutType(EVertexLayout_Vertices),
     m_pipelineLayout(VK_NULL_HANDLE),
     m_descriptorSetLayout(VK_NULL_HANDLE) 
 {
 
 }
 
-VkPipeline ShaderProgram::GetOrCreatePipeline(ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationShader, VkShaderModule _geometryShader)
+VkPipeline ShaderProgram::GetPipeline(ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationShader /*= VK_NULL_HANDLE*/, VkShaderModule _geometryShader /*= VK_NULL_HANDLE*/)
 {
     for (ionU32 i = 0; i < m_pipelines.size(); ++i) 
     {
@@ -32,7 +31,7 @@ VkPipeline ShaderProgram::GetOrCreatePipeline(ionU64 _stateBits, VkShaderModule 
         }
     }
 
-    VkPipeline pipeline = ShaderProgramHelper::CreateGraphicsPipeline(m_vertexLayoutType, _vertexShader, _fragmentShader, _tessellationShader, _geometryShader, m_pipelineLayout, _stateBits);
+    VkPipeline pipeline = ShaderProgramHelper::CreateGraphicsPipeline(m_pipelineLayout, _stateBits, _vertexShader, _fragmentShader, _tessellationShader, _geometryShader);
 
     PipelineState pipelineState;
     pipelineState.m_pipeline = pipeline;

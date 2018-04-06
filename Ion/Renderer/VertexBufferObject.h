@@ -10,25 +10,11 @@
 
 #include "BaseBufferObject.h"
 
-
+#include "RenderCommon.h"
 
 NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
-
-
-
-ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
-{
-public:
-    Vector				m_position;		    // 16 bytes
-    Vector				m_tangent;		    // 16 bytes
-    Vector				m_normal;	        // 16 bytes
-    Vector				m_color1;		    // 16 bytes
-    Vector				m_color2;		    // 16 bytes: in a next version with skinning, here will be placed the weights
-    Vector			    m_textureCoordU;	// 16 bytes: This is just the same value copied across all the vector, It is heavy but performing when computed within math lib
-    Vector			    m_textureCoordV;	// 16 bytes: This is just the same value copied across all the vector, It is heavy but performing when computed within math lib
-};
 
 
 class VertexBuffer : public BaseBufferObject 

@@ -18,7 +18,11 @@ ION_NAMESPACE_BEGIN
 class ShaderProgramHelper
 {
 public:
-    static VkPipeline CreateGraphicsPipeline(EVertexLayout _vertexLayout, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationShader, VkShaderModule _geometryShader, VkPipelineLayout _pipelineLayout, ionU64 _stateBits);
+    static void CreateVertexDescriptor();
+    static VkPipeline CreateGraphicsPipeline(VkPipelineLayout _pipelineLayout, ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE);
+
+private:
+    static ShaderVertexLayout m_vertexLayout;
 };
 
 ION_NAMESPACE_END

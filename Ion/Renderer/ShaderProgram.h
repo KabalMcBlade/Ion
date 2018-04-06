@@ -16,13 +16,6 @@ EOS_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 
-struct ShaderVertexLayout
-{
-    VkPipelineVertexInputStateCreateInfo            m_inputState;
-    eosVector(VkVertexInputBindingDescription)      m_bindinggDescription;
-    eosVector(VkVertexInputAttributeDescription)    m_attributegDescription;
-};
-
 struct Shader
 {
     Shader() :
@@ -54,7 +47,7 @@ class ShaderProgram
         VkPipeline	m_pipeline;
     };
 
-    VkPipeline GetOrCreatePipeline(ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationShader, VkShaderModule _geometryShader);
+    VkPipeline GetPipeline(ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE);
 
     eosString				    m_name;
     ionBool						m_usesJoints;
@@ -63,7 +56,6 @@ class ShaderProgram
     ionS32						m_fragmentShaderIndex;
     ionS32						m_tessellationShaderIndex;
     ionS32						m_geometryShaderIndex;
-    EVertexLayout			    m_vertexLayoutType;
     VkPipelineLayout			m_pipelineLayout;
     VkDescriptorSetLayout		m_descriptorSetLayout;
     eosVector(EShaderBinding)	m_bindings;
