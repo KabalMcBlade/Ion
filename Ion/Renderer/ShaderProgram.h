@@ -28,6 +28,11 @@ struct Shader
         m_parameterIndices.clear();
     }
 
+    ionBool IsValid() const
+    {
+        return m_shaderModule != VK_NULL_HANDLE;
+    }
+
     eosString				    m_name;
     EShaderStage			    m_stage;
     VkShaderModule			    m_shaderModule;
@@ -35,7 +40,7 @@ struct Shader
     eosVector(ionS32)			m_parameterIndices;
 };
 
-class ShaderProgram
+struct ShaderProgram
 {
     ShaderProgram();
 
@@ -47,14 +52,15 @@ class ShaderProgram
         VkPipeline	m_pipeline;
     };
 
-    VkPipeline GetPipeline(ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE);
+    VkPipeline GetPipeline(ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationControlShader = VK_NULL_HANDLE, VkShaderModule _tessellationEvaluatorShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE);
 
     eosString				    m_name;
     ionBool						m_usesJoints;
     ionBool						m_usesSkinning;
     ionS32						m_vertexShaderIndex;
     ionS32						m_fragmentShaderIndex;
-    ionS32						m_tessellationShaderIndex;
+    ionS32						m_tessellationControlShaderIndex;
+    ionS32						m_tessellationEvaluatorShaderIndex;
     ionS32						m_geometryShaderIndex;
     VkPipelineLayout			m_pipelineLayout;
     VkDescriptorSetLayout		m_descriptorSetLayout;

@@ -67,12 +67,24 @@ enum EVertexMask
     EVertexMask_Color2          = 0b00000100    // other color, also weight for skinning
 };
 
+enum EVertexLayout
+{
+    EVertexLayout_Unknow = -1,
+    EVertexLayout_Vertices,
+    EVertexLayout_Vertices_Plain,
+    EVertexLayout_Count
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct ShaderVertexLayout
 {
     VkPipelineVertexInputStateCreateInfo            m_inputState;
     eosVector(VkVertexInputBindingDescription)      m_bindinggDescription;
     eosVector(VkVertexInputAttributeDescription)    m_attributegDescription;
 };
+
+//////////////////////////////////////////////////////////////////////////
 
 // 40 bytes aligned to 16 -> 48
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
@@ -401,6 +413,42 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         accum += j3 * w3;
 
         return accum * m_position;
+    }
+};
+
+
+//////////////////////////////////////////////////////////////////////////
+
+ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainVertex
+{
+    Vector				m_position;		        // 16 bytes
+
+    PlainVertex()
+    {
+        Clear();
+    }
+
+    ION_INLINE void Clear()
+    {
+        m_position = VectorHelper::GetZero();
+    }
+
+
+    ION_INLINE Vector GetPosition() const
+    {
+        return m_position;
+    }
+
+    ION_INLINE void SetPosition(const Vector& _position)
+    {
+        m_position = _position;
+    }
+
+    ION_INLINE void Lerp(const Vertex& _a, const Vertex& _b, const ionFloat _t)
+    {
+        const Vector t(_t);
+
+        m_position = VectorHelper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
     }
 };
 
