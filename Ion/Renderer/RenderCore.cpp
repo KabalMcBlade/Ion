@@ -833,7 +833,7 @@ RenderCore::~RenderCore()
 }
 
 
-ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
+ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
 {
     m_vkAcquiringSemaphores.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
     m_vkCompletedSemaphores.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
@@ -914,7 +914,7 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
         return false;
     }
 
-    ionShaderProgramManager().Init();
+    ionShaderProgramManager().Init(_shaderFolderPath);
 
     return true;
 }

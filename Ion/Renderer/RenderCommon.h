@@ -30,14 +30,15 @@ ION_NAMESPACE_BEGIN
 
 enum EShaderStage 
 {
-    EShaderStage_Vertex         = 0b00000000,
-    EShaderStage_Fragment       = 0b00000010,
-    EShaderStage_Tessellation   = 0b00000100,
-    EShaderStage_Geometry       = 0b00001000,
+    EShaderStage_Vertex             = 0b00000000,
+    EShaderStage_Fragment           = 0b00000010,
+    EShaderStage_Tessellation_Ctrl  = 0b00000100,
+    EShaderStage_Tessellation_Eval  = 0b00001000,
+    EShaderStage_Geometry           = 0b00010000,
 
     EShaderStage_Mandatory      = EShaderStage_Vertex,
     EShaderStage_MandatoryAll   = EShaderStage_Vertex | EShaderStage_Fragment,
-    EShaderStage_Optional       = EShaderStage_Tessellation | EShaderStage_Geometry,
+    EShaderStage_Optional       = EShaderStage_Tessellation_Ctrl | EShaderStage_Tessellation_Eval  | EShaderStage_Geometry,
 
     EShaderStage_All            = EShaderStage_Mandatory | EShaderStage_Optional
 };

@@ -6,7 +6,6 @@
 #include "../Core/CoreDefs.h"
 
 #include "../Dependencies/Eos/Eos/Eos.h"
-#include "../Dependencies/Nix/Nix/Nix.h"
 
 #include "RenderCommon.h"
 #include "ShaderProgram.h"
@@ -14,7 +13,6 @@
 
 
 EOS_USING_NAMESPACE
-NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
@@ -26,11 +24,14 @@ public:
 
     ION_NO_INLINE static ShaderProgramManager& Instance();
 
-    ionBool Init();
+    ionBool Init(const eosString& _shaderFolderPath);
     void    Shutdown();
 
     ShaderProgramManager();
     ~ShaderProgramManager();
+
+    // Shader name WITHOUT extension!!
+    ionS32	FindShader(const eosString& _name, EShaderStage _stage);
 
     void	StartFrame();
     void    EndFrame();
@@ -39,13 +40,16 @@ private:
     ShaderProgramManager(const ShaderProgramManager& _Orig) = delete;
     ShaderProgramManager& operator = (const ShaderProgramManager&) = delete;
 
+    void	LoadShader(ionS32 _index);
+    void	LoadShader(Shader& _shader);
+
 public:
     eosList(ShaderProgram) m_shaderPrograms;
 
 private:
     ionS32	            m_current;
-    eosList(Vector)     m_uniforms;
-    eosList(Shader)	    m_shaders;
+    eosString           m_shaderFolderPath;
+    eosVector(Shader)	m_shaders;
 
     ionS32				m_counter;
     ionS32				m_currentData;
