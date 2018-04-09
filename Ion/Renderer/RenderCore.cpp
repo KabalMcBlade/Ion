@@ -8,6 +8,7 @@
 #include "../Texture/TextureManager.h"
 
 #include "StagingBufferManager.h"
+#include "ShaderProgramManager.h"
 
 
 #define VK_NAME                     "Ion"
@@ -913,11 +914,15 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
         return false;
     }
 
+    ionShaderProgramManager().Init();
+
     return true;
 }
 
 void RenderCore::Shutdown()
 {
+    ionShaderProgramManager().Shutdown();
+
     DestroyFrameBuffers();
 
     if (m_vkPipelineCache != VK_NULL_HANDLE)

@@ -35,6 +35,7 @@
 #include "Renderer/UniformBufferObject.h"
 #include "Renderer/ShaderProgramHelper.h"
 #include "Renderer/ShaderProgram.h"
+#include "Renderer/ShaderProgramManager.h"
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"

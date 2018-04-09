@@ -2,7 +2,9 @@
 
 #include "../Renderer/GPUMemoryManager.h"
 #include "../Renderer/StagingBufferManager.h"
+#include "../Renderer/ShaderProgramManager.h"
 #include "../Texture/TextureManager.h"
+
 
 ION_NAMESPACE_BEGIN
 
@@ -38,12 +40,14 @@ ION_DLL void InitializeManagers()
 {
     GPUMemoryManager::Create();
     StagingBufferManager::Create();
+    ShaderProgramManager::Create();
     TextureManager::Create();
 }
 
 ION_DLL void ShutdownManagers()
 {
     TextureManager::Destroy();
+    ShaderProgramManager::Destroy();
     StagingBufferManager::Destroy();
     GPUMemoryManager::Destroy();
 }

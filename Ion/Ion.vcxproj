@@ -198,6 +198,7 @@
     <ClInclude Include="Renderer\RenderState.h" />
     <ClInclude Include="Renderer\ShaderProgram.h" />
     <ClInclude Include="Renderer\ShaderProgramHelper.h" />
+    <ClInclude Include="Renderer\ShaderProgramManager.h" />
     <ClInclude Include="Renderer\StagingBufferManager.h" />
     <ClInclude Include="Renderer\UniformBufferObject.h" />
     <ClInclude Include="Renderer\VertexBufferObject.h" />
@@ -244,6 +245,7 @@
     <ClCompile Include="Renderer\RenderCore.cpp" />
     <ClCompile Include="Renderer\ShaderProgram.cpp" />
     <ClCompile Include="Renderer\ShaderProgramHelper.cpp" />
+    <ClCompile Include="Renderer\ShaderProgramManager.cpp" />
     <ClCompile Include="Renderer\StagingBufferManager.cpp" />
     <ClCompile Include="Renderer\UniformBufferObject.cpp" />
     <ClCompile Include="Renderer\VertexBufferObject.cpp" />
