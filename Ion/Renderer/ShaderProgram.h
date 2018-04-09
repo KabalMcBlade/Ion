@@ -15,6 +15,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+class RenderCore;
 
 struct Shader
 {
@@ -52,7 +53,7 @@ struct ShaderProgram
         VkPipeline	m_pipeline;
     };
 
-    VkPipeline GetPipeline(ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationControlShader = VK_NULL_HANDLE, VkShaderModule _tessellationEvaluatorShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE);
+    VkPipeline GetPipeline(const RenderCore& _render, ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationControlShader = VK_NULL_HANDLE, VkShaderModule _tessellationEvaluatorShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE);
 
     eosString				    m_name;
     ionBool						m_usesJoints;
@@ -62,6 +63,7 @@ struct ShaderProgram
     ionS32						m_tessellationControlShaderIndex;
     ionS32						m_tessellationEvaluatorShaderIndex;
     ionS32						m_geometryShaderIndex;
+    EVertexLayout               m_vertextLayoutType;
     VkPipelineLayout			m_pipelineLayout;
     VkDescriptorSetLayout		m_descriptorSetLayout;
     eosVector(EShaderBinding)	m_bindings;

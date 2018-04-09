@@ -43,6 +43,11 @@ public:
     const ionS32& GetGraphicFamilyIndex() const { return m_vkGraphicsFamilyIndex; }
     const ionS32& GetPresentFamilyIndex() const { return m_vkPresentFamilyIndex; }
 
+    const GPU& GetGPU() const { return m_vkGPU; }
+    const VkSampleCountFlagBits& GetSampleCount() const { return m_vkSampleCount; }
+    const ionBool& GetUsesSuperSampling() const { return m_vkSupersampling; }
+    const VkRenderPass& GetRenderPass() const { return m_vkRenderPass; }
+    const VkPipelineCache& GetPipelineCache() const { return m_vkPipelineCache; }
 
 private:
     RenderCore(const RenderCore& _Orig) = delete;
