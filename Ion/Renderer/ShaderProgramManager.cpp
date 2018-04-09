@@ -58,6 +58,38 @@ ionBool ShaderProgramManager::Init(const eosString& _shaderFolderPath)
     return true;
 }
 
+const Vector& ShaderProgramManager::GetRenderParm(const eosString& _param)
+{
+    const ionSize hash = std::hash<eosString>{}(_param);   // from the original with extension
+    return GetRenderParm(hash);
+}
+
+// if parameter not found, return a vector 0 and create this new hash! BE CAREFUL!
+const Vector& ShaderProgramManager::GetRenderParm(ionSize _paramHash)
+{
+    return m_uniforms[_paramHash];
+}
+
+void ShaderProgramManager::SetRenderParm(const eosString& _param, const ionFloat* _value)
+{
+
+}
+
+void ShaderProgramManager::SetRenderParm(ionSize _paramHash, const ionFloat* _value)
+{
+
+}
+
+void ShaderProgramManager::SetRenderParms(const eosString& _param, const ionFloat* _values, ionS32 _numValues)
+{
+
+}
+
+void ShaderProgramManager::SetRenderParms(ionSize _paramHash, const ionFloat* _values, ionS32 _numValues)
+{
+
+}
+
 void ShaderProgramManager::Shutdown()
 {
 }

@@ -26,7 +26,7 @@ struct Shader
     ~Shader()
     {
         m_bindings.clear();
-        m_parameterIndices.clear();
+        m_parametersHash.clear();
     }
 
     ionBool IsValid() const
@@ -38,7 +38,7 @@ struct Shader
     EShaderStage			    m_stage;
     VkShaderModule			    m_shaderModule;
     eosVector(EShaderBinding)	m_bindings;
-    eosVector(ionS32)			m_parameterIndices;
+    eosVector(ionSize)			m_parametersHash;   // while load a shader, we need to pass the parameters, here we save the hash which will be used as key
 };
 
 struct ShaderProgram

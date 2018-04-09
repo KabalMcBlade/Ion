@@ -30,6 +30,13 @@ public:
     ShaderProgramManager();
     ~ShaderProgramManager();
 
+    const   Vector& GetRenderParm(const eosString& _param);
+    const   Vector& GetRenderParm(ionSize _paramHash);
+    void	SetRenderParm(const eosString& _param, const ionFloat* _value);
+    void	SetRenderParm(ionSize _paramHash, const ionFloat* _value);
+    void	SetRenderParms(const eosString& _param, const ionFloat* _values, ionS32 _numValues);
+    void	SetRenderParms(ionSize _paramHash, const ionFloat* _values, ionS32 _numValues);
+
     // Shader name WITHOUT extension!!
     ionS32	FindShader(const eosString& _name, EShaderStage _stage);
 
@@ -47,9 +54,10 @@ public:
     eosList(ShaderProgram) m_shaderPrograms;
 
 private:
-    ionS32	            m_current;
-    eosString           m_shaderFolderPath;
-    eosVector(Shader)	m_shaders;
+    ionS32	                m_current;
+    eosString               m_shaderFolderPath;
+    eosVector(Shader)	    m_shaders;
+    eosMap(ionSize, Vector) m_uniforms; // is a map where the key is the hash of the name of the uniform in the shader and the value the vector associated
 
     ionS32				m_counter;
     ionS32				m_currentData;
