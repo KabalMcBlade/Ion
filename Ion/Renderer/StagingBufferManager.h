@@ -42,7 +42,7 @@ public:
 
     ION_NO_INLINE static StagingBufferManager& Instance();
 
-    ionBool Init(ionSize _vkMaxBufferSize, ERenderType _renderType, VkDevice _vkDevice, VkQueue _vkGraphicsQueue, ionS32 _vkGraphicsFamilyIndex);
+    ionBool Init(ionSize _vkMaxBufferSize, VkDevice _vkDevice, VkQueue _vkGraphicsQueue, ionS32 _vkGraphicsFamilyIndex);
     void    Shutdown();
 
     StagingBufferManager();
@@ -64,7 +64,6 @@ private:
     ionU8*			m_mappedData;
     VkDeviceMemory	m_vkMemory;
     VkCommandPool	m_vkCommandPool;
-    ERenderType     m_renderType;
 
     eosVector(StagingBuffer) m_buffers;
 

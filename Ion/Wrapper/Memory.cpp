@@ -2,6 +2,7 @@
 
 #include "../Renderer/GPUMemoryManager.h"
 #include "../Renderer/StagingBufferManager.h"
+#include "../Renderer/ShaderProgramHelper.h"
 #include "../Renderer/ShaderProgramManager.h"
 #include "../Texture/TextureManager.h"
 
@@ -40,6 +41,7 @@ ION_DLL void InitializeManagers()
 {
     GPUMemoryManager::Create();
     StagingBufferManager::Create();
+    ShaderProgramHelper::Create();
     ShaderProgramManager::Create();
     TextureManager::Create();
 }
@@ -48,6 +50,7 @@ ION_DLL void ShutdownManagers()
 {
     TextureManager::Destroy();
     ShaderProgramManager::Destroy();
+    ShaderProgramHelper::Destroy();
     StagingBufferManager::Destroy();
     GPUMemoryManager::Destroy();
 }

@@ -12,7 +12,23 @@ VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-ShaderVertexLayout ShaderProgramHelper::m_vertexLayouts[EVertexLayout::EVertexLayout_Count];
+ShaderVertexLayout *ShaderProgramHelper::m_vertexLayouts = nullptr;
+
+void ShaderProgramHelper::Create()
+{
+    if (!m_vertexLayouts)
+    {
+        m_vertexLayouts = (ShaderVertexLayout*)eosNewRaw(sizeof(ShaderVertexLayout) * EVertexLayout_Count, EOS_MEMORY_ALIGNMENT_SIZE);
+    }
+}
+
+void ShaderProgramHelper::Destroy()
+{
+    if (m_vertexLayouts)
+    {
+        eosDeleteRaw(m_vertexLayouts);
+    }
+}
 
 void ShaderProgramHelper::CreateVertexDescriptor()
 {
@@ -97,8 +113,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
     }
 }
 
-// _pools MUST BE RESIDED BEFORE PASSED HERE TO ONE OF THE ENUM VALUE OF ERenderType !!!
-void ShaderProgramHelper::CreateDescriptorPools(const VkDevice& _device, eosVector(VkDescriptorPool)& _pools)
+void ShaderProgramHelper::CreateDescriptorPools(const VkDevice& _device, VkDescriptorPool(& _pools)[ION_RENDER_BUFFER_COUNT])
 {
     const ionU32 poolCount = 2;
     VkDescriptorPoolSize poolSizes[poolCount];
@@ -114,8 +129,7 @@ void ShaderProgramHelper::CreateDescriptorPools(const VkDevice& _device, eosVect
     createInfo.poolSizeCount = poolCount;
     createInfo.pPoolSizes = poolSizes;
 
-    const ionSize size = _pools.size();
-    for (ionSize i = 0; i < size; ++i)
+    for (ionSize i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
     {
         VkResult result = vkCreateDescriptorPool(_device, &createInfo, vkMemory, &_pools[i]);
         ionAssertReturnVoid(result == VK_SUCCESS, "vkCreateDescriptorPool cannot create descriptor pool!");

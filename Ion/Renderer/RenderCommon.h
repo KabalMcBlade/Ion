@@ -28,14 +28,6 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-
-enum ERenderType : ionU32
-{
-    ERenderType_Linear = 1,
-    ERenderType_DoubleBuffer = 2,
-    ERenderType_TripleBuffer = 3
-};
-
 enum EShaderStage 
 {
     EShaderStage_Vertex         = 0b00000000,

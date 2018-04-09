@@ -25,7 +25,7 @@ ION_NAMESPACE_BEGIN
 class ION_DLL RenderCore final
 {
 public:
-    ionBool    Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize, ERenderType _renderType);
+    ionBool    Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
     void       Shutdown();
 
     RenderCore();
@@ -107,8 +107,6 @@ private:
     eosVector(VkImage)			m_vkSwapchainImages;
     eosVector(VkImageView)		m_vkSwapchainViews;
     eosVector(VkFramebuffer)	m_vkFrameBuffers;
-
-    ERenderType                 m_vkRenderType;
 
     ionU32                      m_width;
     ionU32                      m_height;

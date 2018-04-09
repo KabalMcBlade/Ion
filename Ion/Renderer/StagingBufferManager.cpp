@@ -30,14 +30,13 @@ StagingBufferManager::~StagingBufferManager()
     m_buffers.clear();
 }
 
-ionBool StagingBufferManager::Init(ionSize _vkMaxBufferSize, ERenderType _renderType, VkDevice _vkDevice, VkQueue _vkGraphicsQueue, ionS32 _vkGraphicsFamilyIndex)
+ionBool StagingBufferManager::Init(ionSize _vkMaxBufferSize, VkDevice _vkDevice, VkQueue _vkGraphicsQueue, ionS32 _vkGraphicsFamilyIndex)
 {
     m_maxBufferSize = _vkMaxBufferSize;
-    m_renderType = _renderType;
     m_vkDevice = _vkDevice;
     m_vkGraphicsQueue = _vkGraphicsQueue;
     m_vkGraphicsFamilyIndex = _vkGraphicsFamilyIndex;
-    m_buffers.resize(m_renderType);
+    m_buffers.resize(ION_RENDER_BUFFER_COUNT);
 
     VkResult result;
 
@@ -47,7 +46,7 @@ ionBool StagingBufferManager::Init(ionSize _vkMaxBufferSize, ERenderType _render
         createInfo.size = m_maxBufferSize;
         createInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
-        for (ionU32 i = 0; i < m_renderType; ++i)
+        for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
         {
             m_buffers[i].m_vkOffset = 0;
 
@@ -72,7 +71,7 @@ ionBool StagingBufferManager::Init(ionSize _vkMaxBufferSize, ERenderType _render
     {
         VkMemoryAllocateInfo allocateInfo = {};
         allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        allocateInfo.allocationSize = uiSize * m_renderType;
+        allocateInfo.allocationSize = uiSize * ION_RENDER_BUFFER_COUNT;
         allocateInfo.memoryTypeIndex = vkGpuMemoryAllocator::FindMemoryType(createInfo);
 
         m_vkMemory = vkGpuAllocateMemory(m_vkDevice, allocateInfo);
@@ -83,13 +82,13 @@ ionBool StagingBufferManager::Init(ionSize _vkMaxBufferSize, ERenderType _render
         return false;
     }
 
-    for (ionU32 i = 0; i < m_renderType; ++i)
+    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
     {
         result = vkBindBufferMemory(m_vkDevice, m_buffers[i].m_vkBuffer, m_vkMemory, i * uiSize);
         ionAssertReturnValue(result == VK_SUCCESS, "Cannot bind buffer for staging!", false);
     }
 
-    m_mappedData = static_cast<vkaU8*>(vkGpuMapMemory(m_vkDevice, m_vkMemory, 0, uiSize * m_renderType, 0));
+    m_mappedData = static_cast<vkaU8*>(vkGpuMapMemory(m_vkDevice, m_vkMemory, 0, uiSize * ION_RENDER_BUFFER_COUNT, 0));
 
     if (m_mappedData == nullptr)
     {
@@ -118,7 +117,7 @@ ionBool StagingBufferManager::Init(ionSize _vkMaxBufferSize, ERenderType _render
         VkCommandBufferBeginInfo commandBufferBeginInfo = {};
         commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        for (ionU32 i = 0; i < m_renderType; ++i)
+        for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
         {
             result = vkAllocateCommandBuffers(m_vkDevice, &allocateInfo, &m_buffers[i].m_vkCommandBuffer);
             ionAssertReturnValue(result == VK_SUCCESS, "Cannot allocate command buffer for staging!", false);
@@ -143,7 +142,7 @@ void StagingBufferManager::Shutdown()
 
     m_mappedData = NULL;
 
-    for (ionU32 i = 0; i < m_renderType; ++i)
+    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
     {
         vkDestroyFence(m_vkDevice, m_buffers[i].m_vkFence, vkMemory);
         vkDestroyBuffer(m_vkDevice, m_buffers[i].m_vkBuffer, vkMemory);
@@ -259,7 +258,7 @@ void StagingBufferManager::Submit()
 
     stagingBuffer.m_submitted = true;
 
-    m_currentBuffer = (m_currentBuffer + 1) % m_renderType;
+    m_currentBuffer = (m_currentBuffer + 1) % ION_RENDER_BUFFER_COUNT;
 }
 
 ION_NAMESPACE_END
