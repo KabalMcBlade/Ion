@@ -185,6 +185,40 @@ void ShaderProgramManager::BindProgram(ionS32 _index)
 
 void ShaderProgramManager::CommitCurrent(const RenderCore& _render, ionU64 _stateBits, VkCommandBuffer _commandBuffer)
 {
+    ShaderProgram& shaderProgram = m_shaderPrograms[m_current];
+
+    VkPipeline pipeline = shaderProgram.GetPipeline(_render, _stateBits, 
+        m_shaders[shaderProgram.m_vertexShaderIndex].m_shaderModule,
+        shaderProgram.m_fragmentShaderIndex != -1 ? m_shaders[shaderProgram.m_fragmentShaderIndex].m_shaderModule : VK_NULL_HANDLE,
+        shaderProgram.m_tessellationControlShaderIndex != -1 ? m_shaders[shaderProgram.m_tessellationControlShaderIndex].m_shaderModule : VK_NULL_HANDLE,
+        shaderProgram.m_tessellationEvaluatorShaderIndex != -1 ? m_shaders[shaderProgram.m_tessellationEvaluatorShaderIndex].m_shaderModule : VK_NULL_HANDLE, 
+        shaderProgram.m_geometryShaderIndex != -1 ? m_shaders[shaderProgram.m_geometryShaderIndex].m_shaderModule : VK_NULL_HANDLE);
+
+    VkDescriptorSetAllocateInfo setAllocInfo = {};
+    setAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    setAllocInfo.pNext = nullptr;
+    setAllocInfo.descriptorPool = m_descriptorPools[m_currentData];
+    setAllocInfo.descriptorSetCount = 1;
+    setAllocInfo.pSetLayouts = &shaderProgram.m_descriptorSetLayout;
+
+    VkResult result = vkAllocateDescriptorSets(_render.GetDevice(), &setAllocInfo, &m_descriptorSets[m_currentData][m_currentDescSet]);
+    ionAssertReturnVoid(result == VK_SUCCESS, "Cannot allocate the descriptor!");
+
+    VkDescriptorSet descSet = m_descriptorSets[m_currentData][m_currentDescSet];
+    ++m_currentDescSet;
+
+    ionS32 writeIndex = 0;
+    ionS32 bufferIndex = 0;
+    ionS32 imageIndex = 0;
+    ionS32 bindingIndex = 0;
+
+    VkWriteDescriptorSet writes[ION_MAX_DESCRIPTOR_SET_WRITES];
+    VkDescriptorBufferInfo bufferInfos[ION_MAX_DESCRIPTOR_SET_WRITES];
+    VkDescriptorImageInfo imageInfos[ION_MAX_DESCRIPTOR_SET_WRITES];
+
+    ionS32 uboIndex = 0;
+    UniformBuffer* ubos[6] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+
 
 }
 
