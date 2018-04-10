@@ -3,6 +3,7 @@
 #include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
 #include "ShaderProgramHelper.h"
+#include "RenderCore.h"
 
 
 EOS_USING_NAMESPACE
@@ -55,7 +56,70 @@ ionBool ShaderProgramManager::Init(VkDevice _vkDevice, const eosString& _shaderF
 {
     m_vkDevice = _vkDevice;
     m_shaderFolderPath = _shaderFolderPath;
+
+    ShaderProgramHelper::CreateVertexDescriptor();
+
+    ShaderProgramHelper::CreateDescriptorPools(m_vkDevice, m_descriptorPools);
+
+    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    {
+        m_parmBuffers[i] = eosNew(UniformBuffer, EOS_MEMORY_ALIGNMENT_SIZE);
+        m_parmBuffers[i]->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS * sizeof(Vector), EBufferUsage_Dynamic);
+    }
+
+    m_skinningUniformBuffer = eosNew(UniformBuffer, EOS_MEMORY_ALIGNMENT_SIZE);
+    m_skinningUniformBuffer->Alloc(m_vkDevice, nullptr, sizeof(Vector), EBufferUsage_Dynamic);
+
     return true;
+}
+
+void ShaderProgramManager::Shutdown()
+{
+    for (ionSize i = 0; i < m_shaders.size(); ++i) 
+    {
+        Shader& shader = m_shaders[i];
+        vkDestroyShaderModule(m_vkDevice, shader.m_shaderModule, vkMemory);
+        shader.m_shaderModule = VK_NULL_HANDLE;
+    }
+
+    for (ionSize i = 0; i < m_shaderPrograms.size(); ++i)
+    {
+        ShaderProgram& shaderProgram = m_shaderPrograms[i];
+
+        for (ionSize j = 0; j < shaderProgram.m_pipelines.size(); ++j)
+        {
+            vkDestroyPipeline(m_vkDevice, shaderProgram.m_pipelines[j].m_pipeline, vkMemory);
+        }
+        shaderProgram.m_pipelines.clear();
+
+        vkDestroyDescriptorSetLayout(m_vkDevice, shaderProgram.m_descriptorSetLayout, vkMemory);
+        vkDestroyPipelineLayout(m_vkDevice, shaderProgram.m_pipelineLayout, vkMemory);
+    }
+    m_shaderPrograms.clear();
+
+    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    {
+        m_parmBuffers[i]->Free();
+        eosDelete(m_parmBuffers[i]);
+        m_parmBuffers[i] = nullptr;
+    }
+
+    m_skinningUniformBuffer->Free();
+    eosDelete(m_skinningUniformBuffer);
+
+    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    {
+        //vkFreeDescriptorSets( m_vkDevice, m_descriptorPools[i], ION_MAX_DESCRIPTOR_SETS, m_descriptorSets[i]);
+        vkResetDescriptorPool(m_vkDevice, m_descriptorPools[i], 0);
+        vkDestroyDescriptorPool(m_vkDevice, m_descriptorPools[i], vkMemory);
+    }
+
+    memset(m_descriptorSets, 0, sizeof(m_descriptorSets));
+    memset(m_descriptorPools, 0, sizeof(m_descriptorPools));
+
+    m_counter = 0;
+    m_currentData = 0;
+    m_currentDescSet = 0;
 }
 
 const Vector& ShaderProgramManager::GetRenderParm(const eosString& _param)
@@ -101,16 +165,50 @@ void ShaderProgramManager::SetRenderParms(ionSize _paramHash, const ionFloat* _v
     }
 }
 
-void ShaderProgramManager::Shutdown()
-{
-}
-
 void ShaderProgramManager::StartFrame()
 {
+    ++m_counter;
+    m_currentData = m_counter % ION_RENDER_BUFFER_COUNT;
+    m_currentDescSet = 0;
+    m_currentParmBufferOffset = 0;
+
+    vkResetDescriptorPool(m_vkDevice, m_descriptorPools[m_currentData], 0);
 }
 
-void ShaderProgramManager::EndFrame()
+void ShaderProgramManager::BindProgram(ionS32 _index)
 {
+    if (m_current != _index) 
+    {
+        m_current = _index;
+    }
+}
+
+void ShaderProgramManager::CommitCurrent(const RenderCore& _render, ionU64 _stateBits, VkCommandBuffer _commandBuffer)
+{
+
+}
+
+void ShaderProgramManager::AllocParametersBlockBuffer(const RenderCore& _render, const eosVector(ionSize) & paramsHash, UniformBuffer& _ubo)
+{
+    const ionSize numParms = paramsHash.size();
+
+    ionSize size = numParms * sizeof(Vector);
+    ionSize mask = _render.GetGPU().m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment - 1;
+    ionSize alignedSize = (size + mask) & ~mask;
+
+
+    _ubo.ReferenceTo(*m_parmBuffers[m_currentData], m_currentParmBufferOffset, alignedSize);
+
+    Vector* uniforms = (Vector*)_ubo.MapBuffer(EBufferMappingType_Write);
+
+    for (ionSize i = 0; i < numParms; ++i)
+    {
+        uniforms[i] = GetRenderParm(paramsHash[i]);
+    }
+
+    _ubo.UnmapBuffer();
+
+    m_currentParmBufferOffset += alignedSize;
 }
 
 ionS32 ShaderProgramManager::FindShader(const eosString& _name, EShaderStage _stage, const ShaderLayoutDef& _defines)

@@ -16,6 +16,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+class RenderCore;
 
 struct ION_DLL ShaderLayoutDef final
 {
@@ -48,7 +49,8 @@ public:
     ionS32	FindShader(const eosString& _name, EShaderStage _stage, const ShaderLayoutDef& _defines);
 
     void	StartFrame();
-    void    EndFrame();
+    void	BindProgram(ionS32 _index);
+    void	CommitCurrent(const RenderCore& _render, ionU64 _stateBits, VkCommandBuffer _commandBuffer);
 
 private:
     ShaderProgramManager(const ShaderProgramManager& _Orig) = delete;
@@ -57,8 +59,10 @@ private:
     void	LoadShader(ionS32 _index, const ShaderLayoutDef& _defines);
     void	LoadShader(Shader& _shader, const ShaderLayoutDef& _defines);
 
+    void	AllocParametersBlockBuffer(const RenderCore& _render, const eosVector(ionSize) & paramsHash, UniformBuffer& _ubo);
+
 public:
-    eosList(ShaderProgram) m_shaderPrograms;
+    eosVector(ShaderProgram) m_shaderPrograms;
 
 private:
     VkDevice                m_vkDevice;
@@ -70,10 +74,11 @@ private:
     ionS32				m_counter;
     ionS32				m_currentData;
     ionS32				m_currentDescSet;
-    ionS32				m_currentParmBufferOffset;
+    ionSize				m_currentParmBufferOffset;
     VkDescriptorPool	m_descriptorPools[ION_RENDER_BUFFER_COUNT];
     VkDescriptorSet		m_descriptorSets[ION_RENDER_BUFFER_COUNT][ION_MAX_DESCRIPTOR_SETS];
 
+    UniformBuffer*	    m_skinningUniformBuffer;
     UniformBuffer*	    m_parmBuffers[ION_RENDER_BUFFER_COUNT];
 
 private:
