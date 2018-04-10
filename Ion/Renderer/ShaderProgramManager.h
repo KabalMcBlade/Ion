@@ -16,7 +16,14 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-class ShaderProgramManager final
+
+struct ION_DLL ShaderLayoutDef final
+{
+    eosVector(eosString) m_uniforms;
+    eosVector(EShaderBinding) m_bindings;
+};
+
+class ION_DLL ShaderProgramManager final
 {
 public:
     ION_NO_INLINE static void Create();
@@ -24,7 +31,7 @@ public:
 
     ION_NO_INLINE static ShaderProgramManager& Instance();
 
-    ionBool Init(const eosString& _shaderFolderPath);
+    ionBool Init(VkDevice _vkDevice, const eosString& _shaderFolderPath);
     void    Shutdown();
 
     ShaderProgramManager();
@@ -34,11 +41,11 @@ public:
     const   Vector& GetRenderParm(ionSize _paramHash);
     void	SetRenderParm(const eosString& _param, const ionFloat* _value);
     void	SetRenderParm(ionSize _paramHash, const ionFloat* _value);
-    void	SetRenderParms(const eosString& _param, const ionFloat* _values, ionS32 _numValues);
-    void	SetRenderParms(ionSize _paramHash, const ionFloat* _values, ionS32 _numValues);
+    void	SetRenderParms(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
+    void	SetRenderParms(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
 
     // Shader name WITHOUT extension!!
-    ionS32	FindShader(const eosString& _name, EShaderStage _stage);
+    ionS32	FindShader(const eosString& _name, EShaderStage _stage, const ShaderLayoutDef& _defines);
 
     void	StartFrame();
     void    EndFrame();
@@ -47,13 +54,14 @@ private:
     ShaderProgramManager(const ShaderProgramManager& _Orig) = delete;
     ShaderProgramManager& operator = (const ShaderProgramManager&) = delete;
 
-    void	LoadShader(ionS32 _index);
-    void	LoadShader(Shader& _shader);
+    void	LoadShader(ionS32 _index, const ShaderLayoutDef& _defines);
+    void	LoadShader(Shader& _shader, const ShaderLayoutDef& _defines);
 
 public:
     eosList(ShaderProgram) m_shaderPrograms;
 
 private:
+    VkDevice                m_vkDevice;
     ionS32	                m_current;
     eosString               m_shaderFolderPath;
     eosVector(Shader)	    m_shaders;

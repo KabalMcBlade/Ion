@@ -914,7 +914,7 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
         return false;
     }
 
-    ionShaderProgramManager().Init(_shaderFolderPath);
+    ionShaderProgramManager().Init(m_vkDevice, _shaderFolderPath);
 
     return true;
 }
