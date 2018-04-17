@@ -198,6 +198,9 @@
     <ClInclude Include="Renderer\ShaderProgramManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer\VertexCacheManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -273,6 +276,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\ShaderProgramManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\VertexCacheManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

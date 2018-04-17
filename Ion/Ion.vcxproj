@@ -202,6 +202,7 @@
     <ClInclude Include="Renderer\StagingBufferManager.h" />
     <ClInclude Include="Renderer\UniformBufferObject.h" />
     <ClInclude Include="Renderer\VertexBufferObject.h" />
+    <ClInclude Include="Renderer\VertexCacheManager.h" />
     <ClInclude Include="Texture\Texture.h" />
     <ClInclude Include="Texture\TextureManager.h" />
     <ClInclude Include="Texture\TextureOptions.h" />
@@ -249,6 +250,7 @@
     <ClCompile Include="Renderer\StagingBufferManager.cpp" />
     <ClCompile Include="Renderer\UniformBufferObject.cpp" />
     <ClCompile Include="Renderer\VertexBufferObject.cpp" />
+    <ClCompile Include="Renderer\VertexCacheManager.cpp" />
     <ClCompile Include="Scene\BaseCamera.cpp" />
     <ClCompile Include="Scene\Node.cpp" />
     <ClCompile Include="Scene\Transform.cpp" />

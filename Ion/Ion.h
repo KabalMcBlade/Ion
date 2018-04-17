@@ -19,6 +19,7 @@
 
 #include "Renderer/GPUMemoryManager.h"
 #include "Renderer/StagingBufferManager.h"
+#include "Renderer/VertexCacheManager.h"
 
 #include "Texture/TextureCommon.h"
 #include "Texture/TextureOptions.h"

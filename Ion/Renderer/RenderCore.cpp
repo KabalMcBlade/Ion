@@ -9,6 +9,7 @@
 
 #include "StagingBufferManager.h"
 #include "ShaderProgramManager.h"
+#include "VertexCacheManager.h"
 
 
 #define VK_NAME                     "Ion"
@@ -832,6 +833,21 @@ RenderCore::~RenderCore()
     m_vkAcquiringSemaphores.clear();
 }
 
+void RenderCore::Clear()
+{
+    m_jointCacheHandler = 0;
+    m_vkGPU = GPU();
+    m_vkDevice = VK_NULL_HANDLE;
+    m_vkGraphicsFamilyIndex = -1;
+    m_vkPresentFamilyIndex = -1;
+    m_vkGraphicsQueue = VK_NULL_HANDLE;
+    m_vkPresentQueue = VK_NULL_HANDLE;
+    m_vkDepthFormat = VK_FORMAT_UNDEFINED;
+    m_vkRenderPass = VK_NULL_HANDLE;
+    m_vkPipelineCache = VK_NULL_HANDLE;
+    m_vkSampleCount = VK_SAMPLE_COUNT_1_BIT;
+    m_vkSupersampling = false;
+}
 
 ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
 {
@@ -916,11 +932,15 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
 
     ionShaderProgramManager().Init(m_vkDevice, _shaderFolderPath);
 
+    ionVertexCacheManager().Init(m_vkGPU.m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment);
+
     return true;
 }
 
 void RenderCore::Shutdown()
 {
+    ionVertexCacheManager().Shutdown();
+
     ionShaderProgramManager().Shutdown();
 
     DestroyFrameBuffers();

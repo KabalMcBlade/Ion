@@ -5,6 +5,8 @@
 #include "ShaderProgramHelper.h"
 #include "RenderCore.h"
 
+#include "VertexCacheManager.h"
+
 
 EOS_USING_NAMESPACE
 VK_ALLOCATOR_USING_NAMESPACE
@@ -219,7 +221,30 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, ionU64 _stat
     ionS32 uboIndex = 0;
     UniformBuffer* ubos[6] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 
+    UniformBuffer vertParms;
+    if (shaderProgram.m_vertexShaderIndex > -1 && m_shaders[shaderProgram.m_vertexShaderIndex].m_parametersHash.size() > 0)
+    {
+        AllocParametersBlockBuffer(_render, m_shaders[shaderProgram.m_vertexShaderIndex].m_parametersHash, vertParms);
 
+        ubos[uboIndex++] = &vertParms;
+    }
+
+    UniformBuffer jointBuffer;
+    if (shaderProgram.m_usesJoints && _render.GetJointCacheHandler() > 0)
+    {
+        if (!ionVertexCacheManager().GetJointBuffer(_render.GetJointCacheHandler(), &jointBuffer))
+        {
+            ionAssertReturnVoid(false, "CommitCurrent: The jointBuffer is nullptr");
+            return;
+        }
+        ionAssertReturnVoid((jointBuffer.GetOffset() & (_render.GetGPU().m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment - 1)) == 0, "Error in the joint buffer");
+
+        ubos[uboIndex++] = &jointBuffer;
+    }
+    else if (shaderProgram.m_usesSkinning)
+    {
+        ubos[uboIndex++] = m_skinningUniformBuffer;
+    }
 }
 
 void ShaderProgramManager::AllocParametersBlockBuffer(const RenderCore& _render, const eosVector(ionSize) & paramsHash, UniformBuffer& _ubo)

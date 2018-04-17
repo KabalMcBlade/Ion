@@ -25,8 +25,10 @@ ION_NAMESPACE_BEGIN
 class ION_DLL RenderCore final
 {
 public:
-    ionBool    Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
-    void       Shutdown();
+    ionBool     Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
+    void        Shutdown();
+
+    void        Clear();
 
     RenderCore();
     ~RenderCore();
@@ -48,6 +50,8 @@ public:
     const ionBool& GetUsesSuperSampling() const { return m_vkSupersampling; }
     const VkRenderPass& GetRenderPass() const { return m_vkRenderPass; }
     const VkPipelineCache& GetPipelineCache() const { return m_vkPipelineCache; }
+
+    const VertexCacheHandler& GetJointCacheHandler() const { return m_jointCacheHandler; }
 
 private:
     RenderCore(const RenderCore& _Orig) = delete;
@@ -107,6 +111,8 @@ private:
     eosVector(VkImage)			m_vkSwapchainImages;
     eosVector(VkImageView)		m_vkSwapchainViews;
     eosVector(VkFramebuffer)	m_vkFrameBuffers;
+
+    VertexCacheHandler          m_jointCacheHandler;
 
     ionU32                      m_width;
     ionU32                      m_height;
