@@ -6,6 +6,7 @@
 #include "RenderCore.h"
 
 #include "VertexCacheManager.h"
+#include "../Texture/Texture.h"
 
 
 EOS_USING_NAMESPACE
@@ -245,6 +246,97 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, ionU64 _stat
     {
         ubos[uboIndex++] = m_skinningUniformBuffer;
     }
+
+    UniformBuffer tessCtrlParms;
+    if (shaderProgram.m_tessellationControlShaderIndex > -1 && m_shaders[shaderProgram.m_tessellationControlShaderIndex].m_parametersHash.size() > 0)
+    {
+        AllocParametersBlockBuffer(_render, m_shaders[shaderProgram.m_tessellationControlShaderIndex].m_parametersHash, tessCtrlParms);
+
+        ubos[uboIndex++] = &tessCtrlParms;
+    }
+
+    UniformBuffer tessEvalParms;
+    if (shaderProgram.m_tessellationEvaluatorShaderIndex > -1 && m_shaders[shaderProgram.m_tessellationEvaluatorShaderIndex].m_parametersHash.size() > 0)
+    {
+        AllocParametersBlockBuffer(_render, m_shaders[shaderProgram.m_tessellationEvaluatorShaderIndex].m_parametersHash, tessEvalParms);
+
+        ubos[uboIndex++] = &tessEvalParms;
+    }
+
+    UniformBuffer geometryParms;
+    if (shaderProgram.m_geometryShaderIndex > -1 && m_shaders[shaderProgram.m_geometryShaderIndex].m_parametersHash.size() > 0)
+    {
+        AllocParametersBlockBuffer(_render, m_shaders[shaderProgram.m_geometryShaderIndex].m_parametersHash, geometryParms);
+
+        ubos[uboIndex++] = &geometryParms;
+    }
+
+    UniformBuffer fragParms;
+    if (shaderProgram.m_fragmentShaderIndex > -1 && m_shaders[shaderProgram.m_fragmentShaderIndex].m_parametersHash.size() > 0)
+    {
+        AllocParametersBlockBuffer(_render, m_shaders[shaderProgram.m_fragmentShaderIndex].m_parametersHash, fragParms);
+
+        ubos[uboIndex++] = &fragParms;
+    }
+
+
+    for (ionSize i = 0; i < shaderProgram.m_bindings.size(); ++i)
+    {
+        EShaderBinding binding = shaderProgram.m_bindings[i];
+
+        switch (binding) 
+        {
+        case EShaderBinding_Uniform:
+        {
+            UniformBuffer* ubo = ubos[bufferIndex];
+
+            VkDescriptorBufferInfo & bufferInfo = bufferInfos[bufferIndex++];
+            memset(&bufferInfo, 0, sizeof(VkDescriptorBufferInfo));
+            bufferInfo.buffer = ubo->GetObject();
+            bufferInfo.offset = ubo->GetOffset();
+            bufferInfo.range = ubo->GetSize();
+
+            VkWriteDescriptorSet & write = writes[writeIndex++];
+            memset(&write, 0, sizeof(VkWriteDescriptorSet));
+            write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            write.dstSet = descSet;
+            write.dstBinding = bindingIndex++;
+            write.descriptorCount = 1;
+            write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            write.pBufferInfo = &bufferInfo;
+
+            break;
+        }
+        case EShaderBinding_Sampler:
+        {
+            const Texture* image = _render.GetTextureParam(imageIndex);
+
+            VkDescriptorImageInfo & imageInfo = imageInfos[imageIndex++];
+            memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
+            imageInfo.imageLayout = image->GetLayout();
+            imageInfo.imageView = image->GetView();
+            imageInfo.sampler = image->GetSampler();
+
+            ionAssertReturnVoid(image->GetView() != VK_NULL_HANDLE, "View is null!");
+
+            VkWriteDescriptorSet & write = writes[writeIndex++];
+            memset(&write, 0, sizeof(VkWriteDescriptorSet));
+            write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            write.dstSet = descSet;
+            write.dstBinding = bindingIndex++;
+            write.descriptorCount = 1;
+            write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            write.pImageInfo = &imageInfo;
+
+            break;
+        }
+        }
+    }
+
+    vkUpdateDescriptorSets(m_vkDevice, writeIndex, writes, 0, nullptr);
+
+    vkCmdBindDescriptorSets(_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shaderProgram.m_pipelineLayout, 0, 1, &descSet, 0, nullptr);
+    vkCmdBindPipeline(_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 }
 
 void ShaderProgramManager::AllocParametersBlockBuffer(const RenderCore& _render, const eosVector(ionSize) & paramsHash, UniformBuffer& _ubo)
@@ -348,6 +440,35 @@ void ShaderProgramManager::LoadShader(Shader& _shader, const ShaderLayoutDef& _d
 
     VkResult result = vkCreateShaderModule(m_vkDevice, &createInfo, vkMemory, &_shader.m_shaderModule);
     ionAssertReturnVoid(result == VK_SUCCESS, "Cannot create shader!");
+}
+
+ionS32 ShaderProgramManager::FindProgram(const eosString& _name, ionS32 _vertexIndex, ionS32 _fragmentIndex /*= -1*/, ionS32 _tessellationControlIndex /*= -1*/, ionS32 _tessellationEvaluationIndex /*= -1*/, ionS32 _geometryIndex /*= -1*/)
+{
+    for (ionSize i = 0; i < m_shaderPrograms.size(); ++i)
+    {
+        ShaderProgram& prog = m_shaderPrograms[i];
+        if (prog.m_vertexShaderIndex == _vertexIndex && prog.m_fragmentShaderIndex == _fragmentIndex && prog.m_tessellationControlShaderIndex == _tessellationControlIndex && prog.m_tessellationEvaluatorShaderIndex == _tessellationEvaluationIndex && prog.m_geometryShaderIndex == _geometryIndex)
+        {
+            return (ionS32)i;
+        }
+    }
+
+    ShaderProgram program;
+    program.m_name = _name;
+    program.m_vertexShaderIndex = _vertexIndex;
+    program.m_fragmentShaderIndex = _fragmentIndex;
+    program.m_tessellationControlShaderIndex = _tessellationControlIndex;
+    program.m_tessellationEvaluatorShaderIndex = _tessellationEvaluationIndex;
+    program.m_geometryShaderIndex = _geometryIndex;
+
+    ShaderProgramHelper::CreateDescriptorSetLayout(m_vkDevice, program, m_shaders[_vertexIndex], m_shaders[_fragmentIndex], m_shaders[_tessellationControlIndex], m_shaders[_tessellationEvaluationIndex], m_shaders[_geometryIndex]);
+
+    // skinning here?
+
+    m_shaderPrograms.push_back(program);
+
+    const ionS32 index = (ionS32)(m_shaderPrograms.size() - 1);
+    return index;
 }
 
 

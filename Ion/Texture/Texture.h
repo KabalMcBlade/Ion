@@ -26,6 +26,8 @@ public:
     const eosString& GetName() const { return m_name; }
     const TextureOptions& GetOptions() const { return m_options; }
     const VkImageView& GetView() const { return m_view; }
+    const VkImageLayout& GetLayout() const { return m_layout; }
+    const VkSampler& GetSampler() const { return m_sampler; }
 
 private:
     friend class TextureManager;

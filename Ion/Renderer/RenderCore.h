@@ -21,6 +21,7 @@ VK_ALLOCATOR_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 
+class Texture;
 
 class ION_DLL RenderCore final
 {
@@ -29,6 +30,8 @@ public:
     void        Shutdown();
 
     void        Clear();
+
+    void        BindTexture(ionS32 _index, Texture* _image);
 
     RenderCore();
     ~RenderCore();
@@ -52,6 +55,8 @@ public:
     const VkPipelineCache& GetPipelineCache() const { return m_vkPipelineCache; }
 
     const VertexCacheHandler& GetJointCacheHandler() const { return m_jointCacheHandler; }
+
+    const Texture* GetTextureParam(ionS32 _imageIndex) const { ionAssertReturnValue(_imageIndex >= 0 && _imageIndex < m_textureParams.size(), "Index out of bound", nullptr); return m_textureParams[_imageIndex]; }
 
 private:
     RenderCore(const RenderCore& _Orig) = delete;
@@ -111,6 +116,7 @@ private:
     eosVector(VkImage)			m_vkSwapchainImages;
     eosVector(VkImageView)		m_vkSwapchainViews;
     eosVector(VkFramebuffer)	m_vkFrameBuffers;
+    eosVector(Texture*)         m_textureParams;
 
     VertexCacheHandler          m_jointCacheHandler;
 
