@@ -6,7 +6,9 @@
 
 #include "../Core/CoreDefs.h"
 
+#include "RenderCommon.h"
 #include "BaseBufferObject.h"
+
 
 ION_NAMESPACE_BEGIN
 
@@ -26,7 +28,7 @@ public:
     void				Update(const void* _data, ionSize _size, ionSize _offset = 0) const;
 
     void*				MapBuffer(EBufferMappingType _mapType);
-    ION_INLINE  ionU16* MapIndexBuffer(EBufferMappingType _mapType) { return static_cast<ionU16*>(MapBuffer(_mapType)); }
+    ION_INLINE  Index*  MapIndexBuffer(EBufferMappingType _mapType) { return static_cast<Index*>(MapBuffer(_mapType)); }
     void				UnmapBuffer();
 
 private:

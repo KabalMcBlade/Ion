@@ -452,9 +452,9 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainVertex
 // vertCacheHandle_t packs size, offset, and frame number into 64 bits
 typedef ionU64 VertexCacheHandler;
 
+//////////////////////////////////////////////////////////////////////////
 
-
-
+typedef ionU16 Index;
 
 
 

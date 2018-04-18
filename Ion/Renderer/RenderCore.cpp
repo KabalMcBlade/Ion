@@ -932,7 +932,7 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
 
     ionShaderProgramManager().Init(m_vkDevice, _shaderFolderPath);
 
-    ionVertexCacheManager().Init(m_vkGPU.m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment);
+    ionVertexCacheManager().Init(m_vkDevice, m_vkGPU.m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment);
 
     return true;
 }
