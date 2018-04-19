@@ -26,15 +26,20 @@ class Texture;
 class ION_DLL RenderCore final
 {
 public:
-    ionBool     Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
-    void        Shutdown();
-
-    void        Clear();
-
-    void        BindTexture(ionS32 _index, Texture* _image);
-
     RenderCore();
     ~RenderCore();
+
+    ionBool     Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
+    void        Shutdown();
+    void        Restart();
+    void        Clear();
+
+    void        BlockingSwapBuffers();
+    void        StartFrame();
+    void        EndFrame();
+    void        BindTexture(ionS32 _index, Texture* _image);
+    
+
 
     VkDevice& GetDevice() { return m_vkDevice; }
     const VkDevice& GetDevice() const { return m_vkDevice; }
@@ -79,7 +84,7 @@ private:
     ionBool CreateQueryPool();
     ionBool CreateCommandPool();
     ionBool CreateCommandBuffer();
-    ionBool CreateSwapChain(ionU32 _width, ionU32 _height, ionBool _fullScreen);
+    ionBool CreateSwapChain();
     void    DestroySwapChain();
     ionBool CreateRenderTargets();
     void    DestroyRenderTargets();
@@ -89,6 +94,8 @@ private:
     void    DestroyFrameBuffers();
 
 private:
+    HINSTANCE                   m_instance;
+    HWND                        m_window;
     vkGpuMemoryAllocation       m_vkMSAAAllocation;
     GPU                         m_vkGPU;                  //  access through this component to get value such m_vkPhysicalDevice
     VkDevice                    m_vkDevice;
@@ -113,18 +120,30 @@ private:
     eosVector(VkQueryPool)	    m_vkQueryPools;
     eosVector(VkCommandBuffer)	m_vkCommandBuffers;
     eosVector(VkFence)			m_vkCommandBufferFences;
+    eosVector(ionBool)          m_vkCommandBufferRecorded;
     eosVector(VkImage)			m_vkSwapchainImages;
     eosVector(VkImageView)		m_vkSwapchainViews;
     eosVector(VkFramebuffer)	m_vkFrameBuffers;
     eosVector(Texture*)         m_textureParams;
 
+    eosVector(ionU32)           m_queryIndex;
+    eosVector(eosVector(ionU64))m_queryResults;
+
     VertexCacheHandler          m_jointCacheHandler;
+
+    ionU64                      m_microSeconds;
+
+    ionU64						m_counter;
+    ionU32						m_currentFrameData;
+    ionU32						m_currentSwapIndex;
 
     ionU32                      m_width;
     ionU32                      m_height;
 
     ionS32			            m_vkGraphicsFamilyIndex;
     ionS32			            m_vkPresentFamilyIndex;
+
+    ionU32                      m_vkCurrentSwapIndex;
     
     ionBool						m_vkSupersampling;
     ionBool                     m_vkFullScreen;

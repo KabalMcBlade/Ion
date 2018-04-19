@@ -5,9 +5,8 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-GPU::GPU() : m_vkPhysicalDevice(VK_NULL_HANDLE)
+GPU::GPU() :  m_vkPhysicalDevice(VK_NULL_HANDLE)
 {
-
 }
 
 GPU::~GPU()

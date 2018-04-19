@@ -455,14 +455,11 @@ ionBool RenderCore::CreateCommandBuffer()
     return true;
 }
 
-ionBool RenderCore::CreateSwapChain(ionU32 _width, ionU32 _height, ionBool _fullScreen)
+ionBool RenderCore::CreateSwapChain()
 {
-    m_width = _width;
-    m_height = _height;
-
     VkSurfaceFormatKHR surfaceFormat = SelectSurfaceFormat(m_vkGPU.m_vkSurfaceFormats);
     VkPresentModeKHR presentMode = SelectPresentMode(m_vkGPU.m_vkPresentModes);
-    VkExtent2D extent = SelectSurfaceExtent(m_vkGPU.m_vkSurfaceCaps, _width, _height);
+    VkExtent2D extent = SelectSurfaceExtent(m_vkGPU.m_vkSurfaceCaps, m_width, m_height);
 
     VkSwapchainCreateInfoKHR info = {};
     info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -498,7 +495,6 @@ ionBool RenderCore::CreateSwapChain(ionU32 _width, ionU32 _height, ionBool _full
     m_vkSwapchainFormat = surfaceFormat.format;
     m_vkPresentMode = presentMode;
     m_vkSwapchainExtent = extent;
-    m_vkFullScreen = _fullScreen;
 
     ionU32 numImages = 0;
     result = vkGetSwapchainImagesKHR(m_vkDevice, m_vkSwapchain, &numImages, nullptr);
@@ -801,23 +797,9 @@ void RenderCore::DestroyFrameBuffers()
     m_vkFrameBuffers.clear();
 }
 
-RenderCore::RenderCore() :
-    m_vkDevice(VK_NULL_HANDLE),
-    m_vkSurface(VK_NULL_HANDLE),
-    m_vkInstance(VK_NULL_HANDLE),
-    m_vkGraphicsQueue(VK_NULL_HANDLE),
-    m_vkPresentQueue(VK_NULL_HANDLE),
-    m_vkCommandPool(VK_NULL_HANDLE),
-    m_vkSwapchain(VK_NULL_HANDLE),
-    m_vkMSAAImage(VK_NULL_HANDLE),
-    m_vkMSAAImageView(VK_NULL_HANDLE),
-    m_vkRenderPass(VK_NULL_HANDLE),
-    m_vkPipelineCache(VK_NULL_HANDLE),
-    m_vkGraphicsFamilyIndex(-1),
-    m_vkPresentFamilyIndex(-1),
-    m_vkFullScreen(false),
-    m_vkValidationEnabled(false)
+RenderCore::RenderCore() : m_instance(nullptr), m_window(nullptr)
 {
+    Clear();
 }
 
 
@@ -836,6 +818,7 @@ RenderCore::~RenderCore()
 
 void RenderCore::Clear()
 {
+    // core context
     m_jointCacheHandler = 0;
     m_vkGPU = GPU();
     m_vkDevice = VK_NULL_HANDLE;
@@ -848,10 +831,60 @@ void RenderCore::Clear()
     m_vkPipelineCache = VK_NULL_HANDLE;
     m_vkSampleCount = VK_SAMPLE_COUNT_1_BIT;
     m_vkSupersampling = false;
+    m_textureParams.clear();
+
+
+    // core
+    m_counter = 0;
+    m_currentFrameData = 0;
+    m_width = 640;
+    m_height = 480;
+    m_vkInstance = VK_NULL_HANDLE;
+    m_vkFullScreen = false;
+    m_vkSwapchain = VK_NULL_HANDLE;
+    m_vkSwapchainFormat = VK_FORMAT_UNDEFINED;
+    m_vkCurrentSwapIndex = 0;
+    //m_vkMSAAAllocation;
+    m_vkMSAAImage = VK_NULL_HANDLE;
+    m_vkMSAAImageView = VK_NULL_HANDLE;
+    m_vkCommandPool = VK_NULL_HANDLE;
+    m_vkSurface = VK_NULL_HANDLE;
+    m_vkPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+    m_vkValidationEnabled = false;
+
+    m_vkSwapchainExtent.width = m_width;
+    m_vkSwapchainExtent.height = m_height;
+    m_vkSwapchainImages.clear();
+    m_vkSwapchainViews.clear();
+    m_vkFrameBuffers.clear();
+    m_vkAcquiringSemaphores.clear();
+    m_vkCompletedSemaphores.clear();
+    m_currentSwapIndex = 0;
+
+    m_vkCommandBuffers.clear();
+    m_vkCommandBufferFences.clear();
+    m_vkCommandBufferRecorded.clear();
+
+    m_queryIndex.clear();
+
+    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    {
+        m_queryResults[i].clear();
+    }
+    m_queryResults.clear();
+
+    m_vkQueryPools.clear();
 }
 
 ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
 {
+    m_instance = _instance;
+    m_window = _handle;
+
+    m_width = _width;
+    m_height = _height;
+    m_vkFullScreen = _fullScreen;
+
     m_vkAcquiringSemaphores.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
     m_vkCompletedSemaphores.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
     m_vkQueryPools.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
@@ -860,15 +893,24 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
     m_vkSwapchainImages.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
     m_vkSwapchainViews.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
     m_vkFrameBuffers.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
+    m_vkCommandBufferRecorded.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
 
     m_textureParams.resize(ION_RENDER_MAX_IMAGE_PARMS, nullptr);
+    m_queryIndex.resize(ION_RENDER_BUFFER_COUNT, 0);
+
+    m_queryResults.resize(ION_RENDER_BUFFER_COUNT);
+    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    {
+        m_queryResults[i].resize(ION_QUERY_COUNT);
+    }
+ 
 
     if (!CreateInstance(_enableValidationLayer))
     {
         return false;
     }
 
-    if (!CreatePresentationSurface(_instance, _handle))
+    if (!CreatePresentationSurface(m_instance, m_window))
     {
         return false;
     }
@@ -907,7 +949,7 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
         return false;
     }
 
-    if (!CreateSwapChain(_width, _height, _fullScreen))
+    if (!CreateSwapChain())
     {
         return false;
     }
@@ -1018,10 +1060,176 @@ void RenderCore::Shutdown()
     }
 }
 
+void RenderCore::Restart()
+{
+    ionStagingBufferManager().Submit();
+
+    vkDeviceWaitIdle(m_vkDevice);
+
+    DestroyFrameBuffers();
+
+    DestroyRenderTargets();
+
+    DestroySwapChain();
+
+    vkDestroySurfaceKHR(m_vkInstance, m_vkSurface, vkMemory);
+
+    CreatePresentationSurface(m_instance, m_window);
+
+    VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_vkGPU.m_vkPhysicalDevice, m_vkSurface, &m_vkGPU.m_vkSurfaceCaps);
+    ionAssertReturnVoid(result == VK_SUCCESS, "Device capabilities changed and not supported!");
+
+    VkBool32 supportsPresent = VK_FALSE;
+    result = vkGetPhysicalDeviceSurfaceSupportKHR(m_vkGPU.m_vkPhysicalDevice, m_vkPresentFamilyIndex, m_vkSurface, &supportsPresent);
+    ionAssertReturnVoid(result == VK_SUCCESS, "Device surface changed and not supported!");
+    ionAssertReturnVoid(supportsPresent == VK_TRUE, "New surface does not support present");
+
+    CreateSwapChain();
+
+    CreateRenderTargets();
+
+    CreateFrameBuffers();
+}
+
+void RenderCore::BlockingSwapBuffers()
+{
+    ++m_counter;
+    m_currentFrameData = m_counter % ION_RENDER_BUFFER_COUNT;
+
+    if (m_vkCommandBufferRecorded[m_currentFrameData] == false)
+    {
+        return;
+    }
+
+    VkResult result = vkWaitForFences(m_vkDevice, 1, &m_vkCommandBufferFences[m_currentFrameData], VK_TRUE, UINT64_MAX);
+    ionAssertReturnVoid(result == VK_SUCCESS, "Wait for fences failed!");
+
+    result = vkResetFences(m_vkDevice, 1, &m_vkCommandBufferFences[m_currentFrameData]);
+    ionAssertReturnVoid(result == VK_SUCCESS, "Reset fences failed!");
+
+    m_vkCommandBufferRecorded[m_currentFrameData] = false;
+
+    //vkDeviceWaitIdle(m_vkDevice);
+}
+
+void RenderCore::StartFrame() 
+{
+    VkResult result = vkAcquireNextImageKHR(m_vkDevice, m_vkSwapchain, UINT64_MAX, m_vkAcquiringSemaphores[m_currentFrameData], VK_NULL_HANDLE, &m_currentSwapIndex);
+    ionAssertReturnVoid(result == VK_SUCCESS, "vkAcquireNextImageKHR failed!");
+
+    ionStagingBufferManager().Submit();
+    ionShaderProgramManager().StartFrame();
+
+    VkQueryPool queryPool = m_vkQueryPools[m_currentFrameData];
+
+    eosVector(ionU64) & results = m_queryResults[m_currentFrameData];
+
+    if (m_queryIndex[m_currentFrameData] > 0) 
+    {
+        vkGetQueryPoolResults(m_vkDevice, queryPool, 0, 2, results.size(), results.data(), sizeof(ionU64), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
+
+        const ionU64 gpuStart = results[0];
+        const ionU64 gpuEnd = results[1];
+        const ionU64 tick = (1000 * 1000 * 1000) / ((ionU64)m_vkGPU.m_vkPhysicalDeviceProps.limits.timestampPeriod);
+        m_microSeconds = ((gpuEnd - gpuStart) * 1000 * 1000) / tick;
+
+        m_queryIndex[m_currentFrameData] = 0;
+    }
+
+    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentFrameData];
+
+    VkCommandBufferBeginInfo commandBufferBeginInfo = {};
+    commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    result = vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+    ionAssertReturnVoid(result == VK_SUCCESS, "vkBeginCommandBuffer failed!");
+
+    vkCmdResetQueryPool(commandBuffer, queryPool, 0, ION_NUM_TIMESTAMP_QUERIES);
+
+    VkRenderPassBeginInfo renderPassBeginInfo = {};
+    renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassBeginInfo.renderPass = m_vkRenderPass;
+    renderPassBeginInfo.framebuffer = m_vkFrameBuffers[m_currentSwapIndex];
+    renderPassBeginInfo.renderArea.extent = m_vkSwapchainExtent;
+
+    vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    vkCmdWriteTimestamp(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryPool, m_queryIndex[m_currentFrameData]++);
+}
+
+void RenderCore::EndFrame()
+{
+    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentFrameData];
+
+    vkCmdWriteTimestamp(commandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, m_vkQueryPools[m_currentFrameData], m_queryIndex[m_currentFrameData]++);
+
+    vkCmdEndRenderPass(commandBuffer);
+
+    // Transition our swap image to present.
+    // Do this instead of having the renderpass do the transition
+    // so we can take advantage of the general layout to avoid 
+    // additional image barriers.
+    VkImageMemoryBarrier barrier = {};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image = m_vkSwapchainImages[m_currentSwapIndex];
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+    barrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+    barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    barrier.dstAccessMask = 0;
+
+    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+    VkResult result = vkEndCommandBuffer(commandBuffer);
+    ionAssertReturnVoid(result == VK_SUCCESS, "vkEndCommandBuffer failed!");
+
+    m_vkCommandBufferRecorded[m_currentFrameData] = true;
+
+    VkSemaphore* acquire = &m_vkAcquiringSemaphores[m_currentFrameData];
+    VkSemaphore* finished = &m_vkCompletedSemaphores[m_currentFrameData];
+
+    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = acquire;
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = finished;
+    submitInfo.pWaitDstStageMask = &dstStageMask;
+
+    result = vkQueueSubmit(m_vkGraphicsQueue, 1, &submitInfo, m_vkCommandBufferFences[m_currentFrameData]);
+    ionAssertReturnVoid(result == VK_SUCCESS, "vkQueueSubmit failed!");
+
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = finished;
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = &m_vkSwapchain;
+    presentInfo.pImageIndices = &m_currentSwapIndex;
+
+    result = vkQueuePresentKHR(m_vkPresentQueue, &presentInfo);
+    ionAssertReturnVoid(result == VK_SUCCESS, "vkQueuePresentKHR failed!");
+
+    ++m_counter;
+    m_currentFrameData = m_counter % ION_RENDER_BUFFER_COUNT;
+}
+
+
+
 void RenderCore::BindTexture(ionS32 _index, Texture* _image)
 {
     ionAssertReturnVoid(_index >= 0 && _index < m_textureParams.capacity(), "Index out of bound of the capacity");
     m_textureParams[_index] = _image;
 }
+
 
 ION_NAMESPACE_END
