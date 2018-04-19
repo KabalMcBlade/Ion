@@ -29,17 +29,23 @@ public:
     RenderCore();
     ~RenderCore();
 
-    ionBool     Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
-    void        Shutdown();
-    void        Restart();
-    void        Clear();
+    ionBool Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
+    void    Shutdown();
+    void    Restart();
+    void    Clear();
 
-    void        BlockingSwapBuffers();
-    void        StartFrame();
-    void        EndFrame();
-    void        BindTexture(ionS32 _index, Texture* _image);
-    
-
+    void    BlockingSwapBuffers();
+    void    StartFrame();
+    void    EndFrame();
+    void    BindTexture(ionS32 _index, Texture* _image);
+    void    SetDefaultState();
+    void    SetState(ionU64 _stateBits);
+    void    SetScissor(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS32 _height);
+    void    SetViewport(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS32 _height);
+    void    SetPolygonOffset(ionFloat _scale, ionFloat _bias);
+    void    SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax);
+    void    SetClear(ionBool _color, ionBool _depth, ionBool _stencil, ionU8 _stencilValue, ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a);
+    void    CopyFrameBuffer(Texture* _texture, ionS32 _x, ionS32 _y, ionS32 _textureWidth, ionS32 _textureHeight);
 
     VkDevice& GetDevice() { return m_vkDevice; }
     const VkDevice& GetDevice() const { return m_vkDevice; }
@@ -131,6 +137,7 @@ private:
 
     VertexCacheHandler          m_jointCacheHandler;
 
+    ionU64				        m_stateBits;
     ionU64                      m_microSeconds;
 
     ionU64						m_counter;

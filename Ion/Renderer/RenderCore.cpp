@@ -11,6 +11,7 @@
 #include "ShaderProgramManager.h"
 #include "VertexCacheManager.h"
 
+#include "RenderState.h"
 
 #define VK_NAME                     "Ion"
 #define VK_LUNAR_VALIDATION_LAYER   "VK_LAYER_LUNARG_standard_validation"
@@ -1223,12 +1224,177 @@ void RenderCore::EndFrame()
     m_currentFrameData = m_counter % ION_RENDER_BUFFER_COUNT;
 }
 
-
-
 void RenderCore::BindTexture(ionS32 _index, Texture* _image)
 {
     ionAssertReturnVoid(_index >= 0 && _index < m_textureParams.capacity(), "Index out of bound of the capacity");
     m_textureParams[_index] = _image;
+}
+
+void RenderCore::SetDefaultState()
+{
+    m_stateBits = 0;
+
+    SetState(0);
+
+    SetScissor(0, 0, m_width, m_height);
+}
+
+void RenderCore::SetState(ionU64 _stateBits)
+{
+    m_stateBits = _stateBits | (m_stateBits & ERasterization_DepthTest_Mask);
+
+    // if the current rendered draw view is a mirror should set the 
+    // m_stateBits |= ERasterization_View_Specular;
+}
+
+void RenderCore::SetScissor(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS32 _height)
+{
+    VkRect2D scissor;
+    scissor.offset.x = _leftX;
+    scissor.offset.y = _bottomY;
+    scissor.extent.width = _width;
+    scissor.extent.height = _height;
+    vkCmdSetScissor(m_vkCommandBuffers[m_currentFrameData], 0, 1, &scissor);
+}
+
+void RenderCore::SetViewport(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS32 _height)
+{
+    VkViewport viewport;
+    viewport.x = (ionFloat)_leftX;
+    viewport.y = (ionFloat)_bottomY;
+    viewport.width = (ionFloat)_width;
+    viewport.height = (ionFloat)_height;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vkCmdSetViewport(m_vkCommandBuffers[m_currentFrameData], 0, 1, &viewport);
+}
+
+void RenderCore::SetPolygonOffset(ionFloat _scale, ionFloat _bias)
+{
+    vkCmdSetDepthBias(m_vkCommandBuffers[m_currentFrameData], _bias, 0.0f, _scale);
+}
+
+void RenderCore::SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax)
+{
+    if (!m_vkGPU.m_vkPhysicalDevFeatures.depthBounds || _zMin > _zMax)
+    {
+        return;
+    }
+
+    if (_zMin == 0.0f && _zMax == 0.0f)
+    {
+        m_stateBits = m_stateBits & ~ERasterization_DepthTest_Mask;
+    }
+    else 
+    {
+        m_stateBits |= ERasterization_DepthTest_Mask;
+        vkCmdSetDepthBounds(m_vkCommandBuffers[m_currentFrameData], _zMin, _zMax);
+    }
+}
+
+void RenderCore::SetClear(ionBool _color, ionBool _depth, ionBool _stencil, ionU8 _stencilValue, ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
+{
+    ionU32 numAttachments = 0;
+    VkClearAttachment attachments[2];
+    memset(attachments, 0, sizeof(attachments));
+
+    if (_color)
+    {
+        VkClearAttachment & attachment = attachments[numAttachments++];
+        attachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        attachment.colorAttachment = 0;
+        VkClearColorValue & color = attachment.clearValue.color;
+        color.float32[0] = _r;
+        color.float32[1] = _g;
+        color.float32[2] = _b;
+        color.float32[3] = _a;
+    }
+
+    if (_depth || _stencil)
+    {
+        VkClearAttachment & attachment = attachments[numAttachments++];
+        if (_depth) 
+        {
+            attachment.aspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+        }
+        if (_stencil)
+        {
+            attachment.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+        }
+        attachment.clearValue.depthStencil.depth = 1.0f;
+        attachment.clearValue.depthStencil.stencil = _stencilValue;
+    }
+
+    VkClearRect clearRect = {};
+    clearRect.baseArrayLayer = 0;
+    clearRect.layerCount = 1;
+    clearRect.rect.extent = m_vkSwapchainExtent;
+
+    vkCmdClearAttachments(m_vkCommandBuffers[m_currentFrameData], numAttachments, attachments, 1, &clearRect);
+}
+
+void RenderCore::CopyFrameBuffer(Texture* _texture, ionS32 _x, ionS32 _y, ionS32 _textureWidth, ionS32 _textureHeight)
+{
+    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentFrameData];
+
+    vkCmdEndRenderPass(commandBuffer);
+
+    VkImageMemoryBarrier dstBarrier = {};
+    dstBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    dstBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    dstBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    dstBarrier.image = _texture->GetImage();
+    dstBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    dstBarrier.subresourceRange.baseMipLevel = 0;
+    dstBarrier.subresourceRange.levelCount = 1;
+    dstBarrier.subresourceRange.baseArrayLayer = 0;
+    dstBarrier.subresourceRange.layerCount = 1;
+
+    // Pre copy transitions
+    {
+        // Transition the color dest texture so we can transfer to it.
+        dstBarrier.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        dstBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        dstBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        dstBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &dstBarrier);
+    }
+
+    // Perform the blit/copy
+    {
+        VkImageBlit region = {};
+        region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.srcSubresource.baseArrayLayer = 0;
+        region.srcSubresource.mipLevel = 0;
+        region.srcSubresource.layerCount = 1;
+        region.srcOffsets[1] = { _textureWidth, _textureHeight, 1 };
+
+        region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.dstSubresource.baseArrayLayer = 0;
+        region.dstSubresource.mipLevel = 0;
+        region.dstSubresource.layerCount = 1;
+        region.dstOffsets[1] = { _textureWidth, _textureHeight, 1 };
+
+        vkCmdBlitImage(commandBuffer, m_vkSwapchainImages[m_currentSwapIndex], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region, VK_FILTER_NEAREST);
+    }
+
+    // Post copy transitions
+    {
+        // Transition the color dest texture so we can transfer to it.
+        dstBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        dstBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        dstBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        dstBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        vkCmdPipelineBarrier( commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &dstBarrier);
+    }
+
+    VkRenderPassBeginInfo renderPassBeginInfo = {};
+    renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassBeginInfo.renderPass = m_vkRenderPass;
+    renderPassBeginInfo.framebuffer = m_vkFrameBuffers[m_currentSwapIndex];
+    renderPassBeginInfo.renderArea.extent = m_vkSwapchainExtent;
+
+    vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
 

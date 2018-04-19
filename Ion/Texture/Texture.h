@@ -28,6 +28,7 @@ public:
     const VkImageView& GetView() const { return m_view; }
     const VkImageLayout& GetLayout() const { return m_layout; }
     const VkSampler& GetSampler() const { return m_sampler; }
+    const VkImage& GetImage() const { return m_image; }
 
 private:
     friend class TextureManager;
