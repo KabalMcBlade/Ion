@@ -118,6 +118,7 @@ ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width,
     }
 
     ShowWindow(m_handle, SW_SHOW);  //SW_SHOWNORMAL
+    UpdateWindow(m_handle);
     SetForegroundWindow(m_handle);
     SetFocus(m_handle);
 

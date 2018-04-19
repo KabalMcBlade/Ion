@@ -1397,5 +1397,15 @@ void RenderCore::CopyFrameBuffer(Texture* _texture, ionS32 _x, ionS32 _y, ionS32
     vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
+void RenderCore::SetColor(const eosString& _param, ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
+{
+    float color[4];
+    color[0] = _r;
+    color[1] = _g;
+    color[2] = _b;
+    color[3] = _a;
+    ionShaderProgramManager().SetRenderParm(_param, color);
+}
+
 
 ION_NAMESPACE_END
