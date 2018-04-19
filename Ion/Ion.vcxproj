@@ -195,6 +195,7 @@
     <ClInclude Include="Renderer\BaseBufferObject.h" />
     <ClInclude Include="Renderer\GPUMemoryManager.h" />
     <ClInclude Include="Renderer\IndexBufferObject.h" />
+    <ClInclude Include="Renderer\RenderManager.h" />
     <ClInclude Include="Renderer\RenderState.h" />
     <ClInclude Include="Renderer\ShaderProgram.h" />
     <ClInclude Include="Renderer\ShaderProgramHelper.h" />
@@ -244,6 +245,7 @@
     <ClCompile Include="Renderer\GPUMemoryManager.cpp" />
     <ClCompile Include="Renderer\IndexBufferObject.cpp" />
     <ClCompile Include="Renderer\RenderCore.cpp" />
+    <ClCompile Include="Renderer\RenderManager.cpp" />
     <ClCompile Include="Renderer\ShaderProgram.cpp" />
     <ClCompile Include="Renderer\ShaderProgramHelper.cpp" />
     <ClCompile Include="Renderer\ShaderProgramManager.cpp" />

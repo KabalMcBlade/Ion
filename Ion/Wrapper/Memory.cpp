@@ -6,6 +6,7 @@
 #include "../Renderer/ShaderProgramManager.h"
 #include "../Renderer/VertexCacheManager.h"
 #include "../Texture/TextureManager.h"
+#include "../Renderer/RenderManager.h"
 
 
 ION_NAMESPACE_BEGIN
@@ -46,10 +47,12 @@ ION_DLL void InitializeManagers()
     ShaderProgramHelper::Create();
     ShaderProgramManager::Create();
     TextureManager::Create();
+    RenderManager::Create();
 }
 
 ION_DLL void ShutdownManagers()
 {
+    RenderManager::Destroy();
     TextureManager::Destroy();
     ShaderProgramManager::Destroy();
     ShaderProgramHelper::Destroy();
