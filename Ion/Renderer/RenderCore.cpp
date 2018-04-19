@@ -868,7 +868,7 @@ void RenderCore::Clear()
 
     m_queryIndex.clear();
 
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < m_queryResults.capacity(); ++i)
     {
         m_queryResults[i].clear();
     }
