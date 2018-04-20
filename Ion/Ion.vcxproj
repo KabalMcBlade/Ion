@@ -195,6 +195,7 @@
     <ClInclude Include="Renderer\BaseBufferObject.h" />
     <ClInclude Include="Renderer\GPUMemoryManager.h" />
     <ClInclude Include="Renderer\IndexBufferObject.h" />
+    <ClInclude Include="Scene\Mesh.h" />
     <ClInclude Include="Renderer\RenderManager.h" />
     <ClInclude Include="Renderer\RenderState.h" />
     <ClInclude Include="Renderer\ShaderProgram.h" />
@@ -204,6 +205,7 @@
     <ClInclude Include="Renderer\UniformBufferObject.h" />
     <ClInclude Include="Renderer\VertexBufferObject.h" />
     <ClInclude Include="Renderer\VertexCacheManager.h" />
+    <ClInclude Include="Scene\Entity.h" />
     <ClInclude Include="Texture\Texture.h" />
     <ClInclude Include="Texture\TextureManager.h" />
     <ClInclude Include="Texture\TextureOptions.h" />
@@ -218,6 +220,7 @@
     <ClInclude Include="Scene\Transform.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Utilities\LoaderGLTF.h" />
     <ClInclude Include="Wrapper\Memory.h" />
   </ItemGroup>
   <ItemGroup>
@@ -244,6 +247,7 @@
     <ClCompile Include="Renderer\GPU.cpp" />
     <ClCompile Include="Renderer\GPUMemoryManager.cpp" />
     <ClCompile Include="Renderer\IndexBufferObject.cpp" />
+    <ClCompile Include="Scene\Mesh.cpp" />
     <ClCompile Include="Renderer\RenderCore.cpp" />
     <ClCompile Include="Renderer\RenderManager.cpp" />
     <ClCompile Include="Renderer\ShaderProgram.cpp" />
@@ -254,12 +258,14 @@
     <ClCompile Include="Renderer\VertexBufferObject.cpp" />
     <ClCompile Include="Renderer\VertexCacheManager.cpp" />
     <ClCompile Include="Scene\BaseCamera.cpp" />
+    <ClCompile Include="Scene\Entity.cpp" />
     <ClCompile Include="Scene\Node.cpp" />
     <ClCompile Include="Scene\Transform.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Texture\Texture.cpp" />
     <ClCompile Include="Texture\TextureManager.cpp" />
     <ClCompile Include="Texture\TextureOptions.cpp" />
+    <ClCompile Include="Utilities\LoaderGLTF.cpp" />
     <ClCompile Include="Wrapper\Memory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -39,9 +39,13 @@
 #include "Renderer/ShaderProgramManager.h"
 #include "Renderer/RenderManager.h"
 
+#include "Utilities/LoaderGLTF.h"
+
 #include "Scene/Transform.h"
 #include "Scene/Node.h"
 #include "Scene/BaseCamera.h"
+#include "Scene/Mesh.h"
+#include "Scene/Entity.h"
 
 #include "Wrapper/Memory.h"
 

@@ -33,10 +33,6 @@ public:
 
 private:
     void				ClearWithoutFreeing();
-
-private:
-    IndexBuffer(const IndexBuffer& _Orig) = delete;
-    IndexBuffer& operator = (const IndexBuffer&) = delete;
 };
 
 

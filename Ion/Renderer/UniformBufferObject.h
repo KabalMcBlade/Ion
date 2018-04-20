@@ -29,10 +29,6 @@ public:
 
 private:
     void				ClearWithoutFreeing();
-
-private:
-    UniformBuffer(const UniformBuffer& _Orig) = delete;
-    UniformBuffer& operator = (const UniformBuffer&) = delete;
 };
 
 

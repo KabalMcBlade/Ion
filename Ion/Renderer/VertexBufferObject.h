@@ -37,10 +37,6 @@ public:
 
 private:
     void				ClearWithoutFreeing();
-
-private:
-    VertexBuffer(const VertexBuffer& _Orig) = delete;
-    VertexBuffer& operator = (const VertexBuffer&) = delete;
 };
 
 
