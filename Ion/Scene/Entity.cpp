@@ -1,8 +1,5 @@
 #include "Entity.h"
 
-#include "../Dependencies/Miscellaneous/tiny_gltf.h"
-
-#include "../Utilities/LoaderGLTF.h"
 
 ION_NAMESPACE_BEGIN
 

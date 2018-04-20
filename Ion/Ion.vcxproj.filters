@@ -210,9 +210,6 @@
     <ClInclude Include="Scene\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utilities\LoaderGLTF.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -300,9 +297,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Scene\Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utilities\LoaderGLTF.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
