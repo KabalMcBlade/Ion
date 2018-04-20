@@ -1,6 +1,5 @@
 #include "Entity.h"
 
-
 ION_NAMESPACE_BEGIN
 
 Entity::Entity() : Node()
@@ -18,9 +17,5 @@ Entity::~Entity()
     m_meshes.clear();
 }
 
-ionBool Entity::LoadFromGLTF(const eosString & _fileName)
-{
-    return false;
-}
 
 ION_NAMESPACE_END

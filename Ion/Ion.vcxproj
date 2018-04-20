@@ -172,6 +172,7 @@
     <ClInclude Include="Dependencies\Eos\Eos\StlAllocatorsMacro.h" />
     <ClInclude Include="Dependencies\Miscellaneous\json.hpp" />
     <ClInclude Include="Dependencies\Miscellaneous\stb_image.h" />
+    <ClInclude Include="Dependencies\Miscellaneous\stb_image_write.h" />
     <ClInclude Include="Dependencies\Miscellaneous\tiny_gltf.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Architecture.h" />
     <ClInclude Include="Dependencies\Nix\Nix\CoreDefs.h" />
@@ -220,6 +221,7 @@
     <ClInclude Include="Scene\Transform.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Utilities\LoaderGLTF.h" />
     <ClInclude Include="Wrapper\Memory.h" />
   </ItemGroup>
   <ItemGroup>
@@ -264,6 +266,7 @@
     <ClCompile Include="Texture\Texture.cpp" />
     <ClCompile Include="Texture\TextureManager.cpp" />
     <ClCompile Include="Texture\TextureOptions.cpp" />
+    <ClCompile Include="Utilities\LoaderGLTF.cpp" />
     <ClCompile Include="Wrapper\Memory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

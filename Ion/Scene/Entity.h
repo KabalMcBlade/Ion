@@ -19,7 +19,8 @@ public:
     explicit Entity(const eosString & _name);
     virtual ~Entity();
 
-    ionBool LoadFromGLTF(const eosString & _fileName);  // just version 2
+    const eosVector(Mesh)& GetMeshList() const { return m_meshes; }
+    eosVector(Mesh)& GetMeshList() { return m_meshes; }
 
 private:
     Entity(const Entity& _Orig) = delete;

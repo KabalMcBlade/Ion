@@ -11,6 +11,7 @@
 #include "Dependencies/Nix/Nix/Nix.h"
 
 #include "Dependencies/Miscellaneous/stb_image.h"
+#include "Dependencies/Miscellaneous/stb_image_write.h"
 #include "Dependencies/Miscellaneous/json.hpp"
 #include "Dependencies/Miscellaneous/tiny_gltf.h"
 
@@ -44,6 +45,8 @@
 #include "Scene/BaseCamera.h"
 #include "Scene/Mesh.h"
 #include "Scene/Entity.h"
+
+#include "Utilities/LoaderGLTF.h"
 
 #include "Wrapper/Memory.h"
 
