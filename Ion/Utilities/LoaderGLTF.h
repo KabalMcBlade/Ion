@@ -118,12 +118,8 @@ namespace GLTF
         ~Loader();
 
     private:
-        //eosUnorderedMap(eosString, ionU32) m_attrType2CompCnt;
-        //eosUnorderedMap(EComponentType, ionU32) m_compType2ByteSize;
-
-        
-        Loader(const Loader& _Orig) = delete;
-        Loader& operator = (const Loader&) = delete;
+        eosUnorderedMap(eosString, ionU32) m_attrType2CompCnt;
+        eosUnorderedMap(EComponentType, ionU32) m_compType2ByteSize;
     };
 
 };
