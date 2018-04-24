@@ -9,11 +9,10 @@
 #include "../Renderer/RenderCommon.h"
 #include "../Renderer/IndexBufferObject.h"
 #include "../Renderer/VertexBufferObject.h"
-
+#include "../Renderer/Material.h"
 
 ION_NAMESPACE_BEGIN
 
-class Texture;
 
 class ION_DLL Mesh 
 {
@@ -21,19 +20,17 @@ public:
     Mesh();
     ~Mesh();
 
+    const Material& GetMaterial() const { return m_material; }
+
+    void SetMaterial(Material& _material) { m_material = _material; }
+
 protected:
     ionBool m_uniformDataChanged;
 
 private:
     VertexBuffer    m_vertexBuffer;
     IndexBuffer     m_indexBuffer;
-
-    Texture*        m_albedoMap;
-    Texture*        m_normalMap;
-    Texture*        m_roughnessMap;
-    Texture*        m_metalnessMap;
-    Texture*        m_ambientOcclusionMap;
-    Texture*        m_emissiveMap;
+    Material        m_material;
 };
 
 ION_NAMESPACE_END

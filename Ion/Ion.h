@@ -39,6 +39,7 @@
 #include "Renderer/ShaderProgram.h"
 #include "Renderer/ShaderProgramManager.h"
 #include "Renderer/RenderManager.h"
+#include "Renderer/Material.h"
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"
