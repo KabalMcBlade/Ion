@@ -2,8 +2,6 @@
 
 #include "../Scene/Entity.h"
 
-#include "../Dependencies/Miscellaneous/tiny_gltf.h"
-
 #include "../Texture/TextureManager.h"
 #include "../Material/MaterialManager.h"
 
@@ -90,25 +88,47 @@ namespace GLTF
 
         ionAssertReturnValue(err.empty(), err.c_str(), false);
 
-
-
-
-
         //
         // START PARSING
         //
-  
 
-        //
-        // load all the texture inside the texture manager
-        for (ionSize i = 0; i < model.images.size(); ++i)
-        {
-            eosString path = dir + "/" + model.images[i].uri;
-            ionTextureManger().CreateTextureFromFile(_vkDevice, filename, path);
-        }
+        // 1. Load all the texture inside the texture manager
+        _private::LoadTextures(_vkDevice, filename, dir, model.images);
+
+        // 2. Load all materials inside the material manager
+        _private::LoadMaterials(_vkDevice, filename, dir, model.images, model.materials);
+
         return true;
     }
 
+    namespace _private
+    {
+        void LoadTextures(VkDevice _vkDevice, const eosString & _fileName, const eosString& _dir, const std::vector<tinygltf::Image>& _images)
+        {
+            for (ionSize i = 0; i < _images.size(); ++i)
+            {
+                eosString path = _dir + "/" + _images[i].uri;
+                ionTextureManger().CreateTextureFromFile(_vkDevice, _fileName, path);
+            }
+        }
+
+        void LoadMaterials(VkDevice _vkDevice, const eosString & _fileName, const eosString& _dir, const std::vector<tinygltf::Image>& _images, const std::vector<tinygltf::Material>& _materials)
+        {
+            for (ionSize i = 0; i < _materials.size(); ++i)
+            {
+                const tinygltf::Material& material = _materials[i];
+
+                Texture* albedoMap = nullptr;
+                Texture* normalMap = nullptr;
+                Texture* roughnessMap = nullptr;
+                Texture* metalnessMap = nullptr;
+                Texture* ambientOcclusionMap = nullptr;
+                Texture* emissiveMap = nullptr;
+
+
+            }
+        }
+    }
 };
 
 

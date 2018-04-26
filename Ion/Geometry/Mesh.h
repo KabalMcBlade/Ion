@@ -15,6 +15,13 @@
 ION_NAMESPACE_BEGIN
 
 
+struct Primitive
+{
+    ionU32      m_firstIndex;
+    ionU32      m_indexCount;
+    Material*   m_material;
+};
+
 class ION_DLL Mesh 
 {
 public:
@@ -27,7 +34,7 @@ protected:
 private:
     VertexBuffer    m_vertexBuffer;
     IndexBuffer     m_indexBuffer;
-    Material*       m_material;
+    Primitive*      m_primitive;
 };
 
 ION_NAMESPACE_END

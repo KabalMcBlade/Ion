@@ -6,7 +6,7 @@
 
 #include "Node.h"
 
-#include "Mesh.h"
+#include "../Geometry/Mesh.h"
 
 EOS_USING_NAMESPACE
 

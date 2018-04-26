@@ -44,13 +44,13 @@
 #include "Shader/ShaderProgram.h"
 #include "Shader/ShaderProgramManager.h"
 
-
 #include "Material/Material.h"
+
+#include "Geometry/Mesh.h"
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"
 #include "Scene/BaseCamera.h"
-#include "Scene/Mesh.h"
 #include "Scene/Entity.h"
 
 #include "Utilities/LoaderGLTF.h"

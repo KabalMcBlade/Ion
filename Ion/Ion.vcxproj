@@ -198,7 +198,7 @@
     <ClInclude Include="Renderer\GPUMemoryManager.h" />
     <ClInclude Include="Renderer\IndexBufferObject.h" />
     <ClInclude Include="Material\Material.h" />
-    <ClInclude Include="Scene\Mesh.h" />
+    <ClInclude Include="Geometry\Mesh.h" />
     <ClInclude Include="Renderer\RenderManager.h" />
     <ClInclude Include="Renderer\RenderState.h" />
     <ClInclude Include="Shader\ShaderProgram.h" />
@@ -252,7 +252,7 @@
     <ClCompile Include="Renderer\GPUMemoryManager.cpp" />
     <ClCompile Include="Renderer\IndexBufferObject.cpp" />
     <ClCompile Include="Material\Material.cpp" />
-    <ClCompile Include="Scene\Mesh.cpp" />
+    <ClCompile Include="Geometry\Mesh.cpp" />
     <ClCompile Include="Renderer\RenderCore.cpp" />
     <ClCompile Include="Renderer\RenderManager.cpp" />
     <ClCompile Include="Shader\ShaderProgram.cpp" />
