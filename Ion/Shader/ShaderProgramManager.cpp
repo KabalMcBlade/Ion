@@ -3,9 +3,9 @@
 #include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
 #include "ShaderProgramHelper.h"
-#include "RenderCore.h"
+#include "../Renderer/RenderCore.h"
 
-#include "VertexCacheManager.h"
+#include "../Renderer/VertexCacheManager.h"
 #include "../Texture/Texture.h"
 
 

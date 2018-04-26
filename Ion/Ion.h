@@ -35,11 +35,14 @@
 #include "Renderer/VertexBufferObject.h"
 #include "Renderer/IndexBufferObject.h"
 #include "Renderer/UniformBufferObject.h"
-#include "Renderer/ShaderProgramHelper.h"
-#include "Renderer/ShaderProgram.h"
-#include "Renderer/ShaderProgramManager.h"
 #include "Renderer/RenderManager.h"
-#include "Renderer/Material.h"
+
+#include "Shader/ShaderProgramHelper.h"
+#include "Shader/ShaderProgram.h"
+#include "Shader/ShaderProgramManager.h"
+
+
+#include "Material/Material.h"
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"

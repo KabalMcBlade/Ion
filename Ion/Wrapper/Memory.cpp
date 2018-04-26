@@ -2,9 +2,9 @@
 
 #include "../Renderer/GPUMemoryManager.h"
 #include "../Renderer/StagingBufferManager.h"
-#include "../Renderer/ShaderProgramHelper.h"
-#include "../Renderer/ShaderProgramManager.h"
 #include "../Renderer/VertexCacheManager.h"
+#include "../Shader/ShaderProgramHelper.h"
+#include "../Shader/ShaderProgramManager.h"
 #include "../Texture/TextureManager.h"
 #include "../Renderer/RenderManager.h"
 

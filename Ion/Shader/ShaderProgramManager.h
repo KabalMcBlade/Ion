@@ -7,10 +7,10 @@
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
-#include "RenderCommon.h"
-#include "ShaderProgram.h"
-#include "UniformBufferObject.h"
+#include "../Renderer/RenderCommon.h"
+#include "../Renderer/UniformBufferObject.h"
 
+#include "ShaderProgram.h"
 
 EOS_USING_NAMESPACE
 

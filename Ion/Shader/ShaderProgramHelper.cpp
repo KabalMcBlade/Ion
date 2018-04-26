@@ -2,10 +2,9 @@
 
 #include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
-
 #include "ShaderProgram.h"
-#include "RenderState.h"
-#include "RenderCore.h"
+#include "../Renderer/RenderState.h"
+#include "../Renderer/RenderCore.h"
 
 EOS_USING_NAMESPACE
 VK_ALLOCATOR_USING_NAMESPACE

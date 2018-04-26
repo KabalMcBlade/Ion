@@ -8,7 +8,7 @@
 
 #include "../Core/CoreDefs.h"
 
-#include "RenderCommon.h"
+#include "../Renderer/RenderCommon.h"
 
 
 EOS_USING_NAMESPACE

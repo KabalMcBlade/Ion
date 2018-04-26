@@ -9,7 +9,8 @@
 #include "../Renderer/RenderCommon.h"
 #include "../Renderer/IndexBufferObject.h"
 #include "../Renderer/VertexBufferObject.h"
-#include "../Renderer/Material.h"
+
+#include "../Material/Material.h"
 
 ION_NAMESPACE_BEGIN
 

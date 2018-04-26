@@ -7,8 +7,9 @@
 #include "../Texture/Texture.h"
 #include "../Texture/TextureManager.h"
 
+#include "../Shader/ShaderProgramManager.h"
+
 #include "StagingBufferManager.h"
-#include "ShaderProgramManager.h"
 #include "VertexCacheManager.h"
 
 #include "RenderState.h"
