@@ -5,7 +5,7 @@
 #include "../Dependencies/Miscellaneous/tiny_gltf.h"
 
 #include "../Texture/TextureManager.h"
-
+#include "../Material/MaterialManager.h"
 
 #define ION_GLTF_ACCESSOR_COMPONENT_TYPE_BYTE           5120
 #define ION_GLTF_ACCESSOR_COMPONENT_TYPE_UNSIGNED_BYTE  5121

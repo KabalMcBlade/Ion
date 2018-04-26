@@ -27,6 +27,9 @@
 #include "Texture/Texture.h"
 #include "Texture/TextureManager.h"
 
+#include "Material/Material.h"
+#include "Material/MaterialManager.h"
+
 #include "Renderer/RenderDefs.h"
 #include "Renderer/RenderCommon.h"
 #include "Renderer/GPU.h"

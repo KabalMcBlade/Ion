@@ -6,6 +6,7 @@
 #include "../Shader/ShaderProgramHelper.h"
 #include "../Shader/ShaderProgramManager.h"
 #include "../Texture/TextureManager.h"
+#include "../Material/MaterialManager.h"
 #include "../Renderer/RenderManager.h"
 
 
@@ -47,12 +48,14 @@ ION_DLL void InitializeManagers()
     ShaderProgramHelper::Create();
     ShaderProgramManager::Create();
     TextureManager::Create();
+    MaterialManager::Create();
     RenderManager::Create();
 }
 
 ION_DLL void ShutdownManagers()
 {
     RenderManager::Destroy();
+    MaterialManager::Destroy();
     TextureManager::Destroy();
     ShaderProgramManager::Destroy();
     ShaderProgramHelper::Destroy();

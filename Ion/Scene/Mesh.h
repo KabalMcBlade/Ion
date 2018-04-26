@@ -21,17 +21,13 @@ public:
     Mesh();
     ~Mesh();
 
-    const Material& GetMaterial() const { return m_material; }
-
-    void SetMaterial(Material& _material) { m_material = _material; }
-
 protected:
     ionBool m_uniformDataChanged;
 
 private:
     VertexBuffer    m_vertexBuffer;
     IndexBuffer     m_indexBuffer;
-    Material        m_material;
+    Material*       m_material;
 };
 
 ION_NAMESPACE_END

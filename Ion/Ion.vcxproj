@@ -193,6 +193,7 @@
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryHeapAllocator.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryLog.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkStlMemory.h" />
+    <ClInclude Include="Material\MaterialManager.h" />
     <ClInclude Include="Renderer\BaseBufferObject.h" />
     <ClInclude Include="Renderer\GPUMemoryManager.h" />
     <ClInclude Include="Renderer\IndexBufferObject.h" />
@@ -245,6 +246,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Ion.cpp" />
+    <ClCompile Include="Material\MaterialManager.cpp" />
     <ClCompile Include="Renderer\BaseBufferObject.cpp" />
     <ClCompile Include="Renderer\GPU.cpp" />
     <ClCompile Include="Renderer\GPUMemoryManager.cpp" />
