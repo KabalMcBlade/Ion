@@ -12,7 +12,10 @@ Material::Material(const eosString& _name) :
     m_roughnessMap(nullptr),
     m_metalnessMap(nullptr),
     m_ambientOcclusionMap(nullptr),
-    m_emissiveMap(nullptr)
+    m_emissiveMap(nullptr),
+    m_alphaCutoff(1.0f),
+    m_metallicFactor(1.0f),
+    m_roughnessFactor(1.0f)
 {
 }
 

@@ -58,6 +58,15 @@ public:
     ionBool Create(Texture* _albedoMap = nullptr, Texture* _normalMap = nullptr, Texture* _roughnessMap = nullptr, Texture* _metalnessMap = nullptr, Texture* _ambientOcclusionMap = nullptr, Texture* _emissiveMap = nullptr);
     void Destroy();
 
+
+    ionFloat GetAlphaCutoff() const { return m_alphaCutoff; }
+    ionFloat GetMetallicFactor() const { return m_metallicFactor; }
+    ionFloat GetRoughnessFactor() const { return m_roughnessFactor; }
+
+    void SetAlphaCutoff(ionFloat _value) { m_alphaCutoff = _value; }
+    void SetMetallicFactor(ionFloat _value) { m_metallicFactor = _value; }
+    void SetRoughnessFactor(ionFloat _value) { m_roughnessFactor = _value; }
+
     const Texture* GetAlbedoMap() const { return m_albedoMap; }
     const Texture* GetNormalMap() const { return m_normalMap; }
     const Texture* GetRoughnessMap() const { return m_roughnessMap; }
@@ -68,6 +77,9 @@ public:
 private:
     eosString       m_name;
     ionU64          m_stateBits;
+    ionFloat        m_alphaCutoff;
+    ionFloat        m_metallicFactor;
+    ionFloat        m_roughnessFactor;
     Texture*        m_albedoMap;
     Texture*        m_normalMap;
     Texture*        m_roughnessMap;
