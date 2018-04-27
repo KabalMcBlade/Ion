@@ -5,131 +5,167 @@
 #include "../Texture/TextureManager.h"
 #include "../Material/MaterialManager.h"
 
+/*
 #define ION_GLTF_ACCESSOR_COMPONENT_TYPE_BYTE           5120
 #define ION_GLTF_ACCESSOR_COMPONENT_TYPE_UNSIGNED_BYTE  5121
 #define ION_GLTF_ACCESSOR_COMPONENT_TYPE_SHORT          5122
 #define ION_GLTF_ACCESSOR_COMPONENT_TYPE_UNSIGNED_SHORT 5123
 #define ION_GLTF_ACCESSOR_COMPONENT_TYPE_FLOAT          5126
+*/
 
+
+#define TINYGLTF_IMPLEMENTATION
+// #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
+#include "../Dependencies/Miscellaneous/tiny_gltf.h"
 
 EOS_USING_NAMESPACE
 
-
-eosString& operator+(eosString & lhs, const char* rhs)
-{
-    eosString t(rhs);
-    return lhs += t;
-}
-
-eosString& operator+(eosString & lhs, const std::string & rhs)
-{
-    eosString t(rhs.c_str());
-    return lhs += t;
-}
-
 ION_NAMESPACE_BEGIN
 
-
-namespace GLTF
+LoaderGLTF::LoaderGLTF()
 {
-    // static
-    ionBool Load(const eosString & _filePath, VkDevice _vkDevice, Entity& _entity)
+}
+
+LoaderGLTF::~LoaderGLTF()
+{
+}
+
+ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity& _entity)
+{
+    m_vkDevice = _vkDevice;
+    //_entity.m_meshes.empty();
+
+    tinygltf::Model     model;
+    tinygltf::TinyGLTF  gltf;
+    std::string         err;
+
+    //
+    if (_filePath.find_last_of('/') != std::string::npos)
     {
-        //_entity.m_meshes.empty();
+        m_dir = _filePath.substr(0, _filePath.find_last_of('/'));
+    }
 
-        tinygltf::Model     model;
-        tinygltf::TinyGLTF  gltf;
-        std::string         err;
-        eosString           dir;
-        eosString           filename;
-        eosString           ext;
+    ionAssertReturnValue(!m_dir.empty(), "Path invalid", false);
 
-        //
-        if (_filePath.find_last_of('/') != std::string::npos)
+    //
+    if (_filePath.rfind('\\', _filePath.length()) != std::string::npos)
+    {
+        m_filename = _filePath.substr(_filePath.rfind('\\', _filePath.length()) + 1, _filePath.length() - _filePath.rfind('\\', _filePath.length()));
+    }
+    if (m_filename.empty())
+    {
+        if (_filePath.rfind('/', _filePath.length()) != std::string::npos)
         {
-            dir = _filePath.substr(0, _filePath.find_last_of('/'));
+            m_filename = _filePath.substr(_filePath.rfind('/', _filePath.length()) + 1, _filePath.length() - _filePath.rfind('/', _filePath.length()));
         }
+    }
 
-        ionAssertReturnValue(!dir.empty(), "Path invalid", false);
+    ionAssertReturnValue(!m_filename.empty(), "Filename invalid", false);
 
-        //
-        if (_filePath.rfind('\\', _filePath.length()) != std::string::npos)
+    //
+    m_filenameNoExt = m_filename.substr(0, m_filename.find_last_of('.'));
+
+    //
+    if (_filePath.find_last_of('.') != std::string::npos)
+    {
+        m_ext = _filePath.substr(_filePath.find_last_of('.') + 1);
+    }
+
+    ionAssertReturnValue(!m_ext.empty(), "Extension invalid", false);
+
+    //
+    ionBool ret = false;
+    if (m_ext.compare("glb") == 0)          // FULL BINARY
+    {
+        ret = gltf.LoadBinaryFromFile(&model, &err, _filePath.c_str());
+    }
+    else if (m_ext.compare("gltf") == 0)    // FULL TEXT OR HYBRID
+    {
+        ret = gltf.LoadASCIIFromFile(&model, &err, _filePath.c_str());
+    }
+    else
+    {
+        ionAssertReturnValue(false, "Invalid file format extension", false);
+    }
+
+    ionAssertReturnValue(err.empty(), err.c_str(), false);
+    ionAssertReturnValue(ret, "Failed to parse glTF", false);
+
+    ionAssertReturnValue(err.empty(), err.c_str(), false);
+
+    //
+    // START PARSING
+    //
+
+    const eosString underscore = "_";
+    const eosString backslash = "/";
+
+    //////////////////////////////////////////////////////////////////////////
+    // 1. Load all the texture inside the texture manager
+    for (ionSize i = 0; i < model.images.size(); ++i)
+    {
+        // no filename, so image could be stored in binary format
+        if (model.images[i].uri.empty())
         {
-            filename = _filePath.substr(_filePath.rfind('\\', _filePath.length()) + 1, _filePath.length() - _filePath.rfind('\\', _filePath.length()));
-        }
+            TextureOptions options;
+            options.m_width = model.images[i].width;
+            options.m_height = model.images[i].height;
+            options.m_numChannels = model.images[i].component;
 
-        ionAssertReturnValue(!filename.empty(), "Filename invalid", false);
+            eosString name = model.images[i].name.c_str();
+            if (name.empty())
+            {
+                eosString val = std::to_string(i).c_str();
+                name = m_filenameNoExt + underscore + val;
+            }
 
-        //
-        if (_filePath.find_last_of('.') != std::string::npos)
-        {
-            ext = _filePath.substr(_filePath.find_last_of('.') + 1);
-        }
-
-        ionAssertReturnValue(!ext.empty(), "Extension invalid", false);
-
-        //
-        ionBool ret = false;
-        if (ext.compare("glb") == 0)
-        {
-            ret = gltf.LoadBinaryFromFile(&model, &err, _filePath.c_str());
-        }
-        else if (ext.compare("gltf") == 0)
-        {
-            ret = gltf.LoadASCIIFromFile(&model, &err, _filePath.c_str());
+            ionTextureManger().CreateTextureFromBinary(m_vkDevice, name, options, &model.images[i].image[0], model.images[i].image.size());
         }
         else
         {
-            ionAssertReturnValue(false, "Invalid file format extension", false);
+            eosString val = model.images[i].uri.c_str();
+            eosString path = m_dir + backslash + val;
+            ionTextureManger().CreateTextureFromFile(m_vkDevice, m_filename, path);
         }
-
-        ionAssertReturnValue(err.empty(), err.c_str(), false);
-        ionAssertReturnValue(ret, "Failed to parse glTF", false);
-
-        ionAssertReturnValue(err.empty(), err.c_str(), false);
-
-        //
-        // START PARSING
-        //
-
-        // 1. Load all the texture inside the texture manager
-        _private::LoadTextures(_vkDevice, filename, dir, model.images);
-
-        // 2. Load all materials inside the material manager
-        _private::LoadMaterials(_vkDevice, filename, dir, model.images, model.materials);
-
-        return true;
     }
 
-    namespace _private
+    //
+    // 2. Load all materials inside the material manager
+    for (ionSize i = 0; i < model.materials.size(); ++i)
     {
-        void LoadTextures(VkDevice _vkDevice, const eosString & _fileName, const eosString& _dir, const std::vector<tinygltf::Image>& _images)
+        const tinygltf::Material& material = model.materials[i];
+
+        Texture* albedoMap = nullptr;
+        Texture* normalMap = nullptr;
+        Texture* roughnessMap = nullptr;
+        Texture* metalnessMap = nullptr;
+        Texture* ambientOcclusionMap = nullptr;
+        Texture* emissiveMap = nullptr;
+
+        if (material.values.find("pbrMetallicRoughness") != material.values.end())
         {
-            for (ionSize i = 0; i < _images.size(); ++i)
-            {
-                eosString path = _dir + "/" + _images[i].uri;
-                ionTextureManger().CreateTextureFromFile(_vkDevice, _fileName, path);
-            }
+            /*
+            ionS32 textureIndex = material.values["pbrMetallicRoughness"].TextureIndex();
+
+            ionFloat red = material.values["pbrMetallicRoughness"].ColorFactor()[0];
+            ionFloat green = (ionFloat)material.values["pbrMetallicRoughness"].ColorFactor()[1];
+            ionFloat blue = (ionFloat)material.values["pbrMetallicRoughness"].ColorFactor()[2];
+            ionFloat alpha = (ionFloat)material.values["pbrMetallicRoughness"].ColorFactor()[3];
+
+            ionFloat factor = (ionFloat)material.values["pbrMetallicRoughness"].Factor();
+            */
         }
 
-        void LoadMaterials(VkDevice _vkDevice, const eosString & _fileName, const eosString& _dir, const std::vector<tinygltf::Image>& _images, const std::vector<tinygltf::Material>& _materials)
-        {
-            for (ionSize i = 0; i < _materials.size(); ++i)
-            {
-                const tinygltf::Material& material = _materials[i];
-
-                Texture* albedoMap = nullptr;
-                Texture* normalMap = nullptr;
-                Texture* roughnessMap = nullptr;
-                Texture* metalnessMap = nullptr;
-                Texture* ambientOcclusionMap = nullptr;
-                Texture* emissiveMap = nullptr;
 
 
-            }
-        }
+        //const auto &fields = material.get<picojson::object>();
+        //const auto &pbrTextures = fields.at("pbrMetallicRoughness").get<picojson::object>();
+
+        //material.baseColorTexture = &textures[gltfModel.textures[mat.values["baseColorTexture"].TextureIndex()].source];
     }
-};
+
+    return true;
+}
 
 
 ION_NAMESPACE_END

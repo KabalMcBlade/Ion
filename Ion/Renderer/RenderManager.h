@@ -10,8 +10,10 @@
 #include "RenderCore.h"
 
 
+
 ION_NAMESPACE_BEGIN
 
+class Entity;
 
 class ION_DLL RenderManager final
 {
@@ -20,6 +22,9 @@ public:
     ION_NO_INLINE static void Destroy();
 
     ION_NO_INLINE static RenderManager& Instance();
+
+    //const RenderCore& GetRenderer() const { return m_renderCore; }
+    ionBool LoadModelFromFile(const eosString& _fileName, Entity& _entity);
 
     ionBool Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
     void    Shutdown();

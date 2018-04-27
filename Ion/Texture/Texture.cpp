@@ -43,6 +43,19 @@ Texture::~Texture()
     }
 }
 
+ionBool Texture::LoadTexture(ionU8* _buffer)
+{
+    GenerateOptions();
+
+    if (Create())
+    {
+        UploadTextureToMemory(m_options.m_numLevels, m_options.m_width, m_options.m_height, _buffer, 0);
+
+        return true;
+    }
+
+    return false;
+}
 
 ionBool Texture::LoadTexture2D(const eosString& _path)
 {
@@ -56,14 +69,15 @@ ionBool Texture::LoadTexture2D(const eosString& _path)
 
     GenerateOptions();
 
-    if (Create())
+    ionBool result = Create();
+    if (result)
     {
         UploadTextureToMemory(m_options.m_numLevels, m_options.m_width, m_options.m_height, buffer, 0);
     }
 
     stbi_image_free(buffer);
 
-    return true;
+    return result;
 }
 
 // Adding the side name to the file with "_": for instance: "test.png" become "test_left.png", "test_top.png" etc etc
@@ -85,6 +99,8 @@ ionBool Texture::LoadTexture3D(const eosString& _path)
 
     eosString suffix[6]{ "_left", "_top", "_front", "_bottom", "_right", "_back" };
 
+    ionBool result = true;
+
     ionS32 w = 0, h = 0, c = 0;
     for(ionU8 i = 0; i < 6; ++i)
     {
@@ -98,7 +114,9 @@ ionBool Texture::LoadTexture3D(const eosString& _path)
 
         GenerateOptions();
 
-        if (Create())
+        // if one fail, all fails
+        result &= Create();
+        if (result)
         {
             UploadTextureToMemory(m_options.m_numLevels, m_options.m_width, m_options.m_height, buffer, i);
         }
@@ -106,7 +124,7 @@ ionBool Texture::LoadTexture3D(const eosString& _path)
         stbi_image_free(buffer);
     }
 
-    return true;
+    return result;
 }
 
 void Texture::SetOptions(const TextureOptions& _options)
@@ -209,14 +227,14 @@ ionBool Texture::CreateFromFile(const eosString& _path, ETextureFilter _filter /
     if (m_options.m_textureType == ETextureType_Cubic)
     {
         m_repeat = ETextureRepeat_Clamp;
-        if (LoadTexture3D(_path))
+        if (!LoadTexture3D(_path))
         {
             ionAssertReturnValue(false, "Cannot load 3d texture!", false);
         }
     }
     else if (m_options.m_textureType == ETextureType_Cubic)
     {
-        if (LoadTexture2D(_path))
+        if (!LoadTexture2D(_path))
         {
             ionAssertReturnValue(false, "Cannot load 2d texture!", false);
         }
@@ -226,8 +244,57 @@ ionBool Texture::CreateFromFile(const eosString& _path, ETextureFilter _filter /
         ionAssertReturnValue(false, "Texture type invalid!", false);
     }
 
+    return true;
+}
 
-    return false;
+ionBool Texture::CreateFromBinary(ionU8* _buffer, VkDeviceSize _bufferSize)
+{
+    // clear before create
+    Destroy();
+
+    ionU8* buffer;
+    VkDeviceSize bufferSize;
+    ionBool releaseBuffer = false;
+    if (m_options.m_numChannels == 3)
+    {
+        bufferSize = m_options.m_width * m_options.m_height * 4;
+        buffer = (ionU8*)eosNewRaw(sizeof(ionU8) * bufferSize, EOS_MEMORY_ALIGNMENT_SIZE);
+        ionU8* rgba = buffer;
+        ionU8* rgb = _buffer;
+        for (ionSize i = 0; i < m_options.m_width * m_options.m_height; ++i)
+        {
+            for (int32_t j = 0; j < 3; ++j)
+            {
+                rgba[j] = rgb[j];
+            }
+            rgba += 4;
+            rgb += 3;
+        }
+        m_options.m_numChannels = 4;
+        releaseBuffer = true;
+    }
+    else
+    {
+        buffer = _buffer;
+        bufferSize = _bufferSize;
+    }
+
+    if (!LoadTexture(buffer))
+    {
+        if (releaseBuffer)
+        {
+            eosDeleteRaw(buffer);
+        }
+        releaseBuffer = false;
+        ionAssertReturnValue(false, "Cannot load binary texture!", false);
+    }
+
+    if(releaseBuffer)
+    {
+        eosDeleteRaw(buffer);
+    }
+
+    return true;
 }
 
 ionBool Texture::Create()

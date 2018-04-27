@@ -89,6 +89,34 @@ Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosStri
     }
 }
 
+Texture* TextureManager::CreateTextureFromBinary(VkDevice _vkDevice, const eosString& _name, const TextureOptions& _options, ionU8* _buffer, VkDeviceSize _bufferSize)
+{
+    if (_name.empty())
+    {
+        return nullptr;
+    }
+
+    Texture* texture = GetTexture(_name);
+    if (texture == nullptr)
+    {
+        texture = CreateTexture(_vkDevice, _name);
+    }
+    else
+    {
+        DestroyTexture(texture);
+    }
+
+    texture->SetOptions(_options);
+    if (texture->CreateFromBinary(_buffer, _bufferSize))
+    {
+        return texture;
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
 Texture* TextureManager::CreateTextureFromOptions(VkDevice _vkDevice, const eosString& _name, const TextureOptions& _options)
 {
     if (_name.empty())

@@ -2,6 +2,11 @@
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
+#include "../Scene/Entity.h"
+
+#include "../Utilities/LoaderGLTF.h"
+
+
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
@@ -49,6 +54,12 @@ void RenderManager::Destroy()
 RenderManager& RenderManager::Instance()
 {
     return *s_instance;
+}
+
+ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, Entity& _entity)
+{
+    LoaderGLTF loader;
+    return loader.Load(_fileName, m_renderCore.GetDevice(), _entity);
 }
 
 ION_NAMESPACE_END

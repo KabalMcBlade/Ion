@@ -37,6 +37,7 @@ private:
     ionBool IsCompressed() const { return (m_options.m_format == ETextureFormat_DXT1 || m_options.m_format == ETextureFormat_DXT5); }
 
     ionBool CreateFromFile(const eosString& _path, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureUsage _usage = ETextureUsage_Default, ETextureType _type = ETextureType_2D);
+    ionBool CreateFromBinary(ionU8* _buffer, VkDeviceSize _bufferSize);
     ionBool Create();
 
     void Destroy();
@@ -47,6 +48,8 @@ private:
 
     ionBool LoadTexture2D(const eosString& _path);
     ionBool LoadTexture3D(const eosString& _path);
+
+    ionBool LoadTexture(ionU8* _buffer);
 
     ionU32 BitsPerFormat(ETextureFormat _format);
     void GenerateOptions();

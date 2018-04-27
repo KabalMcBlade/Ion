@@ -29,6 +29,7 @@ public:
     void        Shutdown();
 
     Texture*    CreateTextureFromFile(VkDevice _vkDevice, const eosString& _name, const eosString& _path, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureUsage _usage = ETextureUsage_Default, ETextureType _type = ETextureType_2D);
+    Texture*    CreateTextureFromBinary(VkDevice _vkDevice, const eosString& _name, const TextureOptions& _options, ionU8* _buffer, VkDeviceSize _bufferSize);
     Texture*    CreateTextureFromOptions(VkDevice _vkDevice, const eosString& _name, const TextureOptions& _options);
     Texture*    GetTexture(const eosString& _name) const;
 

@@ -5,8 +5,8 @@
 
 #include "../Core/CoreDefs.h"
 
-#include "../Dependencies/Miscellaneous/tiny_gltf.h"
 #include "../Dependencies/Eos/Eos/Eos.h"
+
 
 EOS_USING_NAMESPACE
 
@@ -14,15 +14,24 @@ ION_NAMESPACE_BEGIN
 
 class Entity;
 
-namespace GLTF
+class LoaderGLTF
 {
-    static ionBool Load(const eosString & _fileName, VkDevice _vkDevice, Entity& _entity);
+public:
+    LoaderGLTF();
+    ~LoaderGLTF();
 
-    namespace _private
-    {
-        static void LoadTextures(VkDevice _vkDevice, const eosString & _fileName, const eosString& _dir, const std::vector<tinygltf::Image>& _images);
-        static void LoadMaterials(VkDevice _vkDevice, const eosString & _fileName, const eosString& _dir, const std::vector<tinygltf::Image>& _images, const std::vector<tinygltf::Material>& _materials);
-    }
+    ionBool Load(const eosString& _fileName, VkDevice _vkDevice, Entity& _entity);
+
+private:
+    void LoadTextures();
+    void LoadMaterials();
+
+private:
+    VkDevice m_vkDevice;
+    eosString m_dir;
+    eosString m_filename;
+    eosString m_filenameNoExt;
+    eosString m_ext;
 };
 
 
