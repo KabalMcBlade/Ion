@@ -44,8 +44,13 @@ Texture::~Texture()
     }
 }
 
-ionBool Texture::LoadTexture(ionU8* _buffer)
+ionBool Texture::LoadTexture(ionU32 _width, ionU32 _height, ionU32 _numChannels, ionU8* _buffer)
 {
+    m_options.m_width = _width;
+    m_options.m_height = _height;
+    m_options.m_numChannels = _numChannels;
+    m_options.m_numLevels = 0;
+
     GenerateOptions();
 
     if (Create())
@@ -248,7 +253,7 @@ ionBool Texture::CreateFromFile(const eosString& _path, ETextureFilter _filter /
     return true;
 }
 
-ionBool Texture::CreateFromBinary(ionU8* _buffer, VkDeviceSize _bufferSize)
+ionBool Texture::CreateFromBinary(ionU32 _width, ionU32 _height, ionU32 _numChannels, ionU8* _buffer, VkDeviceSize _bufferSize)
 {
     // clear before create
     Destroy();
@@ -256,13 +261,13 @@ ionBool Texture::CreateFromBinary(ionU8* _buffer, VkDeviceSize _bufferSize)
     ionU8* buffer;
     VkDeviceSize bufferSize;
     ionBool releaseBuffer = false;
-    if (m_options.m_numChannels == 3)
+    if (_numChannels == 3)
     {
-        bufferSize = m_options.m_width * m_options.m_height * 4;
+        bufferSize = _width * _height * 4;
         buffer = (ionU8*)eosNewRaw(sizeof(ionU8) * bufferSize, EOS_MEMORY_ALIGNMENT_SIZE);
         ionU8* rgba = buffer;
         ionU8* rgb = _buffer;
-        for (ionSize i = 0; i < m_options.m_width * m_options.m_height; ++i)
+        for (ionSize i = 0; i < _width * _height; ++i)
         {
             for (int32_t j = 0; j < 3; ++j)
             {
@@ -271,7 +276,7 @@ ionBool Texture::CreateFromBinary(ionU8* _buffer, VkDeviceSize _bufferSize)
             rgba += 4;
             rgb += 3;
         }
-        m_options.m_numChannels = 4;
+        _numChannels = 4;
         releaseBuffer = true;
     }
     else
@@ -280,7 +285,7 @@ ionBool Texture::CreateFromBinary(ionU8* _buffer, VkDeviceSize _bufferSize)
         bufferSize = _bufferSize;
     }
 
-    if (!LoadTexture(buffer))
+    if (!LoadTexture( _width, _height, _numChannels, buffer))
     {
         if (releaseBuffer)
         {
@@ -433,15 +438,15 @@ void Texture::UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _
 
     VkBufferImageCopy imgCopy = {};
     imgCopy.bufferOffset = offset;
-    imgCopy.bufferRowLength = 0;
-    imgCopy.bufferImageHeight = _height;
+    //imgCopy.bufferRowLength = 0;
+    //imgCopy.bufferImageHeight = _height;
     imgCopy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     imgCopy.imageSubresource.layerCount = 1;
     imgCopy.imageSubresource.mipLevel = _mipMapLevel;
     imgCopy.imageSubresource.baseArrayLayer = _index;
-    imgCopy.imageOffset.x = 0;
-    imgCopy.imageOffset.y = 0;
-    imgCopy.imageOffset.z = 0;
+    //imgCopy.imageOffset.x = 0;
+    //imgCopy.imageOffset.y = 0;
+    //imgCopy.imageOffset.z = 0;
     imgCopy.imageExtent.width = _width;
     imgCopy.imageExtent.height = _height;
     imgCopy.imageExtent.depth = 1;

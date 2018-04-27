@@ -107,11 +107,6 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
         ionS32 textureIndex = (ionS32)i;
         if (model.images[i].uri.empty())                    // no uri, so image could be stored in binary format
         {
-            TextureOptions options;
-            options.m_width = model.images[i].width;
-            options.m_height = model.images[i].height;
-            options.m_numChannels = model.images[i].component;
-
             eosString name = model.images[i].name.c_str();  // no filename, I just give you one
             if (name.empty())
             {
@@ -119,7 +114,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
                 name = m_filenameNoExt + underscore + val;
             }
 
-            ionTextureManger().CreateTextureFromBinary(m_vkDevice, name, options, &model.images[i].image[0], model.images[i].image.size(), textureIndex);
+            ionTextureManger().CreateTextureFromBinary(m_vkDevice, name, model.images[i].width, model.images[i].height, model.images[i].component, &model.images[i].image[0], model.images[i].image.size(), textureIndex, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_LookUp_RGBA, ETextureType_2D);
         }
         else
         {
@@ -136,6 +131,45 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
         const tinygltf::Material& mat = model.materials[i];
 
         Material* material = ionMaterialManger().CreateMaterial(mat.name.c_str());
+
+        for (auto const& x : mat.values)
+        {
+            const std::string& key = (x.first);
+            const tinygltf::Parameter& param = (x.second);
+
+            if (key == "baseColorTexture")
+            {
+                material->SetMetalnessMap(ionTextureManger().GetTexture(param.TextureIndex()));
+            }
+            if (key == "metallicRoughnessTexture")
+            {
+                material->SetRoughnessMap(ionTextureManger().GetTexture(param.TextureIndex()));
+            }
+        }
+
+        for (auto const& x : mat.additionalValues)
+        {
+            const std::string& key = (x.first);
+            const tinygltf::Parameter& param = (x.second);
+
+            if (key == "emissiveTexture")
+            {
+                material->SetEmissiveMap(ionTextureManger().GetTexture(param.TextureIndex()));
+            }
+            if (key == "emissiveFactor")
+            {
+                material->SetEmissiveColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2], (ionFloat)param.ColorFactor()[3]);
+            }
+
+            if (key == "normalTexture")
+            {
+                material->SetNormalMap(ionTextureManger().GetTexture(param.TextureIndex()));
+            }
+            if (key == "occlusionTexture")
+            {
+                material->SetOcclusionMap(ionTextureManger().GetTexture(param.TextureIndex()));
+            }
+        }
 
         /*
         Texture* albedoMap = nullptr;

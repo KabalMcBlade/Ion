@@ -89,7 +89,7 @@ Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosStri
     }
 }
 
-Texture* TextureManager::CreateTextureFromBinary(VkDevice _vkDevice, const eosString& _name, const TextureOptions& _options, ionU8* _buffer, VkDeviceSize _bufferSize, ionS32 _index /*= -1*/)
+Texture* TextureManager::CreateTextureFromBinary(VkDevice _vkDevice, const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _numChannels, ionU8* _buffer, VkDeviceSize _bufferSize, ionS32 _index /*= -1*/, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_Default*/, ETextureType _type /*= ETextureType_2D*/)
 {
     if (_name.empty())
     {
@@ -106,8 +106,11 @@ Texture* TextureManager::CreateTextureFromBinary(VkDevice _vkDevice, const eosSt
         DestroyTexture(texture);
     }
 
-    texture->SetOptions(_options);
-    if (texture->CreateFromBinary(_buffer, _bufferSize))
+    texture->m_isCubeMap = _type == ETextureType_Cubic;
+    texture->m_usage = _usage;
+    texture->m_filter = _filter;
+    texture->m_repeat = _repeat;
+    if (texture->CreateFromBinary(_width, _height, _numChannels, _buffer, _bufferSize))
     {
         return texture;
     }
