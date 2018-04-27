@@ -104,28 +104,28 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
     // 1. Load all the texture inside the texture manager
     for (ionSize i = 0; i < model.images.size(); ++i)
     {
-        // no filename, so image could be stored in binary format
-        if (model.images[i].uri.empty())
+        ionS32 textureIndex = (ionS32)i;
+        if (model.images[i].uri.empty())                    // no uri, so image could be stored in binary format
         {
             TextureOptions options;
             options.m_width = model.images[i].width;
             options.m_height = model.images[i].height;
             options.m_numChannels = model.images[i].component;
 
-            eosString name = model.images[i].name.c_str();
+            eosString name = model.images[i].name.c_str();  // no filename, I just give you one
             if (name.empty())
             {
                 eosString val = std::to_string(i).c_str();
                 name = m_filenameNoExt + underscore + val;
             }
 
-            ionTextureManger().CreateTextureFromBinary(m_vkDevice, name, options, &model.images[i].image[0], model.images[i].image.size());
+            ionTextureManger().CreateTextureFromBinary(m_vkDevice, name, options, &model.images[i].image[0], model.images[i].image.size(), textureIndex);
         }
         else
         {
             eosString val = model.images[i].uri.c_str();
             eosString path = m_dir + backslash + val;
-            ionTextureManger().CreateTextureFromFile(m_vkDevice, m_filename, path);
+            ionTextureManger().CreateTextureFromFile(m_vkDevice, m_filename, path, textureIndex);
         }
     }
 
@@ -141,6 +141,57 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
         Texture* metalnessMap = nullptr;
         Texture* ambientOcclusionMap = nullptr;
         Texture* emissiveMap = nullptr;
+
+
+        // OR THIS WAY
+        /*
+        "baseColorFactor": [1, 1, 1, 1],
+        "baseColorTexture": "texture_Default_albedo_9098",
+        "roughnessFactor": 0,
+        "metallicFactor": 0,
+        "metallicTexture": "texture_Default_MetalSmooth_21596_metallic",
+        "roughnessTexture": "texture_Default_MetalSmooth_21596_roughness",
+        "normalFactor": 1,
+        "normalTexture": "texture_Default_normal_22700",
+        "aoFactor": 1,
+        "aoTexture": "texture_Default_AO_25064",
+        "emissiveFactor": [1, 1, 1, 1],
+        "emissiveTexture": "texture_Default_emissive_22780"
+        */
+
+        // OR THIS WAY
+        /*
+         "materials" : [
+        {
+            "emissiveFactor" : [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "emissiveTexture" : {
+                "index" : 2
+            },
+            "name" : "Material_MR",
+            "normalTexture" : {
+                "index" : 4
+            },
+            "occlusionTexture" : {
+                "index" : 3
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 0
+                },
+                "metallicRoughnessTexture" : {
+                    "index" : 1
+                }
+            }
+        }
+        ],
+        */
+
+        // I NEED A MAP....
+
 
         if (material.values.find("pbrMetallicRoughness") != material.values.end())
         {

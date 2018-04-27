@@ -18,9 +18,10 @@ VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-Texture::Texture(VkDevice _vkDevice, const eosString& _name) :
+Texture::Texture(VkDevice _vkDevice, const eosString& _name, ionS32 _index /*= -1*/) :
     m_vkDevice(_vkDevice),
-    m_name(_name)
+    m_name(_name),
+    m_index(_index)
 {
     m_isSwapChainImage = false;
     m_format = VK_FORMAT_UNDEFINED;
