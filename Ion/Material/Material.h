@@ -55,37 +55,71 @@ public:
     void SetStencilFunctionReferenceMode(EStencilFunctionReference _state) { m_stateBits |= _state; }
     void UnsetStencilFunctionReferenceMode(EStencilFunctionReference _state) { m_stateBits &= ~_state; }
 
-    ionBool Create(Texture* _albedoMap = nullptr, Texture* _normalMap = nullptr, Texture* _roughnessMap = nullptr, Texture* _metalnessMap = nullptr, Texture* _ambientOcclusionMap = nullptr, Texture* _emissiveMap = nullptr);
+    // actually do nothing... just to be conform with the texture manager
+    ionBool Create();
     void Destroy();
 
+    const ionFloat* GetColor() const { return &m_color[0]; }
+    const ionFloat* GetEmissiveColor() const { return &m_emissiveColor[0]; }
+
+    void SetColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a) {
+        m_color[0] = _r; 
+        m_color[1] = _g;
+        m_color[2] = _b;
+        m_color[3] = _a;
+    }
+    void SetEmissiveColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a) {
+        m_emissiveColor[0] = _r;
+        m_emissiveColor[1] = _g;
+        m_emissiveColor[2] = _b;
+        m_emissiveColor[3] = _a;
+    }
 
     ionFloat GetAlphaCutoff() const { return m_alphaCutoff; }
     ionFloat GetMetallicFactor() const { return m_metallicFactor; }
     ionFloat GetRoughnessFactor() const { return m_roughnessFactor; }
+    ionFloat GetNormalFactor() const { return m_normalFactor; }
+    ionFloat GetOcclusionFactor() const { return m_occlusionFactor; }
 
     void SetAlphaCutoff(ionFloat _value) { m_alphaCutoff = _value; }
     void SetMetallicFactor(ionFloat _value) { m_metallicFactor = _value; }
     void SetRoughnessFactor(ionFloat _value) { m_roughnessFactor = _value; }
+    void SetNormalFactor(ionFloat _value) { m_normalFactor = _value; }
+    void SetOcclusionFactor(ionFloat _value) { m_occlusionFactor = _value; }
 
     const Texture* GetAlbedoMap() const { return m_albedoMap; }
     const Texture* GetNormalMap() const { return m_normalMap; }
     const Texture* GetRoughnessMap() const { return m_roughnessMap; }
     const Texture* GetMetalnessMap() const { return m_metalnessMap; }
-    const Texture* GetAmbientOcclusionMap() const { return m_ambientOcclusionMap; }
+    const Texture* GetOcclusionMap() const { return m_occlusionMap; }
     const Texture* GetEmissiveMap() const { return m_emissiveMap; }
+
+    void SetAlbedoMap(Texture* _texture) { m_albedoMap = _texture; }
+    void SetNormalMap(Texture* _texture) { m_normalMap = _texture; }
+    void SetRoughnessMap(Texture* _texture) { m_roughnessMap = _texture; }
+    void SetMetalnessMap(Texture* _texture) { m_metalnessMap = _texture; }
+    void SetOcclusionMap(Texture* _texture) { m_occlusionMap = _texture; }
+    void SetEmissiveMap(Texture* _texture) { m_emissiveMap = _texture; }
 
 private:
     eosString       m_name;
     ionU64          m_stateBits;
+
     ionFloat        m_alphaCutoff;
     ionFloat        m_metallicFactor;
     ionFloat        m_roughnessFactor;
+    ionFloat        m_normalFactor;
+    ionFloat        m_occlusionFactor;
+
     Texture*        m_albedoMap;
     Texture*        m_normalMap;
     Texture*        m_roughnessMap;
     Texture*        m_metalnessMap;
-    Texture*        m_ambientOcclusionMap;
+    Texture*        m_occlusionMap;
     Texture*        m_emissiveMap;
+
+    ionFloat        m_color[4];
+    ionFloat        m_emissiveColor[4];
 };
 
 ION_NAMESPACE_END

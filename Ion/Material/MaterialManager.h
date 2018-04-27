@@ -24,11 +24,11 @@ public:
     void        Init();
     void        Shutdown();
 
-    Material*    CreateMaterial(const eosString& _name, ionU64 _stateBits, const eosString& _albedoMap = "", const eosString& _normalMap = "", const eosString& _roughnessMap = "", const eosString& _metalnessMap = "", const eosString& _ambientOcclusionMap = "", const eosString& _emissiveMap = "");
+    Material*    CreateMaterial(const eosString& _name, ionU64 _stateBits = 0);
     Material*    GetMaterial(const eosString& _name) const;
 
 private:
-    Material*   CreateMaterial(const eosString& _name);
+    Material*   InternalCreateMaterial(const eosString& _name);
     void        DestroyMaterial(Material* _material);
     void        DestroyMaterial(ionSize _hash);
 

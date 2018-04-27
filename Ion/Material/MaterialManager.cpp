@@ -57,7 +57,7 @@ void MaterialManager::Shutdown()
     m_hashMaterial.clear();
 }
 
-Material* MaterialManager::CreateMaterial(const eosString& _name, ionU64 _stateBits, const eosString& _albedoMap /*= ""*/, const eosString& _normalMap /*= ""*/, const eosString& _roughnessMap /*= ""*/, const eosString& _metalnessMap /*= ""*/, const eosString& _ambientOcclusionMap /*= ""*/, const eosString& _emissiveMap /*= ""*/)
+Material* MaterialManager::CreateMaterial(const eosString& _name, ionU64 _stateBits /*= 0*/)
 {
     if (_name.empty())
     {
@@ -67,22 +67,15 @@ Material* MaterialManager::CreateMaterial(const eosString& _name, ionU64 _stateB
     Material* material = GetMaterial(_name);
     if (material == nullptr)
     {
-        material = CreateMaterial(_name);
+        material = InternalCreateMaterial(_name);
     }
     else
     {
         DestroyMaterial(material);
     }
 
-    Texture* albedoMap = ionTextureManger().GetTexture(_albedoMap);
-    Texture* normalMap = ionTextureManger().GetTexture(_normalMap);
-    Texture* roughnessMap = ionTextureManger().GetTexture(_roughnessMap);
-    Texture* metalnessMap = ionTextureManger().GetTexture(_metalnessMap);
-    Texture* ambientOcclusionMap = ionTextureManger().GetTexture(_ambientOcclusionMap);
-    Texture* emissiveMap = ionTextureManger().GetTexture(_emissiveMap);
-    
     material->SetStateBits(_stateBits);
-    if (material->Create(albedoMap, normalMap, roughnessMap, metalnessMap, ambientOcclusionMap, emissiveMap))
+    if (material->Create())
     {
         return material;
     }
@@ -112,7 +105,7 @@ Material* MaterialManager::GetMaterial(const eosString& _name) const
     }
 }
 
-Material* MaterialManager::CreateMaterial(const eosString& _name)
+Material* MaterialManager::InternalCreateMaterial(const eosString& _name)
 {
     if (_name.empty())
     {

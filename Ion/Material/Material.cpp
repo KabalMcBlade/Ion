@@ -11,7 +11,7 @@ Material::Material(const eosString& _name) :
     m_normalMap(nullptr),
     m_roughnessMap(nullptr),
     m_metalnessMap(nullptr),
-    m_ambientOcclusionMap(nullptr),
+    m_occlusionMap(nullptr),
     m_emissiveMap(nullptr),
     m_alphaCutoff(1.0f),
     m_metallicFactor(1.0f),
@@ -24,15 +24,8 @@ Material::~Material()
 
 }
 
-ionBool Material::Create(Texture* _albedoMap /*= nullptr*/, Texture* _normalMap /*= nullptr*/, Texture* _roughnessMap /*= nullptr*/, Texture* _metalnessMap /*= nullptr*/, Texture* _ambientOcclusionMap /*= nullptr*/, Texture* _emissiveMap /*= nullptr*/)
+ionBool Material::Create()
 {
-    m_albedoMap = _albedoMap;
-    m_normalMap = _normalMap;
-    m_roughnessMap = _roughnessMap;
-    m_metalnessMap = _metalnessMap;
-    m_ambientOcclusionMap = _ambientOcclusionMap;
-    m_emissiveMap = _emissiveMap;
-
     return true;
 }
 
@@ -44,7 +37,7 @@ void Material::Destroy()
     m_normalMap = nullptr;
     m_roughnessMap = nullptr;
     m_metalnessMap = nullptr;
-    m_ambientOcclusionMap = nullptr;
+    m_occlusionMap = nullptr;
     m_emissiveMap = nullptr;
 }
 

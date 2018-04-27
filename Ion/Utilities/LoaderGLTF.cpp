@@ -133,14 +133,18 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
     // 2. Load all materials inside the material manager
     for (ionSize i = 0; i < model.materials.size(); ++i)
     {
-        const tinygltf::Material& material = model.materials[i];
+        const tinygltf::Material& mat = model.materials[i];
 
+        Material* material = ionMaterialManger().CreateMaterial(mat.name.c_str());
+
+        /*
         Texture* albedoMap = nullptr;
         Texture* normalMap = nullptr;
         Texture* roughnessMap = nullptr;
         Texture* metalnessMap = nullptr;
         Texture* ambientOcclusionMap = nullptr;
         Texture* emissiveMap = nullptr;
+        */
 
 
         // OR THIS WAY
@@ -192,9 +196,10 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
 
         // I NEED A MAP....
 
-
+        /*
         if (material.values.find("pbrMetallicRoughness") != material.values.end())
         {
+            */
             /*
             ionS32 textureIndex = material.values["pbrMetallicRoughness"].TextureIndex();
 
@@ -205,8 +210,9 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
 
             ionFloat factor = (ionFloat)material.values["pbrMetallicRoughness"].Factor();
             */
-        }
-
+            /*
+            }
+            */
 
 
         //const auto &fields = material.get<picojson::object>();
