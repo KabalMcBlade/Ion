@@ -27,11 +27,15 @@ public:
     ionU32 GetNodeIndex() const { return m_nodeIndex;  }
     ionSize GetHash() const { return m_hash; }
 
+    void AttachToParent(Node& _parent);
     void AttachToParent(NodeHandle& _parent);
     void DetachFromParent();
 
     const NodeHandle &GetParentHandle() const { return m_parent; }
     const TransformHandle &GetTransformHandle() const { return m_transform; }
+
+    NodeHandle &GetParentHandle() { return m_parent; }
+    TransformHandle &GetTransformHandle() { return m_transform; }
 
     eosVector(NodeHandle) &GetChildren() { return m_children; };
 

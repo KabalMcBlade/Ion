@@ -5,6 +5,8 @@
 #include "../Texture/TextureManager.h"
 #include "../Material/MaterialManager.h"
 
+#include "../Dependencies/Nix/Nix/Nix.h"
+
 /*
 #define ION_GLTF_ACCESSOR_COMPONENT_TYPE_BYTE           5120
 #define ION_GLTF_ACCESSOR_COMPONENT_TYPE_UNSIGNED_BYTE  5121
@@ -18,6 +20,7 @@
 // #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
 #include "../Dependencies/Miscellaneous/tiny_gltf.h"
 
+NIX_USING_NAMESPACE
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
@@ -30,7 +33,62 @@ LoaderGLTF::~LoaderGLTF()
 {
 }
 
-ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity& _entity)
+
+// for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
+void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity& _entity, ionFloat _vertexScale)
+{
+    Vector position;
+    if (_node.translation.size() == 3)
+    {
+        position = Vector((ionFloat)_node.translation[0], (ionFloat)_node.translation[1], (ionFloat)_node.translation[2]);
+    }
+
+    Quaternion rotation;
+    if (_node.rotation.size() == 4)
+    {
+        rotation = Quaternion((ionFloat)_node.rotation[0], (ionFloat)_node.rotation[1], (ionFloat)_node.rotation[2], (ionFloat)_node.rotation[3]);
+    }
+
+    Vector scale(1.0f);
+    if (_node.rotation.size() == 3)
+    {
+        scale = Vector((ionFloat)_node.scale[0], (ionFloat)_node.scale[1], (ionFloat)_node.scale[2]);
+    }
+
+    _entity.GetTransformHandle()->SetPosition(position);
+    _entity.GetTransformHandle()->SetRotation(rotation);
+    _entity.GetTransformHandle()->SetScale(scale);
+
+    // calculate matrix for all children if any
+    if (_node.children.size() > 0)
+    {
+        for (ionSize i = 0; i < _node.children.size(); ++i)
+        {
+            Entity child;
+            child.AttachToParent(_entity);
+            LoadNode(_model.nodes[_node.children[i]], _model, child, _vertexScale);
+        }
+    }
+
+    for (ionSize i = 0; i < _node.mesh; ++i)
+    {
+        Mesh ionMesh;
+        const tinygltf::Mesh mesh = _model.meshes[i];
+        for (ionSize j = 0; j < mesh.primitives.size(); ++j)
+        {
+            const tinygltf::Primitive &primitive = mesh.primitives[j];
+            if (primitive.indices < 0)
+            {
+                continue;
+            }
+
+        }
+        _entity.GetMeshList().push_back(ionMesh);
+    }
+}
+
+
+ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity& _entity, ionFloat _vertexScale /*= 1.0f*/)
 {
     m_vkDevice = _vkDevice;
     //_entity.m_meshes.empty();
@@ -75,11 +133,11 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
 
     //
     ionBool ret = false;
-    if (m_ext.compare("glb") == 0)          // FULL BINARY
+    if (m_ext.compare("glb") == 0 || m_ext.compare("bin") == 0)         // FULL BINARY
     {
         ret = gltf.LoadBinaryFromFile(&model, &err, _filePath.c_str());
     }
-    else if (m_ext.compare("gltf") == 0)    // FULL TEXT OR HYBRID
+    else if (m_ext.compare("gltf") == 0)                                // FULL TEXT OR HYBRID
     {
         ret = gltf.LoadASCIIFromFile(&model, &err, _filePath.c_str());
     }
@@ -124,6 +182,8 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
         }
     }
 
+    //
+    // NOTE: this part MUST be re-factored when I finish the demo. Because should be handleable from different materials
     //
     // 2. Load all materials inside the material manager
     for (ionSize i = 0; i < model.materials.size(); ++i)
@@ -171,16 +231,6 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
             }
         }
 
-        /*
-        Texture* albedoMap = nullptr;
-        Texture* normalMap = nullptr;
-        Texture* roughnessMap = nullptr;
-        Texture* metalnessMap = nullptr;
-        Texture* ambientOcclusionMap = nullptr;
-        Texture* emissiveMap = nullptr;
-        */
-
-
         // OR THIS WAY
         /*
         "baseColorFactor": [1, 1, 1, 1],
@@ -227,32 +277,19 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
         }
         ],
         */
+        // SO I'LL NEED A MAP....
 
-        // I NEED A MAP....
 
-        /*
-        if (material.values.find("pbrMetallicRoughness") != material.values.end())
+        //
+        // 3. Load all meshes..
+        const tinygltf::Scene &scene = model.scenes[model.defaultScene];
+        for (ionSize i = 0; i < scene.nodes.size(); ++i) 
         {
-            */
-            /*
-            ionS32 textureIndex = material.values["pbrMetallicRoughness"].TextureIndex();
+            const tinygltf::Node node = model.nodes[scene.nodes[i]];
 
-            ionFloat red = material.values["pbrMetallicRoughness"].ColorFactor()[0];
-            ionFloat green = (ionFloat)material.values["pbrMetallicRoughness"].ColorFactor()[1];
-            ionFloat blue = (ionFloat)material.values["pbrMetallicRoughness"].ColorFactor()[2];
-            ionFloat alpha = (ionFloat)material.values["pbrMetallicRoughness"].ColorFactor()[3];
+            LoadNode(node, model, _entity, _vertexScale);
+        }
 
-            ionFloat factor = (ionFloat)material.values["pbrMetallicRoughness"].Factor();
-            */
-            /*
-            }
-            */
-
-
-        //const auto &fields = material.get<picojson::object>();
-        //const auto &pbrTextures = fields.at("pbrMetallicRoughness").get<picojson::object>();
-
-        //material.baseColorTexture = &textures[gltfModel.textures[mat.values["baseColorTexture"].TextureIndex()].source];
     }
 
     return true;

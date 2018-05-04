@@ -15,6 +15,11 @@ Node::Node()
     ++g_nextValidNodeIndex;
     m_parent = nullptr;
     SetName(ION_BASE_NODE_NAME);
+
+    m_parent = nullptr;
+
+    Transform thisTransform;
+    m_transform= &thisTransform;
 }
 
 Node::Node(const eosString & _name)
@@ -23,6 +28,11 @@ Node::Node(const eosString & _name)
     ++g_nextValidNodeIndex;
     m_parent = nullptr;
     SetName(_name);
+
+    m_parent = nullptr;
+
+    Transform thisTransform;
+    m_transform = &thisTransform;
 }
 
 Node::~Node()
@@ -36,6 +46,12 @@ void Node::SetName(const eosString& _name)
     eosString tmp(std::to_string(m_nodeIndex).c_str()); // I know.. but I don't want to implement everything!
     m_nameInternal = m_name + tmp;
     m_hash = std::hash<eosString>{}(m_nameInternal);
+}
+
+void Node::AttachToParent(Node& _parent)
+{
+    SmartPointer<Node> parentHandle(&_parent);
+    AttachToParent(parentHandle);
 }
 
 void Node::AttachToParent(NodeHandle& _parent)
