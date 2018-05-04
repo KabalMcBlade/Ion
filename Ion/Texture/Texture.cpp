@@ -453,15 +453,14 @@ void Texture::UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _
 
     VkImageMemoryBarrier barrier = {};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    //barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    //barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.image = m_image;
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    barrier.subresourceRange.baseMipLevel = 0;
+    //barrier.subresourceRange.baseMipLevel = 0;
     barrier.subresourceRange.levelCount = m_options.m_numLevels;
-    barrier.subresourceRange.baseArrayLayer = _index;
+    barrier.subresourceRange.baseArrayLayer = _index;               // 0 for 2d
     barrier.subresourceRange.layerCount = 1;
-
     barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     barrier.srcAccessMask = 0;
