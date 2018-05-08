@@ -112,7 +112,8 @@ int main()
     }
 
     Entity test;
-    ionRenderManager().LoadModelFromFile("E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf", test);
+    //ionRenderManager().LoadModelFromFile("E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf", test);
+	ionRenderManager().LoadModelFromFile("C:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf", test);
 
     if (rendererInitialized)
     {

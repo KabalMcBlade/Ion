@@ -28,6 +28,9 @@ public:
     void PushBackVertex(const Vertex& _vertex);
     void PushBackIndex(const Index& _index);
 
+	const eosVector(Vertex)& GetVertexList() const { return m_vertexes; }
+	const eosVector(Index)& GetIndexList() const { return m_indexes; }
+
 protected:
     ionBool m_uniformDataChanged;
 

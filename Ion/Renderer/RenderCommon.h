@@ -209,7 +209,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
     ION_INLINE void SetPosition(ionFloat _x, ionFloat _y, ionFloat _z)
     {
-        m_position = Vector(_x, _y, _z);
+        m_position = Vector(_x, _y, _z, 1.0f);
     }
 
     ION_INLINE void SetNormal(const Vector& _normal)

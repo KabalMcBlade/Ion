@@ -20,7 +20,7 @@ public:
     LoaderGLTF();
     ~LoaderGLTF();
 
-    ionBool Load(const eosString& _fileName, VkDevice _vkDevice, Entity& _entity, ionFloat _vertexScale = 1.0f);
+    ionBool Load(const eosString& _fileName, VkDevice _vkDevice, Entity& _entity);
 
 private:
     void LoadTextures();

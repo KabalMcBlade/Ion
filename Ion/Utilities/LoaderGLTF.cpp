@@ -35,7 +35,7 @@ LoaderGLTF::~LoaderGLTF()
 
 
 // for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
-void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity& _entity, ionFloat _vertexScale)
+void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity& _entity)
 {
     Vector position;
     if (_node.translation.size() == 3)
@@ -66,11 +66,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
         {
             Entity child;
             child.AttachToParent(_entity);
-            LoadNode(_model.nodes[_node.children[i]], _model, child, _vertexScale);
+            LoadNode(_model.nodes[_node.children[i]], _model, child);
         }
     }
 
-    for (ionSize i = 0; i < _node.mesh; ++i)
+    for (ionSize i = 0; i < (_node.mesh + 1); ++i)
     {
         Mesh ionMesh;
         const tinygltf::Mesh mesh = _model.meshes[i];
@@ -82,18 +82,108 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
                 continue;
             }
 
+			ionU32 vertexStart = static_cast<ionU32>(ionMesh.GetVertexList().size());
+			ionU32 indexStart = static_cast<ionU32>(ionMesh.GetIndexList().size());
+			ionU32 indexCount = 0;
+
+			// Vertices
+			{
+				const ionFloat *bufferPos = nullptr;
+				const ionFloat *bufferNormals = nullptr;
+				const ionFloat *bufferTangent = nullptr;
+				const ionFloat *bufferTexCoords = nullptr;
+				const ionFloat *bufferColor0 = nullptr;
+				const ionFloat *bufferColor1 = nullptr;
+
+				// Position attribute is required
+				ionAssertReturnVoid(primitive.attributes.find("POSITION") != primitive.attributes.end(), "POSITION ATTRIBUTE MISSING!");
+
+				const tinygltf::Accessor &posAccessor = _model.accessors[primitive.attributes.find("POSITION")->second];
+				const tinygltf::BufferView &posView = _model.bufferViews[posAccessor.bufferView];
+				bufferPos = reinterpret_cast<const ionFloat *>(&(_model.buffers[posView.buffer].data[posAccessor.byteOffset + posView.byteOffset]));
+
+				if (primitive.attributes.find("NORMAL") != primitive.attributes.end()) 
+				{
+					const tinygltf::Accessor &normAccessor = _model.accessors[primitive.attributes.find("NORMAL")->second];
+					const tinygltf::BufferView &normView = _model.bufferViews[normAccessor.bufferView];
+					bufferNormals = reinterpret_cast<const ionFloat *>(&(_model.buffers[normView.buffer].data[normAccessor.byteOffset + normView.byteOffset]));
+				}
+
+				if (primitive.attributes.find("TANGENT") != primitive.attributes.end())
+				{
+					const tinygltf::Accessor &tangentAccessor = _model.accessors[primitive.attributes.find("TANGENT")->second];
+					const tinygltf::BufferView &tangentView = _model.bufferViews[tangentAccessor.bufferView];
+					bufferTangent = reinterpret_cast<const ionFloat *>(&(_model.buffers[tangentView.buffer].data[tangentAccessor.byteOffset + tangentView.byteOffset]));
+				}
+
+				if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end()) 
+				{
+					const tinygltf::Accessor &uvAccessor = _model.accessors[primitive.attributes.find("TEXCOORD_0")->second];
+					const tinygltf::BufferView &uvView = _model.bufferViews[uvAccessor.bufferView];
+					bufferTexCoords = reinterpret_cast<const ionFloat *>(&(_model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
+				}
+
+				if (primitive.attributes.find("COLOR_0") != primitive.attributes.end())
+				{
+					const tinygltf::Accessor &color0Accessor = _model.accessors[primitive.attributes.find("COLOR_0")->second];
+					const tinygltf::BufferView &color0View = _model.bufferViews[color0Accessor.bufferView];
+					bufferColor0 = reinterpret_cast<const ionFloat *>(&(_model.buffers[color0View.buffer].data[color0Accessor.byteOffset + color0View.byteOffset]));
+				}
+
+				if (primitive.attributes.find("COLOR_1") != primitive.attributes.end())
+				{
+					const tinygltf::Accessor &color1Accessor = _model.accessors[primitive.attributes.find("COLOR_1")->second];
+					const tinygltf::BufferView &color1View = _model.bufferViews[color1Accessor.bufferView];
+					bufferColor1 = reinterpret_cast<const ionFloat *>(&(_model.buffers[color1View.buffer].data[color1Accessor.byteOffset + color1View.byteOffset]));
+				}
+
+				for (ionSize v = 0; v < posAccessor.count; v++) 
+				{
+					// the Y value of all vectors is inverted due Vulkan coordinate system
+
+					Vertex vert;
+					vert.SetPosition((&bufferPos[v * 3])[0], -((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2]);
+
+					if (bufferNormals != nullptr)
+					{
+						vert.SetNormal((&bufferNormals[v * 3])[0], -((&bufferNormals[v * 3])[1]), (&bufferNormals[v * 3])[2]);
+					}
+
+					if (bufferTangent != nullptr)
+					{
+						vert.SetTangent((&bufferTangent[v * 3])[0], -((&bufferTangent[v * 3])[1]), (&bufferTangent[v * 3])[2]);
+					}
+					
+					if (bufferTexCoords != nullptr)
+					{
+						vert.SetTexCoordUV((&bufferTexCoords[v * 2])[0], (&bufferTexCoords[v * 2])[1]);
+					}
+
+					if (bufferColor0 != nullptr)
+					{
+						vert.SetColor1((&bufferColor0[v * 4])[0], (&bufferColor0[v * 4])[1], (&bufferColor0[v * 4])[2], (&bufferColor0[v * 4])[3]);
+					}
+
+					if (bufferColor1 != nullptr)
+					{
+						vert.SetColor2((&bufferColor1[v * 4])[0], (&bufferColor1[v * 4])[1], (&bufferColor1[v * 4])[2], (&bufferColor1[v * 4])[3]);
+					}
+					
+					ionMesh.PushBackVertex(vert);
+				}
+			}
         }
         _entity.GetMeshList().push_back(ionMesh);
     }
 }
 
 
-ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity& _entity, ionFloat _vertexScale /*= 1.0f*/)
+ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity& _entity)
 {
     m_vkDevice = _vkDevice;
     //_entity.m_meshes.empty();
 
-    tinygltf::Model     model;
+    tinygltf::Model     _model;
     tinygltf::TinyGLTF  gltf;
     std::string         err;
 
@@ -135,11 +225,11 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
     ionBool ret = false;
     if (m_ext.compare("glb") == 0 || m_ext.compare("bin") == 0)         // FULL BINARY
     {
-        ret = gltf.LoadBinaryFromFile(&model, &err, _filePath.c_str());
+        ret = gltf.LoadBinaryFromFile(&_model, &err, _filePath.c_str());
     }
     else if (m_ext.compare("gltf") == 0)                                // FULL TEXT OR HYBRID
     {
-        ret = gltf.LoadASCIIFromFile(&model, &err, _filePath.c_str());
+        ret = gltf.LoadASCIIFromFile(&_model, &err, _filePath.c_str());
     }
     else
     {
@@ -160,23 +250,23 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
 
     //////////////////////////////////////////////////////////////////////////
     // 1. Load all the texture inside the texture manager
-    for (ionSize i = 0; i < model.images.size(); ++i)
+    for (ionSize i = 0; i < _model.images.size(); ++i)
     {
         ionS32 textureIndex = (ionS32)i;
-        if (model.images[i].uri.empty())                    // no uri, so image could be stored in binary format
+        if (_model.images[i].uri.empty())                    // no uri, so image could be stored in binary format
         {
-            eosString name = model.images[i].name.c_str();  // no filename, I just give you one
+            eosString name = _model.images[i].name.c_str();  // no filename, I just give you one
             if (name.empty())
             {
                 eosString val = std::to_string(i).c_str();
                 name = m_filenameNoExt + underscore + val;
             }
 
-            ionTextureManger().CreateTextureFromBinary(m_vkDevice, name, model.images[i].width, model.images[i].height, model.images[i].component, &model.images[i].image[0], model.images[i].image.size(), textureIndex, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_LookUp_RGBA, ETextureType_2D);
+            ionTextureManger().CreateTextureFromBinary(m_vkDevice, name, _model.images[i].width, _model.images[i].height, _model.images[i].component, &_model.images[i].image[0], _model.images[i].image.size(), textureIndex, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_LookUp_RGBA, ETextureType_2D);
         }
         else
         {
-            eosString val = model.images[i].uri.c_str();
+            eosString val = _model.images[i].uri.c_str();
             eosString path = m_dir + backslash + val;
             ionTextureManger().CreateTextureFromFile(m_vkDevice, m_filename, path, textureIndex);
         }
@@ -186,9 +276,9 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
     // NOTE: this part MUST be re-factored when I finish the demo. Because should be handleable from different materials
     //
     // 2. Load all materials inside the material manager
-    for (ionSize i = 0; i < model.materials.size(); ++i)
+    for (ionSize i = 0; i < _model.materials.size(); ++i)
     {
-        const tinygltf::Material& mat = model.materials[i];
+        const tinygltf::Material& mat = _model.materials[i];
 
         Material* material = ionMaterialManger().CreateMaterial(mat.name.c_str());
 
@@ -282,12 +372,12 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
 
         //
         // 3. Load all meshes..
-        const tinygltf::Scene &scene = model.scenes[model.defaultScene];
+        const tinygltf::Scene &scene = _model.scenes[_model.defaultScene];
         for (ionSize i = 0; i < scene.nodes.size(); ++i) 
         {
-            const tinygltf::Node node = model.nodes[scene.nodes[i]];
+            const tinygltf::Node node = _model.nodes[scene.nodes[i]];
 
-            LoadNode(node, model, _entity, _vertexScale);
+            LoadNode(node, _model, _entity);
         }
 
     }
