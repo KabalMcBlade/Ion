@@ -7,14 +7,6 @@
 
 #include "../Dependencies/Nix/Nix/Nix.h"
 
-/*
-#define ION_GLTF_ACCESSOR_COMPONENT_TYPE_BYTE           5120
-#define ION_GLTF_ACCESSOR_COMPONENT_TYPE_UNSIGNED_BYTE  5121
-#define ION_GLTF_ACCESSOR_COMPONENT_TYPE_SHORT          5122
-#define ION_GLTF_ACCESSOR_COMPONENT_TYPE_UNSIGNED_SHORT 5123
-#define ION_GLTF_ACCESSOR_COMPONENT_TYPE_FLOAT          5126
-*/
-
 
 #define TINYGLTF_IMPLEMENTATION
 // #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
@@ -74,6 +66,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
     {
         Mesh ionMesh;
         const tinygltf::Mesh mesh = _model.meshes[i];
+
+        //ionMesh.GetPrimitives().resize(mesh.primitives.size());
         for (ionSize j = 0; j < mesh.primitives.size(); ++j)
         {
             const tinygltf::Primitive &primitive = mesh.primitives[j];
@@ -82,9 +76,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
                 continue;
             }
 
-			ionU32 vertexStart = static_cast<ionU32>(ionMesh.GetVertexList().size());
-			ionU32 indexStart = static_cast<ionU32>(ionMesh.GetIndexList().size());
-			ionU32 indexCount = 0;
+            Primitive prim;
+
+			ionU32 vertexStart = static_cast<ionU32>(ionMesh.GetPrimitives().size());
+			//ionU32 indexStart = static_cast<ionU32>(ionMesh.GetIndexList().size());
+			//ionU32 indexCount = 0;
 
 			// Vertices
 			{
@@ -148,31 +144,116 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
 					{
 						vert.SetNormal((&bufferNormals[v * 3])[0], -((&bufferNormals[v * 3])[1]), (&bufferNormals[v * 3])[2]);
 					}
+                    else
+                    {
+                        vert.SetNormal(0.0f, 0.0f, 0.0f);
+                    }
 
 					if (bufferTangent != nullptr)
 					{
 						vert.SetTangent((&bufferTangent[v * 3])[0], -((&bufferTangent[v * 3])[1]), (&bufferTangent[v * 3])[2]);
 					}
-					
+                    else
+                    {
+                        vert.SetTangent(0.0f, 0.0f, 0.0f);
+                    }
+
 					if (bufferTexCoords != nullptr)
 					{
 						vert.SetTexCoordUV((&bufferTexCoords[v * 2])[0], (&bufferTexCoords[v * 2])[1]);
-					}
+                    }
+                    else
+                    {
+                        vert.SetTexCoordUV(0.0f, 0.0f);
+                    }
 
 					if (bufferColor0 != nullptr)
 					{
 						vert.SetColor1((&bufferColor0[v * 4])[0], (&bufferColor0[v * 4])[1], (&bufferColor0[v * 4])[2], (&bufferColor0[v * 4])[3]);
 					}
+                    else
+                    {
+                        vert.SetColor1(1.0f, 1.0f, 1.0f, 1.0f);
+                    }
 
 					if (bufferColor1 != nullptr)
 					{
 						vert.SetColor2((&bufferColor1[v * 4])[0], (&bufferColor1[v * 4])[1], (&bufferColor1[v * 4])[2], (&bufferColor1[v * 4])[3]);
 					}
-					
-					ionMesh.PushBackVertex(vert);
+                    else
+                    {
+                        vert.SetColor2(1.0f, 1.0f, 1.0f, 1.0f);
+                    }
+
+                    prim.m_vertexes.push_back(vert);
+
+					//ionMesh.PushBackVertex(vert);
 				}
 			}
+
+
+            // Indices
+            {
+                const tinygltf::Accessor &accessor = _model.accessors[primitive.indices];
+                const tinygltf::BufferView &bufferView = _model.bufferViews[accessor.bufferView];
+                const tinygltf::Buffer &buffer = _model.buffers[bufferView.buffer];
+
+                //indexCount = static_cast<ionU32>(accessor.count);
+
+                // I WANT TO USE ALWAYS THE 16 BYTES INDEX, SO I'll CAST EVERYTHING DOWN OR UP TO THIS
+                switch (accessor.componentType)
+                {
+                case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT:
+                {
+                    ionU32 *buf = new ionU32[accessor.count];
+                    memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU32));
+                    for (ionSize index = 0; index < accessor.count; index++)
+                    {
+                        //ionMesh.PushBackIndex((Index)(buf[index] + vertexStart));
+                        prim.m_indexes.push_back((Index)(buf[index] + vertexStart));
+                    }
+                    break;
+                }
+
+                // just this is valid
+                case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
+                {
+                    ionU16 *buf = new ionU16[accessor.count];
+                    memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU16));
+                    for (ionSize index = 0; index < accessor.count; index++)
+                    {
+                        //ionMesh.PushBackIndex(buf[index] + vertexStart);
+                        prim.m_indexes.push_back(buf[index] + vertexStart);
+                    }
+                    break;
+                }
+                case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: 
+                {
+                    ionU8 *buf = new ionU8[accessor.count];
+                    memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU8));
+                    for (ionSize index = 0; index < accessor.count; index++)
+                    {
+                        //ionMesh.PushBackIndex((Index)(buf[index] + vertexStart));
+                        prim.m_indexes.push_back((Index)(buf[index] + vertexStart));
+                    }
+                    break;
+                }
+                default:
+                    ionAssertReturnVoid(false, "Index component type is not supported!");
+                }
+            }
+
+            // add material and add all to primitive
+            prim.m_material = ionMaterialManger().GetMaterial(primitive.material);
+
+            ionMesh.AddPrimitive(prim);
         }
+
+        // Bone weight for morph targets (NEXT: After the base renderer will works)
+        {
+        }
+
+        // add to mesh list
         _entity.GetMeshList().push_back(ionMesh);
     }
 }
@@ -280,7 +361,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
     {
         const tinygltf::Material& mat = _model.materials[i];
 
-        Material* material = ionMaterialManger().CreateMaterial(mat.name.c_str());
+        Material* material = ionMaterialManger().CreateMaterial(mat.name.c_str(), 0u, (ionU32)i);
 
         for (auto const& x : mat.values)
         {

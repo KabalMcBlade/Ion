@@ -4,7 +4,7 @@
 
 ION_NAMESPACE_BEGIN
 
-Material::Material(const eosString& _name) : 
+Material::Material(const eosString& _name, ionS32 _index /*= -1*/) :
     m_name(_name),
     m_stateBits(0),
     m_albedoMap(nullptr),
@@ -15,7 +15,8 @@ Material::Material(const eosString& _name) :
     m_emissiveMap(nullptr),
     m_alphaCutoff(1.0f),
     m_metallicFactor(1.0f),
-    m_roughnessFactor(1.0f)
+    m_roughnessFactor(1.0f),
+    m_index(_index)
 {
 }
 
