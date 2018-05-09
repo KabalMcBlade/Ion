@@ -43,6 +43,7 @@ About how to use the dependencies please take a look to their own owner. (also f
 ## Example
 
 In the Demo folder you will find a demo project using ION Library
+Remember to change the path of the local model inside the Demo.cpp: E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf !!
 
 
 # Build Status
