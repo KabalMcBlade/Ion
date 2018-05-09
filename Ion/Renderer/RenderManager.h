@@ -3,16 +3,22 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.h>
 
+#include "../Dependencies/Eos/Eos/Eos.h"
+
 #include "../Core/CoreDefs.h"
+//#include "../Scene/Node.h"
 
 #include "RenderCommon.h"
 
 #include "RenderCore.h"
 
 
+EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+//class Node;
+class BaseCamera;
 class Entity;
 
 class ION_DLL RenderManager final
@@ -32,6 +38,11 @@ public:
     RenderManager();
     ~RenderManager();
 
+    void AddCamera(BaseCamera& _camera);
+    void AddEntity(Entity& _entity);
+
+    void PreRender();
+    void Render();
 
 private:
     RenderManager(const RenderManager& _Orig) = delete;
@@ -40,6 +51,14 @@ private:
 private:
     RenderCore  m_renderCore;
 
+    //eosVector(Node*)        m_nodeList;
+    eosVector(BaseCamera*)  m_cameraList;
+    eosVector(Entity*)      m_entityList;
+
+    eosVector(VertexCacheHandler)   m_vertexHandlers;
+    eosVector(VertexCacheHandler)   m_indexHandlers;
+
+private:
     static RenderManager *s_instance;
 };
 

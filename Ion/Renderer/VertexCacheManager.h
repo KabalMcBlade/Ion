@@ -95,9 +95,9 @@ public:
     void FreeStaticData();
 
     // this data is only valid for one frame of rendering
-    VertexCacheHandler	AllocVertex(const void* _data, ionS32 _num, ionSize _size = sizeof(Vertex));
-    VertexCacheHandler	AllocIndex(const void* _data, ionS32 _num, ionSize _size = sizeof(Index));
-    VertexCacheHandler	AllocJoint(const void* _data, ionS32 _num, ionSize _size = sizeof(Matrix));
+    VertexCacheHandler	AllocVertex(const void* _data, ionSize _num, ionSize _size = sizeof(Vertex));
+    VertexCacheHandler	AllocIndex(const void* _data, ionSize _num, ionSize _size = sizeof(Index));
+    VertexCacheHandler	AllocJoint(const void* _data, ionSize _num, ionSize _size = sizeof(Matrix));
 
     // this data is valid until the next level load
     VertexCacheHandler	AllocStaticVertex(const void* _data, ionSize _bytes);

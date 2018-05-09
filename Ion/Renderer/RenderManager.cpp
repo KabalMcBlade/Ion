@@ -6,6 +6,8 @@
 
 #include "../Utilities/LoaderGLTF.h"
 
+#include "VertexCacheManager.h"
+
 
 EOS_USING_NAMESPACE
 
@@ -60,6 +62,51 @@ ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, Entity& _en
 {
     LoaderGLTF loader;
     return loader.Load(_fileName, m_renderCore.GetDevice(), _entity);
+}
+
+void RenderManager::AddCamera(BaseCamera& _camera)
+{
+    m_cameraList.push_back(&_camera);
+}
+
+void RenderManager::AddEntity(Entity& _entity)
+{
+    m_entityList.push_back(&_entity);
+}
+
+void RenderManager::PreRender()
+{
+    for (auto const& entityRef : m_entityList)
+    {
+        const Entity& entity = (*entityRef);
+
+        const eosVector(Mesh)& meshList = entity.GetMeshList();
+        for (auto const& meshRef : meshList)
+        {
+            const Mesh& mesh = (meshRef);
+
+            const eosVector(Primitive)& primitiveList = mesh.GetPrimitives();
+            for (auto const& primRef : primitiveList)
+            {
+                const Primitive& primitive = (primRef);
+
+                const VertexCacheHandler vertexHandler = ionVertexCacheManager().AllocVertex(primitive.m_vertexes.data(), primitive.m_vertexes.size());
+                const VertexCacheHandler indexHandler = ionVertexCacheManager().AllocIndex(primitive.m_indexes.data(), primitive.m_indexes.size());
+
+                m_vertexHandlers.push_back(vertexHandler);
+                m_indexHandlers.push_back(indexHandler);
+            }
+        }
+    }
+}
+
+void RenderManager::Render()
+{
+    m_renderCore.StartFrame();
+
+
+
+    m_renderCore.EndFrame();
 }
 
 ION_NAMESPACE_END

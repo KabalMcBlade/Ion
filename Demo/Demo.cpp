@@ -111,9 +111,16 @@ int main()
         rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, "Shaders\\", VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
     }
 
+    BaseCamera camera;
+    camera.SetCameraType(BaseCamera::ECameraType::ECameraType_FirstPerson);
+    camera.SetPerspectiveProjection(90.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 100.0f);
+    //CameraHandle hCamera(&camera);
+
     Entity test;
     ionRenderManager().LoadModelFromFile("E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf", test);
 	//ionRenderManager().LoadModelFromFile("C:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf", test);
+
+
 
     if (rendererInitialized)
     {
