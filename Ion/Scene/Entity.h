@@ -6,6 +6,7 @@
 
 #include "Node.h"
 
+#include "../Geometry/BoundingBox.h"
 #include "../Geometry/Mesh.h"
 
 EOS_USING_NAMESPACE
@@ -22,12 +23,16 @@ public:
     const eosVector(Mesh)& GetMeshList() const { return m_meshes; }
     eosVector(Mesh)& GetMeshList() { return m_meshes; }
 
+    const BoundingBox& GetBoundingBox() const { return m_boundingBox; }
+    BoundingBox& GetBoundingBox() { return m_boundingBox; }
+
 private:
     Entity(const Entity& _Orig) = delete;
     Entity& operator = (const Entity&) = delete;
 
 private:
-    eosVector(Mesh)    m_meshes;    // 0 to empty entity, logic purpose only
+    BoundingBox     m_boundingBox;
+    eosVector(Mesh) m_meshes;    // 0 to empty entity, logic purpose only
 };
 
 ION_NAMESPACE_END

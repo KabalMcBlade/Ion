@@ -140,6 +140,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
 					Vertex vert;
 					vert.SetPosition((&bufferPos[v * 3])[0], -((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2]);
 
+                    _entity.GetBoundingBox().Expande(vert.GetPosition(), vert.GetPosition());
+                    
 					if (bufferNormals != nullptr)
 					{
 						vert.SetNormal((&bufferNormals[v * 3])[0], -((&bufferNormals[v * 3])[1]), (&bufferNormals[v * 3])[2]);

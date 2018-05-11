@@ -46,7 +46,10 @@
 
 #include "Material/Material.h"
 
+#include "Geometry/Ray.h"
+#include "Geometry/BoundingBox.h"
 #include "Geometry/Mesh.h"
+#include "Geometry/Intersection.h"
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"
