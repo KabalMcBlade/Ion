@@ -194,6 +194,7 @@
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryLog.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkStlMemory.h" />
     <ClInclude Include="Geometry\BoundingBox.h" />
+    <ClInclude Include="Geometry\Frustum.h" />
     <ClInclude Include="Geometry\Intersection.h" />
     <ClInclude Include="Geometry\Ray.h" />
     <ClInclude Include="Material\MaterialManager.h" />
@@ -249,6 +250,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Geometry\BoundingBox.cpp" />
+    <ClCompile Include="Geometry\Frustum.cpp" />
     <ClCompile Include="Geometry\Intersection.cpp" />
     <ClCompile Include="Geometry\Ray.cpp" />
     <ClCompile Include="Ion.cpp" />

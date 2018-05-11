@@ -13,6 +13,9 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+class Entity;
+typedef SmartPointer<Entity> EntityHandle;
+
 class ION_DLL Entity : public Node
 {
 public:

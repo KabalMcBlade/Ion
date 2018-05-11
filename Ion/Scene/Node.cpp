@@ -20,6 +20,8 @@ Node::Node()
 
     Transform thisTransform;
     m_transform= &thisTransform;
+
+    m_nodeType = ENodeType_EmptyNode;
 }
 
 Node::Node(const eosString & _name)
@@ -33,6 +35,8 @@ Node::Node(const eosString & _name)
 
     Transform thisTransform;
     m_transform = &thisTransform;
+
+    m_nodeType = ENodeType_EmptyNode;
 }
 
 Node::~Node()

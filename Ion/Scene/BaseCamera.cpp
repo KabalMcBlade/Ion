@@ -13,11 +13,15 @@ ION_NAMESPACE_BEGIN
 BaseCamera::BaseCamera() : Node(ION_BASE_CAMERA_NAME)
 {
     m_type = ECameraType::ECameraType_LookAt;
+
+    m_nodeType = ENodeType_Camera;
 }
 
 BaseCamera::BaseCamera(const eosString & _name) : Node(_name)
 {
+    m_type = ECameraType::ECameraType_LookAt;
 
+    m_nodeType = ENodeType_Camera;
 }
 
 BaseCamera::~BaseCamera()
@@ -77,6 +81,8 @@ void BaseCamera::UpdateViewMatrix()
         GetTransformHandle()->UpdateTransform(parent);
         m_view = GetTransformHandle()->GetMatrix();
     }
+
+    m_frustum.Update(m_projection, m_view);
 }
 
 void BaseCamera::UpdateMovement()

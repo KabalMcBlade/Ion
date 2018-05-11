@@ -11,6 +11,16 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+
+enum ENodeType
+{
+    ENodeType_EmptyNode = -1,
+    ENodeType_Entity = 0,
+    ENodeType_Camera,
+    ENodeType_DirectionalLight
+};
+
+
 class Node;
 typedef SmartPointer<Node> NodeHandle;
 
@@ -21,6 +31,8 @@ public:
     explicit Node(const eosString & _name);
     virtual ~Node();
 
+
+    ENodeType GetNodeType() const { return m_nodeType; }
     void SetName(const eosString & _name);
     const eosString &GetName() const  { return m_name; }
     const eosString &GetNameInternal() const  { return m_nameInternal; }
@@ -38,6 +50,9 @@ public:
     TransformHandle &GetTransformHandle() { return m_transform; }
 
     eosVector(NodeHandle) &GetChildren() { return m_children; };
+
+protected:
+    ENodeType m_nodeType;
 
 private:
     Node(const Node& _Orig) = delete;

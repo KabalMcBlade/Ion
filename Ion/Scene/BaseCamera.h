@@ -6,7 +6,7 @@
 #include "../Dependencies/Nix/Nix/Nix.h"
 
 #include "Node.h"
-
+#include "../Geometry/Frustum.h"
 
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
@@ -43,6 +43,8 @@ public:
     const Matrix& GetPerspectiveProjection() const { return m_projection; }
     const Matrix& GetView() const { return m_view; }
 
+    const Frustum& GetFrustum() const { return m_frustum; }
+
 public:
     static Matrix PerspectiveProjectionMatrix(ionFloat _fovDeg, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar);
 
@@ -56,8 +58,11 @@ private:
 
     void UpdateViewMatrix();
 
-    Matrix m_projection;
-    Matrix m_view;
+private:
+    Matrix  m_projection;
+    Matrix  m_view;
+
+    Frustum m_frustum;
 
     ionFloat m_fov;
     ionFloat m_zNear;
