@@ -41,7 +41,7 @@ void DirectionalLight::ComputeScaleAndOffset(const BaseCamera& _camera, const Bo
     Vector min = _sceneBoundingBox.GetMin();
     Vector max = _sceneBoundingBox.GetMax();
 
-    ionFloat xyLightX = VectorHelper::ExtractElement_0(min);
+    ionFloat minX = VectorHelper::ExtractElement_0(min);
     ionFloat minY = VectorHelper::ExtractElement_1(min);
     ionFloat minZ = VectorHelper::ExtractElement_2(min);
 
@@ -52,12 +52,12 @@ void DirectionalLight::ComputeScaleAndOffset(const BaseCamera& _camera, const Bo
     Vector worldSpaceSceneBoundingBoxCorners[EFrustumCorner_Count] =
     {
         Vector(maxX, maxY, minZ, 1.f),
-        Vector(xyLightX, maxY, minZ, 1.f),
-        Vector(xyLightX, minY, minZ, 1.f),
+        Vector(minX, maxY, minZ, 1.f),
+        Vector(minX, minY, minZ, 1.f),
         Vector(maxX, minY, minZ, 1.f),
         Vector(maxX, maxY, maxZ, 1.f),
-        Vector(xyLightX, maxY, maxZ, 1.f),
-        Vector(xyLightX, minY, maxZ, 1.f),
+        Vector(minX, maxY, maxZ, 1.f),
+        Vector(minX, minY, maxZ, 1.f),
         Vector(maxX, minY, maxZ, 1.f)
     };
 
