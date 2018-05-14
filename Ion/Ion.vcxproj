@@ -205,6 +205,7 @@
     <ClInclude Include="Geometry\Mesh.h" />
     <ClInclude Include="Renderer\RenderManager.h" />
     <ClInclude Include="Renderer\RenderState.h" />
+    <ClInclude Include="Scene\DirectionalLight.h" />
     <ClInclude Include="Shader\ShaderProgram.h" />
     <ClInclude Include="Shader\ShaderProgramHelper.h" />
     <ClInclude Include="Shader\ShaderProgramManager.h" />
@@ -263,6 +264,7 @@
     <ClCompile Include="Geometry\Mesh.cpp" />
     <ClCompile Include="Renderer\RenderCore.cpp" />
     <ClCompile Include="Renderer\RenderManager.cpp" />
+    <ClCompile Include="Scene\DirectionalLight.cpp" />
     <ClCompile Include="Shader\ShaderProgram.cpp" />
     <ClCompile Include="Shader\ShaderProgramHelper.cpp" />
     <ClCompile Include="Shader\ShaderProgramManager.cpp" />
