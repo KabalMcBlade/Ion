@@ -73,8 +73,6 @@ ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, Entity& _en
 void RenderManager::AddScene(NodeHandle& _root)
 {
     // simplify version for now, just to have something to render soon
-    m_rootMatrix = _root->GetTransformHandle()->GetMatrix();
-
     const eosVector(NodeHandle)& children = _root->GetChildren();
 
     eosVector(NodeHandle)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
@@ -89,12 +87,6 @@ void RenderManager::AddScene(NodeHandle& _root)
             if (!m_mainCamera.IsValid())
             {
                 m_mainCamera.SetFromOther<Node>(nh);
-            }
-            break;
-        case ENodeType_DirectionalLight:
-            if (!m_sceneLight.IsValid())
-            {
-                m_sceneLight.SetFromOther<Node>(nh);
             }
             break;
         case ENodeType_Entity:
@@ -129,26 +121,24 @@ void RenderManager::Update()
     m_viewProjection = projection * view;
 
     //
-    // Update lights here when (not yet implemented)
-
-
-    //
     // Update entities
+
+    const ionSize nodeCount = m_entityNodes.size();
+    for (ionSize i = 0; i < nodeCount; ++i)
+    {
+        m_entityNodes[i]->GetTransformHandle()->UpdateTransform();
+        m_entityNodes[i]->GetTransformHandle()->UpdateTransformInverse();
+    }
     /*
     eosVector(EntityHandle)::const_iterator begin = m_entityNodes.cbegin(), end = m_entityNodes.cend(), it = begin;
 
     for (; it != end; ++it)
     {
         EntityHandle entityHandle = (*it);
-        entityHandle->GetTransformHandle()->UpdateTransform(m_rootMatrix);
-        entityHandle->GetTransformHandle()->UpdateTransformInverse(m_rootMatrix);
+        entityHandle->GetTransformHandle()->UpdateTransform();
+        entityHandle->GetTransformHandle()->UpdateTransformInverse();
     }
     */
-
-    //
-    // Update shadow light and shadow map here
-    //m_sceneLight->ComputeScaleAndOffset(*m_mainCamera, m_sceneBoundingBox, SHADOW_MAP_SIZE);
-    //m_shadowLightViewProjection = m_sceneLight->GetLightViewProjMatrix();
 }
 
 void RenderManager::DrawFrame()

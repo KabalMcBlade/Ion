@@ -112,27 +112,25 @@ int main()
     }
 
 
-    Vector cameraPos(0.0f, 0.0f, -10.0f);
-    Quaternion cameraRot;   // no rot
+    static const Vector up(0.0f, 1.0f, 0.0f);
+    static const Vector right(1.0f, 0.0f, 0.0f);
+    static const Vector forward(0.0f, 0.0f, 1.0f);
 
-    Vector directLightPos(0.0f, 100.0f, 0.0f);  // just to have something related to a "gizmo" in scene, even if is not yet implemented
-    Quaternion directLightRot(NIX_DEG_TO_RAD(180.0f), Vector(1.0f, 0.0f, 0.0f));
-    Vector directLightCol(0.2f, 0.1f, 0.1f, 1.0f);
+    Vector rootPos(0.0f, 0.0f, 0.0f);
+    Quaternion rootRot(NIX_DEG_TO_RAD(0.0f), up);
+
+    Vector cameraPos(0.0f, 0.0f, -10.0f);
+    Quaternion cameraRot(NIX_DEG_TO_RAD(180.0f), up);
 
     Vector entityPos(0.0f, 20.0f, 0.0f);
-    Quaternion entityRot;   // no rot
+    Quaternion entityRot(NIX_DEG_TO_RAD(90.0f), up);
+
 
     //
     Entity *pRoot = eosNew(Entity, EOS_MEMORY_ALIGNMENT_SIZE);
-    EntityHandle root(pRoot);  // set to 0 all
-
-    //
-    DirectionalLight *pLight = eosNew(DirectionalLight, EOS_MEMORY_ALIGNMENT_SIZE);
-    DirectionalLightHandle directLight(pLight);
-    directLight->SetColor(directLightCol);
-    directLight->SetPercentageCloserFilteringSize(3);
-    directLight->GetTransformHandle()->SetPosition(directLightPos);
-    directLight->GetTransformHandle()->SetRotation(directLightCol);
+    EntityHandle root(pRoot);
+    root->GetTransformHandle()->SetPosition(rootPos);
+    root->GetTransformHandle()->SetRotation(rootRot);
 
     //
     BaseCamera *pBaseCamera = eosNew(BaseCamera, EOS_MEMORY_ALIGNMENT_SIZE);
@@ -151,7 +149,6 @@ int main()
     test->GetTransformHandle()->SetPosition(entityPos);
     test->GetTransformHandle()->SetRotation(entityRot);
 
-    directLight->AttachToParent(*root);
     camera->AttachToParent(*root);
     test->AttachToParent(*root);
 

@@ -56,7 +56,6 @@
 #include "Scene/Node.h"
 #include "Scene/BaseCamera.h"
 #include "Scene/Entity.h"
-#include "Scene/DirectionalLight.h"
 
 #include "Utilities/LoaderGLTF.h"
 
