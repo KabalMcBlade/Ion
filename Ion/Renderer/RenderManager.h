@@ -11,6 +11,12 @@
 
 #include "RenderCore.h"
 
+#include "../Geometry/BoundingBox.h"
+
+#include "../Scene/Node.h"
+#include "../Scene/Entity.h"
+#include "../Scene/BaseCamera.h"
+#include "../Scene/DirectionalLight.h"
 
 EOS_USING_NAMESPACE
 
@@ -36,14 +42,32 @@ public:
     RenderManager();
     ~RenderManager();
 
+    void    AddScene(NodeHandle& _root);
+    void    AddScene(Node& _root);
+
+    void    CoreLoop();
 
 private:
     RenderManager(const RenderManager& _Orig) = delete;
     RenderManager& operator = (const RenderManager&) = delete;
 
-private:
-    RenderCore  m_renderCore;
+    void Update();
+    void DrawFrame();
 
+private:
+    RenderCore              m_renderCore;
+
+    //////////////////////////////////////////////////////////////////////////
+    // Should be inside a "scene graph" class or a "scene" class
+    BoundingBox             m_sceneBoundingBox;
+    DirectionalLightHandle  m_sceneLight;
+    BaseCameraHandle        m_mainCamera;   // for now only one supported
+    eosVector(EntityHandle) m_entityNodes;
+
+    Matrix                  m_rootMatrix;
+    Matrix                  m_viewProjection;
+    Matrix                  m_shadowLightViewProjection;
+    //////////////////////////////////////////////////////////////////////////
 
 private:
     static RenderManager *s_instance;

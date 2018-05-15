@@ -21,5 +21,11 @@ Entity::~Entity()
     m_meshes.clear();
 }
 
+BoundingBox Entity::GetTransformedBoundingBox()
+{
+    return m_boundingBox.GetTransformed(*GetTransformHandle());
+}
+
+
 
 ION_NAMESPACE_END

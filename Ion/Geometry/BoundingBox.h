@@ -13,6 +13,7 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+class Transform;
 
 class ION_DLL BoundingBox
 {
@@ -40,6 +41,8 @@ public:
     void Expande(const Vector& _min, const Vector& _max);
 
     void GetCorners(eosVector(Vector)& _corners) const;
+
+    BoundingBox GetTransformed(const Transform& _transform);
 
 private:
     Vector m_min;

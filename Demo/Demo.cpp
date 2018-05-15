@@ -111,16 +111,51 @@ int main()
         rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, "Shaders\\", VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
     }
 
-    BaseCamera camera;
-    camera.SetCameraType(BaseCamera::ECameraType::ECameraType_FirstPerson);
-    camera.SetPerspectiveProjection(90.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 100.0f);
-    //CameraHandle hCamera(&camera);
 
-    Entity test;
-    ionRenderManager().LoadModelFromFile("E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf", test);
+    Vector cameraPos(0.0f, 0.0f, -10.0f);
+    Quaternion cameraRot;   // no rot
+
+    Vector directLightPos(0.0f, 100.0f, 0.0f);  // just to have something related to a "gizmo" in scene, even if is not yet implemented
+    Quaternion directLightRot(NIX_DEG_TO_RAD(180.0f), Vector(1.0f, 0.0f, 0.0f));
+    Vector directLightCol(0.2f, 0.1f, 0.1f, 1.0f);
+
+    Vector entityPos(0.0f, 20.0f, 0.0f);
+    Quaternion entityRot;   // no rot
+
+    //
+    Entity *pRoot = eosNew(Entity, EOS_MEMORY_ALIGNMENT_SIZE);
+    EntityHandle root(pRoot);  // set to 0 all
+
+    //
+    DirectionalLight *pLight = eosNew(DirectionalLight, EOS_MEMORY_ALIGNMENT_SIZE);
+    DirectionalLightHandle directLight(pLight);
+    directLight->SetColor(directLightCol);
+    directLight->SetPercentageCloserFilteringSize(3);
+    directLight->GetTransformHandle()->SetPosition(directLightPos);
+    directLight->GetTransformHandle()->SetRotation(directLightCol);
+
+    //
+    BaseCamera *pBaseCamera = eosNew(BaseCamera, EOS_MEMORY_ALIGNMENT_SIZE);
+    BaseCameraHandle camera(pBaseCamera);
+    camera->SetCameraType(BaseCamera::ECameraType::ECameraType_FirstPerson);
+    camera->SetPerspectiveProjection(90.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 100.0f);
+    camera->GetTransformHandle()->SetPosition(cameraPos);
+    camera->GetTransformHandle()->SetRotation(cameraRot);
+
+    //
+    Entity *pTest = eosNew(Entity, EOS_MEMORY_ALIGNMENT_SIZE);
+    EntityHandle test(pTest);
+    ionRenderManager().LoadModelFromFile("E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf", *test);
 	//ionRenderManager().LoadModelFromFile("C:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf", test);
 
+    test->GetTransformHandle()->SetPosition(entityPos);
+    test->GetTransformHandle()->SetRotation(entityRot);
 
+    directLight->AttachToParent(*root);
+    camera->AttachToParent(*root);
+    test->AttachToParent(*root);
+
+    ionRenderManager().AddScene(*root);
 
     if (rendererInitialized)
     {

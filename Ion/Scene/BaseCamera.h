@@ -14,7 +14,7 @@ NIX_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 class BaseCamera;
-typedef SmartPointer<BaseCamera> CameraHandle;
+typedef SmartPointer<BaseCamera> BaseCameraHandle;
 
 class ION_DLL BaseCamera : public Node
 {

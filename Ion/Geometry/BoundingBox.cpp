@@ -2,6 +2,7 @@
 
 #include "../Core/CoreDefs.h"
 
+#include "../Scene/Transform.h"
 
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
@@ -106,6 +107,23 @@ void BoundingBox::GetCorners(eosVector(Vector)& _corners) const
     // corner 7
     const __nixFloat4 _maxX_minY_maxZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(1, 2, 1, 3));
     _corners.push_back(_maxX_minY_maxZ_maxW);
+}
+
+BoundingBox BoundingBox::GetTransformed(const Transform& _transform)
+{
+    BoundingBox transformedBoundingBox;
+
+    eosVector(Vector) corners;
+    GetCorners(corners);
+
+    for (ionU32 i = 0; i < 8; ++i)
+    {
+        Vector tv = _transform.GetMatrix() * corners[i];
+
+        transformedBoundingBox.MergePoint(tv);
+    }
+
+    return transformedBoundingBox;
 }
 
 ION_NAMESPACE_END

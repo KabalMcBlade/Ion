@@ -29,6 +29,8 @@ public:
     const BoundingBox& GetBoundingBox() const { return m_boundingBox; }
     BoundingBox& GetBoundingBox() { return m_boundingBox; }
 
+    BoundingBox GetTransformedBoundingBox();
+
 private:
     Entity(const Entity& _Orig) = delete;
     Entity& operator = (const Entity&) = delete;

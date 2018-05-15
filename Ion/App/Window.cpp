@@ -1,5 +1,7 @@
 #include "Window.h"
 
+#include "../Renderer/RenderManager.h"
+
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
@@ -153,7 +155,7 @@ ionBool Window::Loop()
         }
         else
         {
-            // RENDER FRAME HERE, POSSIBLY USE AN OVERRIDE VCALL
+            ionRenderManager().CoreLoop();
             Sleep(100);
         }
     }
