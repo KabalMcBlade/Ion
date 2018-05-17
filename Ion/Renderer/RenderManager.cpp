@@ -131,12 +131,11 @@ void RenderManager::CoreLoop()
 void RenderManager::Update()
 {
     //
-    // compute view projection matrix
-    const Matrix projection = m_mainCamera->GetPerspectiveProjection();
-    const Matrix view = m_mainCamera->GetView();
+    // Here need to update the camera position
 
-    m_viewProjection = projection * view;
-
+    //
+    const Matrix& projection = m_mainCamera->GetPerspectiveProjection();
+    const Matrix& view = m_mainCamera->GetView();
 
     //
     // Update entities
@@ -150,16 +149,35 @@ void RenderManager::Update()
 
     for (ionSize i = 0; i < nodeCount; ++i)
     {
+        //
+        // here we need to update the entity position
+
         m_entityNodes[i]->GetTransformHandle()->UpdateTransform();
-        m_entityNodes[i]->GetTransformHandle()->UpdateTransformInverse();
+        //m_entityNodes[i]->GetTransformHandle()->UpdateTransformInverse();
+
+        const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrix();
+        
+        // not aligned... just to test
+        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[8], model[2]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[12], model[3]);
+
+        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[0], view[0]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[4], view[1]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[8], view[2]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[12], view[3]);
+
+        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[0], projection[0]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[4], projection[1]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[8], projection[2]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[12], projection[3]);
 
         m_drawSurfaces[i].m_indexCount = m_entityNodes[i]->GetIndexBufferSize(0, 0);
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetVertexBuffer(0, 0), m_entityNodes[i]->GetVertexBufferSize(0, 0));
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetIndexBuffer(0, 0), m_entityNodes[i]->GetIndexBufferSize(0, 0));
         m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMaterial(0, 0);
     }
-
-    //m_renderCore.BlockingSwapBuffers();
 }
 
 void RenderManager::DrawFrame()

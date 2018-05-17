@@ -157,9 +157,9 @@ int main()
     //
     ShaderLayoutDef vertexLayout;
     vertexLayout.m_bindings.push_back(EShaderBinding_Uniform);
-    vertexLayout.m_uniforms.push_back("model");
-    vertexLayout.m_uniforms.push_back("view");
-    vertexLayout.m_uniforms.push_back("proj");
+    vertexLayout.m_uniforms.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+    vertexLayout.m_uniforms.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    vertexLayout.m_uniforms.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
     ShaderLayoutDef fragmentLayout;
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Fragment, fragmentLayout);

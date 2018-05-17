@@ -1412,7 +1412,10 @@ void RenderCore::SetColor(const eosString& _param, ionFloat _r, ionFloat _g, ion
 
 void RenderCore::Draw(const DrawSurface& _surface)
 {
-
+    // USING THE HASH VERSION HERE!!!
+    ionShaderProgramManager().SetRenderParms(ION_MODEL_MATRIX_PARAM_TEXT, &_surface.m_modelMatrix[0], 4);
+    ionShaderProgramManager().SetRenderParms(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0], 4);
+    ionShaderProgramManager().SetRenderParms(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0], 4);
 }
 
 

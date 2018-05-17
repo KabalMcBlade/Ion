@@ -22,6 +22,7 @@ EOS_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 
+
 class Entity;
 
 class ION_DLL RenderManager final
@@ -62,8 +63,6 @@ private:
     BoundingBox             m_sceneBoundingBox;
     BaseCameraHandle        m_mainCamera;   // for now only one supported
     eosVector(EntityHandle) m_entityNodes;
-
-    Matrix                  m_viewProjection;
     //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////

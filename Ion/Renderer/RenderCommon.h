@@ -21,6 +21,11 @@
 #define ION_VERTEX_FLOAT_TO_BYTE(x)		    eos::MathHelper::FloatToByte( ( (x) + 1.0f ) * ( ION_VERTEX_DIV_RANGE ) + 0.5f )
 
 
+// REMEMBER TO ADD THE ONE WITH THE HASH!
+#define ION_MODEL_MATRIX_PARAM_TEXT  "model"
+#define ION_VIEW_MATRIX_PARAM_TEXT   "view"
+#define ION_PROJ_MATRIX_PARAM_TEXT   "proj"
+
 
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
