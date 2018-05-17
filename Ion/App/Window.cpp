@@ -138,6 +138,8 @@ ionBool Window::Loop()
     ionBool loop = true;
     ionBool result = true;
 
+    ionRenderManager().Prepare();
+
     while (loop)
     {
         if (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))

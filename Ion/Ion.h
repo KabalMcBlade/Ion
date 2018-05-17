@@ -33,6 +33,7 @@
 #include "Renderer/RenderDefs.h"
 #include "Renderer/RenderCommon.h"
 #include "Renderer/GPU.h"
+#include "Renderer/DrawSurface.h"
 #include "Renderer/RenderCore.h"
 #include "Renderer/BaseBufferObject.h"
 #include "Renderer/VertexBufferObject.h"

@@ -22,6 +22,7 @@ ION_NAMESPACE_BEGIN
 
 
 class Texture;
+struct DrawSurface;
 
 class ION_DLL RenderCore final
 {
@@ -47,6 +48,7 @@ public:
     void    SetClear(ionBool _color, ionBool _depth, ionBool _stencil, ionU8 _stencilValue, ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a);
     void    CopyFrameBuffer(Texture* _texture, ionS32 _x, ionS32 _y, ionS32 _textureWidth, ionS32 _textureHeight);
     void    SetColor(const eosString& _param, ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a);
+    void    Draw(const DrawSurface& _surface);
 
     VkDevice& GetDevice() { return m_vkDevice; }
     const VkDevice& GetDevice() const { return m_vkDevice; }
@@ -69,6 +71,9 @@ public:
     const VertexCacheHandler& GetJointCacheHandler() const { return m_jointCacheHandler; }
 
     const Texture* GetTextureParam(ionS32 _imageIndex) const { ionAssertReturnValue(_imageIndex >= 0 && _imageIndex < m_textureParams.size(), "Index out of bound", nullptr); return m_textureParams[_imageIndex]; }
+    
+    ionU32 GetWidth() const { return m_width; }
+    ionU32 GetHeight() const { return m_height; }
 
 private:
     RenderCore(const RenderCore& _Orig) = delete;

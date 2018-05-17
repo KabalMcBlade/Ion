@@ -166,7 +166,8 @@ VertexCacheHandler VertexCacheManager::Alloc(GeometryBufferSet& _buffer, const v
     {
     case ECacheType_Index:
     {
-        endPos = _buffer.m_indexMemUsed.fetch_add(_bytes, std::memory_order_relaxed);
+        _buffer.m_indexMemUsed.fetch_add(_bytes, std::memory_order_relaxed);
+        endPos = _buffer.m_indexMemUsed.load();
         if (endPos > _buffer.m_indexBuffer.GetAllocedSize())
         {
             ionAssertReturnValue(false, "Out of index cache", (VertexCacheHandler)0);
@@ -187,7 +188,8 @@ VertexCacheHandler VertexCacheManager::Alloc(GeometryBufferSet& _buffer, const v
     }
     case ECacheType_Vertex: 
     {
-        endPos = _buffer.m_vertexMemUsed.fetch_add(_bytes, std::memory_order_relaxed);
+        _buffer.m_vertexMemUsed.fetch_add(_bytes, std::memory_order_relaxed);
+        endPos = _buffer.m_vertexMemUsed.load();
         if (endPos > _buffer.m_vertexBuffer.GetAllocedSize())
         {
             ionAssertReturnValue(false, "Out of vertex cache", (VertexCacheHandler)0);
@@ -208,7 +210,8 @@ VertexCacheHandler VertexCacheManager::Alloc(GeometryBufferSet& _buffer, const v
     }
     case ECacheType_Joint: 
     {
-        endPos = _buffer.m_jointMemUsed.fetch_add(_bytes, std::memory_order_relaxed);
+        _buffer.m_jointMemUsed.fetch_add(_bytes, std::memory_order_relaxed);
+        endPos = _buffer.m_jointMemUsed.load();
         if (endPos > _buffer.m_jointBuffer.GetAllocedSize())
         {
             ionAssertReturnValue(false, "Out of joint cache", (VertexCacheHandler)0);

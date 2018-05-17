@@ -14,6 +14,8 @@
 
 #include "RenderState.h"
 
+#include "DrawSurface.h"
+
 #define VK_NAME                     "Ion"
 #define VK_LUNAR_VALIDATION_LAYER   "VK_LAYER_LUNARG_standard_validation"
 
@@ -1165,7 +1167,7 @@ void RenderCore::EndFrame()
     vkCmdWriteTimestamp(commandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, m_vkQueryPools[m_currentFrameData], m_queryIndex[m_currentFrameData]++);
 
     vkCmdEndRenderPass(commandBuffer);
-
+    
     // Transition our swap image to present.
     // Do this instead of having the renderpass do the transition
     // so we can take advantage of the general layout to avoid 
@@ -1406,6 +1408,11 @@ void RenderCore::SetColor(const eosString& _param, ionFloat _r, ionFloat _g, ion
     color[2] = _b;
     color[3] = _a;
     ionShaderProgramManager().SetRenderParm(_param, color);
+}
+
+void RenderCore::Draw(const DrawSurface& _surface)
+{
+
 }
 
 

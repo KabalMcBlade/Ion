@@ -400,11 +400,11 @@ void ShaderProgramManager::LoadShader(Shader& _shader, const ShaderLayoutDef& _d
     // just direct set, not binary
     switch(_shader.m_stage)
     {
-    case EShaderStage_Vertex:           shaderPath += ".vspv"; break;
-    case EShaderStage_Tessellation_Ctrl:shaderPath += ".cspv"; break;
-    case EShaderStage_Tessellation_Eval:shaderPath += ".espv"; break;
-    case EShaderStage_Geometry:         shaderPath += ".gspv"; break;
-    case EShaderStage_Fragment:         shaderPath += ".fspv"; break;
+    case EShaderStage_Vertex:           shaderPath += ".vert.spv"; break;
+    case EShaderStage_Tessellation_Ctrl:shaderPath += ".ctrl.spv"; break;
+    case EShaderStage_Tessellation_Eval:shaderPath += ".eval.spv"; break;
+    case EShaderStage_Geometry:         shaderPath += ".geom.spv"; break;
+    case EShaderStage_Fragment:         shaderPath += ".frag.spv"; break;
     default:
         ionAssertReturnVoid(false, "Shader stage mismatch!");
         break;
@@ -442,7 +442,7 @@ void ShaderProgramManager::LoadShader(Shader& _shader, const ShaderLayoutDef& _d
     ionAssertReturnVoid(result == VK_SUCCESS, "Cannot create shader!");
 }
 
-ionS32 ShaderProgramManager::FindProgram(const eosString& _name, ionS32 _vertexIndex, ionS32 _fragmentIndex /*= -1*/, ionS32 _tessellationControlIndex /*= -1*/, ionS32 _tessellationEvaluationIndex /*= -1*/, ionS32 _geometryIndex /*= -1*/)
+ionS32 ShaderProgramManager::FindProgram(const eosString& _name, EVertexLayout _vertexLayout, ionS32 _vertexIndex, ionS32 _fragmentIndex /*= -1*/, ionS32 _tessellationControlIndex /*= -1*/, ionS32 _tessellationEvaluationIndex /*= -1*/, ionS32 _geometryIndex /*= -1*/, ionBool _useJoint /*= false*/, ionBool _useSkinning /*= false*/)
 {
     for (ionSize i = 0; i < m_shaderPrograms.size(); ++i)
     {
@@ -460,8 +460,20 @@ ionS32 ShaderProgramManager::FindProgram(const eosString& _name, ionS32 _vertexI
     program.m_tessellationControlShaderIndex = _tessellationControlIndex;
     program.m_tessellationEvaluatorShaderIndex = _tessellationEvaluationIndex;
     program.m_geometryShaderIndex = _geometryIndex;
+    program.m_vertextLayoutType = _vertexLayout;
+    program.m_usesJoints = _useJoint;
+    program.m_usesSkinning = _useSkinning;
 
-    ShaderProgramHelper::CreateDescriptorSetLayout(m_vkDevice, program, m_shaders[_vertexIndex], m_shaders[_fragmentIndex], m_shaders[_tessellationControlIndex], m_shaders[_tessellationEvaluationIndex], m_shaders[_geometryIndex]);
+    // TODO:
+    // If index is -1 for some shader, I have to manually pass an "invalid" shader to the next function!
+    const ionSize shaderCount = m_shaders.size();
+    const Shader& vertexShader = _vertexIndex > -1 && _vertexIndex < shaderCount ? m_shaders[_vertexIndex] : Shader();
+    const Shader& fragmentShader = _fragmentIndex > -1 && _fragmentIndex < shaderCount ? m_shaders[_fragmentIndex] : Shader();
+    const Shader& tessControlShader = _tessellationControlIndex > -1 && _tessellationControlIndex < shaderCount ? m_shaders[_tessellationControlIndex] : Shader();
+    const Shader& tessEvalShader = _tessellationEvaluationIndex > -1 && _tessellationEvaluationIndex < shaderCount ? m_shaders[_tessellationEvaluationIndex] : Shader();
+    const Shader& geometryShader = _geometryIndex > -1 && _geometryIndex < shaderCount ? m_shaders[_geometryIndex] : Shader();
+
+    ShaderProgramHelper::CreateDescriptorSetLayout(m_vkDevice, program, vertexShader, fragmentShader, tessControlShader, tessEvalShader, geometryShader);
 
     // skinning here?
 

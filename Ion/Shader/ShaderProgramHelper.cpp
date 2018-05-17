@@ -94,6 +94,40 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         locationOffset += sizeof(Vertex::m_color2); // UNUSED because anything next! I keep it just to check at runtime!  
     }
 
+    {
+        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Vertices_Simple];
+
+        vertexLayout.m_inputState = createInfo;
+
+        ionU32 locationIndex = 0;
+        ionU32 locationOffset = 0;
+
+        binding.stride = sizeof(Vertex);
+        binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+        vertexLayout.m_bindinggDescription.push_back(binding);
+
+        // Position
+        attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;   //VK_FORMAT_R32G32B32_SFLOAT;
+        attribute.location = locationIndex++;
+        attribute.offset = locationOffset;
+        vertexLayout.m_attributegDescription.push_back(attribute);
+        locationOffset += sizeof(Vertex::m_position);
+
+        // TexCoord
+        attribute.format = VK_FORMAT_R32G32_SFLOAT;         //VK_FORMAT_R16G16_SFLOAT;
+        attribute.location = locationIndex++;
+        attribute.offset = locationOffset;
+        vertexLayout.m_attributegDescription.push_back(attribute);
+        locationOffset += sizeof(Vertex::m_textureCoordUV);
+
+        // Normal
+        attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
+        attribute.location = locationIndex++;
+        attribute.offset = locationOffset;
+        vertexLayout.m_attributegDescription.push_back(attribute);
+        locationOffset += sizeof(Vertex::m_normal);         // UNUSED because anything next! I keep it just to check at runtime!  
+    }
+
 
     {
         ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Vertices_Plain];

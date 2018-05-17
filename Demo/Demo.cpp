@@ -62,6 +62,13 @@
 #define DEMO_HEIGHT 480
 
 
+#define DEMO_MODEL_FILENAME "E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
+//#define DEMO_MODEL_FILENAME "C:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
+#define DEMO_SHADER_PATH    "E:/Projects/Ion/Demo/Assets/"
+//#define DEMO_SHADER_PATH    "C:/Projects/Ion/Demo/Assets/"
+
+#define DEMO_SHADER_MODEL   "DamagedHelmet"
+#define DEMO_SHADER_PROG    "DamagedHelmet"
 
 EOS_USING_NAMESPACE
 VK_ALLOCATOR_USING_NAMESPACE
@@ -108,7 +115,7 @@ int main()
 
     if (window.Create(WndProc, L"Ion Demo", DEMO_WIDTH, DEMO_HEIGHT, false))
     {
-        rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, "Shaders\\", VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
+        rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, DEMO_SHADER_PATH, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
     }
 
 
@@ -143,15 +150,26 @@ int main()
     //
     Entity *pTest = eosNew(Entity, EOS_MEMORY_ALIGNMENT_SIZE);
     EntityHandle test(pTest);
-    ionRenderManager().LoadModelFromFile("E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf", *test);
-	//ionRenderManager().LoadModelFromFile("C:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf", test);
-
+    ionRenderManager().LoadModelFromFile(DEMO_MODEL_FILENAME, *test);
     test->GetTransformHandle()->SetPosition(entityPos);
     test->GetTransformHandle()->SetRotation(entityRot);
 
+    //
+    ShaderLayoutDef vertexLayout;
+    vertexLayout.m_bindings.push_back(EShaderBinding_Uniform);
+    vertexLayout.m_uniforms.push_back("model");
+    vertexLayout.m_uniforms.push_back("view");
+    vertexLayout.m_uniforms.push_back("proj");
+    ShaderLayoutDef fragmentLayout;
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Fragment, fragmentLayout);
+    ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(DEMO_SHADER_PROG, EVertexLayout_Vertices_Simple, vertexShaderIndex, fragmentShaderIndex);
+
+    //
     camera->AttachToParent(*root);
     test->AttachToParent(*root);
 
+    //
     ionRenderManager().AddScene(*root);
 
     if (rendererInitialized)

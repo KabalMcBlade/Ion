@@ -44,6 +44,7 @@ public:
     void    AddScene(NodeHandle& _root);
     void    AddScene(Node& _root);
 
+    void    Prepare();
     void    CoreLoop();
 
 private:
@@ -63,6 +64,11 @@ private:
     eosVector(EntityHandle) m_entityNodes;
 
     Matrix                  m_viewProjection;
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    // This would be better place somewhere in a sort of "frame" class
+    eosVector(DrawSurface)   m_drawSurfaces;
     //////////////////////////////////////////////////////////////////////////
 
 private:

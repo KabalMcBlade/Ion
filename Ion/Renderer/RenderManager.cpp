@@ -7,8 +7,10 @@
 #include "../Utilities/LoaderGLTF.h"
 
 #include "VertexCacheManager.h"
+#include "DrawSurface.h"
 
 #include "../Geometry/Mesh.h"
+
 
 #define SHADOW_MAP_SIZE					1024
 
@@ -105,6 +107,21 @@ void RenderManager::AddScene(Node& _root)
     AddScene(rootHandle);
 }
 
+void RenderManager::Prepare()
+{    
+    /*
+    const ionSize nodeCount = m_entityNodes.size();
+    for (ionSize i = 0; i < nodeCount; ++i)
+    {
+        VertexCacheHandler vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetVertexBuffer(0, 0), m_entityNodes[i]->GetVertexBufferSize(0, 0));
+        VertexCacheHandler indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetIndexBuffer(0, 0), m_entityNodes[i]->GetIndexBufferSize(0, 0));
+
+        m_vertexCache.push_back(vertexCache);
+        m_indexCache.push_back(indexCache);
+    }
+    */
+}
+
 void RenderManager::CoreLoop()
 {
     Update();
@@ -120,33 +137,34 @@ void RenderManager::Update()
 
     m_viewProjection = projection * view;
 
+
     //
     // Update entities
-
     const ionSize nodeCount = m_entityNodes.size();
+
+    // temp: need a proper way to reserve all the amount of surfaces
+    if (m_drawSurfaces.capacity() == 0)
+    {
+        m_drawSurfaces.resize(nodeCount);
+    }
+
     for (ionSize i = 0; i < nodeCount; ++i)
     {
         m_entityNodes[i]->GetTransformHandle()->UpdateTransform();
         m_entityNodes[i]->GetTransformHandle()->UpdateTransformInverse();
-    }
-    /*
-    eosVector(EntityHandle)::const_iterator begin = m_entityNodes.cbegin(), end = m_entityNodes.cend(), it = begin;
 
-    for (; it != end; ++it)
-    {
-        EntityHandle entityHandle = (*it);
-        entityHandle->GetTransformHandle()->UpdateTransform();
-        entityHandle->GetTransformHandle()->UpdateTransformInverse();
+        m_drawSurfaces[i].m_indexCount = m_entityNodes[i]->GetIndexBufferSize(0, 0);
+        m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetVertexBuffer(0, 0), m_entityNodes[i]->GetVertexBufferSize(0, 0));
+        m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetIndexBuffer(0, 0), m_entityNodes[i]->GetIndexBufferSize(0, 0));
+        m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMaterial(0, 0);
     }
-    */
+
+    //m_renderCore.BlockingSwapBuffers();
 }
 
 void RenderManager::DrawFrame()
 {
-    //m_renderCore.StartFrame();
 
-
-    //m_renderCore.EndFrame();
 }
 
 ION_NAMESPACE_END
