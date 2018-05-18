@@ -1113,7 +1113,7 @@ void RenderCore::BlockingSwapBuffers()
 
     m_vkCommandBufferRecorded[m_currentFrameData] = false;
 
-    //vkDeviceWaitIdle(m_vkDevice);
+    vkDeviceWaitIdle(m_vkDevice);   // it is needed?
 }
 
 void RenderCore::StartFrame() 
@@ -1167,7 +1167,7 @@ void RenderCore::EndFrame()
     vkCmdWriteTimestamp(commandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, m_vkQueryPools[m_currentFrameData], m_queryIndex[m_currentFrameData]++);
 
     vkCmdEndRenderPass(commandBuffer);
-    
+
     // Transition our swap image to present.
     // Do this instead of having the renderpass do the transition
     // so we can take advantage of the general layout to avoid 
@@ -1416,6 +1416,37 @@ void RenderCore::Draw(const DrawSurface& _surface)
     ionShaderProgramManager().SetRenderParms(ION_MODEL_MATRIX_PARAM_TEXT, &_surface.m_modelMatrix[0], 4);
     ionShaderProgramManager().SetRenderParms(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0], 4);
     ionShaderProgramManager().SetRenderParms(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0], 4);
+
+
+    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentFrameData];
+
+    // shader program missing
+    ionShaderProgramManager().BindProgram(0);
+    ionShaderProgramManager().CommitCurrent(*this, m_stateBits, commandBuffer);
+
+    ionSize indexOffset = 0;
+    ionSize vertexOffset = 0;
+
+    IndexBuffer indexBuffer;
+    if (ionVertexCacheManager().GetIndexBuffer(_surface.m_indexCache, &indexBuffer))
+    {
+        const VkBuffer buffer = indexBuffer.GetObject();
+        const VkDeviceSize offset = indexBuffer.GetOffset();
+        indexOffset = offset;
+        vkCmdBindIndexBuffer(commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT16);
+    }
+
+    VertexBuffer vertexBufer;
+    if (ionVertexCacheManager().GetVertexBuffer(_surface.m_vertexCache, &vertexBufer))
+    {
+        const VkBuffer buffer = vertexBufer.GetObject();
+        const VkDeviceSize offset = vertexBufer.GetOffset();
+        vertexOffset = offset;
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, &buffer, &offset);
+    }
+
+    //vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, (indexOffset >> 1), vertexOffset / sizeof(Vertex), 0);
+    vkCmdDrawIndexed(commandBuffer, static_cast<ionU32>(_surface.m_indexCount), 1, 0, 0, 0);
 }
 
 

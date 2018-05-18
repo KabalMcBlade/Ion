@@ -5,6 +5,10 @@
 ION_NAMESPACE_BEGIN
 
 
+#define ION_STENCIL_SHADOW_TEST_VALUE		128
+#define ION_STENCIL_SHADOW_MASK_VALUE		255
+
+
 enum EStencilFrontFunction : ionU64
 {
     EStencilFrontFunction_Always = 0ULL << 36,

@@ -438,26 +438,26 @@ void Texture::UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _
 
     VkBufferImageCopy imgCopy = {};
     imgCopy.bufferOffset = offset;
-    //imgCopy.bufferRowLength = 0;
-    //imgCopy.bufferImageHeight = _height;
+    imgCopy.bufferRowLength = 0;
+    imgCopy.bufferImageHeight = _height;
     imgCopy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     imgCopy.imageSubresource.layerCount = 1;
     imgCopy.imageSubresource.mipLevel = _mipMapLevel;
     imgCopy.imageSubresource.baseArrayLayer = _index;
-    //imgCopy.imageOffset.x = 0;
-    //imgCopy.imageOffset.y = 0;
-    //imgCopy.imageOffset.z = 0;
+    imgCopy.imageOffset.x = 0;
+    imgCopy.imageOffset.y = 0;
+    imgCopy.imageOffset.z = 0;
     imgCopy.imageExtent.width = _width;
     imgCopy.imageExtent.height = _height;
     imgCopy.imageExtent.depth = 1;
 
     VkImageMemoryBarrier barrier = {};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    //barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    //barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.image = m_image;
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    //barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.baseMipLevel = 0;
     barrier.subresourceRange.levelCount = m_options.m_numLevels;
     barrier.subresourceRange.baseArrayLayer = _index;               // 0 for 2d
     barrier.subresourceRange.layerCount = 1;

@@ -345,13 +345,13 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
                 name = m_filenameNoExt + underscore + val;
             }
 
-            ionTextureManger().CreateTextureFromBinary(m_vkDevice, name, _model.images[i].width, _model.images[i].height, _model.images[i].component, &_model.images[i].image[0], _model.images[i].image.size(), textureIndex, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_LookUp_RGBA, ETextureType_2D);
+            //ionTextureManger().CreateTextureFromBinary(m_vkDevice, name, _model.images[i].width, _model.images[i].height, _model.images[i].component, &_model.images[i].image[0], _model.images[i].image.size(), textureIndex, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_LookUp_RGBA, ETextureType_2D);
         }
         else
         {
             eosString val = _model.images[i].uri.c_str();
             eosString path = m_dir + backslash + val;
-            ionTextureManger().CreateTextureFromFile(m_vkDevice, m_filename, path, textureIndex);
+            //ionTextureManger().CreateTextureFromFile(m_vkDevice, m_filename, path, textureIndex);
         }
     }
 
@@ -372,11 +372,11 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
 
             if (key == "baseColorTexture")
             {
-                material->SetMetalnessMap(ionTextureManger().GetTexture(param.TextureIndex()));
+                //material->SetMetalnessMap(ionTextureManger().GetTexture(param.TextureIndex()));
             }
             if (key == "metallicRoughnessTexture")
             {
-                material->SetRoughnessMap(ionTextureManger().GetTexture(param.TextureIndex()));
+                //material->SetRoughnessMap(ionTextureManger().GetTexture(param.TextureIndex()));
             }
         }
 
@@ -387,7 +387,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
 
             if (key == "emissiveTexture")
             {
-                material->SetEmissiveMap(ionTextureManger().GetTexture(param.TextureIndex()));
+                //material->SetEmissiveMap(ionTextureManger().GetTexture(param.TextureIndex()));
             }
             if (key == "emissiveFactor")
             {
@@ -396,11 +396,11 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
 
             if (key == "normalTexture")
             {
-                material->SetNormalMap(ionTextureManger().GetTexture(param.TextureIndex()));
+                //material->SetNormalMap(ionTextureManger().GetTexture(param.TextureIndex()));
             }
             if (key == "occlusionTexture")
             {
-                material->SetOcclusionMap(ionTextureManger().GetTexture(param.TextureIndex()));
+                //material->SetOcclusionMap(ionTextureManger().GetTexture(param.TextureIndex()));
             }
         }
 

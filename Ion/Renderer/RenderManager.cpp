@@ -146,7 +146,7 @@ void RenderManager::Update()
     {
         m_drawSurfaces.resize(nodeCount);
     }
-
+    
     for (ionSize i = 0; i < nodeCount; ++i)
     {
         //
@@ -182,7 +182,29 @@ void RenderManager::Update()
 
 void RenderManager::DrawFrame()
 {
+    m_renderCore.BlockingSwapBuffers();
+    ionVertexCacheManager().BeginFrame();
 
+    //////////////////////////////////////////////////////////////////////////
+
+    const ionU32 width = m_renderCore.GetWidth();
+    const ionU32 height = m_renderCore.GetHeight();
+
+    m_renderCore.StartFrame();
+
+    m_renderCore.SetViewport(0, 0, width, height);
+    m_renderCore.SetScissor(0, 0, width, height);
+    m_renderCore.SetState(ECullingMode_Front);
+    m_renderCore.SetClear(true, true, true, ION_STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f);
+    
+    const ionSize drawSurfacesCount = m_drawSurfaces.size();
+    for (ionSize i = 0; i < drawSurfacesCount; ++i)
+    {
+        m_renderCore.Draw(m_drawSurfaces[i]);
+    }
+    
+    m_renderCore.EndFrame();
+    
 }
 
 ION_NAMESPACE_END
