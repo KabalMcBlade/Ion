@@ -26,7 +26,7 @@ When I'll finish the interface I'll add some things to render!
 - **The Vulkan Version used is 1.0.68.0**
 
 ## Errors
-**At the current state still stuck after the first frame! also there is an error with the upload texture in memory (for now removed) FIX THIS!
+**At the current state still stuck after the first frame! also there is an error with the upload texture in memory (for now removed) FIX THIS!**
 
 ### Almost self inclusive
 
