@@ -22,9 +22,11 @@ For many part of the initialization and setup of the Vulkan code I just merely c
 For now it compile only and run without showing anything!
 When I'll finish the interface I'll add some things to render!
 
-**Using NVIDIA Drive before the 397.31 has an issue to upload large texture in memory (2048 x 2048 or more). This want mean that the DEMO attached CAN'T WORK! Please update your driver!**
-**The Vulkan Version used is 1.0.68.0**
+- **Using NVIDIA Drive before the 397.31 has an issue to upload large texture in memory (2048 x 2048 or more). This want mean that the DEMO attached CAN'T WORK! Please update your driver!**
+- **The Vulkan Version used is 1.0.68.0**
 
+## Errors
+** At the current state still stuck after the first frame! also there is an error with the upload texture in memory (for now removed) FIX THIS!
 
 ### Almost self inclusive
 
