@@ -1407,15 +1407,15 @@ void RenderCore::SetColor(const eosString& _param, ionFloat _r, ionFloat _g, ion
     color[1] = _g;
     color[2] = _b;
     color[3] = _a;
-    ionShaderProgramManager().SetRenderParm(_param, color);
+    ionShaderProgramManager().SetRenderParmVector(_param, color);
 }
 
 void RenderCore::Draw(const DrawSurface& _surface)
 {
     // USING THE HASH VERSION HERE!!!
-    ionShaderProgramManager().SetRenderParms(ION_MODEL_MATRIX_PARAM_TEXT, &_surface.m_modelMatrix[0], 4);
-    ionShaderProgramManager().SetRenderParms(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0], 4);
-    ionShaderProgramManager().SetRenderParms(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0], 4);
+    ionShaderProgramManager().SetRenderParmMatrix(ION_MODEL_MATRIX_PARAM_TEXT, &_surface.m_modelMatrix[0]);
+    ionShaderProgramManager().SetRenderParmMatrix(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0]);
+    ionShaderProgramManager().SetRenderParmMatrix(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0]);
 
 
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentFrameData];
@@ -1445,8 +1445,8 @@ void RenderCore::Draw(const DrawSurface& _surface)
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, &buffer, &offset);
     }
 
-    //vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, (indexOffset >> 1), vertexOffset / sizeof(Vertex), 0);
-    vkCmdDrawIndexed(commandBuffer, static_cast<ionU32>(_surface.m_indexCount), 1, 0, 0, 0);
+    vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, (indexOffset >> 1), vertexOffset / sizeof(Vertex), 0);
+    //vkCmdDrawIndexed(commandBuffer, static_cast<ionU32>(_surface.m_indexCount), 1, 0, 0, 0);
 }
 
 

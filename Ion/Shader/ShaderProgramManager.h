@@ -20,8 +20,9 @@ class RenderCore;
 
 struct ION_DLL ShaderLayoutDef final
 {
-    eosVector(eosString) m_uniforms;
-    eosVector(EShaderBinding) m_bindings;
+    eosVector(eosString)			m_uniforms;
+	eosVector(EUniformParameterType)m_uniformTypes;
+    eosVector(EShaderBinding)		m_bindings;
 };
 
 class ION_DLL ShaderProgramManager final
@@ -38,12 +39,21 @@ public:
     ShaderProgramManager();
     ~ShaderProgramManager();
 
-    const   Vector& GetRenderParm(const eosString& _param);
-    const   Vector& GetRenderParm(ionSize _paramHash);
-    void	SetRenderParm(const eosString& _param, const ionFloat* _value);
-    void	SetRenderParm(ionSize _paramHash, const ionFloat* _value);
-    void	SetRenderParms(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
-    void	SetRenderParms(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
+    const   Vector& GetRenderParmVector(const eosString& _param);
+    const   Vector& GetRenderParmVector(ionSize _paramHash);
+
+	const   Matrix& GetRenderParmMatrix(const eosString& _param);
+	const   Matrix& GetRenderParmMatrix(ionSize _paramHash);
+
+    void	SetRenderParmVector(const eosString& _param, const ionFloat* _value);
+    void	SetRenderParmVector(ionSize _paramHash, const ionFloat* _value);
+    void	SetRenderParmsVector(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
+    void	SetRenderParmsVector(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
+
+	void	SetRenderParmMatrix(const eosString& _param, const ionFloat* _value);
+	void	SetRenderParmMatrix(ionSize _paramHash, const ionFloat* _value);
+	void	SetRenderParmsMatrix(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
+	void	SetRenderParmsMatrix(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
 
     // Shader name WITHOUT extension!!
     ionS32	FindShader(const eosString& _name, EShaderStage _stage, const ShaderLayoutDef& _defines);
@@ -60,7 +70,7 @@ private:
     void	LoadShader(ionS32 _index, const ShaderLayoutDef& _defines);
     void	LoadShader(Shader& _shader, const ShaderLayoutDef& _defines);
 
-    void	AllocParametersBlockBuffer(const RenderCore& _render, const eosVector(ionSize) & paramsHash, UniformBuffer& _ubo);
+    void	AllocParametersBlockBuffer(const RenderCore& _render, const eosVector(ionSize) & paramsHash, const eosVector(EUniformParameterType) & paramsType, UniformBuffer& _ubo);
 
 public:
     eosVector(ShaderProgram) m_shaderPrograms;
@@ -70,7 +80,8 @@ private:
     ionS32	                m_current;
     eosString               m_shaderFolderPath;
     eosVector(Shader)	    m_shaders;
-    eosMap(ionSize, Vector) m_uniforms; // is a map where the key is the hash of the name of the uniform in the shader and the value the vector associated
+    eosMap(ionSize, Vector) m_uniformsVector; // is a map where the key is the hash of the name of the uniform in the shader and the value the vector associated
+	eosMap(ionSize, Matrix) m_uniformsMatrix;
 
     ionS32				m_counter;
     ionS32				m_currentData;

@@ -62,10 +62,10 @@
 #define DEMO_HEIGHT 480
 
 
-#define DEMO_MODEL_FILENAME "E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
-//#define DEMO_MODEL_FILENAME "C:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
-#define DEMO_SHADER_PATH    "E:/Projects/Ion/Demo/Assets/"
-//#define DEMO_SHADER_PATH    "C:/Projects/Ion/Demo/Assets/"
+//#define DEMO_MODEL_FILENAME "E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
+#define DEMO_MODEL_FILENAME "C:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
+//#define DEMO_SHADER_PATH    "E:/Projects/Ion/Demo/Assets/"
+#define DEMO_SHADER_PATH    "C:/Projects/Ion/Demo/Assets/"
 
 #define DEMO_SHADER_MODEL   "DamagedHelmet"
 #define DEMO_SHADER_PROG    "DamagedHelmet"
@@ -158,8 +158,11 @@ int main()
     ShaderLayoutDef vertexLayout;
     vertexLayout.m_bindings.push_back(EShaderBinding_Uniform);
     vertexLayout.m_uniforms.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
-    vertexLayout.m_uniforms.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
     vertexLayout.m_uniforms.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+	vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
+	vertexLayout.m_uniforms.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+	vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
     ShaderLayoutDef fragmentLayout;
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Fragment, fragmentLayout);

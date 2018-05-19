@@ -17,6 +17,12 @@ ION_NAMESPACE_BEGIN
 
 class RenderCore;
 
+enum EUniformParameterType
+{
+	EUniformParameterType_Vector = 0,
+	EUniformParameterType_Matrix,
+};
+
 struct Shader
 {
     Shader() :
@@ -34,11 +40,12 @@ struct Shader
         return m_shaderModule != VK_NULL_HANDLE;
     }
 
-    eosString				    m_name;
-    EShaderStage			    m_stage;
-    VkShaderModule			    m_shaderModule;
-    eosVector(EShaderBinding)	m_bindings;
-    eosVector(ionSize)			m_parametersHash;   // while load a shader, we need to pass the parameters, here we save the hash which will be used as key
+    eosString						m_name;
+    EShaderStage					m_stage;
+    VkShaderModule					m_shaderModule;
+    eosVector(EShaderBinding)		m_bindings;
+    eosVector(ionSize)				m_parametersHash;   // while load a shader, we need to pass the parameters, here we save the hash which will be used as key
+	eosVector(EUniformParameterType)m_parameterType;
 };
 
 struct ShaderProgram
