@@ -36,6 +36,8 @@ public:
     Texture*    GetTexture(const eosString& _name) const;
     Texture*    GetTexture(ionS32 _index) const;
 
+	void        DestroyTexture(const eosString& _name);
+
     const ETextureSamplesPerBit& GetMainSamplePerBits() const { return m_mainSamplesPerBit; }
 
 private:

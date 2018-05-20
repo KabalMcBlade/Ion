@@ -187,6 +187,12 @@ Texture* TextureManager::GetTexture(ionS32 _index) const
     return nullptr;
 }
 
+void TextureManager::DestroyTexture(const eosString& _name)
+{
+	ionSize hash = std::hash<eosString>{}(_name);   // from the original with extension
+	DestroyTexture(hash);
+}
+
 Texture* TextureManager::CreateTexture(VkDevice _vkDevice, const eosString& _name, ionS32 _index /*= -1*/)
 {
     if (_name.empty())
@@ -213,6 +219,8 @@ void TextureManager::DestroyTexture(ionSize _hash)
     if (search != m_hashTexture.end())
     {
         DestroyTexture(search->second);
+
+		m_hashTexture.erase(_hash);
     }
 }
 

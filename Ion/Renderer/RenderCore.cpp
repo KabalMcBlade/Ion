@@ -1122,10 +1122,35 @@ void RenderCore::Restart()
 
 void RenderCore::Resize()
 {
-	/*
-	DestroySwapChain();
+	vkDeviceWaitIdle(m_vkDevice);
 
-	m_vkSwapchainViews.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
+	for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+	{
+		vkDestroyFramebuffer(m_vkDevice, m_vkFrameBuffers[i], vkMemory);
+	}
+
+	vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
+
+	if (m_vkRenderPass != VK_NULL_HANDLE)
+	{
+		vkDestroyRenderPass(m_vkDevice, m_vkRenderPass, vkMemory);
+	}
+
+	for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+	{
+		if (m_vkSwapchainViews[i] != VK_NULL_HANDLE)
+		{
+			vkDestroyImageView(m_vkDevice, m_vkSwapchainViews[i], vkMemory);
+		}
+	}
+
+	if (m_vkSwapchain != VK_NULL_HANDLE)
+	{
+		vkDestroySwapchainKHR(m_vkDevice, m_vkSwapchain, vkMemory);
+	}
+
+	ionTextureManger().DestroyTexture("_ION_ViewDepth");
+	DestroyRenderTargets();
 
 	VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_vkGPU.m_vkPhysicalDevice, m_vkSurface, &m_vkGPU.m_vkSurfaceCaps);
 	ionAssertReturnVoid(result == VK_SUCCESS, "Device capabilities changed and not supported!");
@@ -1136,8 +1161,10 @@ void RenderCore::Resize()
 	ionAssertReturnVoid(supportsPresent == VK_TRUE, "New surface does not support present");
 
 	CreateSwapChain();
-	*/
-	vkDeviceWaitIdle(m_vkDevice);
+	CreateRenderTargets();
+	CreateRenderPass();
+	CreatePipelineCache();
+	CreateFrameBuffers();
 }
 
 void RenderCore::BlockingSwapBuffers()
