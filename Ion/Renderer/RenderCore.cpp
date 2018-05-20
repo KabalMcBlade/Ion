@@ -66,7 +66,7 @@ VkPresentModeKHR RenderCore::SelectPresentMode(eosVector(VkPresentModeKHR)& _vkM
 }
 
 
-VkExtent2D RenderCore::SelectSurfaceExtent(VkSurfaceCapabilitiesKHR& _vkCaps, ionU32 _width, ionU32 _height) const
+VkExtent2D RenderCore::SelectSurfaceExtent(VkSurfaceCapabilitiesKHR& _vkCaps, ionU32& _width, ionU32& _height) const
 {
     VkExtent2D extent;
 
@@ -79,6 +79,9 @@ VkExtent2D RenderCore::SelectSurfaceExtent(VkSurfaceCapabilitiesKHR& _vkCaps, io
         extent.width = std::max(_vkCaps.minImageExtent.width, std::min(_vkCaps.maxImageExtent.width, _width));
         extent.height = std::max(_vkCaps.minImageExtent.height, std::min(_vkCaps.maxImageExtent.height, _height));
     }
+
+	_width = extent.width;
+	_height = extent.height;
 
     return extent;
 }
@@ -1094,6 +1097,10 @@ void RenderCore::Restart()
 
     DestroySwapChain();
 
+	m_vkSwapchainImages.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
+	m_vkSwapchainViews.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
+	m_vkFrameBuffers.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
+
     vkDestroySurfaceKHR(m_vkInstance, m_vkSurface, vkMemory);
 
     CreatePresentationSurface(m_instance, m_window);
@@ -1111,6 +1118,26 @@ void RenderCore::Restart()
     CreateRenderTargets();
 
     CreateFrameBuffers();
+}
+
+void RenderCore::Resize()
+{
+	/*
+	DestroySwapChain();
+
+	m_vkSwapchainViews.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
+
+	VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_vkGPU.m_vkPhysicalDevice, m_vkSurface, &m_vkGPU.m_vkSurfaceCaps);
+	ionAssertReturnVoid(result == VK_SUCCESS, "Device capabilities changed and not supported!");
+
+	VkBool32 supportsPresent = VK_FALSE;
+	result = vkGetPhysicalDeviceSurfaceSupportKHR(m_vkGPU.m_vkPhysicalDevice, m_vkPresentFamilyIndex, m_vkSurface, &supportsPresent);
+	ionAssertReturnVoid(result == VK_SUCCESS, "Device surface changed and not supported!");
+	ionAssertReturnVoid(supportsPresent == VK_TRUE, "New surface does not support present");
+
+	CreateSwapChain();
+	*/
+	vkDeviceWaitIdle(m_vkDevice);
 }
 
 void RenderCore::BlockingSwapBuffers()

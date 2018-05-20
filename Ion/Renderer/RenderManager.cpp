@@ -107,6 +107,11 @@ void RenderManager::AddScene(Node& _root)
     AddScene(rootHandle);
 }
 
+void RenderManager::Resize()
+{
+	m_renderCore.Resize();
+}
+
 void RenderManager::Prepare()
 {    
     /*

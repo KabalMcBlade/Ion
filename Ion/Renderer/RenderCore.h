@@ -33,6 +33,7 @@ public:
     ionBool Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
     void    Shutdown();
     void    Restart();
+	void	Resize();
     void    Clear();
 
     void    BlockingSwapBuffers();
@@ -83,7 +84,7 @@ private:
     // Utility functions
     VkSurfaceFormatKHR SelectSurfaceFormat(eosVector(VkSurfaceFormatKHR)& _vkFormats) const;
     VkPresentModeKHR SelectPresentMode(eosVector(VkPresentModeKHR)& _vkModes) const;
-    VkExtent2D SelectSurfaceExtent(VkSurfaceCapabilitiesKHR& _vkCaps, ionU32 _width, ionU32 _height) const;
+    VkExtent2D SelectSurfaceExtent(VkSurfaceCapabilitiesKHR& _vkCaps, ionU32& _width, ionU32& _height) const;
     VkFormat SelectSupportedFormat(VkPhysicalDevice _vkPhysicalDevice, VkFormat* _vkFormats, ionU32 _vkNumFormats, VkImageTiling _vkTiling, VkFormatFeatureFlags _vkFeatures) const;
 
     // They are in order to call

@@ -87,12 +87,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
         case VK_ESCAPE:
             //PostQuitMessage(0);
-            PostMessage(hWnd, WM_USER + 1, wParam, lParam);
+            PostMessage(hWnd, WM_USER + 2, wParam, lParam);
             break;
         }
     case WM_CLOSE:
-        PostMessage(hWnd, WM_USER + 1, wParam, lParam);
+        PostMessage(hWnd, WM_USER + 2, wParam, lParam);
         break;
+	case WM_SIZE:
+	case WM_EXITSIZEMOVE:
+		PostMessage(hWnd, WM_USER + 1, wParam, lParam);
+		break;
     default:
         return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
