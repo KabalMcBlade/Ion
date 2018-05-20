@@ -182,10 +182,11 @@ void RenderManager::Update()
 
 void RenderManager::DrawFrame()
 {
+	m_renderCore.BlockingSwapBuffers();
 	ionVertexCacheManager().BeginFrame();
-
+	 
 	//////////////////////////////////////////////////////////////////////////
-
+	 
 	m_renderCore.StartFrame();
 
 	const ionU32 width = m_renderCore.GetWidth();
@@ -194,23 +195,21 @@ void RenderManager::DrawFrame()
 	m_renderCore.SetViewport(0, 0, width, height);
 	m_renderCore.SetScissor(0, 0, width, height);
 	m_renderCore.SetState(ECullingMode_Front);
-	m_renderCore.SetClear(true, true, true, ION_STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f);
+	m_renderCore.SetClear(true, true, true, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 0.0f, 0.0f, 0.0f);
     
 	//////////////////////////////////////////////////////////////////////////
 
+	/*
 	const ionSize drawSurfacesCount = m_drawSurfaces.size();
 	for (ionSize i = 0; i < drawSurfacesCount; ++i)
 	{
 		m_renderCore.Draw(m_drawSurfaces[i]);
 	}
-
+	*/
 	//////////////////////////////////////////////////////////////////////////
 
     m_renderCore.EndFrame();
-
-	//////////////////////////////////////////////////////////////////////////
-
-	m_renderCore.BlockingSwapBuffers();
 }
+
 
 ION_NAMESPACE_END

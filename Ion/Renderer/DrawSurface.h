@@ -19,6 +19,7 @@ struct DrawSurface final
     ionSize             m_indexCount;
     VertexCacheHandler  m_vertexCache;
     VertexCacheHandler  m_indexCache;
+	VertexCacheHandler  m_jointCache;
     ionFloat            m_modelMatrix[16];
     ionFloat            m_viewMatrix[16];
     ionFloat            m_projectionMatrix[16];
@@ -30,12 +31,12 @@ struct DrawSurface final
         m_indexCount = 0;
         m_vertexCache = 0;
         m_indexCache = 0;
+		m_jointCache = 0;
         memset(&m_modelMatrix, 0, sizeof(m_modelMatrix));
         memset(&m_viewMatrix, 0, sizeof(m_viewMatrix));
         memset(&m_projectionMatrix, 0, sizeof(m_projectionMatrix));
         m_material = nullptr;
     }
-    // This need to be filled with more info!
 };
 
 

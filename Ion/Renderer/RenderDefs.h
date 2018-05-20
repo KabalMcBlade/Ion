@@ -3,10 +3,7 @@
 
 // 1 direct draw, 2 double buffer, 3 triple buffer
 #define ION_RENDER_BUFFER_COUNT                     2//3 
-
-
 #define ION_RENDER_MAX_IMAGE_PARMS                  16
-#define ION_QUERY_COUNT                             16
 
 
 #define ION_MAX_DESCRIPTOR_SETS                     16384
@@ -16,4 +13,3 @@
 #define ION_MAX_DESCRIPTOR_SET_UNIFORMS             48
 #define ION_MAX_IMAGE_PARMAMETERS                   16
 #define ION_MAX_UNIFORM_BUFFER_OBJECT_PARMAMETERS   2
-#define ION_NUM_TIMESTAMP_QUERIES                   16

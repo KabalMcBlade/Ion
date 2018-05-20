@@ -408,7 +408,22 @@ ionBool RenderCore::CreateQueryPool()
     VkQueryPoolCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
     createInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
-    createInfo.queryCount = ION_QUERY_COUNT;
+
+	createInfo.pipelineStatistics =
+		VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_VERTICES_BIT |
+		VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_PRIMITIVES_BIT |
+		VK_QUERY_PIPELINE_STATISTIC_VERTEX_SHADER_INVOCATIONS_BIT |
+		VK_QUERY_PIPELINE_STATISTIC_CLIPPING_INVOCATIONS_BIT |
+		VK_QUERY_PIPELINE_STATISTIC_CLIPPING_PRIMITIVES_BIT |
+		VK_QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT;
+
+	if (m_vkGPU.m_vkPhysicalDevFeatures.tessellationShader)
+	{
+		createInfo.pipelineStatistics |=
+			VK_QUERY_PIPELINE_STATISTIC_TESSELLATION_CONTROL_SHADER_PATCHES_BIT |
+			VK_QUERY_PIPELINE_STATISTIC_TESSELLATION_EVALUATION_SHADER_INVOCATIONS_BIT;
+	}
+	createInfo.queryCount = m_queryCount;
 
     for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
     {
@@ -901,12 +916,8 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
 
     m_textureParams.resize(ION_RENDER_MAX_IMAGE_PARMS, nullptr);
     m_queryIndex.resize(ION_RENDER_BUFFER_COUNT, 0);
+	m_queryResults.resize(ION_RENDER_BUFFER_COUNT);
 
-    m_queryResults.resize(ION_RENDER_BUFFER_COUNT);
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
-    {
-        m_queryResults[i].resize(ION_QUERY_COUNT);
-    }
  
 
     if (!CreateInstance(_enableValidationLayer))
@@ -923,7 +934,14 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
     {
         return false;
     }
-    
+
+	m_queryCount = m_vkGPU.m_vkPhysicalDevFeatures.tessellationShader ? 8 : 6;
+
+	for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+	{
+		m_queryResults[i].resize(m_queryCount);
+	}
+
     if (!CreateLogicalDeviceAndQueues())
     {
         return false;
@@ -1113,7 +1131,7 @@ void RenderCore::BlockingSwapBuffers()
 
     m_vkCommandBufferRecorded[m_currentFrameData] = false;
 
-    vkDeviceWaitIdle(m_vkDevice);   // it is needed?
+    //vkDeviceWaitIdle(m_vkDevice);   // it is needed?
 }
 
 void RenderCore::StartFrame() 
@@ -1123,14 +1141,14 @@ void RenderCore::StartFrame()
 
     ionStagingBufferManager().Submit();
     ionShaderProgramManager().StartFrame();
-
+	
     VkQueryPool queryPool = m_vkQueryPools[m_currentFrameData];
 
     eosVector(ionU64) & results = m_queryResults[m_currentFrameData];
 
     if (m_queryIndex[m_currentFrameData] > 0) 
     {
-        vkGetQueryPoolResults(m_vkDevice, queryPool, 0, 2, results.size(), results.data(), sizeof(ionU64), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
+        vkGetQueryPoolResults(m_vkDevice, queryPool, 0, /*2*/1, results.size(), results.data(), sizeof(ionU64), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
 
         const ionU64 gpuStart = results[0];
         const ionU64 gpuEnd = results[1];
@@ -1147,7 +1165,7 @@ void RenderCore::StartFrame()
     result = vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
     ionAssertReturnVoid(result == VK_SUCCESS, "vkBeginCommandBuffer failed!");
 
-    vkCmdResetQueryPool(commandBuffer, queryPool, 0, ION_NUM_TIMESTAMP_QUERIES);
+    vkCmdResetQueryPool(commandBuffer, queryPool, 0, m_queryCount);
 
     VkRenderPassBeginInfo renderPassBeginInfo = {};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -1420,7 +1438,7 @@ void RenderCore::Draw(const DrawSurface& _surface)
 
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentFrameData];
 
-    // shader program missing
+    // shader program missing, I know it is 0, just for test
     ionShaderProgramManager().BindProgram(0);
     ionShaderProgramManager().CommitCurrent(*this, m_stateBits, commandBuffer);
 
