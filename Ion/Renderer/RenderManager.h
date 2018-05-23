@@ -56,11 +56,14 @@ private:
     void Update();
     void DrawFrame();
 
+    void UpdateDrawSurface(const Matrix& _projection, const Matrix& _view, ionSize _nodeCount);
+
 private:
     RenderCore              m_renderCore;
 
     //////////////////////////////////////////////////////////////////////////
     // Should be inside a "scene graph" class or a "scene" class
+    ionSize                 m_nodeCount;
     BoundingBox             m_sceneBoundingBox;
     BaseCameraHandle        m_mainCamera;   // for now only one supported
     eosVector(EntityHandle) m_entityNodes;

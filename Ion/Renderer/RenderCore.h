@@ -104,6 +104,8 @@ private:
     ionBool CreatePipelineCache();
     ionBool CreateFrameBuffers();
     void    DestroyFrameBuffers();
+    void    CreateDebugReport();
+    void    DestroyDebugReport();
 
 private:
     HINSTANCE                   m_instance;
@@ -126,6 +128,7 @@ private:
     VkImageView					m_vkMSAAImageView;
     VkRenderPass				m_vkRenderPass;
     VkPipelineCache				m_vkPipelineCache;
+    VkDebugReportCallbackEXT    m_vkDebugCallback;
 
     eosVector(VkSemaphore)	    m_vkAcquiringSemaphores;
     eosVector(VkSemaphore)	    m_vkCompletedSemaphores;

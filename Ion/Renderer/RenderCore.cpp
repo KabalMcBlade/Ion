@@ -131,6 +131,41 @@ ionU32 FindMemoryType(VkPhysicalDevice _vkPhysicalDevice, ionU32 typeFilter, VkM
 
 //////////////////////////////////////////////////////////////////////////
 
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char* layerPrefix, const char* msg, void* userData) 
+{
+    std::cerr << "[VALIDATION LAYER]: " << msg << std::endl;
+    return VK_FALSE;
+}
+
+void RenderCore::CreateDebugReport()
+{
+    if (m_vkValidationEnabled)
+    {
+        VkDebugReportCallbackCreateInfoEXT createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+        createInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+        createInfo.pfnCallback = debugCallback;
+
+        auto func = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_vkInstance, "vkCreateDebugReportCallbackEXT");
+        if (func != nullptr)
+        {
+            func(m_vkInstance, &createInfo, vkMemory, &m_vkDebugCallback);
+        }
+    }
+}
+
+void RenderCore::DestroyDebugReport()
+{
+    if (m_vkValidationEnabled)
+    {
+        auto func = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(m_vkInstance, "vkDestroyDebugReportCallbackEXT");
+        if (func != nullptr)
+        {
+            func(m_vkInstance, m_vkDebugCallback, vkMemory);
+        }
+    }
+}
+
 ionBool RenderCore::CreateInstance(ionBool _enableValidationLayer)
 {
     m_vkValidationEnabled = _enableValidationLayer;
@@ -928,6 +963,8 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
         return false;
     }
 
+    CreateDebugReport();
+
     if (!CreatePresentationSurface(m_instance, m_window))
     {
         return false;
@@ -1079,6 +1116,8 @@ void RenderCore::Shutdown()
         vkDestroySurfaceKHR(m_vkInstance, m_vkSurface, vkMemory);
     }
 
+    DestroyDebugReport();
+
     if (m_vkInstance != VK_NULL_HANDLE)
     {
         vkDestroyInstance(m_vkInstance, vkMemory);
@@ -1136,7 +1175,7 @@ void RenderCore::Recreate()
 
 void RenderCore::BlockingSwapBuffers()
 {
-    ++m_counter;
+    //++m_counter;
     m_currentFrameData = m_counter % ION_RENDER_BUFFER_COUNT;
 
     if (m_vkCommandBufferRecorded[m_currentFrameData] == false)

@@ -24,7 +24,7 @@ ION_NAMESPACE_BEGIN
 RenderManager *RenderManager::s_instance = nullptr;
 
 
-RenderManager::RenderManager()
+RenderManager::RenderManager() : m_nodeCount(0)
 {
 }
 
@@ -124,6 +124,65 @@ void RenderManager::Prepare()
         m_indexCache.push_back(indexCache);
     }
     */
+
+    //
+    // Update entities
+    m_nodeCount = m_entityNodes.size();
+
+    // temp: need a proper way to reserve all the amount of surfaces
+    if (m_drawSurfaces.capacity() == 0)
+    {
+        m_drawSurfaces.resize(m_nodeCount);
+    }
+
+    // because I want to alternate the buffer, before the first frame I'm preparing the 0 index, which will be presented in the first frame.
+    //
+    m_mainCamera->Update();
+
+    //
+    const Matrix& projection = m_mainCamera->GetPerspectiveProjection();
+    const Matrix& view = m_mainCamera->GetView();
+
+    UpdateDrawSurface(projection, view, m_nodeCount);
+
+    //ionVertexCacheManager().BeginFrame();
+}
+
+void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _view, ionSize _nodeCount)
+{
+    for (ionSize i = 0; i < _nodeCount; ++i)
+    {
+        //
+        // here we need to update the entity position
+
+        m_entityNodes[i]->GetTransformHandle()->UpdateTransform();
+        //m_entityNodes[i]->GetTransformHandle()->UpdateTransformInverse();
+
+        const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrix();
+        //const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrixInverse();
+
+        // not aligned... just to test
+        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[8], model[2]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[12], model[3]);
+
+        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[0], _view[0]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[4], _view[1]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[8], _view[2]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[12], _view[3]);
+
+        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[0], _projection[0]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[4], _projection[1]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[8], _projection[2]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[12], _projection[3]);
+
+        m_drawSurfaces[i].m_indexCount = m_entityNodes[i]->GetIndexBufferSize(0, 0);
+        m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetVertexBuffer(0, 0), m_entityNodes[i]->GetVertexBufferSize(0, 0));
+        m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetIndexBuffer(0, 0), m_entityNodes[i]->GetIndexBufferSize(0, 0));
+        m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMaterial(0, 0);
+    }
+
 }
 
 void RenderManager::CoreLoop()
@@ -141,49 +200,7 @@ void RenderManager::Update()
     const Matrix& projection = m_mainCamera->GetPerspectiveProjection();
     const Matrix& view = m_mainCamera->GetView();
 
-    //
-    // Update entities
-    const ionSize nodeCount = m_entityNodes.size();
-
-    // temp: need a proper way to reserve all the amount of surfaces
-    if (m_drawSurfaces.capacity() == 0)
-    {
-        m_drawSurfaces.resize(nodeCount);
-    }
-    
-    ionVertexCacheManager().BeginFrame();
-    for (ionSize i = 0; i < nodeCount; ++i)
-    {
-        //
-        // here we need to update the entity position
-
-        m_entityNodes[i]->GetTransformHandle()->UpdateTransform();
-        //m_entityNodes[i]->GetTransformHandle()->UpdateTransformInverse();
-
-        const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrix();
-        //const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrixInverse();
-        
-        // not aligned... just to test
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[8], model[2]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[12], model[3]);
-
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[0], view[0]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[4], view[1]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[8], view[2]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[12], view[3]);
-
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[0], projection[0]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[4], projection[1]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[8], projection[2]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[12], projection[3]);
-
-        m_drawSurfaces[i].m_indexCount = m_entityNodes[i]->GetIndexBufferSize(0, 0);
-        m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetVertexBuffer(0, 0), m_entityNodes[i]->GetVertexBufferSize(0, 0));
-        m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetIndexBuffer(0, 0), m_entityNodes[i]->GetIndexBufferSize(0, 0));
-        m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMaterial(0, 0);
-    }
+    UpdateDrawSurface(projection, view, m_nodeCount);
 }
 
 void RenderManager::DrawFrame()
@@ -194,6 +211,7 @@ void RenderManager::DrawFrame()
 
     if (m_renderCore.StartFrame())
     {
+        m_renderCore.BlockingSwapBuffers();
         ionVertexCacheManager().BeginFrame();
 
         m_renderCore.SetViewport(0, 0, width, height);
@@ -201,14 +219,10 @@ void RenderManager::DrawFrame()
         m_renderCore.SetState(ECullingMode_Front);
         m_renderCore.SetClear(true, true, true, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 0.0f, 0.0f, 0.0f);
         /*
-        m_renderCore.BlockingSwapBuffers();
-
         for (ionSize i = 0; i < drawSurfacesCount; ++i)
         {
             m_renderCore.Draw(m_drawSurfaces[i]);
         }
-
-        m_renderCore.BlockingSwapBuffers();
         */
         m_renderCore.EndFrame();
     }
