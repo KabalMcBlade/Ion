@@ -63,6 +63,8 @@ public:
     void	CommitCurrent(const RenderCore& _render, ionU64 _stateBits, VkCommandBuffer _commandBuffer);
     ionS32	FindProgram(const eosString& _name, EVertexLayout _vertexLayout, ionS32 _vertexIndex, ionS32 _fragmentIndex = -1, ionS32 _tessellationControlIndex = -1, ionS32 _tessellationEvaluationIndex = -1, ionS32 _geometryIndex = -1, ionBool _useJoint = false, ionBool _useSkinning = false);
 
+    void    Restart();
+
 private:
     ShaderProgramManager(const ShaderProgramManager& _Orig) = delete;
     ShaderProgramManager& operator = (const ShaderProgramManager&) = delete;

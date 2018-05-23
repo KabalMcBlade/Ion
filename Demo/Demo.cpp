@@ -62,10 +62,10 @@
 #define DEMO_HEIGHT 480
 
 
-//#define DEMO_MODEL_FILENAME "E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
-#define DEMO_MODEL_FILENAME "C:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
-//#define DEMO_SHADER_PATH    "E:/Projects/Ion/Demo/Assets/"
-#define DEMO_SHADER_PATH    "C:/Projects/Ion/Demo/Assets/"
+#define DEMO_MODEL_FILENAME "E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
+//#define DEMO_MODEL_FILENAME "C:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
+#define DEMO_SHADER_PATH    "E:/Projects/Ion/Demo/Assets/"
+//#define DEMO_SHADER_PATH    "C:/Projects/Ion/Demo/Assets/"
 
 #define DEMO_SHADER_MODEL   "DamagedHelmet"
 #define DEMO_SHADER_PROG    "DamagedHelmet"
@@ -123,18 +123,18 @@ int main()
     }
 
 
-    static const Vector up(0.0f, 1.0f, 0.0f);
-    static const Vector right(1.0f, 0.0f, 0.0f);
-    static const Vector forward(0.0f, 0.0f, 1.0f);
+    static const Vector up(0.0f, 1.0f, 0.0f, 1.0f);
+    static const Vector right(1.0f, 0.0f, 0.0f, 1.0f);
+    static const Vector forward(0.0f, 0.0f, 1.0f, 1.0f);
 
-    Vector rootPos(0.0f, 0.0f, 0.0f);
+    Vector rootPos(0.0f, 0.0f, 0.0f, 1.0f);
     Quaternion rootRot(NIX_DEG_TO_RAD(0.0f), up);
 
-    Vector cameraPos(0.0f, 0.0f, -10.0f);
+    Vector cameraPos(0.0f, 0.0f, -10.0f, 1.0f);
     Quaternion cameraRot(NIX_DEG_TO_RAD(180.0f), up);
 
-    Vector entityPos(0.0f, 20.0f, 0.0f);
-    Quaternion entityRot(NIX_DEG_TO_RAD(90.0f), up);
+    Vector entityPos(0.0f, 0.0f, 0.0f, 1.0f);
+    Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
 
 
     //
@@ -157,6 +157,7 @@ int main()
     ionRenderManager().LoadModelFromFile(DEMO_MODEL_FILENAME, *test);
     test->GetTransformHandle()->SetPosition(entityPos);
     test->GetTransformHandle()->SetRotation(entityRot);
+    test->GetTransformHandle()->SetScale(10.0f);
 
     //
     ShaderLayoutDef vertexLayout;
@@ -170,7 +171,11 @@ int main()
     ShaderLayoutDef fragmentLayout;
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Fragment, fragmentLayout);
-    ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(DEMO_SHADER_PROG, EVertexLayout_Vertices_Simple, vertexShaderIndex, fragmentShaderIndex);
+    test->GetMaterial(0, 0)->SetShaderProgramName(DEMO_SHADER_PROG);
+    test->GetMaterial(0, 0)->SetVertexLayout(EVertexLayout_Vertices_Simple);
+    test->GetMaterial(0, 0)->SetVertexShaderIndex(vertexShaderIndex);
+    test->GetMaterial(0, 0)->SetFragmentShaderIndex(fragmentShaderIndex);
+    //ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(DEMO_SHADER_PROG, EVertexLayout_Vertices_Simple, vertexShaderIndex, fragmentShaderIndex);
 
     //
     camera->AttachToParent(*root);

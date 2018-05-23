@@ -417,6 +417,131 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 };
 
 
+
+
+//////////////////////////////////////////////////////////////////////////
+
+// 28 bytes aligned to 16 -> 32
+ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct SimpleVertex
+{
+    Vector				m_position;		        // 16 bytes
+    ionFloat            m_textureCoordUV[2];    // 8 bytes
+    ionU8				m_normal[4];	        // 4 bytes
+ 
+    SimpleVertex()
+    {
+        Clear();
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // CLEAR
+
+    ION_INLINE void Clear()
+    {
+        m_position = VectorHelper::GetZero();
+        this->m_textureCoordUV[0] = 0.0f;
+        this->m_textureCoordUV[1] = 0.0f;
+        *reinterpret_cast<ionU64*>(this->m_normal) = 0x00FF8080;	// x=0, y=0, z=1
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////
+    // GETTER
+
+    ION_INLINE Vector GetPosition() const
+    {
+        return m_position;
+    }
+
+    ION_INLINE Vector GetNormal() const
+    {
+        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
+        v.Normalize();
+        return v;
+    }
+
+    ION_INLINE Vector GetTexCoordUVUV() const
+    {
+        return Vector(m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[0], m_textureCoordUV[1]);
+    }
+
+    ION_INLINE Vector GetTexCoordUUVV() const
+    {
+        return Vector(m_textureCoordUV[0], m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[1]);
+    }
+
+    ION_INLINE Vector GetTexCoordVUVU() const
+    {
+        return Vector(m_textureCoordUV[1], m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[0]);
+    }
+
+    ION_INLINE ionFloat GetTexCoordU() const
+    {
+        return m_textureCoordUV[0];
+    }
+
+    ION_INLINE ionFloat GetTexCoordV() const
+    {
+        return m_textureCoordUV[1];
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // SETTER
+
+    ION_INLINE void SetPosition(const Vector& _position)
+    {
+        m_position = _position;
+    }
+
+    ION_INLINE void SetPosition(ionFloat _x, ionFloat _y, ionFloat _z)
+    {
+        m_position = Vector(_x, _y, _z, 1.0f);
+    }
+
+    ION_INLINE void SetNormal(const Vector& _normal)
+    {
+        MathHelper::VectorToByte(_normal, m_normal);
+    }
+
+    ION_INLINE void SetNormal(ionFloat _x, ionFloat _y, ionFloat _z)
+    {
+        MathHelper::VectorToByte(_x, _y, _z, m_normal);
+    }
+
+    ION_INLINE void SetTexCoordU(ionFloat _u)
+    {
+        m_textureCoordUV[0] = _u;
+    }
+
+    ION_INLINE void SetTexCoordV(ionFloat _v)
+    {
+        m_textureCoordUV[1] = _v;
+    }
+
+    ION_INLINE void SetTexCoordUV(ionFloat _u, ionFloat _v)
+    {
+        SetTexCoordU(_u);
+        SetTexCoordV(_v);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // FUNCTIONS
+
+    ION_INLINE void Lerp(const SimpleVertex& _a, const SimpleVertex& _b, const ionFloat _t)
+    {
+        const Vector t(_t);
+
+        m_position = VectorHelper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
+
+        const Vector aUVUV = _a.GetTexCoordUVUV();
+        const Vector bUVUV = _b.GetTexCoordUVUV();
+        const Vector lerpUV = VectorHelper::Lerp(aUVUV, bUVUV, t);
+        SetTexCoordUV(VectorHelper::ExtractElement_0(lerpUV), VectorHelper::ExtractElement_1(lerpUV));
+    }
+};
+
+
+
 //////////////////////////////////////////////////////////////////////////
 
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainVertex

@@ -11,7 +11,6 @@
 
 #include "../Geometry/Mesh.h"
 
-
 #define SHADOW_MAP_SIZE					1024
 
 
@@ -109,7 +108,7 @@ void RenderManager::AddScene(Node& _root)
 
 void RenderManager::Resize()
 {
-	m_renderCore.Resize();
+	m_renderCore.Recreate();
 }
 
 void RenderManager::Prepare()
@@ -136,7 +135,7 @@ void RenderManager::CoreLoop()
 void RenderManager::Update()
 {
     //
-    // Here need to update the camera position
+    m_mainCamera->Update();
 
     //
     const Matrix& projection = m_mainCamera->GetPerspectiveProjection();
@@ -152,6 +151,7 @@ void RenderManager::Update()
         m_drawSurfaces.resize(nodeCount);
     }
     
+    ionVertexCacheManager().BeginFrame();
     for (ionSize i = 0; i < nodeCount; ++i)
     {
         //
@@ -161,6 +161,7 @@ void RenderManager::Update()
         //m_entityNodes[i]->GetTransformHandle()->UpdateTransformInverse();
 
         const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrix();
+        //const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrixInverse();
         
         // not aligned... just to test
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
@@ -187,33 +188,30 @@ void RenderManager::Update()
 
 void RenderManager::DrawFrame()
 {
-	m_renderCore.BlockingSwapBuffers();
-	ionVertexCacheManager().BeginFrame();
-	 
-	//////////////////////////////////////////////////////////////////////////
-	 
-	m_renderCore.StartFrame();
+    const ionU32 width = m_renderCore.GetWidth();
+    const ionU32 height = m_renderCore.GetHeight();
+    const ionSize drawSurfacesCount = m_drawSurfaces.size();
 
-	const ionU32 width = m_renderCore.GetWidth();
-	const ionU32 height = m_renderCore.GetHeight();
+    if (m_renderCore.StartFrame())
+    {
+        ionVertexCacheManager().BeginFrame();
 
-	m_renderCore.SetViewport(0, 0, width, height);
-	m_renderCore.SetScissor(0, 0, width, height);
-	m_renderCore.SetState(ECullingMode_Front);
-	m_renderCore.SetClear(true, true, true, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 0.0f, 0.0f, 0.0f);
-    
-	//////////////////////////////////////////////////////////////////////////
+        m_renderCore.SetViewport(0, 0, width, height);
+        m_renderCore.SetScissor(0, 0, width, height);
+        m_renderCore.SetState(ECullingMode_Front);
+        m_renderCore.SetClear(true, true, true, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 0.0f, 0.0f, 0.0f);
+        /*
+        m_renderCore.BlockingSwapBuffers();
 
-	/*
-	const ionSize drawSurfacesCount = m_drawSurfaces.size();
-	for (ionSize i = 0; i < drawSurfacesCount; ++i)
-	{
-		m_renderCore.Draw(m_drawSurfaces[i]);
-	}
-	*/
-	//////////////////////////////////////////////////////////////////////////
+        for (ionSize i = 0; i < drawSurfacesCount; ++i)
+        {
+            m_renderCore.Draw(m_drawSurfaces[i]);
+        }
 
-    m_renderCore.EndFrame();
+        m_renderCore.BlockingSwapBuffers();
+        */
+        m_renderCore.EndFrame();
+    }
 }
 
 

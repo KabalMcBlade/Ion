@@ -80,6 +80,14 @@ const Material* Entity::GetMaterial(ionU32 _meshIndex, ionU32 _primitiveIndex) c
     return m_meshes[_meshIndex].GetPrimitive(_primitiveIndex).m_material;
 }
 
+Material* Entity::GetMaterial(ionU32 _meshIndex, ionU32 _primitiveIndex)
+{
+    ionAssertReturnValue(_meshIndex >= 0 && _meshIndex < m_meshes.size(), "Mesh index out of bound", nullptr);
+    ionAssertReturnValue(_primitiveIndex >= 0 && _primitiveIndex < m_meshes[_meshIndex].GetPrimitives().size(), "Primitive index out of bound", nullptr);
+
+    return m_meshes[_meshIndex].GetPrimitive(_primitiveIndex).m_material;
+}
+
 /*
 void* Entity::GetJointBuffer(ionU32 _meshIndex, ionU32 _primitiveIndex) const
 {

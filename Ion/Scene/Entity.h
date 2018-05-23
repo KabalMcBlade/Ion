@@ -43,7 +43,7 @@ public:
     ionSize GetIndexBufferSize(ionU32 _meshIndex, ionU32 _primitiveIndex) const;
 
     const Material* GetMaterial(ionU32 _meshIndex, ionU32 _primitiveIndex) const;
-
+    Material* GetMaterial(ionU32 _meshIndex, ionU32 _primitiveIndex);
     /*
     void*   GetJointBuffer(ionU32 _meshIndex, ionU32 _primitiveIndex) const;
     ionSize GetJointBufferSize(ionU32 _meshIndex, ionU32 _primitiveIndex) const;

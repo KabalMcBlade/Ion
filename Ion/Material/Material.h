@@ -104,9 +104,28 @@ public:
     void SetOcclusionMap(Texture* _texture) { m_occlusionMap = _texture; }
     void SetEmissiveMap(Texture* _texture) { m_emissiveMap = _texture; }
 
+    void SetVertexShaderIndex(ionS32 _index) { m_vertexShaderIndex = _index;  }
+    void SetFragmentShaderIndex(ionS32 _index) { m_fragmentShaderIndex = _index; }
+
+    ionS32 GetVertexShaderIndex() const { return m_vertexShaderIndex; }
+    ionS32 GetFragmentShaderIndex() const { return m_fragmentShaderIndex; }
+
+    void SetVertexLayout(EVertexLayout _layout) { m_vertexLayout = _layout; }
+    EVertexLayout GetVertexLayout() const { return m_vertexLayout; }
+
+    void SetShaderProgramName(const eosString& _name) { m_shaderProgramName = _name; }
+    const eosString& GetShaderProgramName() const { return m_shaderProgramName; }
+
 private:
     eosString       m_name;
+    eosString       m_shaderProgramName;
     ionS32          m_index;    // -1 means rely on the name, with valid index, rely on the index, this due GLTF support
+
+    // here the index for all type of shader, for testing purpose just vertex and fragment now!
+    ionS32          m_vertexShaderIndex;
+    ionS32          m_fragmentShaderIndex;
+    EVertexLayout   m_vertexLayout;
+
     ionU64          m_stateBits;
 
     ionFloat        m_alphaCutoff;

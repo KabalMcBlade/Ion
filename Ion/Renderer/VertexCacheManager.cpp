@@ -387,6 +387,7 @@ void VertexCacheManager::BeginFrame()
     m_mostUsedIndex = std::max(m_mostUsedIndex, m_frameData[m_listNum].m_indexMemUsed.load());
     m_mostUsedJoint = std::max(m_mostUsedJoint, m_frameData[m_listNum].m_jointMemUsed.load());
 
+    // unmap the current frame so the GPU can read it
     UnmapGeometryBufferSet(m_frameData[m_listNum]);
     UnmapGeometryBufferSet(m_staticData);
 

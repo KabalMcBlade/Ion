@@ -19,8 +19,10 @@ class RenderCore;
 
 enum EUniformParameterType
 {
-	EUniformParameterType_Vector = 0,
-	EUniformParameterType_Matrix,
+    EUniformParameterType_Matrix = 0,
+	EUniformParameterType_Vector,
+	
+    EUniformParameterType_Count
 };
 
 struct Shader

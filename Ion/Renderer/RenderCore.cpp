@@ -1084,43 +1084,7 @@ void RenderCore::Shutdown()
         vkDestroyInstance(m_vkInstance, vkMemory);
     }
 }
-
-void RenderCore::Restart()
-{
-    ionStagingBufferManager().Submit();
-
-    vkDeviceWaitIdle(m_vkDevice);
-
-    DestroyFrameBuffers();
-
-    DestroyRenderTargets();
-
-    DestroySwapChain();
-
-	m_vkSwapchainImages.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
-	m_vkSwapchainViews.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
-	m_vkFrameBuffers.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
-
-    vkDestroySurfaceKHR(m_vkInstance, m_vkSurface, vkMemory);
-
-    CreatePresentationSurface(m_instance, m_window);
-
-    VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_vkGPU.m_vkPhysicalDevice, m_vkSurface, &m_vkGPU.m_vkSurfaceCaps);
-    ionAssertReturnVoid(result == VK_SUCCESS, "Device capabilities changed and not supported!");
-
-    VkBool32 supportsPresent = VK_FALSE;
-    result = vkGetPhysicalDeviceSurfaceSupportKHR(m_vkGPU.m_vkPhysicalDevice, m_vkPresentFamilyIndex, m_vkSurface, &supportsPresent);
-    ionAssertReturnVoid(result == VK_SUCCESS, "Device surface changed and not supported!");
-    ionAssertReturnVoid(supportsPresent == VK_TRUE, "New surface does not support present");
-
-    CreateSwapChain();
-
-    CreateRenderTargets();
-
-    CreateFrameBuffers();
-}
-
-void RenderCore::Resize()
+void RenderCore::Recreate()
 {
 	vkDeviceWaitIdle(m_vkDevice);
 
@@ -1130,6 +1094,9 @@ void RenderCore::Resize()
 	}
 
 	vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
+
+    //ionShaderProgramManager().Restart();
+    vkDestroyPipelineCache(m_vkDevice, m_vkPipelineCache, vkMemory);
 
 	if (m_vkRenderPass != VK_NULL_HANDLE)
 	{
@@ -1188,10 +1155,15 @@ void RenderCore::BlockingSwapBuffers()
     //vkDeviceWaitIdle(m_vkDevice);   // it is needed?
 }
 
-void RenderCore::StartFrame() 
+ionBool RenderCore::StartFrame()
 {
     VkResult result = vkAcquireNextImageKHR(m_vkDevice, m_vkSwapchain, UINT64_MAX, m_vkAcquiringSemaphores[m_currentFrameData], VK_NULL_HANDLE, &m_currentSwapIndex);
-    ionAssertReturnVoid(result == VK_SUCCESS, "vkAcquireNextImageKHR failed!");
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) 
+    {
+        Recreate();
+        return false;
+    }
+    ionAssertReturnValue(result == VK_SUCCESS || result  == VK_SUBOPTIMAL_KHR, "vkAcquireNextImageKHR failed!", false);
 
     ionStagingBufferManager().Submit();
     ionShaderProgramManager().StartFrame();
@@ -1202,7 +1174,7 @@ void RenderCore::StartFrame()
 
     if (m_queryIndex[m_currentFrameData] > 0) 
     {
-        vkGetQueryPoolResults(m_vkDevice, queryPool, 0, /*2*/1, results.size(), results.data(), sizeof(ionU64), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
+        vkGetQueryPoolResults(m_vkDevice, queryPool, 0, 2, results.size(), results.data(), sizeof(ionU64), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
 
         const ionU64 gpuStart = results[0];
         const ionU64 gpuEnd = results[1];
@@ -1217,7 +1189,7 @@ void RenderCore::StartFrame()
     VkCommandBufferBeginInfo commandBufferBeginInfo = {};
     commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     result = vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-    ionAssertReturnVoid(result == VK_SUCCESS, "vkBeginCommandBuffer failed!");
+    ionAssertReturnValue(result == VK_SUCCESS, "vkBeginCommandBuffer failed!", false);
 
     vkCmdResetQueryPool(commandBuffer, queryPool, 0, m_queryCount);
 
@@ -1230,6 +1202,8 @@ void RenderCore::StartFrame()
     vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     vkCmdWriteTimestamp(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryPool, m_queryIndex[m_currentFrameData]++);
+
+    return true;
 }
 
 void RenderCore::EndFrame()
@@ -1293,7 +1267,14 @@ void RenderCore::EndFrame()
     presentInfo.pImageIndices = &m_currentSwapIndex;
 
     result = vkQueuePresentKHR(m_vkPresentQueue, &presentInfo);
-    ionAssertReturnVoid(result == VK_SUCCESS, "vkQueuePresentKHR failed!");
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+    {
+        Recreate();
+    }
+    else if (result != VK_SUCCESS)
+    {
+        ionAssertReturnVoid(false, "vkQueuePresentKHR failed!");
+    }
 
     ++m_counter;
     m_currentFrameData = m_counter % ION_RENDER_BUFFER_COUNT;
@@ -1484,28 +1465,27 @@ void RenderCore::SetColor(const eosString& _param, ionFloat _r, ionFloat _g, ion
 
 void RenderCore::Draw(const DrawSurface& _surface)
 {
+    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentFrameData];
+    
     // USING THE HASH VERSION HERE!!!
     ionShaderProgramManager().SetRenderParmMatrix(ION_MODEL_MATRIX_PARAM_TEXT, &_surface.m_modelMatrix[0]);
     ionShaderProgramManager().SetRenderParmMatrix(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0]);
     ionShaderProgramManager().SetRenderParmMatrix(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0]);
-
-
-    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentFrameData];
-
-    // shader program missing, I know it is 0, just for test
-    ionShaderProgramManager().BindProgram(0);
+  
+    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(_surface.m_material->GetShaderProgramName(), _surface.m_material->GetVertexLayout(), _surface.m_material->GetVertexShaderIndex(), _surface.m_material->GetFragmentShaderIndex());
+    ionShaderProgramManager().BindProgram(shaderProgramIndex);
     ionShaderProgramManager().CommitCurrent(*this, m_stateBits, commandBuffer);
 
     ionSize indexOffset = 0;
     ionSize vertexOffset = 0;
-
+    ionBool a = false;
     IndexBuffer indexBuffer;
     if (ionVertexCacheManager().GetIndexBuffer(_surface.m_indexCache, &indexBuffer))
     {
         const VkBuffer buffer = indexBuffer.GetObject();
         const VkDeviceSize offset = indexBuffer.GetOffset();
         indexOffset = offset;
-        vkCmdBindIndexBuffer(commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT16);
+        vkCmdBindIndexBuffer(commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT32);
     }
 
     VertexBuffer vertexBufer;
@@ -1520,6 +1500,7 @@ void RenderCore::Draw(const DrawSurface& _surface)
     vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, (indexOffset >> 1), vertexOffset / sizeof(Vertex), 0);
     //vkCmdDrawIndexed(commandBuffer, static_cast<ionU32>(_surface.m_indexCount), 1, 0, 0, 0);
 }
+
 
 
 ION_NAMESPACE_END

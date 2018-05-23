@@ -102,7 +102,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         ionU32 locationIndex = 0;
         ionU32 locationOffset = 0;
 
-        binding.stride = sizeof(Vertex);
+        binding.stride = sizeof(SimpleVertex);
         binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
         vertexLayout.m_bindinggDescription.push_back(binding);
 
@@ -111,21 +111,21 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
-        locationOffset += sizeof(Vertex::m_position);
+        locationOffset += sizeof(SimpleVertex::m_position);
 
         // TexCoord
         attribute.format = VK_FORMAT_R32G32_SFLOAT;         //VK_FORMAT_R16G16_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
-        locationOffset += sizeof(Vertex::m_textureCoordUV);
+        locationOffset += sizeof(SimpleVertex::m_textureCoordUV);
 
         // Normal
         attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
-        locationOffset += sizeof(Vertex::m_normal);         // UNUSED because anything next! I keep it just to check at runtime!  
+        locationOffset += sizeof(SimpleVertex::m_normal);         // UNUSED because anything next! I keep it just to check at runtime!  
     }
 
 

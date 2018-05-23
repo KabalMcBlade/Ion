@@ -32,12 +32,11 @@ public:
 
     ionBool Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
     void    Shutdown();
-    void    Restart();
-	void	Resize();
+	void	Recreate();
     void    Clear();
 
     void    BlockingSwapBuffers();
-    void    StartFrame();
+    ionBool StartFrame();
     void    EndFrame();
     void    BindTexture(ionS32 _index, Texture* _image);
     void    SetDefaultState();
