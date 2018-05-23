@@ -156,8 +156,6 @@ private:
     ionU32                      m_width;
     ionU32                      m_height;
 
-	ionU32                      m_queryCount;
-
     ionS32			            m_vkGraphicsFamilyIndex;
     ionS32			            m_vkPresentFamilyIndex;
 

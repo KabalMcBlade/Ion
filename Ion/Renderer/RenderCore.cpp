@@ -143,7 +143,7 @@ void RenderCore::CreateDebugReport()
     {
         VkDebugReportCallbackCreateInfoEXT createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-        createInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+        createInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT | VK_DEBUG_REPORT_DEBUG_BIT_EXT;
         createInfo.pfnCallback = debugCallback;
 
         auto func = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_vkInstance, "vkCreateDebugReportCallbackEXT");
@@ -461,7 +461,7 @@ ionBool RenderCore::CreateQueryPool()
 			VK_QUERY_PIPELINE_STATISTIC_TESSELLATION_CONTROL_SHADER_PATCHES_BIT |
 			VK_QUERY_PIPELINE_STATISTIC_TESSELLATION_EVALUATION_SHADER_INVOCATIONS_BIT;
 	}
-	createInfo.queryCount = m_queryCount;
+	createInfo.queryCount = ION_RENDER_QUERY_POOL;
 
     for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
     {
@@ -955,8 +955,10 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
     m_textureParams.resize(ION_RENDER_MAX_IMAGE_PARMS, nullptr);
     m_queryIndex.resize(ION_RENDER_BUFFER_COUNT, 0);
 	m_queryResults.resize(ION_RENDER_BUFFER_COUNT);
-
- 
+    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    {
+        m_queryResults[i].resize(ION_RENDER_QUERY_POOL);
+    }
 
     if (!CreateInstance(_enableValidationLayer))
     {
@@ -975,12 +977,7 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
         return false;
     }
 
-	m_queryCount = m_vkGPU.m_vkPhysicalDevFeatures.tessellationShader ? 8 : 6;
 
-	for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
-	{
-		m_queryResults[i].resize(m_queryCount);
-	}
 
     if (!CreateLogicalDeviceAndQueues())
     {
@@ -1175,7 +1172,7 @@ void RenderCore::Recreate()
 
 void RenderCore::BlockingSwapBuffers()
 {
-    //++m_counter;
+    ++m_counter;
     m_currentFrameData = m_counter % ION_RENDER_BUFFER_COUNT;
 
     if (m_vkCommandBufferRecorded[m_currentFrameData] == false)
@@ -1230,7 +1227,7 @@ ionBool RenderCore::StartFrame()
     result = vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
     ionAssertReturnValue(result == VK_SUCCESS, "vkBeginCommandBuffer failed!", false);
 
-    vkCmdResetQueryPool(commandBuffer, queryPool, 0, m_queryCount);
+    vkCmdResetQueryPool(commandBuffer, queryPool, 0, ION_RENDER_QUERY_POOL);
 
     VkRenderPassBeginInfo renderPassBeginInfo = {};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
