@@ -1536,6 +1536,39 @@ void RenderCore::Draw(const DrawSurface& _surface)
     //vkCmdDrawIndexed(commandBuffer, static_cast<ionU32>(_surface.m_indexCount), 1, 0, 0, 0);
 }
 
+void RenderCore::Execute(const ionU32 _commandCount, const eosVector(RenderCommand)& _renderCommands)
+{
+    if (_commandCount == 0)
+    {
+        return;
+    }
+
+    StartFrame();
+
+    SetDefaultState();
+
+    for (ionU32 i = 0; i < _commandCount; ++i)
+    {
+        const RenderCommand& cmd = _renderCommands[i];
+        switch (cmd.m_operation) 
+        {
+        case ERenderOperation_None:
+            break;
+        case ERenderOperation_Draw_View:
+            //DrawView(cmd);
+            break;
+        case ERenderOperation_Copy_Render:
+            //CopyRender(cmd);
+            break;
+        default:
+            ionAssertReturnVoid(false, "Command type error");
+            break;
+        }
+    }
+
+    EndFrame();
+}
+
 
 
 ION_NAMESPACE_END

@@ -57,6 +57,13 @@ private:
     void Update();
     void DrawFrame();
 
+    void* FrameAlloc(ionS32 _bytes);
+    void AddDrawViewCmd(/*viewDef_t *parms*/);
+    void ToggleSmpFrame();
+    void InitFrameData();
+    void ShutdownFrameData();
+    void RenderCommandBuffers();
+
     void UpdateDrawSurface(const Matrix& _projection, const Matrix& _view, ionSize _nodeCount);
 
 private:
@@ -76,7 +83,9 @@ private:
     //////////////////////////////////////////////////////////////////////////
 
     // SMP: Symmetric multiprocessing
-    FrameData				m_frameData[ION_FRAME_DATA_COUNT];
+    FrameData				m_smpFrameData[ION_FRAME_DATA_COUNT];
+    FrameData*              m_frameData;
+    ionU32					m_smpFrame;
 
 private:
     static RenderManager *s_instance;

@@ -12,6 +12,7 @@
 #include "../Texture/TextureCommon.h"
 
 #include "RenderCommon.h"
+#include "DrawRenderCommon.h"
 
 #include "GPU.h"
 
@@ -49,6 +50,9 @@ public:
     void    CopyFrameBuffer(Texture* _texture, ionS32 _x, ionS32 _y, ionS32 _textureWidth, ionS32 _textureHeight);
     void    SetColor(const eosString& _param, ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a);
     void    Draw(const DrawSurface& _surface);
+
+    void    Execute(const ionU32 _commandCount, const eosVector(RenderCommand)& _renderCommands);
+
 
     VkDevice& GetDevice() { return m_vkDevice; }
     const VkDevice& GetDevice() const { return m_vkDevice; }

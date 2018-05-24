@@ -11,7 +11,11 @@
 
 #include "../Geometry/Mesh.h"
 
-#define SHADOW_MAP_SIZE					1024
+
+//#define SHADOW_MAP_SIZE					1024
+
+#define ION_CACHE_LINE_SIZE	    128
+#define ION_MAX_FRAME_MEMORY    67305472    //64 * 1024 * 1024
 
 
 
@@ -20,12 +24,12 @@ EOS_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 
-
 RenderManager *RenderManager::s_instance = nullptr;
 
 
-RenderManager::RenderManager() : m_nodeCount(0)
+RenderManager::RenderManager() : m_nodeCount(0), m_frameData(nullptr), m_smpFrame(0)
 {
+    memset(&m_smpFrameData, 0, sizeof(m_smpFrameData));
 }
 
 RenderManager::~RenderManager()
@@ -35,12 +39,24 @@ RenderManager::~RenderManager()
 
 ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
 {
-    return m_renderCore.Init(_instance, _handle, _width, _height, _fullScreen, _enableValidationLayer, _shaderFolderPath, _vkDeviceLocalSize, _vkHostVisibleSize, _vkStagingBufferSize);
+    if (m_renderCore.Init(_instance, _handle, _width, _height, _fullScreen, _enableValidationLayer, _shaderFolderPath, _vkDeviceLocalSize, _vkHostVisibleSize, _vkStagingBufferSize))
+    {
+        InitFrameData();
+        //SwapCommandBuffers(nullptr);
+
+        return true;
+    }
+
+    return false;
 }
 
 void RenderManager::Shutdown()
 {
+    ShutdownFrameData();
+    //UnbindBufferObjects();
     m_renderCore.Shutdown();
+
+    ShutdownFrameData();
 }
 
 void RenderManager::Create()
@@ -109,6 +125,93 @@ void RenderManager::AddScene(Node& _root)
 void RenderManager::Resize()
 {
 	m_renderCore.Recreate();
+}
+
+void* RenderManager::FrameAlloc(ionS32 _bytes)
+{
+    _bytes = (_bytes + ION_FRAME_ALLOC_ALIGNMENT - 1) & ~(ION_FRAME_ALLOC_ALIGNMENT - 1);
+
+    // thread safe add
+    m_frameData->m_frameMemoryAllocated.fetch_add(_bytes);
+    ionSize end = m_frameData->m_frameMemoryAllocated.load();
+    ionAssertReturnValue(end <= ION_MAX_FRAME_MEMORY, "FrameAlloc ran out of memory", nullptr);
+
+    ionU8* ptr = m_frameData->m_frameMemory + end - _bytes;
+
+    // cache line clear the memory
+    for (ionS32 offset = 0; offset < _bytes; offset += ION_CACHE_LINE_SIZE)
+    {
+        ionU8* bytePtr = (ionU8*)((((UINT_PTR)(ptr)) + (offset)) & ~(ION_CACHE_LINE_SIZE - 1));
+        memset(bytePtr, 0, ION_CACHE_LINE_SIZE);
+    }
+
+    return ptr;
+}
+
+
+void RenderManager::ToggleSmpFrame()
+{
+    m_smpFrame++;
+    m_frameData = &m_smpFrameData[m_smpFrame % ION_FRAME_DATA_COUNT];
+
+    const ionU32 bytesNeededForAlignment = ION_FRAME_ALLOC_ALIGNMENT - ((ionU32)m_frameData->m_frameMemory & (ION_FRAME_ALLOC_ALIGNMENT - 1));
+    m_frameData->m_frameMemoryAllocated.fetch_add(bytesNeededForAlignment);
+    m_frameData->m_frameMemoryUsed.fetch_add(0);
+
+    // clear the command chain
+    m_frameData->m_renderCommandIndex = 0;
+    m_frameData->m_renderCommands.clear();
+}
+
+void RenderManager::InitFrameData()
+{
+    ShutdownFrameData();
+
+    for (ionS32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
+    {
+        m_smpFrameData[i].m_frameMemory = (ionU8*)eosNewRaw(ION_MAX_FRAME_MEMORY, EOS_MEMORY_ALIGNMENT_SIZE);
+    }
+
+    // must be set before ToggleSmpFrame()
+    m_frameData = &m_smpFrameData[0];
+
+    ToggleSmpFrame();
+}
+
+void RenderManager::ShutdownFrameData()
+{
+    m_frameData = nullptr;
+    for (int i = 0; i < ION_FRAME_DATA_COUNT; ++i)
+    {
+        eosDeleteRaw(m_smpFrameData[i].m_frameMemory);
+        m_smpFrameData[i].m_frameMemory = nullptr;
+    }
+}
+
+void RenderManager::AddDrawViewCmd(/*viewDef_t *parms*/)
+{
+    RenderCommand& cmd = m_frameData->m_renderCommands[m_frameData->m_renderCommandIndex++];
+    cmd.m_operation = ERenderOperation_Draw_View;
+    //cmd.m_viewDef = parms;
+}
+
+
+void RenderManager::RenderCommandBuffers()
+{
+    // Use the previous SMP frame data as the current is being written to.
+    FrameData & frameData = m_smpFrameData[(m_smpFrame - 1) % ION_FRAME_DATA_COUNT];
+
+    // if there isn't a draw view command, do nothing to avoid swapping a bad frame
+    if (frameData.m_renderCommandIndex == 0) 
+    {
+        return;
+    }
+    if (frameData.m_renderCommands[0].m_operation == ERenderOperation_None)
+    {
+        return;
+    }
+
+    m_renderCore.Execute(frameData.m_renderCommandIndex, frameData.m_renderCommands);
 }
 
 void RenderManager::Prepare()
