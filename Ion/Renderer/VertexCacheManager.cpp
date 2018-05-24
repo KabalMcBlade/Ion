@@ -32,7 +32,7 @@ ionBool VertexCacheManager::Init(const VkDevice& _device, VkDeviceSize _uniformB
     m_mostUsedIndex = 0;
     m_mostUsedJoint = 0;
 
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         Alloc(m_frameData[i], ION_VERTCACHE_VERTEX_MEMORY_PER_FRAME, ION_VERTCACHE_INDEX_MEMORY_PER_FRAME, ION_VERTCACHE_JOINT_MEMORY_PER_FRAME, EBufferUsage_Dynamic);
     }
@@ -50,7 +50,7 @@ void VertexCacheManager::Shutdown()
     m_staticData.m_indexBuffer.Free();
     m_staticData.m_jointBuffer.Free();
 
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         m_frameData[i].m_vertexBuffer.Free();
         m_frameData[i].m_indexBuffer.Free();
@@ -396,7 +396,7 @@ void VertexCacheManager::BeginFrame()
     // prepare the next frame for writing to by the CPU
     ++m_currentFrame;
 
-    m_listNum = m_currentFrame % ION_RENDER_BUFFER_COUNT;
+    m_listNum = m_currentFrame % ION_FRAME_DATA_COUNT;
     MapGeometryBufferSet(m_frameData[m_listNum]);
 
     ClearGeometryBufferSet(m_frameData[m_listNum]);

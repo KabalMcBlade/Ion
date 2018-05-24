@@ -430,7 +430,7 @@ ionBool RenderCore::CreateSemaphores()
     VkSemaphoreCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         VkResult result = vkCreateSemaphore(m_vkDevice, &createInfo, vkMemory, &m_vkAcquiringSemaphores[i]);
         ionAssertReturnValue(result == VK_SUCCESS, "Cannot create semaphore for locking!", false);
@@ -463,7 +463,7 @@ ionBool RenderCore::CreateQueryPool()
 	}
 	createInfo.queryCount = ION_RENDER_QUERY_POOL;
 
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         VkResult result = vkCreateQueryPool(m_vkDevice, &createInfo, vkMemory, &m_vkQueryPools[i]);
         ionAssertReturnValue(result == VK_SUCCESS, "Cannot create query pool!", false);
@@ -492,7 +492,7 @@ ionBool RenderCore::CreateCommandBuffer()
         createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         createInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         createInfo.commandPool = m_vkCommandPool;
-        createInfo.commandBufferCount = ION_RENDER_BUFFER_COUNT;
+        createInfo.commandBufferCount = ION_FRAME_DATA_COUNT;
 
         VkResult result = vkAllocateCommandBuffers(m_vkDevice, &createInfo, m_vkCommandBuffers.data());
         ionAssertReturnValue(result == VK_SUCCESS, "Cannot create command buffer!", false);
@@ -502,7 +502,7 @@ ionBool RenderCore::CreateCommandBuffer()
         VkFenceCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 
-        for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+        for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
         {
             VkResult result = vkCreateFence(m_vkDevice, &createInfo, vkMemory, &m_vkCommandBufferFences[i]);
             ionAssertReturnValue(result == VK_SUCCESS, "Cannot create fence!", false);
@@ -521,7 +521,7 @@ ionBool RenderCore::CreateSwapChain()
     VkSwapchainCreateInfoKHR info = {};
     info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     info.surface = m_vkSurface;
-    info.minImageCount = ION_RENDER_BUFFER_COUNT;
+    info.minImageCount = ION_FRAME_DATA_COUNT;
     info.imageFormat = surfaceFormat.format;
     info.imageColorSpace = surfaceFormat.colorSpace;
     info.imageExtent = extent;
@@ -562,8 +562,7 @@ ionBool RenderCore::CreateSwapChain()
     ionAssertReturnValue(result == VK_SUCCESS, "Cannot get swap chain image!", false);
     ionAssertReturnValue(numImages > 0, "vkGetSwapchainImagesKHR returned a zero image count.", false);
 
-    // Triple buffer so I've 3 images
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         VkImageViewCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -590,7 +589,7 @@ ionBool RenderCore::CreateSwapChain()
 
 void RenderCore::DestroySwapChain()
 {
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         if (m_vkSwapchainViews[i] != VK_NULL_HANDLE)
         {
@@ -835,7 +834,7 @@ ionBool RenderCore::CreateFrameBuffers()
     frameBufferCreateInfo.height = m_height;
     frameBufferCreateInfo.layers = 1;
 
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         attachments[0] = m_vkSwapchainViews[i];
         VkResult result = vkCreateFramebuffer(m_vkDevice, &frameBufferCreateInfo, vkMemory, &m_vkFrameBuffers[i]);
@@ -847,7 +846,7 @@ ionBool RenderCore::CreateFrameBuffers()
 
 void RenderCore::DestroyFrameBuffers()
 {
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         vkDestroyFramebuffer(m_vkDevice, m_vkFrameBuffers[i], vkMemory);
     }
@@ -942,20 +941,20 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
     m_height = _height;
     m_vkFullScreen = _fullScreen;
 
-    m_vkAcquiringSemaphores.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
-    m_vkCompletedSemaphores.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
-    m_vkQueryPools.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
-    m_vkCommandBuffers.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
-    m_vkCommandBufferFences.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
-    m_vkSwapchainImages.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
-    m_vkSwapchainViews.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
-    m_vkFrameBuffers.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
-    m_vkCommandBufferRecorded.resize(ION_RENDER_BUFFER_COUNT, VK_NULL_HANDLE);
+    m_vkAcquiringSemaphores.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
+    m_vkCompletedSemaphores.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
+    m_vkQueryPools.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
+    m_vkCommandBuffers.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
+    m_vkCommandBufferFences.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
+    m_vkSwapchainImages.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
+    m_vkSwapchainViews.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
+    m_vkFrameBuffers.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
+    m_vkCommandBufferRecorded.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
 
     m_textureParams.resize(ION_RENDER_MAX_IMAGE_PARMS, nullptr);
-    m_queryIndex.resize(ION_RENDER_BUFFER_COUNT, 0);
-	m_queryResults.resize(ION_RENDER_BUFFER_COUNT);
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    m_queryIndex.resize(ION_FRAME_DATA_COUNT, 0);
+	m_queryResults.resize(ION_FRAME_DATA_COUNT);
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         m_queryResults[i].resize(ION_RENDER_QUERY_POOL);
     }
@@ -1062,7 +1061,7 @@ void RenderCore::Shutdown()
 
     DestroySwapChain();
 
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         if (m_vkCommandBufferFences[i] != VK_NULL_HANDLE)
         {
@@ -1077,7 +1076,7 @@ void RenderCore::Shutdown()
         vkDestroyCommandPool(m_vkDevice, m_vkCommandPool, vkMemory);
     }
 
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         if (m_vkQueryPools[i] != VK_NULL_HANDLE)
         {
@@ -1085,7 +1084,7 @@ void RenderCore::Shutdown()
         }
     }
 
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         if (m_vkAcquiringSemaphores[i] != VK_NULL_HANDLE)
         {
@@ -1124,7 +1123,7 @@ void RenderCore::Recreate()
 {
 	vkDeviceWaitIdle(m_vkDevice);
 
-	for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+	for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
 	{
 		vkDestroyFramebuffer(m_vkDevice, m_vkFrameBuffers[i], vkMemory);
 	}
@@ -1139,7 +1138,7 @@ void RenderCore::Recreate()
 		vkDestroyRenderPass(m_vkDevice, m_vkRenderPass, vkMemory);
 	}
 
-	for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+	for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
 	{
 		if (m_vkSwapchainViews[i] != VK_NULL_HANDLE)
 		{
@@ -1173,7 +1172,7 @@ void RenderCore::Recreate()
 void RenderCore::BlockingSwapBuffers()
 {
     ++m_counter;
-    m_currentFrameData = m_counter % ION_RENDER_BUFFER_COUNT;
+    m_currentFrameData = m_counter % ION_FRAME_DATA_COUNT;
 
     if (m_vkCommandBufferRecorded[m_currentFrameData] == false)
     {
@@ -1313,7 +1312,7 @@ void RenderCore::EndFrame()
     }
 
     ++m_counter;
-    m_currentFrameData = m_counter % ION_RENDER_BUFFER_COUNT;
+    m_currentFrameData = m_counter % ION_FRAME_DATA_COUNT;
 }
 
 void RenderCore::BindTexture(ionS32 _index, Texture* _image)

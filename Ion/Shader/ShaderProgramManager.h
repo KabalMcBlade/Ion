@@ -89,11 +89,11 @@ private:
     ionS32				m_currentData;
     ionS32				m_currentDescSet;
     ionSize				m_currentParmBufferOffset;
-    VkDescriptorPool	m_descriptorPools[ION_RENDER_BUFFER_COUNT];
-    VkDescriptorSet		m_descriptorSets[ION_RENDER_BUFFER_COUNT][ION_MAX_DESCRIPTOR_SETS];
+    VkDescriptorPool	m_descriptorPools[ION_FRAME_DATA_COUNT];
+    VkDescriptorSet		m_descriptorSets[ION_FRAME_DATA_COUNT][ION_MAX_DESCRIPTOR_SETS];
 
     UniformBuffer*	    m_skinningUniformBuffer;
-    UniformBuffer*	    m_parmBuffers[ION_RENDER_BUFFER_COUNT];
+    UniformBuffer*	    m_parmBuffers[ION_FRAME_DATA_COUNT];
 
 private:
     static ShaderProgramManager *s_instance;

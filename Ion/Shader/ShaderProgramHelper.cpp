@@ -146,7 +146,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
     }
 }
 
-void ShaderProgramHelper::CreateDescriptorPools(const VkDevice& _device, VkDescriptorPool(& _pools)[ION_RENDER_BUFFER_COUNT])
+void ShaderProgramHelper::CreateDescriptorPools(const VkDevice& _device, VkDescriptorPool(& _pools)[ION_FRAME_DATA_COUNT])
 {
     const ionU32 poolCount = 2;
     VkDescriptorPoolSize poolSizes[poolCount];
@@ -162,7 +162,7 @@ void ShaderProgramHelper::CreateDescriptorPools(const VkDevice& _device, VkDescr
     createInfo.poolSizeCount = poolCount;
     createInfo.pPoolSizes = poolSizes;
 
-    for (ionSize i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionSize i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         VkResult result = vkCreateDescriptorPool(_device, &createInfo, vkMemory, &_pools[i]);
         ionAssertReturnVoid(result == VK_SUCCESS, "vkCreateDescriptorPool cannot create descriptor pool!");

@@ -7,8 +7,9 @@
 
 #include "../Core/CoreDefs.h"
 
+#include "RenderDefs.h"
 #include "RenderCommon.h"
-
+#include "DrawRenderCommon.h"
 #include "RenderCore.h"
 
 #include "../Geometry/BoundingBox.h"
@@ -71,8 +72,11 @@ private:
 
     //////////////////////////////////////////////////////////////////////////
     // This would be better place somewhere in a sort of "frame" class
-    eosVector(DrawSurface)   m_drawSurfaces;
+    eosVector(DrawSurface)  m_drawSurfaces;
     //////////////////////////////////////////////////////////////////////////
+
+    // SMP: Symmetric multiprocessing
+    FrameData				m_frameData[ION_FRAME_DATA_COUNT];
 
 private:
     static RenderManager *s_instance;

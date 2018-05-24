@@ -64,7 +64,7 @@ ionBool ShaderProgramManager::Init(VkDevice _vkDevice, const eosString& _shaderF
 
     ShaderProgramHelper::CreateDescriptorPools(m_vkDevice, m_descriptorPools);
 
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         m_parmBuffers[i] = eosNew(UniformBuffer, EOS_MEMORY_ALIGNMENT_SIZE);
         m_parmBuffers[i]->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS * sizeof(Vector), EBufferUsage_Dynamic);
@@ -100,7 +100,7 @@ void ShaderProgramManager::Shutdown()
     }
     m_shaderPrograms.clear();
 
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         m_parmBuffers[i]->Free();
         eosDelete(m_parmBuffers[i]);
@@ -110,7 +110,7 @@ void ShaderProgramManager::Shutdown()
     m_skinningUniformBuffer->Free();
     eosDelete(m_skinningUniformBuffer);
 
-    for (ionU32 i = 0; i < ION_RENDER_BUFFER_COUNT; ++i)
+    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
     {
         //vkFreeDescriptorSets( m_vkDevice, m_descriptorPools[i], ION_MAX_DESCRIPTOR_SETS, m_descriptorSets[i]);
         vkResetDescriptorPool(m_vkDevice, m_descriptorPools[i], 0);
@@ -214,7 +214,7 @@ void ShaderProgramManager::SetRenderParmsMatrix(ionSize _paramHash, const ionFlo
 void ShaderProgramManager::StartFrame()
 {
     ++m_counter;
-    m_currentData = m_counter % ION_RENDER_BUFFER_COUNT;
+    m_currentData = m_counter % ION_FRAME_DATA_COUNT;
     m_currentDescSet = 0;
     m_currentParmBufferOffset = 0;
 

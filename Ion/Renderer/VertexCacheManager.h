@@ -85,7 +85,7 @@ public:
     VkDeviceSize GetUniformBufferOffsetAlignment()   { return m_uniformBufferOffsetAlignment; }
 
     const GeometryBufferSet& GetStaticData() const { return m_staticData; }
-    const GeometryBufferSet& GetFrameData(ionU32 _frame) const { return m_frameData[_frame % ION_RENDER_BUFFER_COUNT]; }
+    const GeometryBufferSet& GetFrameData(ionU32 _frame) const { return m_frameData[_frame % ION_FRAME_DATA_COUNT]; }
     const GeometryBufferSet* GetFrameData() const { return m_frameData; }
 
     // purge everything
@@ -147,7 +147,7 @@ private:
 
     VkDevice            m_device;
     GeometryBufferSet	m_staticData;
-    GeometryBufferSet	m_frameData[ION_RENDER_BUFFER_COUNT];
+    GeometryBufferSet	m_frameData[ION_FRAME_DATA_COUNT];
 
 private:
     static VertexCacheManager *s_instance;
