@@ -209,15 +209,15 @@ void RenderManager::DrawFrame()
     const ionU32 height = m_renderCore.GetHeight();
     const ionSize drawSurfacesCount = m_drawSurfaces.size();
 
+    m_renderCore.BlockingSwapBuffers();
+    ionVertexCacheManager().BeginFrame();
     if (m_renderCore.StartFrame())
     {
-        m_renderCore.BlockingSwapBuffers();
-        ionVertexCacheManager().BeginFrame();
-
         m_renderCore.SetViewport(0, 0, width, height);
         m_renderCore.SetScissor(0, 0, width, height);
         m_renderCore.SetState(ECullingMode_Front);
         m_renderCore.SetClear(true, true, true, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 0.0f, 0.0f, 0.0f);
+        
         /*
         for (ionSize i = 0; i < drawSurfacesCount; ++i)
         {
