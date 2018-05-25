@@ -58,7 +58,7 @@ private:
     void DrawFrame();
 
     void* FrameAlloc(ionS32 _bytes);
-    void AddDrawViewCmd(/*viewDef_t *parms*/);
+    void AddDrawViewCmd(ViewDefinition* _view);
     void ToggleSmpFrame();
     void InitFrameData();
     void ShutdownFrameData();

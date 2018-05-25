@@ -9,33 +9,31 @@ ION_NAMESPACE_BEGIN
 
 ionU32 Node::g_nextValidNodeIndex = 0;
 
-Node::Node() : m_transform(eosNew(Transform, EOS_MEMORY_ALIGNMENT_SIZE))
+Node::Node() : m_transform(eosNew(Transform, EOS_MEMORY_ALIGNMENT_SIZE)), m_renderView(eosNew(RenderView, EOS_MEMORY_ALIGNMENT_SIZE))
 {
     m_nodeIndex = g_nextValidNodeIndex;
     ++g_nextValidNodeIndex;
     m_parent = nullptr;
     SetName(ION_BASE_NODE_NAME);
-
-    m_parent = nullptr;
-
     m_nodeType = ENodeType_EmptyNode;
 }
 
-Node::Node(const eosString & _name) : m_transform(eosNew(Transform, EOS_MEMORY_ALIGNMENT_SIZE))
+Node::Node(const eosString & _name) : m_transform(eosNew(Transform, EOS_MEMORY_ALIGNMENT_SIZE)), m_renderView(eosNew(RenderView, EOS_MEMORY_ALIGNMENT_SIZE))
 {
     m_nodeIndex = g_nextValidNodeIndex;
     ++g_nextValidNodeIndex;
     m_parent = nullptr;
     SetName(_name);
-
-    m_parent = nullptr;
-
     m_nodeType = ENodeType_EmptyNode;
 }
 
 Node::~Node()
 {
-
+	if (m_renderView != nullptr)
+	{
+		eosDelete(m_renderView);
+		m_renderView = nullptr;
+	}
 }
 
 void Node::SetName(const eosString& _name)
@@ -71,6 +69,17 @@ void Node::DetachFromParent()
 {
     m_parent->GetChildren().erase(std::remove(m_parent->GetChildren().begin(), m_parent->GetChildren().end(), this), m_parent->GetChildren().end());
     m_parent = nullptr; // still need? 
+}
+
+RenderView*	Node::GetRenderView()
+{
+	memset(m_renderView, 0, sizeof(*m_renderView));
+
+	m_renderView->m_position = m_transform->GetPosition();
+	m_renderView->m_degFov = 110;	// the camera would override that
+	m_renderView->m_matrix = m_transform->GetMatrix();
+
+	return m_renderView;
 }
 
 ION_NAMESPACE_END

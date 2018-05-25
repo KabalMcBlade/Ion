@@ -14,7 +14,7 @@
 
 #include "RenderState.h"
 
-#include "DrawSurface.h"
+#include "DrawRenderCommon.h"
 
 #define VK_NAME                     "Ion"
 #define VK_LUNAR_VALIDATION_LAYER   "VK_LAYER_LUNARG_standard_validation"
@@ -1503,9 +1503,9 @@ void RenderCore::Draw(const DrawSurface& _surface)
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentFrameData];
     
     // USING THE HASH VERSION HERE!!!
-    ionShaderProgramManager().SetRenderParmMatrix(ION_MODEL_MATRIX_PARAM_TEXT, &_surface.m_modelMatrix[0]);
-    ionShaderProgramManager().SetRenderParmMatrix(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0]);
-    ionShaderProgramManager().SetRenderParmMatrix(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0]);
+    //ionShaderProgramManager().SetRenderParmMatrix(ION_MODEL_MATRIX_PARAM_TEXT, &_surface.m_modelMatrix[0]);
+    //ionShaderProgramManager().SetRenderParmMatrix(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0]);
+    //ionShaderProgramManager().SetRenderParmMatrix(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0]);
   
     const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(_surface.m_material->GetShaderProgramName(), _surface.m_material->GetVertexLayout(), _surface.m_material->GetVertexShaderIndex(), _surface.m_material->GetFragmentShaderIndex());
     ionShaderProgramManager().BindProgram(shaderProgramIndex);

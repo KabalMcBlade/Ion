@@ -45,6 +45,8 @@ public:
 
     const Frustum& GetFrustum() const { return m_frustum; }
 
+	virtual RenderView*	GetRenderView() override;
+
 public:
     static Matrix PerspectiveProjectionMatrix(ionFloat _fovDeg, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar);
 

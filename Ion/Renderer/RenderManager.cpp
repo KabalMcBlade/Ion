@@ -7,7 +7,7 @@
 #include "../Utilities/LoaderGLTF.h"
 
 #include "VertexCacheManager.h"
-#include "DrawSurface.h"
+#include "DrawRenderCommon.h"
 
 #include "../Geometry/Mesh.h"
 
@@ -188,11 +188,11 @@ void RenderManager::ShutdownFrameData()
     }
 }
 
-void RenderManager::AddDrawViewCmd(/*viewDef_t *parms*/)
+void RenderManager::AddDrawViewCmd(ViewDefinition* _view)
 {
     RenderCommand& cmd = m_frameData->m_renderCommands[m_frameData->m_renderCommandIndex++];
     cmd.m_operation = ERenderOperation_Draw_View;
-    //cmd.m_viewDef = parms;
+    cmd.m_viewDef = _view;
 }
 
 
@@ -265,6 +265,7 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         //const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrixInverse();
 
         // not aligned... just to test
+		/*
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[8], model[2]);
@@ -284,6 +285,7 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetVertexBuffer(0, 0), m_entityNodes[i]->GetVertexBufferSize(0, 0));
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetIndexBuffer(0, 0), m_entityNodes[i]->GetIndexBufferSize(0, 0));
         m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMaterial(0, 0);
+		*/
     }
 
 }

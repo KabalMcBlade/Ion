@@ -96,6 +96,14 @@ void BaseCamera::Update()
     UpdateViewMatrix();
 }
 
+RenderView*	BaseCamera::GetRenderView()
+{
+	m_renderView = Node::GetRenderView();
+	m_renderView->m_degFov = GetFovDeg();
+	m_renderView->m_matrix = m_view;		//m_projection * m_view;
+
+	return m_renderView;
+}
 
 
 ION_NAMESPACE_END

@@ -234,9 +234,6 @@
     <ClInclude Include="Geometry\Frustum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\DrawSurface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\DrawRenderCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
