@@ -7,7 +7,6 @@
 #include "../Utilities/LoaderGLTF.h"
 
 #include "VertexCacheManager.h"
-#include "DrawRenderCommon.h"
 
 #include "../Geometry/Mesh.h"
 
@@ -27,9 +26,9 @@ ION_NAMESPACE_BEGIN
 RenderManager *RenderManager::s_instance = nullptr;
 
 
-RenderManager::RenderManager() : m_nodeCount(0), m_frameData(nullptr), m_smpFrame(0)
+RenderManager::RenderManager() : m_nodeCount(0)
 {
-    memset(&m_smpFrameData, 0, sizeof(m_smpFrameData));
+
 }
 
 RenderManager::~RenderManager()
@@ -39,24 +38,12 @@ RenderManager::~RenderManager()
 
 ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
 {
-    if (m_renderCore.Init(_instance, _handle, _width, _height, _fullScreen, _enableValidationLayer, _shaderFolderPath, _vkDeviceLocalSize, _vkHostVisibleSize, _vkStagingBufferSize))
-    {
-        InitFrameData();
-        //SwapCommandBuffers(nullptr);
-
-        return true;
-    }
-
-    return false;
+    return m_renderCore.Init(_instance, _handle, _width, _height, _fullScreen, _enableValidationLayer, _shaderFolderPath, _vkDeviceLocalSize, _vkHostVisibleSize, _vkStagingBufferSize);
 }
 
 void RenderManager::Shutdown()
 {
-    ShutdownFrameData();
-    //UnbindBufferObjects();
     m_renderCore.Shutdown();
-
-    ShutdownFrameData();
 }
 
 void RenderManager::Create()
@@ -127,92 +114,6 @@ void RenderManager::Resize()
 	m_renderCore.Recreate();
 }
 
-void* RenderManager::FrameAlloc(ionS32 _bytes)
-{
-    _bytes = (_bytes + ION_FRAME_ALLOC_ALIGNMENT - 1) & ~(ION_FRAME_ALLOC_ALIGNMENT - 1);
-
-    // thread safe add
-    m_frameData->m_frameMemoryAllocated.fetch_add(_bytes);
-    ionSize end = m_frameData->m_frameMemoryAllocated.load();
-    ionAssertReturnValue(end <= ION_MAX_FRAME_MEMORY, "FrameAlloc ran out of memory", nullptr);
-
-    ionU8* ptr = m_frameData->m_frameMemory + end - _bytes;
-
-    // cache line clear the memory
-    for (ionS32 offset = 0; offset < _bytes; offset += ION_CACHE_LINE_SIZE)
-    {
-        ionU8* bytePtr = (ionU8*)((((UINT_PTR)(ptr)) + (offset)) & ~(ION_CACHE_LINE_SIZE - 1));
-        memset(bytePtr, 0, ION_CACHE_LINE_SIZE);
-    }
-
-    return ptr;
-}
-
-
-void RenderManager::ToggleSmpFrame()
-{
-    m_smpFrame++;
-    m_frameData = &m_smpFrameData[m_smpFrame % ION_FRAME_DATA_COUNT];
-
-    const ionU32 bytesNeededForAlignment = ION_FRAME_ALLOC_ALIGNMENT - ((ionU32)m_frameData->m_frameMemory & (ION_FRAME_ALLOC_ALIGNMENT - 1));
-    m_frameData->m_frameMemoryAllocated.fetch_add(bytesNeededForAlignment);
-    m_frameData->m_frameMemoryUsed.fetch_add(0);
-
-    // clear the command chain
-    m_frameData->m_renderCommandIndex = 0;
-    m_frameData->m_renderCommands.clear();
-}
-
-void RenderManager::InitFrameData()
-{
-    ShutdownFrameData();
-
-    for (ionS32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
-    {
-        m_smpFrameData[i].m_frameMemory = (ionU8*)eosNewRaw(ION_MAX_FRAME_MEMORY, EOS_MEMORY_ALIGNMENT_SIZE);
-    }
-
-    // must be set before ToggleSmpFrame()
-    m_frameData = &m_smpFrameData[0];
-
-    ToggleSmpFrame();
-}
-
-void RenderManager::ShutdownFrameData()
-{
-    m_frameData = nullptr;
-    for (int i = 0; i < ION_FRAME_DATA_COUNT; ++i)
-    {
-        eosDeleteRaw(m_smpFrameData[i].m_frameMemory);
-        m_smpFrameData[i].m_frameMemory = nullptr;
-    }
-}
-
-void RenderManager::AddDrawViewCmd(ViewDefinition* _view)
-{
-    RenderCommand& cmd = m_frameData->m_renderCommands[m_frameData->m_renderCommandIndex++];
-    cmd.m_operation = ERenderOperation_Draw_View;
-    cmd.m_viewDef = _view;
-}
-
-
-void RenderManager::RenderCommandBuffers()
-{
-    // Use the previous SMP frame data as the current is being written to.
-    FrameData & frameData = m_smpFrameData[(m_smpFrame - 1) % ION_FRAME_DATA_COUNT];
-
-    // if there isn't a draw view command, do nothing to avoid swapping a bad frame
-    if (frameData.m_renderCommandIndex == 0) 
-    {
-        return;
-    }
-    if (frameData.m_renderCommands[0].m_operation == ERenderOperation_None)
-    {
-        return;
-    }
-
-    m_renderCore.Execute(frameData.m_renderCommandIndex, frameData.m_renderCommands);
-}
 
 void RenderManager::Prepare()
 {    
@@ -232,23 +133,7 @@ void RenderManager::Prepare()
     // Update entities
     m_nodeCount = m_entityNodes.size();
 
-    // temp: need a proper way to reserve all the amount of surfaces
-    if (m_drawSurfaces.capacity() == 0)
-    {
-        m_drawSurfaces.resize(m_nodeCount);
-    }
-
-    // because I want to alternate the buffer, before the first frame I'm preparing the 0 index, which will be presented in the first frame.
-    //
-    m_mainCamera->Update();
-
-    //
-    const Matrix& projection = m_mainCamera->GetPerspectiveProjection();
-    const Matrix& view = m_mainCamera->GetView();
-
-    UpdateDrawSurface(projection, view, m_nodeCount);
-
-    //ionVertexCacheManager().BeginFrame();
+    m_drawSurfaces.resize(m_nodeCount);
 }
 
 void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _view, ionSize _nodeCount)
@@ -265,7 +150,6 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         //const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrixInverse();
 
         // not aligned... just to test
-		/*
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[8], model[2]);
@@ -285,7 +169,6 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetVertexBuffer(0, 0), m_entityNodes[i]->GetVertexBufferSize(0, 0));
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetIndexBuffer(0, 0), m_entityNodes[i]->GetIndexBufferSize(0, 0));
         m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMaterial(0, 0);
-		*/
     }
 
 }
@@ -293,7 +176,7 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
 void RenderManager::CoreLoop()
 {
     Update();
-    DrawFrame();
+    Frame();
 }
 
 void RenderManager::Update()
@@ -304,18 +187,18 @@ void RenderManager::Update()
     //
     const Matrix& projection = m_mainCamera->GetPerspectiveProjection();
     const Matrix& view = m_mainCamera->GetView();
-
-    UpdateDrawSurface(projection, view, m_nodeCount);
+     
+    //UpdateDrawSurface(projection, view, m_nodeCount);
 }
 
-void RenderManager::DrawFrame()
+void RenderManager::Frame()
 {
+    //ionVertexCacheManager().BeginFrame();
+
+    // Render here
     const ionU32 width = m_renderCore.GetWidth();
     const ionU32 height = m_renderCore.GetHeight();
-    const ionSize drawSurfacesCount = m_drawSurfaces.size();
 
-    m_renderCore.BlockingSwapBuffers();
-    ionVertexCacheManager().BeginFrame();
     if (m_renderCore.StartFrame())
     {
         m_renderCore.SetViewport(0, 0, width, height);
@@ -323,8 +206,10 @@ void RenderManager::DrawFrame()
         m_renderCore.SetState(ECullingMode_Front);
         m_renderCore.SetClear(true, true, true, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 0.0f, 0.0f, 0.0f);
         
+        m_renderCore.DrawTriangle();
+
         /*
-        for (ionSize i = 0; i < drawSurfacesCount; ++i)
+        for (ionSize i = 0; i < m_nodeCount; ++i)
         {
             m_renderCore.Draw(m_drawSurfaces[i]);
         }

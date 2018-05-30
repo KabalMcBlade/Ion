@@ -151,6 +151,7 @@ int main()
     camera->GetTransformHandle()->SetPosition(cameraPos);
     camera->GetTransformHandle()->SetRotation(cameraRot);
 
+    /*
     //
     Entity *pTest = eosNew(Entity, EOS_MEMORY_ALIGNMENT_SIZE);
     EntityHandle test(pTest);
@@ -176,6 +177,20 @@ int main()
     test->GetMaterial(0, 0)->SetVertexShaderIndex(vertexShaderIndex);
     test->GetMaterial(0, 0)->SetFragmentShaderIndex(fragmentShaderIndex);
     //ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(DEMO_SHADER_PROG, EVertexLayout_Vertices_Simple, vertexShaderIndex, fragmentShaderIndex);
+    */
+
+    //
+    Entity *pTest = eosNew(Entity, EOS_MEMORY_ALIGNMENT_SIZE);
+    EntityHandle test(pTest);
+    test->GetTransformHandle()->SetPosition(entityPos);
+    test->GetTransformHandle()->SetRotation(entityRot);
+    test->GetTransformHandle()->SetScale(10.0f);
+
+    //
+    ShaderLayoutDef vertexLayout;
+    ShaderLayoutDef fragmentLayout;
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle", EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle", EShaderStage_Fragment, fragmentLayout);
 
     //
     camera->AttachToParent(*root);

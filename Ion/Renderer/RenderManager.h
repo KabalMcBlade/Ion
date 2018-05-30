@@ -9,7 +9,6 @@
 
 #include "RenderDefs.h"
 #include "RenderCommon.h"
-#include "DrawRenderCommon.h"
 #include "RenderCore.h"
 
 #include "../Geometry/BoundingBox.h"
@@ -55,14 +54,7 @@ private:
     RenderManager& operator = (const RenderManager&) = delete;
 
     void Update();
-    void DrawFrame();
-
-    void* FrameAlloc(ionS32 _bytes);
-    void AddDrawViewCmd(ViewDefinition* _view);
-    void ToggleSmpFrame();
-    void InitFrameData();
-    void ShutdownFrameData();
-    void RenderCommandBuffers();
+    void Frame();
 
     void UpdateDrawSurface(const Matrix& _projection, const Matrix& _view, ionSize _nodeCount);
 
@@ -77,15 +69,9 @@ private:
     eosVector(EntityHandle) m_entityNodes;
     //////////////////////////////////////////////////////////////////////////
 
-    //////////////////////////////////////////////////////////////////////////
-    // This would be better place somewhere in a sort of "frame" class
-    eosVector(DrawSurface)  m_drawSurfaces;
-    //////////////////////////////////////////////////////////////////////////
 
-    // SMP: Symmetric multiprocessing
-    FrameData				m_smpFrameData[ION_FRAME_DATA_COUNT];
-    FrameData*              m_frameData;
-    ionU32					m_smpFrame;
+    eosVector(DrawSurface)  m_drawSurfaces;
+
 
 private:
     static RenderManager *s_instance;

@@ -4,7 +4,6 @@
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
-#include "../Renderer/DrawRenderCommon.h"
 
 #include "Transform.h"
 
@@ -52,11 +51,8 @@ public:
 
     eosVector(NodeHandle) &GetChildren() { return m_children; };
 
-	virtual RenderView*	GetRenderView();
-
 protected:
     ENodeType	m_nodeType;
-	RenderView* m_renderView;
 
 private:
     Node(const Node& _Orig) = delete;

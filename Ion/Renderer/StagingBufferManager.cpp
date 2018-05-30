@@ -36,7 +36,7 @@ ionBool StagingBufferManager::Init(ionSize _vkMaxBufferSize, VkDevice _vkDevice,
     m_vkDevice = _vkDevice;
     m_vkGraphicsQueue = _vkGraphicsQueue;
     m_vkGraphicsFamilyIndex = _vkGraphicsFamilyIndex;
-    m_buffers.resize(ION_FRAME_DATA_COUNT);
+    m_buffers.resize(ION_FRAME_DATA_COUNT, StagingBuffer());
 
     VkResult result;
 

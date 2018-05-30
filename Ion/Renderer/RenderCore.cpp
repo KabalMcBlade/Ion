@@ -9,12 +9,12 @@
 
 #include "../Shader/ShaderProgramManager.h"
 
+#include "../Material/Material.h"
+
 #include "StagingBufferManager.h"
 #include "VertexCacheManager.h"
 
 #include "RenderState.h"
-
-#include "DrawRenderCommon.h"
 
 #define VK_NAME                     "Ion"
 #define VK_LUNAR_VALIDATION_LAYER   "VK_LAYER_LUNARG_standard_validation"
@@ -108,32 +108,26 @@ VkFormat RenderCore::SelectSupportedFormat(VkPhysicalDevice _vkPhysicalDevice, V
     ionAssertReturnValue(false, "Failed to find a supported format.", VK_FORMAT_UNDEFINED);
 }
 
-/*
-    REWORK ON THIS ON THE NEW VULKAN DEVICE ALLOCATOR
-*/
-
-ionU32 FindMemoryType(VkPhysicalDevice _vkPhysicalDevice, ionU32 typeFilter, VkMemoryPropertyFlags properties)
-{
-    VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(_vkPhysicalDevice, &memProperties);
-
-    for (ionU32 i = 0; i < memProperties.memoryTypeCount; ++i)
-    {
-        if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-        {
-            return i;
-        }
-    }
-
-    ionAssertReturnValue(false, "Failed to find a suitable memory format!", 0);
-}
-
 
 //////////////////////////////////////////////////////////////////////////
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char* layerPrefix, const char* msg, void* userData) 
 {
-    std::cerr << "[VALIDATION LAYER]: " << msg << std::endl;
+    eosString prefix("");
+    if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+    {
+        prefix += "[ERROR]";
+    };
+    if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
+    {
+        prefix += "[WARNING]";
+    };
+    if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) 
+    {
+        prefix += "[DEBUG]";
+    }
+
+    std::cerr << prefix << "[" << layerPrefix << "]:" << msg << std::endl;
     return VK_FALSE;
 }
 
@@ -430,47 +424,15 @@ ionBool RenderCore::CreateSemaphores()
     VkSemaphoreCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
-    {
-        VkResult result = vkCreateSemaphore(m_vkDevice, &createInfo, vkMemory, &m_vkAcquiringSemaphores[i]);
-        ionAssertReturnValue(result == VK_SUCCESS, "Cannot create semaphore for locking!", false);
+    VkResult result = vkCreateSemaphore(m_vkDevice, &createInfo, vkMemory, &m_vkAcquiringSemaphore);
+    ionAssertReturnValue(result == VK_SUCCESS, "Cannot create semaphore for locking!", false);
 
-        result = vkCreateSemaphore(m_vkDevice, &createInfo, vkMemory, &m_vkCompletedSemaphores[i]);
-        ionAssertReturnValue(result == VK_SUCCESS, "Cannot create semaphore for unlocking!", false);
-    }
+    result = vkCreateSemaphore(m_vkDevice, &createInfo, vkMemory, &m_vkCompletedSemaphore);
+    ionAssertReturnValue(result == VK_SUCCESS, "Cannot create semaphore for unlocking!", false);
+    
     return true;
 }
 
-ionBool RenderCore::CreateQueryPool()
-{
-    VkQueryPoolCreateInfo createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
-    createInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
-
-	createInfo.pipelineStatistics =
-		VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_VERTICES_BIT |
-		VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_PRIMITIVES_BIT |
-		VK_QUERY_PIPELINE_STATISTIC_VERTEX_SHADER_INVOCATIONS_BIT |
-		VK_QUERY_PIPELINE_STATISTIC_CLIPPING_INVOCATIONS_BIT |
-		VK_QUERY_PIPELINE_STATISTIC_CLIPPING_PRIMITIVES_BIT |
-		VK_QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT;
-
-	if (m_vkGPU.m_vkPhysicalDevFeatures.tessellationShader)
-	{
-		createInfo.pipelineStatistics |=
-			VK_QUERY_PIPELINE_STATISTIC_TESSELLATION_CONTROL_SHADER_PATCHES_BIT |
-			VK_QUERY_PIPELINE_STATISTIC_TESSELLATION_EVALUATION_SHADER_INVOCATIONS_BIT;
-	}
-	createInfo.queryCount = ION_RENDER_QUERY_POOL;
-
-    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
-    {
-        VkResult result = vkCreateQueryPool(m_vkDevice, &createInfo, vkMemory, &m_vkQueryPools[i]);
-        ionAssertReturnValue(result == VK_SUCCESS, "Cannot create query pool!", false);
-    }
-
-    return true;
-}
 
 ionBool RenderCore::CreateCommandPool()
 {
@@ -485,43 +447,24 @@ ionBool RenderCore::CreateCommandPool()
     return true;
 }
 
-ionBool RenderCore::CreateCommandBuffer()
-{
-    {
-        VkCommandBufferAllocateInfo createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        createInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        createInfo.commandPool = m_vkCommandPool;
-        createInfo.commandBufferCount = ION_FRAME_DATA_COUNT;
-
-        VkResult result = vkAllocateCommandBuffers(m_vkDevice, &createInfo, m_vkCommandBuffers.data());
-        ionAssertReturnValue(result == VK_SUCCESS, "Cannot create command buffer!", false);
-    }
-
-    {
-        VkFenceCreateInfo createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-
-        for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
-        {
-            VkResult result = vkCreateFence(m_vkDevice, &createInfo, vkMemory, &m_vkCommandBufferFences[i]);
-            ionAssertReturnValue(result == VK_SUCCESS, "Cannot create fence!", false);
-        }
-    }
-
-    return true;
-}
-
 ionBool RenderCore::CreateSwapChain()
 {
+    VkSwapchainKHR oldSwapchain = m_vkSwapchain;
+
     VkSurfaceFormatKHR surfaceFormat = SelectSurfaceFormat(m_vkGPU.m_vkSurfaceFormats);
     VkPresentModeKHR presentMode = SelectPresentMode(m_vkGPU.m_vkPresentModes);
     VkExtent2D extent = SelectSurfaceExtent(m_vkGPU.m_vkSurfaceCaps, m_width, m_height);
 
+    ionU32 imageCountDesired = m_vkGPU.m_vkSurfaceCaps.minImageCount + 1;
+    if ((m_vkGPU.m_vkSurfaceCaps.maxImageCount > 0) && (imageCountDesired > m_vkGPU.m_vkSurfaceCaps.maxImageCount))
+    {
+        imageCountDesired = m_vkGPU.m_vkSurfaceCaps.maxImageCount;
+    }
+
     VkSwapchainCreateInfoKHR info = {};
     info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     info.surface = m_vkSurface;
-    info.minImageCount = ION_FRAME_DATA_COUNT;
+    info.minImageCount = imageCountDesired;
     info.imageFormat = surfaceFormat.format;
     info.imageColorSpace = surfaceFormat.colorSpace;
     info.imageExtent = extent;
@@ -545,24 +488,39 @@ ionBool RenderCore::CreateSwapChain()
     info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     info.presentMode = presentMode;
     info.clipped = VK_TRUE;
+    info.oldSwapchain = oldSwapchain;
 
     VkResult result = vkCreateSwapchainKHR(m_vkDevice, &info, vkMemory, &m_vkSwapchain);
     ionAssertReturnValue(result == VK_SUCCESS, "Cannot create swap chain!", false);
+
+    // If an existing swap chain is re-created, destroy the old swap chain
+    // This also cleans up all the presentable images
+    if (oldSwapchain != VK_NULL_HANDLE)
+    {
+        for (uint32_t i = 0; i < m_swapChainImageCount; i++)
+        {
+            vkDestroyImageView(m_vkDevice, m_vkSwapchainViews[i], vkMemory);
+        }
+        vkDestroySwapchainKHR(m_vkDevice, oldSwapchain, vkMemory);
+    }
 
     m_vkSwapchainFormat = surfaceFormat.format;
     m_vkPresentMode = presentMode;
     m_vkSwapchainExtent = extent;
 
-    ionU32 numImages = 0;
-    result = vkGetSwapchainImagesKHR(m_vkDevice, m_vkSwapchain, &numImages, nullptr);
+    result = vkGetSwapchainImagesKHR(m_vkDevice, m_vkSwapchain, &m_swapChainImageCount, nullptr);
     ionAssertReturnValue(result == VK_SUCCESS, "Cannot get swap chain image!", false);
-    ionAssertReturnValue(numImages > 0, "vkGetSwapchainImagesKHR returned a zero image count.", false);
+    ionAssertReturnValue(m_swapChainImageCount > 0, "vkGetSwapchainImagesKHR returned a zero image count.", false);
 
-    result = vkGetSwapchainImagesKHR(m_vkDevice, m_vkSwapchain, &numImages, m_vkSwapchainImages.data());
+    m_vkSwapchainImages.resize(m_swapChainImageCount, VK_NULL_HANDLE);
+
+    result = vkGetSwapchainImagesKHR(m_vkDevice, m_vkSwapchain, &m_swapChainImageCount, m_vkSwapchainImages.data());
     ionAssertReturnValue(result == VK_SUCCESS, "Cannot get swap chain image!", false);
-    ionAssertReturnValue(numImages > 0, "vkGetSwapchainImagesKHR returned a zero image count.", false);
+    ionAssertReturnValue(m_swapChainImageCount > 0, "vkGetSwapchainImagesKHR returned a zero image count.", false);
 
-    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
+    m_vkSwapchainViews.resize(m_swapChainImageCount, VK_NULL_HANDLE);
+
+    for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
     {
         VkImageViewCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -601,7 +559,37 @@ void RenderCore::DestroySwapChain()
     if (m_vkSwapchain != VK_NULL_HANDLE)
     {
         vkDestroySwapchainKHR(m_vkDevice, m_vkSwapchain, vkMemory);
+        m_vkSwapchain = VK_NULL_HANDLE;
     }
+}
+
+ionBool RenderCore::CreateCommandBuffer()
+{
+    m_vkCommandBuffers.resize(m_swapChainImageCount, VK_NULL_HANDLE);
+    {
+        VkCommandBufferAllocateInfo createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        createInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        createInfo.commandPool = m_vkCommandPool;
+        createInfo.commandBufferCount = m_swapChainImageCount;
+
+        VkResult result = vkAllocateCommandBuffers(m_vkDevice, &createInfo, m_vkCommandBuffers.data());
+        ionAssertReturnValue(result == VK_SUCCESS, "Cannot create command buffer!", false);
+    }
+
+    m_vkCommandBufferFences.resize(m_swapChainImageCount, VK_NULL_HANDLE);
+    {
+        VkFenceCreateInfo createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        createInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+        for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
+        {
+            VkResult result = vkCreateFence(m_vkDevice, &createInfo, vkMemory, &m_vkCommandBufferFences[i]);
+            ionAssertReturnValue(result == VK_SUCCESS, "Cannot create fence!", false);
+        }
+    }
+
+    return true;
 }
 
 ionBool RenderCore::CreateRenderTargets()
@@ -640,9 +628,10 @@ ionBool RenderCore::CreateRenderTargets()
         m_vkSampleCount = VK_SAMPLE_COUNT_1_BIT;
     }
 
-    VkFormat formats[] = { VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
-    m_vkDepthFormat = SelectSupportedFormat(m_vkGPU.m_vkPhysicalDevice, formats, 3, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+    VkFormat formats[] = { VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D32_SFLOAT, VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM_S8_UINT, VK_FORMAT_D16_UNORM };
+    m_vkDepthFormat = SelectSupportedFormat(m_vkGPU.m_vkPhysicalDevice, formats, 5, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
     
+    /*
     TextureOptions depthTextureOptions;
     depthTextureOptions.m_vkDepthFormat = m_vkDepthFormat;
     depthTextureOptions.m_format = ETextureFormat_Depth;
@@ -652,30 +641,150 @@ ionBool RenderCore::CreateRenderTargets()
     depthTextureOptions.m_samples = static_cast<ETextureSamplesPerBit>(m_vkSampleCount);
 
     ionTextureManger().CreateTextureFromOptions(m_vkDevice, "_ION_ViewDepth", depthTextureOptions);
+    */
 
     if (m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT) 
     {
         m_vkSupersampling = m_vkGPU.m_vkPhysicalDevFeatures.sampleRateShading == VK_TRUE;
 
+        // MSAA
+        {
+            VkImageCreateInfo createInfo = {};
+            createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+            createInfo.imageType = VK_IMAGE_TYPE_2D;
+            createInfo.format = m_vkSwapchainFormat;
+            createInfo.extent.width = m_vkSwapchainExtent.width;
+            createInfo.extent.height = m_vkSwapchainExtent.height;
+            createInfo.extent.depth = 1;
+            createInfo.mipLevels = 1;
+            createInfo.arrayLayers = 1;
+            createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            createInfo.samples = m_vkSampleCount;
+            createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+            createInfo.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; //VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
+            createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+            VkResult result = vkCreateImage(m_vkDevice, &createInfo, vkMemory, &m_vkMSAAImage);
+            ionAssertReturnValue(result == VK_SUCCESS, "Cannot create image!", false);
+
+            VkMemoryRequirements memoryRequirements = {};
+            vkGetImageMemoryRequirements(m_vkDevice, m_vkMSAAImage, &memoryRequirements);
+
+            {
+                vkGpuMemoryCreateInfo createInfo = {};
+                createInfo.m_size = memoryRequirements.size;
+                createInfo.m_align = memoryRequirements.alignment;
+                createInfo.m_memoryTypeBits = memoryRequirements.memoryTypeBits;
+                createInfo.m_usage = EMemoryUsage_GPU;
+                createInfo.m_type = EGpuMemoryType_ImageOptimal;
+
+                m_vkMSAAAllocation = ionGPUMemoryManager().Alloc(createInfo);
+                ionAssertReturnValue(m_vkMSAAAllocation.m_result == VK_SUCCESS, "Cannot Allocate memory!", false);
+
+                result = vkBindImageMemory(m_vkDevice, m_vkMSAAImage, m_vkMSAAAllocation.m_memory, m_vkMSAAAllocation.m_offset);
+                ionAssertReturnValue(result == VK_SUCCESS, "Cannot bind the image memory!", false);
+            }
+
+            VkImageViewCreateInfo viewInfo = {};
+            viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            viewInfo.format = m_vkSwapchainFormat;
+            viewInfo.image = m_vkMSAAImage;
+            viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            viewInfo.subresourceRange.baseMipLevel = 0;
+            viewInfo.subresourceRange.levelCount = 1;
+            viewInfo.subresourceRange.baseArrayLayer = 0;
+            viewInfo.subresourceRange.layerCount = 1;
+            viewInfo.components.r = VK_COMPONENT_SWIZZLE_R;
+            viewInfo.components.g = VK_COMPONENT_SWIZZLE_G;
+            viewInfo.components.b = VK_COMPONENT_SWIZZLE_B;
+            viewInfo.components.a = VK_COMPONENT_SWIZZLE_A;
+
+            result = vkCreateImageView(m_vkDevice, &viewInfo, vkMemory, &m_vkMSAAImageView);
+            ionAssertReturnValue(result == VK_SUCCESS, "Cannot create image view!", false);
+        }
+        
+        // DEPTH
+        {
+            VkImageCreateInfo createInfo = {};
+            createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+            createInfo.imageType = VK_IMAGE_TYPE_2D;
+            createInfo.format = m_vkDepthFormat;
+            createInfo.extent.width = m_vkSwapchainExtent.width;
+            createInfo.extent.height = m_vkSwapchainExtent.height;
+            createInfo.extent.depth = 1;
+            createInfo.mipLevels = 1;
+            createInfo.arrayLayers = 1;
+            createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            createInfo.samples = m_vkSampleCount;
+            createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+            createInfo.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+            createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+            VkResult result = vkCreateImage(m_vkDevice, &createInfo, vkMemory, &m_vkDepthImage);
+            ionAssertReturnValue(result == VK_SUCCESS, "Cannot create image!", false);
+
+            VkMemoryRequirements memoryRequirements = {};
+            vkGetImageMemoryRequirements(m_vkDevice, m_vkDepthImage, &memoryRequirements);
+
+            {
+                vkGpuMemoryCreateInfo createInfo = {};
+                createInfo.m_size = memoryRequirements.size;
+                createInfo.m_align = memoryRequirements.alignment;
+                createInfo.m_memoryTypeBits = memoryRequirements.memoryTypeBits;
+                createInfo.m_usage = EMemoryUsage_GPU;
+                createInfo.m_type = EGpuMemoryType_ImageOptimal;
+
+                m_vkDepthAllocation = ionGPUMemoryManager().Alloc(createInfo);
+                ionAssertReturnValue(m_vkDepthAllocation.m_result == VK_SUCCESS, "Cannot Allocate memory!", false);
+
+                result = vkBindImageMemory(m_vkDevice, m_vkDepthImage, m_vkDepthAllocation.m_memory, m_vkDepthAllocation.m_offset);
+                ionAssertReturnValue(result == VK_SUCCESS, "Cannot bind the image memory!", false);
+            }
+
+            VkImageViewCreateInfo viewInfo = {};
+            viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            viewInfo.format = m_vkDepthFormat;
+            viewInfo.image = m_vkDepthImage;
+            viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+            viewInfo.subresourceRange.baseMipLevel = 0;
+            viewInfo.subresourceRange.levelCount = 1;
+            viewInfo.subresourceRange.baseArrayLayer = 0;
+            viewInfo.subresourceRange.layerCount = 1;
+            viewInfo.components.r = VK_COMPONENT_SWIZZLE_R;
+            viewInfo.components.g = VK_COMPONENT_SWIZZLE_G;
+            viewInfo.components.b = VK_COMPONENT_SWIZZLE_B;
+            viewInfo.components.a = VK_COMPONENT_SWIZZLE_A;
+
+            result = vkCreateImageView(m_vkDevice, &viewInfo, vkMemory, &m_vkDepthImageView);
+            ionAssertReturnValue(result == VK_SUCCESS, "Cannot create image view!", false);
+        }
+    }
+
+    // DEPTH STENCIL
+    {
         VkImageCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         createInfo.imageType = VK_IMAGE_TYPE_2D;
-        createInfo.format = m_vkSwapchainFormat;
+        createInfo.format = m_vkDepthFormat;
         createInfo.extent.width = m_vkSwapchainExtent.width;
         createInfo.extent.height = m_vkSwapchainExtent.height;
         createInfo.extent.depth = 1;
         createInfo.mipLevels = 1;
         createInfo.arrayLayers = 1;
-        createInfo.samples = m_vkSampleCount;
+        createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-        createInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
+        createInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
         createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        createInfo.flags = 0;
 
-        VkResult result = vkCreateImage(m_vkDevice, &createInfo, vkMemory, &m_vkMSAAImage);
+        VkResult result = vkCreateImage(m_vkDevice, &createInfo, vkMemory, &m_vkDepthStencilImage);
         ionAssertReturnValue(result == VK_SUCCESS, "Cannot create image!", false);
 
         VkMemoryRequirements memoryRequirements = {};
-        vkGetImageMemoryRequirements(m_vkDevice, m_vkMSAAImage, &memoryRequirements);
+        vkGetImageMemoryRequirements(m_vkDevice, m_vkDepthStencilImage, &memoryRequirements);
 
         {
             vkGpuMemoryCreateInfo createInfo = {};
@@ -685,25 +794,29 @@ ionBool RenderCore::CreateRenderTargets()
             createInfo.m_usage = EMemoryUsage_GPU;
             createInfo.m_type = EGpuMemoryType_ImageOptimal;
 
-            m_vkMSAAAllocation = ionGPUMemoryManager().Alloc(createInfo);
-            ionAssertReturnValue(m_vkMSAAAllocation.m_result == VK_SUCCESS, "Cannot Allocate memory!", false);
+            m_vkDepthStencilAllocation = ionGPUMemoryManager().Alloc(createInfo);
+            ionAssertReturnValue(m_vkDepthStencilAllocation.m_result == VK_SUCCESS, "Cannot Allocate memory!", false);
 
-            result = vkBindImageMemory(m_vkDevice, m_vkMSAAImage, m_vkMSAAAllocation.m_memory, m_vkMSAAAllocation.m_offset);
+            result = vkBindImageMemory(m_vkDevice, m_vkDepthStencilImage, m_vkDepthStencilAllocation.m_memory, m_vkDepthStencilAllocation.m_offset);
             ionAssertReturnValue(result == VK_SUCCESS, "Cannot bind the image memory!", false);
         }
 
         VkImageViewCreateInfo viewInfo = {};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        viewInfo.format = m_vkSwapchainFormat;
-        viewInfo.image = m_vkMSAAImage;
+        viewInfo.format = m_vkDepthFormat;
+        viewInfo.image = m_vkDepthStencilImage;
         viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
         viewInfo.subresourceRange.baseMipLevel = 0;
         viewInfo.subresourceRange.levelCount = 1;
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
+        viewInfo.components.r = VK_COMPONENT_SWIZZLE_R;
+        viewInfo.components.g = VK_COMPONENT_SWIZZLE_G;
+        viewInfo.components.b = VK_COMPONENT_SWIZZLE_B;
+        viewInfo.components.a = VK_COMPONENT_SWIZZLE_A;
 
-        result = vkCreateImageView(m_vkDevice, &viewInfo, vkMemory, &m_vkMSAAImageView);
+        result = vkCreateImageView(m_vkDevice, &viewInfo, vkMemory, &m_vkDepthStencilImageView);
         ionAssertReturnValue(result == VK_SUCCESS, "Cannot create image view!", false);
     }
 
@@ -728,71 +841,217 @@ void RenderCore::DestroyRenderTargets()
 
         m_vkMSAAImageView = VK_NULL_HANDLE;
     }
+
+    if (m_vkDepthImageView != VK_NULL_HANDLE)
+    {
+        vkDestroyImageView(m_vkDevice, m_vkDepthImageView, vkMemory);
+
+        if (m_vkDepthImage != VK_NULL_HANDLE)
+        {
+            vkDestroyImage(m_vkDevice, m_vkDepthImage, vkMemory);
+
+            ionGPUMemoryManager().Free(m_vkDepthAllocation);
+            m_vkDepthAllocation = vkGpuMemoryAllocation();
+
+            m_vkDepthImage = VK_NULL_HANDLE;
+        }
+
+        m_vkDepthImageView = VK_NULL_HANDLE;
+    }
+
+    if (m_vkDepthStencilImageView != VK_NULL_HANDLE)
+    {
+        vkDestroyImageView(m_vkDevice, m_vkDepthStencilImageView, vkMemory);
+
+        if (m_vkDepthStencilImage != VK_NULL_HANDLE)
+        {
+            vkDestroyImage(m_vkDevice, m_vkDepthStencilImage, vkMemory);
+
+            ionGPUMemoryManager().Free(m_vkDepthStencilAllocation);
+            m_vkDepthStencilAllocation = vkGpuMemoryAllocation();
+
+            m_vkDepthStencilImage = VK_NULL_HANDLE;
+        }
+
+        m_vkDepthStencilImageView = VK_NULL_HANDLE;
+    }
 }
 
 ionBool RenderCore::CreateRenderPass()
 {
-    VkAttachmentDescription attachments[3];
-    memset(attachments, 0, sizeof(attachments));
-
     const ionBool resolve = m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT;
 
-    VkAttachmentDescription& colorAttachment = attachments[0];
-    colorAttachment.format = m_vkSwapchainFormat;
-    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
-
-    VkAttachmentDescription& depthAttachment = attachments[1];
-    depthAttachment.format = m_vkDepthFormat;
-    depthAttachment.samples = m_vkSampleCount;
-    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-    VkAttachmentDescription& resolveAttachment = attachments[2];
-    resolveAttachment.format = m_vkSwapchainFormat;
-    resolveAttachment.samples = m_vkSampleCount;
-    resolveAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    resolveAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    resolveAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    resolveAttachment.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
-
-    VkAttachmentReference colorRef = {};
-    colorRef.attachment = resolve ? 2 : 0;
-    colorRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    VkAttachmentReference depthRef = {};
-    depthRef.attachment = 1;
-    depthRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-    VkAttachmentReference resolveRef = {};
-    resolveRef.attachment = 0;
-    resolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    VkSubpassDescription subpass = {};
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorRef;
-    subpass.pDepthStencilAttachment = &depthRef;
-    if (resolve) 
+    if (resolve)
     {
+        VkAttachmentDescription attachments[4];
+        memset(attachments, 0, sizeof(attachments));
+
+        VkAttachmentDescription& colorAttachment = attachments[0];
+        colorAttachment.format = m_vkSwapchainFormat;
+        colorAttachment.samples = m_vkSampleCount;
+        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentDescription& colorResolver = attachments[1];
+        colorResolver.format = m_vkSwapchainFormat;
+        colorResolver.samples = VK_SAMPLE_COUNT_1_BIT;
+        colorResolver.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorResolver.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorResolver.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorResolver.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorResolver.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorResolver.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+        VkAttachmentDescription& depthAttachment = attachments[2];
+        depthAttachment.format = m_vkDepthFormat;
+        depthAttachment.samples = m_vkSampleCount;
+        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentDescription& depthResolver = attachments[3];
+        depthResolver.format = m_vkDepthFormat;
+        depthResolver.samples = VK_SAMPLE_COUNT_1_BIT;
+        depthResolver.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        depthResolver.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        depthResolver.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        depthResolver.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depthResolver.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        depthResolver.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference colorRef = {};
+        colorRef.attachment = 0;
+        colorRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference depthRef = {};
+        depthRef.attachment = 2;
+        depthRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference resolveRef = {};
+        resolveRef.attachment = 1;
+        resolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkSubpassDescription subpass = {};
+        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpass.colorAttachmentCount = 1;
+        subpass.pColorAttachments = &colorRef;
+        subpass.pDepthStencilAttachment = &depthRef;
         subpass.pResolveAttachments = &resolveRef;
+
+        eosVector(VkSubpassDependency) dependencies;
+        dependencies.resize(2);
+
+        dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependencies[0].dstSubpass = 0;
+        dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+        dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+        dependencies[1].srcSubpass = 0;
+        dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+        dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+        dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+        VkRenderPassCreateInfo renderPassCreateInfo = {};
+        renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderPassCreateInfo.attachmentCount = 4;
+        renderPassCreateInfo.pAttachments = attachments;
+        renderPassCreateInfo.subpassCount = 1;
+        renderPassCreateInfo.pSubpasses = &subpass;
+        renderPassCreateInfo.dependencyCount = 2;
+        renderPassCreateInfo.pDependencies = dependencies.data();
+
+        VkResult result = vkCreateRenderPass(m_vkDevice, &renderPassCreateInfo, vkMemory, &m_vkRenderPass);
+        ionAssertReturnValue(result == VK_SUCCESS, "Cannot create render pass!", false);
     }
+    else
+    {
+        VkAttachmentDescription attachments[2];
+        memset(attachments, 0, sizeof(attachments));
 
-    VkRenderPassCreateInfo renderPassCreateInfo = {};
-    renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassCreateInfo.attachmentCount = resolve ? 3 : 2;
-    renderPassCreateInfo.pAttachments = attachments;
-    renderPassCreateInfo.subpassCount = 1;
-    renderPassCreateInfo.pSubpasses = &subpass;
-    renderPassCreateInfo.dependencyCount = 0;
+        VkAttachmentDescription& colorResolver = attachments[0];
+        colorResolver.format = m_vkSwapchainFormat;
+        colorResolver.samples = VK_SAMPLE_COUNT_1_BIT;
+        colorResolver.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colorResolver.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorResolver.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorResolver.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorResolver.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorResolver.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-    VkResult result = vkCreateRenderPass(m_vkDevice, &renderPassCreateInfo, vkMemory, &m_vkRenderPass);
-    ionAssertReturnValue(result == VK_SUCCESS, "Cannot create render pass!", false);
+        VkAttachmentDescription& depthResolver = attachments[1];
+        depthResolver.format = m_vkDepthFormat;
+        depthResolver.samples = VK_SAMPLE_COUNT_1_BIT;
+        depthResolver.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthResolver.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        depthResolver.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        depthResolver.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depthResolver.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        depthResolver.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference colorRef = {};
+        colorRef.attachment = 0;
+        colorRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference depthRef = {};
+        depthRef.attachment = 21;
+        depthRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+
+        VkSubpassDescription subpass = {};
+        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpass.colorAttachmentCount = 1;
+        subpass.pColorAttachments = &colorRef;
+        subpass.pDepthStencilAttachment = &depthRef;
+        subpass.inputAttachmentCount = 0;
+        subpass.pInputAttachments = nullptr;
+        subpass.preserveAttachmentCount = 0;
+        subpass.pPreserveAttachments = nullptr;
+        subpass.pResolveAttachments = nullptr;
+
+        eosVector(VkSubpassDependency) dependencies;
+        dependencies.resize(2);
+
+        dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependencies[0].dstSubpass = 0;
+        dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+        dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+        dependencies[1].srcSubpass = 0;
+        dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+        dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+        dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+        VkRenderPassCreateInfo renderPassCreateInfo = {};
+        renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderPassCreateInfo.attachmentCount = 2;
+        renderPassCreateInfo.pAttachments = attachments;
+        renderPassCreateInfo.subpassCount = 1;
+        renderPassCreateInfo.pSubpasses = &subpass;
+        renderPassCreateInfo.dependencyCount = 2;
+        renderPassCreateInfo.pDependencies = dependencies.data();
+
+        VkResult result = vkCreateRenderPass(m_vkDevice, &renderPassCreateInfo, vkMemory, &m_vkRenderPass);
+        ionAssertReturnValue(result == VK_SUCCESS, "Cannot create render pass!", false);
+    }
 
     return true;
 }
@@ -810,33 +1069,50 @@ ionBool RenderCore::CreatePipelineCache()
 
 ionBool RenderCore::CreateFrameBuffers()
 {
-    VkImageView attachments[3] = {};
+    VkImageView attachments[4] = {};
 
     // depth attachment is the same
+    /*
     Texture* depthTexture = ionTextureManger().GetTexture("_ION_ViewDepth");
 
     ionAssertReturnValue(depthTexture != nullptr, "No view depth texture found.", false);
 
     attachments[1] = depthTexture->GetView();
+    */
 
     const ionBool resolve = m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT;
     if (resolve)
     {
-        attachments[2] = m_vkMSAAImageView;
+        attachments[0] = m_vkMSAAImageView;
+        attachments[2] = m_vkDepthImageView;
+        attachments[3] = m_vkDepthStencilImageView;
+    }
+    else
+    {
+        attachments[1] = m_vkDepthStencilImageView;
     }
 
     VkFramebufferCreateInfo frameBufferCreateInfo = {};
     frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     frameBufferCreateInfo.renderPass = m_vkRenderPass;
-    frameBufferCreateInfo.attachmentCount = resolve ? 3 : 2;
+    frameBufferCreateInfo.attachmentCount = resolve ? 4 : 2;
     frameBufferCreateInfo.pAttachments = attachments;
     frameBufferCreateInfo.width = m_width;
     frameBufferCreateInfo.height = m_height;
     frameBufferCreateInfo.layers = 1;
 
-    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
+    m_vkFrameBuffers.resize(m_swapChainImageCount, VK_NULL_HANDLE);
+    for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
     {
-        attachments[0] = m_vkSwapchainViews[i];
+        if (resolve)
+        {
+            attachments[1] = m_vkSwapchainViews[i];
+        }
+        else
+        {
+            attachments[0] = m_vkSwapchainViews[i];
+        }
+
         VkResult result = vkCreateFramebuffer(m_vkDevice, &frameBufferCreateInfo, vkMemory, &m_vkFrameBuffers[i]);
         ionAssertReturnValue(result == VK_SUCCESS, "Impossible to create frame buffer.", false);
     }
@@ -846,7 +1122,7 @@ ionBool RenderCore::CreateFrameBuffers()
 
 void RenderCore::DestroyFrameBuffers()
 {
-    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
+    for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
     {
         vkDestroyFramebuffer(m_vkDevice, m_vkFrameBuffers[i], vkMemory);
     }
@@ -866,9 +1142,6 @@ RenderCore::~RenderCore()
     m_vkSwapchainImages.clear();
     m_vkCommandBufferFences.clear();
     m_vkCommandBuffers.clear();
-    m_vkQueryPools.clear();
-    m_vkCompletedSemaphores.clear();
-    m_vkAcquiringSemaphores.clear();
     m_textureParams.clear();
 }
 
@@ -892,7 +1165,6 @@ void RenderCore::Clear()
 
     // core
     m_counter = 0;
-    m_currentFrameData = 0;
     m_width = 640;
     m_height = 480;
     m_vkInstance = VK_NULL_HANDLE;
@@ -900,40 +1172,33 @@ void RenderCore::Clear()
     m_vkSwapchain = VK_NULL_HANDLE;
     m_vkSwapchainFormat = VK_FORMAT_UNDEFINED;
     m_vkCurrentSwapIndex = 0;
-    //m_vkMSAAAllocation;
     m_vkMSAAImage = VK_NULL_HANDLE;
     m_vkMSAAImageView = VK_NULL_HANDLE;
+    m_vkDepthImage = VK_NULL_HANDLE;
+    m_vkDepthImageView = VK_NULL_HANDLE;
     m_vkCommandPool = VK_NULL_HANDLE;
     m_vkSurface = VK_NULL_HANDLE;
     m_vkPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
     m_vkValidationEnabled = false;
+
+    m_vkAcquiringSemaphore = VK_NULL_HANDLE;
+    m_vkCompletedSemaphore = VK_NULL_HANDLE;
 
     m_vkSwapchainExtent.width = m_width;
     m_vkSwapchainExtent.height = m_height;
     m_vkSwapchainImages.clear();
     m_vkSwapchainViews.clear();
     m_vkFrameBuffers.clear();
-    m_vkAcquiringSemaphores.clear();
-    m_vkCompletedSemaphores.clear();
     m_currentSwapIndex = 0;
 
     m_vkCommandBuffers.clear();
     m_vkCommandBufferFences.clear();
-    m_vkCommandBufferRecorded.clear();
-
-    m_queryIndex.clear();
-
-    for (ionU32 i = 0; i < m_queryResults.capacity(); ++i)
-    {
-        m_queryResults[i].clear();
-    }
-    m_queryResults.clear();
-
-    m_vkQueryPools.clear();
 }
 
 ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
 {
+    Clear();
+
     m_instance = _instance;
     m_window = _handle;
 
@@ -941,23 +1206,7 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
     m_height = _height;
     m_vkFullScreen = _fullScreen;
 
-    m_vkAcquiringSemaphores.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
-    m_vkCompletedSemaphores.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
-    m_vkQueryPools.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
-    m_vkCommandBuffers.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
-    m_vkCommandBufferFences.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
-    m_vkSwapchainImages.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
-    m_vkSwapchainViews.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
-    m_vkFrameBuffers.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
-    m_vkCommandBufferRecorded.resize(ION_FRAME_DATA_COUNT, VK_NULL_HANDLE);
-
     m_textureParams.resize(ION_RENDER_MAX_IMAGE_PARMS, nullptr);
-    m_queryIndex.resize(ION_FRAME_DATA_COUNT, 0);
-	m_queryResults.resize(ION_FRAME_DATA_COUNT);
-    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
-    {
-        m_queryResults[i].resize(ION_RENDER_QUERY_POOL);
-    }
 
     if (!CreateInstance(_enableValidationLayer))
     {
@@ -976,8 +1225,6 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
         return false;
     }
 
-
-
     if (!CreateLogicalDeviceAndQueues())
     {
         return false;
@@ -992,22 +1239,17 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
         return false;
     }
 
-    if (!CreateQueryPool())
-    {
-        return false;
-    }
-
     if (!CreateCommandPool())
     {
         return false;
     }
 
-    if(!CreateCommandBuffer())
+    if (!CreateSwapChain())
     {
         return false;
     }
 
-    if (!CreateSwapChain())
+    if(!CreateCommandBuffer())
     {
         return false;
     }
@@ -1076,25 +1318,16 @@ void RenderCore::Shutdown()
         vkDestroyCommandPool(m_vkDevice, m_vkCommandPool, vkMemory);
     }
 
-    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
-    {
-        if (m_vkQueryPools[i] != VK_NULL_HANDLE)
-        {
-            vkDestroyQueryPool(m_vkDevice, m_vkQueryPools[i], vkMemory);
-        }
-    }
 
-    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
+    if (m_vkAcquiringSemaphore != VK_NULL_HANDLE)
     {
-        if (m_vkAcquiringSemaphores[i] != VK_NULL_HANDLE)
-        {
-            vkDestroySemaphore(m_vkDevice, m_vkAcquiringSemaphores[i], vkMemory);
-        }
-        if (m_vkCompletedSemaphores[i] != VK_NULL_HANDLE)
-        {
-            vkDestroySemaphore(m_vkDevice, m_vkCompletedSemaphores[i], vkMemory);
-        }
+        vkDestroySemaphore(m_vkDevice, m_vkAcquiringSemaphore, vkMemory);
     }
+    if (m_vkCompletedSemaphore != VK_NULL_HANDLE)
+    {
+        vkDestroySemaphore(m_vkDevice, m_vkCompletedSemaphore, vkMemory);
+    }
+    
 
     ionStagingBufferManager().Shutdown();
 
@@ -1119,11 +1352,12 @@ void RenderCore::Shutdown()
         vkDestroyInstance(m_vkInstance, vkMemory);
     }
 }
+
 void RenderCore::Recreate()
 {
 	vkDeviceWaitIdle(m_vkDevice);
 
-	for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
+	for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
 	{
 		vkDestroyFramebuffer(m_vkDevice, m_vkFrameBuffers[i], vkMemory);
 	}
@@ -1138,6 +1372,7 @@ void RenderCore::Recreate()
 		vkDestroyRenderPass(m_vkDevice, m_vkRenderPass, vkMemory);
 	}
 
+    /*
 	for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
 	{
 		if (m_vkSwapchainViews[i] != VK_NULL_HANDLE)
@@ -1150,8 +1385,9 @@ void RenderCore::Recreate()
 	{
 		vkDestroySwapchainKHR(m_vkDevice, m_vkSwapchain, vkMemory);
 	}
+    */
 
-	ionTextureManger().DestroyTexture("_ION_ViewDepth");
+	//ionTextureManger().DestroyTexture("_ION_ViewDepth");
 	DestroyRenderTargets();
 
 	VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_vkGPU.m_vkPhysicalDevice, m_vkSurface, &m_vkGPU.m_vkSurfaceCaps);
@@ -1169,30 +1405,10 @@ void RenderCore::Recreate()
 	CreateFrameBuffers();
 }
 
-void RenderCore::BlockingSwapBuffers()
-{
-    ++m_counter;
-    m_currentFrameData = m_counter % ION_FRAME_DATA_COUNT;
-
-    if (m_vkCommandBufferRecorded[m_currentFrameData] == false)
-    {
-        return;
-    }
-
-    VkResult result = vkWaitForFences(m_vkDevice, 1, &m_vkCommandBufferFences[m_currentFrameData], VK_TRUE, UINT64_MAX);
-    ionAssertReturnVoid(result == VK_SUCCESS, "Wait for fences failed!");
-
-    result = vkResetFences(m_vkDevice, 1, &m_vkCommandBufferFences[m_currentFrameData]);
-    ionAssertReturnVoid(result == VK_SUCCESS, "Reset fences failed!");
-
-    m_vkCommandBufferRecorded[m_currentFrameData] = false;
-
-    //vkDeviceWaitIdle(m_vkDevice);   // it is needed?
-}
 
 ionBool RenderCore::StartFrame()
 {
-    VkResult result = vkAcquireNextImageKHR(m_vkDevice, m_vkSwapchain, UINT64_MAX, m_vkAcquiringSemaphores[m_currentFrameData], VK_NULL_HANDLE, &m_currentSwapIndex);
+    VkResult result = vkAcquireNextImageKHR(m_vkDevice, m_vkSwapchain, UINT64_MAX, m_vkAcquiringSemaphore, VK_NULL_HANDLE, &m_currentSwapIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) 
     {
         Recreate();
@@ -1200,52 +1416,54 @@ ionBool RenderCore::StartFrame()
     }
     ionAssertReturnValue(result == VK_SUCCESS || result  == VK_SUBOPTIMAL_KHR, "vkAcquireNextImageKHR failed!", false);
 
-    ionStagingBufferManager().Submit();
+    result = vkWaitForFences(m_vkDevice, 1, &m_vkCommandBufferFences[m_currentSwapIndex], VK_TRUE, UINT64_MAX);
+    ionAssertReturnValue(result == VK_SUCCESS, "Wait for fences failed!", false);
+
+    result = vkResetFences(m_vkDevice, 1, &m_vkCommandBufferFences[m_currentSwapIndex]);
+    ionAssertReturnValue(result == VK_SUCCESS, "Reset fences failed!", false);
+
+    //ionStagingBufferManager().Submit();
     ionShaderProgramManager().StartFrame();
 	
-    VkQueryPool queryPool = m_vkQueryPools[m_currentFrameData];
-
-    eosVector(ionU64) & results = m_queryResults[m_currentFrameData];
-
-    if (m_queryIndex[m_currentFrameData] > 0) 
-    {
-        vkGetQueryPoolResults(m_vkDevice, queryPool, 0, 2, results.size(), results.data(), sizeof(ionU64), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
-
-        const ionU64 gpuStart = results[0];
-        const ionU64 gpuEnd = results[1];
-        const ionU64 tick = (1000 * 1000 * 1000) / ((ionU64)m_vkGPU.m_vkPhysicalDeviceProps.limits.timestampPeriod);
-        m_microSeconds = ((gpuEnd - gpuStart) * 1000 * 1000) / tick;
-
-        m_queryIndex[m_currentFrameData] = 0;
-    }
-
-    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentFrameData];
+    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
 
     VkCommandBufferBeginInfo commandBufferBeginInfo = {};
     commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     result = vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
     ionAssertReturnValue(result == VK_SUCCESS, "vkBeginCommandBuffer failed!", false);
 
-    vkCmdResetQueryPool(commandBuffer, queryPool, 0, ION_RENDER_QUERY_POOL);
+    const ionBool resolve = m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT;
 
+    VkClearValue clearValues[3];
+    if (resolve)
+    {
+        clearValues[0].color = { { 1.0f, 1.0f, 1.0f, 1.0f } };
+        clearValues[1].color = { { 1.0f, 1.0f, 1.0f, 1.0f } };
+        clearValues[2].depthStencil = { 1.0f, 0 };
+    }
+    else {
+        clearValues[0].color = { { 0.1f, 0.1f, 0.1f, 1.0f } };
+        clearValues[1].depthStencil = { 1.0f, 0 };
+    }
+    
     VkRenderPassBeginInfo renderPassBeginInfo = {};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassBeginInfo.renderPass = m_vkRenderPass;
     renderPassBeginInfo.framebuffer = m_vkFrameBuffers[m_currentSwapIndex];
     renderPassBeginInfo.renderArea.extent = m_vkSwapchainExtent;
+    renderPassBeginInfo.renderArea.offset.x = 0;
+    renderPassBeginInfo.renderArea.offset.y = 0;
+    renderPassBeginInfo.clearValueCount = resolve ? 3 : 2;
+    renderPassBeginInfo.pClearValues = clearValues;
 
     vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-    vkCmdWriteTimestamp(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryPool, m_queryIndex[m_currentFrameData]++);
 
     return true;
 }
 
 void RenderCore::EndFrame()
 {
-    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentFrameData];
-
-    vkCmdWriteTimestamp(commandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, m_vkQueryPools[m_currentFrameData], m_queryIndex[m_currentFrameData]++);
+    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
 
     vkCmdEndRenderPass(commandBuffer);
 
@@ -1253,6 +1471,7 @@ void RenderCore::EndFrame()
     // Do this instead of having the renderpass do the transition
     // so we can take advantage of the general layout to avoid 
     // additional image barriers.
+    /*
     VkImageMemoryBarrier barrier = {};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
@@ -1269,14 +1488,10 @@ void RenderCore::EndFrame()
     barrier.dstAccessMask = 0;
 
     vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+    */
 
     VkResult result = vkEndCommandBuffer(commandBuffer);
     ionAssertReturnVoid(result == VK_SUCCESS, "vkEndCommandBuffer failed!");
-
-    m_vkCommandBufferRecorded[m_currentFrameData] = true;
-
-    VkSemaphore* acquire = &m_vkAcquiringSemaphores[m_currentFrameData];
-    VkSemaphore* finished = &m_vkCompletedSemaphores[m_currentFrameData];
 
     VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
@@ -1285,18 +1500,18 @@ void RenderCore::EndFrame()
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
     submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = acquire;
+    submitInfo.pWaitSemaphores = &m_vkAcquiringSemaphore;
     submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = finished;
+    submitInfo.pSignalSemaphores = &m_vkCompletedSemaphore;
     submitInfo.pWaitDstStageMask = &dstStageMask;
 
-    result = vkQueueSubmit(m_vkGraphicsQueue, 1, &submitInfo, m_vkCommandBufferFences[m_currentFrameData]);
+    result = vkQueueSubmit(m_vkGraphicsQueue, 1, &submitInfo, m_vkCommandBufferFences[m_currentSwapIndex]);
     ionAssertReturnVoid(result == VK_SUCCESS, "vkQueueSubmit failed!");
 
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = finished;
+    presentInfo.pWaitSemaphores = &m_vkCompletedSemaphore;
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = &m_vkSwapchain;
     presentInfo.pImageIndices = &m_currentSwapIndex;
@@ -1312,7 +1527,6 @@ void RenderCore::EndFrame()
     }
 
     ++m_counter;
-    m_currentFrameData = m_counter % ION_FRAME_DATA_COUNT;
 }
 
 void RenderCore::BindTexture(ionS32 _index, Texture* _image)
@@ -1345,7 +1559,7 @@ void RenderCore::SetScissor(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS3
     scissor.offset.y = _bottomY;
     scissor.extent.width = _width;
     scissor.extent.height = _height;
-    vkCmdSetScissor(m_vkCommandBuffers[m_currentFrameData], 0, 1, &scissor);
+    vkCmdSetScissor(m_vkCommandBuffers[m_currentSwapIndex], 0, 1, &scissor);
 }
 
 void RenderCore::SetViewport(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS32 _height)
@@ -1357,12 +1571,12 @@ void RenderCore::SetViewport(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS
     viewport.height = (ionFloat)_height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(m_vkCommandBuffers[m_currentFrameData], 0, 1, &viewport);
+    vkCmdSetViewport(m_vkCommandBuffers[m_currentSwapIndex], 0, 1, &viewport);
 }
 
 void RenderCore::SetPolygonOffset(ionFloat _scale, ionFloat _bias)
 {
-    vkCmdSetDepthBias(m_vkCommandBuffers[m_currentFrameData], _bias, 0.0f, _scale);
+    vkCmdSetDepthBias(m_vkCommandBuffers[m_currentSwapIndex], _bias, 0.0f, _scale);
 }
 
 void RenderCore::SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax)
@@ -1379,26 +1593,42 @@ void RenderCore::SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax)
     else 
     {
         m_stateBits |= ERasterization_DepthTest_Mask;
-        vkCmdSetDepthBounds(m_vkCommandBuffers[m_currentFrameData], _zMin, _zMax);
+        vkCmdSetDepthBounds(m_vkCommandBuffers[m_currentSwapIndex], _zMin, _zMax);
     }
 }
 
 void RenderCore::SetClear(ionBool _color, ionBool _depth, ionBool _stencil, ionU8 _stencilValue, ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
 {
+    const ionBool resolve = m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT;
+
     ionU32 numAttachments = 0;
-    VkClearAttachment attachments[2];
+    VkClearAttachment attachments[3];
     memset(attachments, 0, sizeof(attachments));
 
     if (_color)
     {
-        VkClearAttachment & attachment = attachments[numAttachments++];
-        attachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        attachment.colorAttachment = 0;
-        VkClearColorValue & color = attachment.clearValue.color;
-        color.float32[0] = _r;
-        color.float32[1] = _g;
-        color.float32[2] = _b;
-        color.float32[3] = _a;
+        {
+            VkClearAttachment & attachment = attachments[numAttachments++];
+            attachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            attachment.colorAttachment = 0;
+            VkClearColorValue & color = attachment.clearValue.color;
+            color.float32[0] = _r;
+            color.float32[1] = _g;
+            color.float32[2] = _b;
+            color.float32[3] = _a;
+        }
+
+        if (resolve)
+        {
+            VkClearAttachment & attachment = attachments[numAttachments++];
+            attachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            attachment.colorAttachment = 0;
+            VkClearColorValue & color = attachment.clearValue.color;
+            color.float32[0] = _r;
+            color.float32[1] = _g;
+            color.float32[2] = _b;
+            color.float32[3] = _a;
+        }
     }
 
     if (_depth || _stencil)
@@ -1421,12 +1651,12 @@ void RenderCore::SetClear(ionBool _color, ionBool _depth, ionBool _stencil, ionU
     clearRect.layerCount = 1;
     clearRect.rect.extent = m_vkSwapchainExtent;
 
-    vkCmdClearAttachments(m_vkCommandBuffers[m_currentFrameData], numAttachments, attachments, 1, &clearRect);
+    vkCmdClearAttachments(m_vkCommandBuffers[m_currentSwapIndex], numAttachments, attachments, 1, &clearRect);
 }
 
 void RenderCore::CopyFrameBuffer(Texture* _texture, ionS32 _x, ionS32 _y, ionS32 _textureWidth, ionS32 _textureHeight)
 {
-    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentFrameData];
+    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
 
     vkCmdEndRenderPass(commandBuffer);
 
@@ -1500,12 +1730,12 @@ void RenderCore::SetColor(const eosString& _param, ionFloat _r, ionFloat _g, ion
 
 void RenderCore::Draw(const DrawSurface& _surface)
 {
-    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentFrameData];
+    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
     
     // USING THE HASH VERSION HERE!!!
-    //ionShaderProgramManager().SetRenderParmMatrix(ION_MODEL_MATRIX_PARAM_TEXT, &_surface.m_modelMatrix[0]);
-    //ionShaderProgramManager().SetRenderParmMatrix(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0]);
-    //ionShaderProgramManager().SetRenderParmMatrix(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0]);
+    ionShaderProgramManager().SetRenderParmMatrix(ION_MODEL_MATRIX_PARAM_TEXT, &_surface.m_modelMatrix[0]);
+    ionShaderProgramManager().SetRenderParmMatrix(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0]);
+    ionShaderProgramManager().SetRenderParmMatrix(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0]);
   
     const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(_surface.m_material->GetShaderProgramName(), _surface.m_material->GetVertexLayout(), _surface.m_material->GetVertexShaderIndex(), _surface.m_material->GetFragmentShaderIndex());
     ionShaderProgramManager().BindProgram(shaderProgramIndex);
@@ -1533,42 +1763,19 @@ void RenderCore::Draw(const DrawSurface& _surface)
     }
 
     vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, (indexOffset >> 1), vertexOffset / sizeof(Vertex), 0);
+
     //vkCmdDrawIndexed(commandBuffer, static_cast<ionU32>(_surface.m_indexCount), 1, 0, 0, 0);
 }
 
-void RenderCore::Execute(const ionU32 _commandCount, const eosVector(RenderCommand)& _renderCommands)
+void RenderCore::DrawTriangle()
 {
-    if (_commandCount == 0)
-    {
-        return;
-    }
+    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
 
-    StartFrame();
+    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("BaseTriangle", EVertexLayout_Empty, 0, 1);
+    ionShaderProgramManager().BindProgram(shaderProgramIndex);
+    ionShaderProgramManager().CommitCurrent(*this, m_stateBits, commandBuffer);
 
-    SetDefaultState();
-
-    for (ionU32 i = 0; i < _commandCount; ++i)
-    {
-        const RenderCommand& cmd = _renderCommands[i];
-        switch (cmd.m_operation) 
-        {
-        case ERenderOperation_None:
-            break;
-        case ERenderOperation_Draw_View:
-            //DrawView(cmd);
-            break;
-        case ERenderOperation_Copy_Render:
-            //CopyRender(cmd);
-            break;
-        default:
-            ionAssertReturnVoid(false, "Command type error");
-            break;
-        }
-    }
-
-    EndFrame();
+    vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 }
-
-
 
 ION_NAMESPACE_END

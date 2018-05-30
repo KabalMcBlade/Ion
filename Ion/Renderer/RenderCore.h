@@ -12,7 +12,6 @@
 #include "../Texture/TextureCommon.h"
 
 #include "RenderCommon.h"
-#include "DrawRenderCommon.h"
 
 #include "GPU.h"
 
@@ -21,10 +20,7 @@ VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-
 class Texture;
-struct DrawSurface;
-
 class ION_DLL RenderCore final
 {
 public:
@@ -36,7 +32,6 @@ public:
 	void	Recreate();
     void    Clear();
 
-    void    BlockingSwapBuffers();
     ionBool StartFrame();
     void    EndFrame();
     void    BindTexture(ionS32 _index, Texture* _image);
@@ -51,8 +46,9 @@ public:
     void    SetColor(const eosString& _param, ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a);
     void    Draw(const DrawSurface& _surface);
 
-    void    Execute(const ionU32 _commandCount, const eosVector(RenderCommand)& _renderCommands);
-
+    // DEBUG
+    void    DrawTriangle();
+    // DEBUG
 
     VkDevice& GetDevice() { return m_vkDevice; }
     const VkDevice& GetDevice() const { return m_vkDevice; }
@@ -75,7 +71,7 @@ public:
     const VertexCacheHandler& GetJointCacheHandler() const { return m_jointCacheHandler; }
 
     const Texture* GetTextureParam(ionS32 _imageIndex) const { ionAssertReturnValue(_imageIndex >= 0 && _imageIndex < m_textureParams.size(), "Index out of bound", nullptr); return m_textureParams[_imageIndex]; }
-    
+
     ionU32 GetWidth() const { return m_width; }
     ionU32 GetHeight() const { return m_height; }
 
@@ -97,7 +93,6 @@ private:
     ionBool CreatePhysicalDevice();
     ionBool CreateLogicalDeviceAndQueues();
     ionBool CreateSemaphores();
-    ionBool CreateQueryPool();
     ionBool CreateCommandPool();
     ionBool CreateCommandBuffer();
     ionBool CreateSwapChain();
@@ -114,7 +109,6 @@ private:
 private:
     HINSTANCE                   m_instance;
     HWND                        m_window;
-    vkGpuMemoryAllocation       m_vkMSAAAllocation;
     GPU                         m_vkGPU;                  //  access through this component to get value such m_vkPhysicalDevice
     VkDevice                    m_vkDevice;
     VkSurfaceKHR                m_vkSurface;
@@ -128,25 +122,30 @@ private:
     VkPresentModeKHR			m_vkPresentMode;
     VkSampleCountFlagBits		m_vkSampleCount;
     VkFormat					m_vkDepthFormat;
-    VkImage						m_vkMSAAImage;
-    VkImageView					m_vkMSAAImageView;
     VkRenderPass				m_vkRenderPass;
     VkPipelineCache				m_vkPipelineCache;
     VkDebugReportCallbackEXT    m_vkDebugCallback;
+    VkSemaphore	                m_vkAcquiringSemaphore;
+    VkSemaphore	                m_vkCompletedSemaphore;
 
-    eosVector(VkSemaphore)	    m_vkAcquiringSemaphores;
-    eosVector(VkSemaphore)	    m_vkCompletedSemaphores;
-    eosVector(VkQueryPool)	    m_vkQueryPools;
+    vkGpuMemoryAllocation       m_vkMSAAAllocation;
+    VkImage						m_vkMSAAImage;
+    VkImageView					m_vkMSAAImageView;
+
+    vkGpuMemoryAllocation       m_vkDepthAllocation;
+    VkImage						m_vkDepthImage;
+    VkImageView					m_vkDepthImageView;
+
+    vkGpuMemoryAllocation       m_vkDepthStencilAllocation;
+    VkImage						m_vkDepthStencilImage;
+    VkImageView					m_vkDepthStencilImageView;
+
+    eosVector(Texture*)         m_textureParams;        // Before using, Call Bind() [public function above] with the proper index texture
     eosVector(VkCommandBuffer)	m_vkCommandBuffers;
+    eosVector(VkFramebuffer)	m_vkFrameBuffers;
     eosVector(VkFence)			m_vkCommandBufferFences;
-    eosVector(ionBool)          m_vkCommandBufferRecorded;
     eosVector(VkImage)			m_vkSwapchainImages;
     eosVector(VkImageView)		m_vkSwapchainViews;
-    eosVector(VkFramebuffer)	m_vkFrameBuffers;
-    eosVector(Texture*)         m_textureParams;
-
-    eosVector(ionU32)           m_queryIndex;
-    eosVector(eosVector(ionU64))m_queryResults;
 
     VertexCacheHandler          m_jointCacheHandler;
 
@@ -154,7 +153,7 @@ private:
     ionU64                      m_microSeconds;
 
     ionU64						m_counter;
-    ionU32						m_currentFrameData;
+    ionU32                      m_swapChainImageCount;
     ionU32						m_currentSwapIndex;
 
     ionU32                      m_width;

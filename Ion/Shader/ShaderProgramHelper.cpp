@@ -144,6 +144,11 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         attribute.offset = 0;
         vertexLayout.m_attributegDescription.push_back(attribute);
     }
+
+    {
+        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Empty];
+        vertexLayout.m_inputState = createInfo;
+    }
 }
 
 void ShaderProgramHelper::CreateDescriptorPools(const VkDevice& _device, VkDescriptorPool(& _pools)[ION_FRAME_DATA_COUNT])

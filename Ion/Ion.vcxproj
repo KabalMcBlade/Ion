@@ -199,7 +199,6 @@
     <ClInclude Include="Geometry\Ray.h" />
     <ClInclude Include="Material\MaterialManager.h" />
     <ClInclude Include="Renderer\BaseBufferObject.h" />
-    <ClInclude Include="Renderer\DrawRenderCommon.h" />
     <ClInclude Include="Renderer\GPUMemoryManager.h" />
     <ClInclude Include="Renderer\IndexBufferObject.h" />
     <ClInclude Include="Material\Material.h" />

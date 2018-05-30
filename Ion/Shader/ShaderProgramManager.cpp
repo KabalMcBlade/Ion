@@ -262,6 +262,10 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, ionU64 _stat
     VkDescriptorBufferInfo bufferInfos[ION_MAX_DESCRIPTOR_SET_WRITES];
     VkDescriptorImageInfo imageInfos[ION_MAX_DESCRIPTOR_SET_WRITES];
 
+    memset(&writes, 0, sizeof(writes));
+    memset(&bufferInfos, 0, sizeof(bufferInfos));
+    memset(&imageInfos, 0, sizeof(imageInfos));
+
     ionS32 uboIndex = 0;
     UniformBuffer* ubos[6] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 

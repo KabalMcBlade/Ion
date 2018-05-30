@@ -33,6 +33,7 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+
 enum EShaderStage 
 {
     EShaderStage_Vertex             = 0b00000000,
@@ -72,6 +73,7 @@ enum EVertexLayout
     EVertexLayout_Vertices,
     EVertexLayout_Vertices_Simple,
     EVertexLayout_Vertices_Plain,
+    EVertexLayout_Empty,
     EVertexLayout_Count
 };
 
@@ -586,6 +588,40 @@ typedef ionU64 VertexCacheHandler;
 //////////////////////////////////////////////////////////////////////////
 
 typedef ionU16 Index;
+
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+
+
+class Material;
+struct DrawSurface final
+{
+    ionFloat			m_modelMatrix[16];
+    ionFloat			m_viewMatrix[16];
+    ionFloat			m_projectionMatrix[16];
+    ionSize             m_indexCount;
+    VertexCacheHandler  m_vertexCache;
+    VertexCacheHandler  m_indexCache;
+    VertexCacheHandler  m_jointCache;
+    ionU64				m_extraGLState;
+    const Material*     m_material;
+
+    DrawSurface()
+    {
+        memset(&m_modelMatrix, 0, sizeof(m_modelMatrix));
+        memset(&m_viewMatrix, 0, sizeof(m_viewMatrix));
+        memset(&m_projectionMatrix, 0, sizeof(m_projectionMatrix));
+        m_indexCount = 0;
+        m_vertexCache = 0;
+        m_indexCache = 0;
+        m_jointCache = 0;
+        m_extraGLState = 0;
+        m_material = nullptr;
+    }
+};
 
 
 
