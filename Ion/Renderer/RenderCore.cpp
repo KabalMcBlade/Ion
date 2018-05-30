@@ -547,7 +547,7 @@ ionBool RenderCore::CreateSwapChain()
 
 void RenderCore::DestroySwapChain()
 {
-    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
+    for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
     {
         if (m_vkSwapchainViews[i] != VK_NULL_HANDLE)
         {
@@ -1303,7 +1303,7 @@ void RenderCore::Shutdown()
 
     DestroySwapChain();
 
-    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
+    for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
     {
         if (m_vkCommandBufferFences[i] != VK_NULL_HANDLE)
         {
@@ -1373,7 +1373,7 @@ void RenderCore::Recreate()
 	}
 
     /*
-	for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
+	for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
 	{
 		if (m_vkSwapchainViews[i] != VK_NULL_HANDLE)
 		{
