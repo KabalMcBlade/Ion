@@ -47,7 +47,8 @@ public:
     void    Draw(const DrawSurface& _surface);
 
     // DEBUG
-    void    DrawTriangle();
+    void    DebugDrawTriangle1();
+    void    DebugDrawTriangle2(const DrawSurface& _surface);
     // DEBUG
 
     VkDevice& GetDevice() { return m_vkDevice; }

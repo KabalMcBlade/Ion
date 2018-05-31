@@ -1493,6 +1493,8 @@ void RenderCore::EndFrame()
     VkResult result = vkEndCommandBuffer(commandBuffer);
     ionAssertReturnVoid(result == VK_SUCCESS, "vkEndCommandBuffer failed!");
 
+    ionShaderProgramManager().EndFrame();
+
     VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
     VkSubmitInfo submitInfo = {};
@@ -1743,7 +1745,6 @@ void RenderCore::Draw(const DrawSurface& _surface)
 
     ionSize indexOffset = 0;
     ionSize vertexOffset = 0;
-    ionBool a = false;
     IndexBuffer indexBuffer;
     if (ionVertexCacheManager().GetIndexBuffer(_surface.m_indexCache, &indexBuffer))
     {
@@ -1767,15 +1768,39 @@ void RenderCore::Draw(const DrawSurface& _surface)
     //vkCmdDrawIndexed(commandBuffer, static_cast<ionU32>(_surface.m_indexCount), 1, 0, 0, 0);
 }
 
-void RenderCore::DrawTriangle()
+void RenderCore::DebugDrawTriangle1()
 {
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
 
-    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("BaseTriangle", EVertexLayout_Empty, 0, 1);
+    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("BaseTriangle1", EVertexLayout_Empty, 0, 1);
     ionShaderProgramManager().BindProgram(shaderProgramIndex);
     ionShaderProgramManager().CommitCurrent(*this, m_stateBits, commandBuffer);
 
     vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+}
+
+void RenderCore::DebugDrawTriangle2(const DrawSurface& _surface)
+{
+    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
+
+
+    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("BaseTriangle2", EVertexLayout_Vertices_Plain_Color, 0, 1);
+    ionShaderProgramManager().BindProgram(shaderProgramIndex);
+    ionShaderProgramManager().CommitCurrent(*this, m_stateBits, commandBuffer);
+
+    ionSize vertexSize = 0;
+    ionSize vertexOffset = 0;
+    VertexBuffer vertexBufer;
+    if (ionVertexCacheManager().GetVertexBuffer(_surface.m_vertexCache, &vertexBufer))
+    {
+        const VkBuffer buffer = vertexBufer.GetObject();
+        const VkDeviceSize offset = vertexBufer.GetOffset();
+        vertexSize = vertexBufer.GetSize();
+        vertexOffset = offset;
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, &buffer, &offset);
+    }
+
+    vkCmdDraw(commandBuffer, static_cast<ionU32>(vertexSize), 1, 0, 0);
 }
 
 ION_NAMESPACE_END

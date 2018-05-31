@@ -23,8 +23,6 @@ VertexCacheManager::~VertexCacheManager()
 ionBool VertexCacheManager::Init(const VkDevice& _device, VkDeviceSize _uniformBufferOffsetAlignment)
 {
     m_device = _device;
-    m_currentFrame = 0;
-    m_listNum = 0;
 
     m_uniformBufferOffsetAlignment = _uniformBufferOffsetAlignment;
 
@@ -32,14 +30,10 @@ ionBool VertexCacheManager::Init(const VkDevice& _device, VkDeviceSize _uniformB
     m_mostUsedIndex = 0;
     m_mostUsedJoint = 0;
 
-    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
-    {
-        Alloc(m_frameData[i], ION_VERTCACHE_VERTEX_MEMORY_PER_FRAME, ION_VERTCACHE_INDEX_MEMORY_PER_FRAME, ION_VERTCACHE_JOINT_MEMORY_PER_FRAME, EBufferUsage_Dynamic);
-    }
-
+    Alloc(m_frameData, ION_VERTCACHE_VERTEX_MEMORY_PER_FRAME, ION_VERTCACHE_INDEX_MEMORY_PER_FRAME, ION_VERTCACHE_JOINT_MEMORY_PER_FRAME, EBufferUsage_Dynamic);
     Alloc(m_staticData, ION_STATIC_VERTEX_MEMORY, ION_STATIC_INDEX_MEMORY, 0, EBufferUsage_Static);
 
-    MapGeometryBufferSet(m_frameData[m_listNum]);
+    //MapGeometryBufferSet(m_frameData);
 
     return true;
 }
@@ -50,12 +44,10 @@ void VertexCacheManager::Shutdown()
     m_staticData.m_indexBuffer.Free();
     m_staticData.m_jointBuffer.Free();
 
-    for (ionU32 i = 0; i < ION_FRAME_DATA_COUNT; ++i)
-    {
-        m_frameData[i].m_vertexBuffer.Free();
-        m_frameData[i].m_indexBuffer.Free();
-        m_frameData[i].m_jointBuffer.Free();
-    }
+
+    m_frameData.m_vertexBuffer.Free();
+    m_frameData.m_indexBuffer.Free();
+    m_frameData.m_jointBuffer.Free();
 }
 
 void VertexCacheManager::Create()
@@ -236,7 +228,7 @@ VertexCacheHandler VertexCacheManager::Alloc(GeometryBufferSet& _buffer, const v
 
     ++_buffer.m_allocations;
 
-    VertexCacheHandler handler = ((ionU64)(m_currentFrame & ION_VERTCACHE_FRAME_MASK) << ION_VERTCACHE_FRAME_SHIFT) | ((ionU64)(offset & ION_VERTCACHE_OFFSET_MASK) << ION_VERTCACHE_OFFSET_SHIFT) | ((ionU64)(_bytes & ION_VERTCACHE_SIZE_MASK) << ION_VERTCACHE_SIZE_SHIFT);
+    VertexCacheHandler handler = ((ionU64)(offset & ION_VERTCACHE_OFFSET_MASK) << ION_VERTCACHE_OFFSET_SHIFT) | ((ionU64)(_bytes & ION_VERTCACHE_SIZE_MASK) << ION_VERTCACHE_SIZE_SHIFT);
     if (&_buffer == &m_staticData) 
     {
         handler |= ION_VERTCACHE_STATIC;
@@ -250,7 +242,7 @@ VertexCacheHandler VertexCacheManager::AllocVertex(const void* _data, ionSize _n
     eosSize uiMask = ION_VERTEX_CACHE_ALIGN - 1;
     eosSize uiSize = ((_num * _size) + uiMask) & ~uiMask;
 
-    return Alloc(m_frameData[m_listNum], _data, uiSize, ECacheType_Vertex);
+    return Alloc(m_frameData, _data, uiSize, ECacheType_Vertex);
 }
 
 VertexCacheHandler VertexCacheManager::AllocIndex(const void* _data, ionSize _num, ionSize _size /*= sizeof(Index)*/)
@@ -258,7 +250,7 @@ VertexCacheHandler VertexCacheManager::AllocIndex(const void* _data, ionSize _nu
     eosSize uiMask = ION_INDEX_CACHE_ALIGN - 1;
     eosSize uiSize = ((_num * _size) + uiMask) & ~uiMask;
 
-    return Alloc(m_frameData[m_listNum], _data, uiSize, ECacheType_Index);
+    return Alloc(m_frameData, _data, uiSize, ECacheType_Index);
 }
 
 VertexCacheHandler VertexCacheManager::AllocJoint(const void* _data, ionSize _num, ionSize _size /*= sizeof(Matrix)*/)
@@ -266,7 +258,7 @@ VertexCacheHandler VertexCacheManager::AllocJoint(const void* _data, ionSize _nu
     eosSize uiMask = m_uniformBufferOffsetAlignment - 1;
     eosSize uiSize = ((_num * _size) + uiMask) & ~uiMask;
 
-    return Alloc(m_frameData[m_listNum], _data, uiSize, ECacheType_Joint);
+    return Alloc(m_frameData, _data, uiSize, ECacheType_Joint);
 }
 
 VertexCacheHandler VertexCacheManager::AllocStaticVertex(const void* _data, ionSize _bytes)
@@ -285,33 +277,14 @@ ionU8* VertexCacheManager::MappedVertexBuffer(VertexCacheHandler _handler)
 {
     ionAssertReturnValue(!CacheIsStatic(_handler), "Cache is static!", nullptr);
     const ionU64 offset = (ionS32)(_handler >> ION_VERTCACHE_OFFSET_SHIFT) & ION_VERTCACHE_OFFSET_MASK;
-    const ionU64 frameNum = (ionS32)(_handler >> ION_VERTCACHE_FRAME_SHIFT) & ION_VERTCACHE_FRAME_MASK;
-    ionAssertReturnValue(frameNum == (m_currentFrame & ION_VERTCACHE_FRAME_MASK), "Wrong frame number", nullptr);
-    return m_frameData[m_listNum].m_mappedVertexBase + offset;
+    return m_frameData.m_mappedVertexBase + offset;
 }
 
 ionU8* VertexCacheManager::MappedIndexBuffer(VertexCacheHandler _handler)
 {
     ionAssertReturnValue(!CacheIsStatic(_handler), "Cache is static!", nullptr);
     const ionU64 offset = (ionS32)(_handler >> ION_VERTCACHE_OFFSET_SHIFT) & ION_VERTCACHE_OFFSET_MASK;
-    const ionU64 frameNum = (ionS32)(_handler >> ION_VERTCACHE_FRAME_SHIFT) & ION_VERTCACHE_FRAME_MASK;
-    ionAssertReturnValue(frameNum == (m_currentFrame & ION_VERTCACHE_FRAME_MASK), "Wrong frame number", nullptr);
-    return m_frameData[m_listNum].m_mappedIndexBase + offset;
-}
-
-ionBool VertexCacheManager::CacheIsCurrent(VertexCacheHandler _handler)
-{
-    const ionS32 isStatic = _handler & ION_VERTCACHE_STATIC;
-    if (isStatic) 
-    {
-        return true;
-    }
-    const ionU64 frameNum = (ionS32)(_handler >> ION_VERTCACHE_FRAME_SHIFT) & ION_VERTCACHE_FRAME_MASK;
-    if (frameNum != (m_currentFrame & ION_VERTCACHE_FRAME_MASK)) 
-    {
-        return false;
-    }
-    return true;
+    return m_frameData.m_mappedIndexBase + offset;
 }
 
 ionBool VertexCacheManager::GetVertexBuffer(VertexCacheHandler _handler, VertexBuffer* _vb)
@@ -319,7 +292,6 @@ ionBool VertexCacheManager::GetVertexBuffer(VertexCacheHandler _handler, VertexB
     const ionS32 isStatic = _handler & ION_VERTCACHE_STATIC;
     const ionU64 size = (ionS32)(_handler >> ION_VERTCACHE_SIZE_SHIFT) & ION_VERTCACHE_SIZE_MASK;
     const ionU64 offset = (ionS32)(_handler >> ION_VERTCACHE_OFFSET_SHIFT) & ION_VERTCACHE_OFFSET_MASK;
-    const ionU64 frameNum = (ionS32)(_handler >> ION_VERTCACHE_FRAME_SHIFT) & ION_VERTCACHE_FRAME_MASK;
 
     if (isStatic) 
     {
@@ -327,12 +299,7 @@ ionBool VertexCacheManager::GetVertexBuffer(VertexCacheHandler _handler, VertexB
         return true;
     }
 
-    if (frameNum != ((m_currentFrame - 1) & ION_VERTCACHE_FRAME_MASK))
-    {
-        return false;
-    }
-
-    _vb->ReferenceTo(m_frameData[m_drawListNum].m_vertexBuffer, offset, size);
+    _vb->ReferenceTo(m_frameData.m_vertexBuffer, offset, size);
     return true;
 }
 
@@ -341,20 +308,13 @@ ionBool VertexCacheManager::GetIndexBuffer(VertexCacheHandler _handler, IndexBuf
     const ionS32 isStatic = _handler & ION_VERTCACHE_STATIC;
     const ionU64 size = (ionS32)(_handler >> ION_VERTCACHE_SIZE_SHIFT) & ION_VERTCACHE_SIZE_MASK;
     const ionU64 offset = (ionS32)(_handler >> ION_VERTCACHE_OFFSET_SHIFT) & ION_VERTCACHE_OFFSET_MASK;
-    const ionU64 frameNum = (ionS32)(_handler >> ION_VERTCACHE_FRAME_SHIFT) & ION_VERTCACHE_FRAME_MASK;
 
     if (isStatic)
     {
         _ib->ReferenceTo(m_staticData.m_indexBuffer, offset, size);
         return true;
     }
-
-    if (frameNum != ((m_currentFrame - 1) & ION_VERTCACHE_FRAME_MASK))
-    {
-        return false;
-    }
-
-    _ib->ReferenceTo(m_frameData[m_drawListNum].m_indexBuffer, offset, size);
+    _ib->ReferenceTo(m_frameData.m_indexBuffer, offset, size);
     return true;
 }
 
@@ -363,7 +323,6 @@ ionBool VertexCacheManager::GetJointBuffer(VertexCacheHandler _handler, UniformB
     const ionS32 isStatic = _handler & ION_VERTCACHE_STATIC;
     const ionU64 size = (ionS32)(_handler >> ION_VERTCACHE_SIZE_SHIFT) & ION_VERTCACHE_SIZE_MASK;
     const ionU64 offset = (ionS32)(_handler >> ION_VERTCACHE_OFFSET_SHIFT) & ION_VERTCACHE_OFFSET_MASK;
-    const ionU64 frameNum = (ionS32)(_handler >> ION_VERTCACHE_FRAME_SHIFT) & ION_VERTCACHE_FRAME_MASK;
 
     if (isStatic)
     {
@@ -371,35 +330,26 @@ ionBool VertexCacheManager::GetJointBuffer(VertexCacheHandler _handler, UniformB
         return true;
     }
 
-    if (frameNum != ((m_currentFrame - 1) & ION_VERTCACHE_FRAME_MASK))
-    {
-        return false;
-    }
-
-    _jb->ReferenceTo(m_frameData[m_drawListNum].m_jointBuffer, offset, size);
+    _jb->ReferenceTo(m_frameData.m_jointBuffer, offset, size);
     return true;
 }
 
 
-void VertexCacheManager::BeginFrame()
+void VertexCacheManager::BeginMapping()
 {
-    m_mostUsedVertex = std::max(m_mostUsedVertex, m_frameData[m_listNum].m_vertexMemUsed.load());
-    m_mostUsedIndex = std::max(m_mostUsedIndex, m_frameData[m_listNum].m_indexMemUsed.load());
-    m_mostUsedJoint = std::max(m_mostUsedJoint, m_frameData[m_listNum].m_jointMemUsed.load());
+    MapGeometryBufferSet(m_frameData);
+    ClearGeometryBufferSet(m_frameData);
+}
+
+void VertexCacheManager::EndMapping()
+{
+    m_mostUsedVertex = std::max(m_mostUsedVertex, m_frameData.m_vertexMemUsed.load());
+    m_mostUsedIndex = std::max(m_mostUsedIndex, m_frameData.m_indexMemUsed.load());
+    m_mostUsedJoint = std::max(m_mostUsedJoint, m_frameData.m_jointMemUsed.load());
 
     // unmap the current frame so the GPU can read it
-    UnmapGeometryBufferSet(m_frameData[m_listNum]);
+    UnmapGeometryBufferSet(m_frameData);
     UnmapGeometryBufferSet(m_staticData);
-
-    m_drawListNum = m_listNum;
-
-    // prepare the next frame for writing to by the CPU
-    ++m_currentFrame;
-
-    m_listNum = m_currentFrame % ION_FRAME_DATA_COUNT;
-    MapGeometryBufferSet(m_frameData[m_listNum]);
-
-    ClearGeometryBufferSet(m_frameData[m_listNum]);
 }
 
 

@@ -59,6 +59,7 @@ public:
     ionS32	FindShader(const eosString& _name, EShaderStage _stage, const ShaderLayoutDef& _defines);
 
     void	StartFrame();
+    void	EndFrame();
     void	BindProgram(ionS32 _index);
     void	CommitCurrent(const RenderCore& _render, ionU64 _stateBits, VkCommandBuffer _commandBuffer);
     ionS32	FindProgram(const eosString& _name, EVertexLayout _vertexLayout, ionS32 _vertexIndex, ionS32 _fragmentIndex = -1, ionS32 _tessellationControlIndex = -1, ionS32 _tessellationEvaluationIndex = -1, ionS32 _geometryIndex = -1, ionBool _useJoint = false, ionBool _useSkinning = false);
@@ -85,15 +86,14 @@ private:
     eosMap(ionSize, Vector) m_uniformsVector; // is a map where the key is the hash of the name of the uniform in the shader and the value the vector associated
 	eosMap(ionSize, Matrix) m_uniformsMatrix;
 
-    ionS32				m_counter;
-    ionS32				m_currentData;
-    ionS32				m_currentDescSet;
-    ionSize				m_currentParmBufferOffset;
-    VkDescriptorPool	m_descriptorPools[ION_FRAME_DATA_COUNT];
-    VkDescriptorSet		m_descriptorSets[ION_FRAME_DATA_COUNT][ION_MAX_DESCRIPTOR_SETS];
+    ionS32				    m_currentDescSet;
+    ionSize				    m_currentParmBufferOffset;
+    VkDescriptorPool	    m_descriptorPool;
+    VkDescriptorSet		    m_descriptorSets[ION_MAX_DESCRIPTOR_SETS];
 
-    UniformBuffer*	    m_skinningUniformBuffer;
-    UniformBuffer*	    m_parmBuffers[ION_FRAME_DATA_COUNT];
+    UniformBuffer*	        m_skinningUniformBuffer;
+    UniformBuffer*	        m_parmBufferVector;
+    UniformBuffer*	        m_parmBufferMatrix;
 
 private:
     static ShaderProgramManager *s_instance;

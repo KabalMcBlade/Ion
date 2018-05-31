@@ -187,10 +187,22 @@ int main()
     test->GetTransformHandle()->SetScale(10.0f);
 
     //
+    /*
     ShaderLayoutDef vertexLayout;
     ShaderLayoutDef fragmentLayout;
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle", EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle", EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle1", EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle1", EShaderStage_Fragment, fragmentLayout);
+    */
+
+    //
+    //layout(location = 0) in vec4 inPosition;
+    //layout(location = 1) in vec4 inColor;
+    ShaderLayoutDef vertexLayout;
+    ShaderLayoutDef fragmentLayout;
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle2", EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle2", EShaderStage_Fragment, fragmentLayout);
+
+
 
     //
     camera->AttachToParent(*root);

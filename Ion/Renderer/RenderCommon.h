@@ -72,6 +72,7 @@ enum EVertexLayout
     EVertexLayout_Unknow = -1,
     EVertexLayout_Vertices,
     EVertexLayout_Vertices_Simple,
+    EVertexLayout_Vertices_Plain_Color,
     EVertexLayout_Vertices_Plain,
     EVertexLayout_Empty,
     EVertexLayout_Count
@@ -539,6 +540,73 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct SimpleVertex
         const Vector bUVUV = _b.GetTexCoordUVUV();
         const Vector lerpUV = VectorHelper::Lerp(aUVUV, bUVUV, t);
         SetTexCoordUV(VectorHelper::ExtractElement_0(lerpUV), VectorHelper::ExtractElement_1(lerpUV));
+    }
+};
+
+
+
+//////////////////////////////////////////////////////////////////////////
+
+// 20 bytes == 32
+ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorVertex
+{
+    Vector				m_position;		        // 16 bytes
+    ionU8				m_color[4];		        // 4 bytes
+
+    PlainColorVertex()
+    {
+        Clear();
+    }
+
+    ION_INLINE void Clear()
+    {
+        m_position = VectorHelper::GetZero();
+        *reinterpret_cast<ionU64*>(this->m_color) = 0;
+    }
+
+    ION_INLINE Vector GetPosition() const
+    {
+        return m_position;
+    }
+
+    ION_INLINE Vector GetColorV() const
+    {
+        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_color[0]), ION_VERTEX_BYTE_TO_FLOAT(m_color[1]), ION_VERTEX_BYTE_TO_FLOAT(m_color[2]), ION_VERTEX_BYTE_TO_FLOAT(m_color[3]));
+        v.Normalize();
+        return v;
+    }
+
+    ION_INLINE ionU64 GetColor() const
+    {
+        *reinterpret_cast<const ionU64*>(this->m_color);
+    }
+
+
+    ION_INLINE void SetPosition(const Vector& _position)
+    {
+        m_position = _position;
+    }
+
+    ION_INLINE void SetColor(ionU64 _color)
+    {
+        *reinterpret_cast<ionU64*>(this->m_color) = _color;
+    }
+
+    ION_INLINE void SetColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
+    {
+        MathHelper::VectorToByte(_r, _g, _b, _a, m_color);
+    }
+
+    ION_INLINE void SetColor(const Vector& _color)
+    {
+        MathHelper::VectorToByte(_color, m_color);
+    }
+
+    ION_INLINE void Lerp(const Vertex& _a, const Vertex& _b, const ionFloat _t)
+    {
+        const Vector t(_t);
+
+        m_position = VectorHelper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
     }
 };
 

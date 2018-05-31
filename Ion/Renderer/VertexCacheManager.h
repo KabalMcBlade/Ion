@@ -30,8 +30,6 @@
 #define ION_VERTCACHE_SIZE_MASK     0x7fffff		// 8 megs 
 #define ION_VERTCACHE_OFFSET_SHIFT  24
 #define ION_VERTCACHE_OFFSET_MASK   0x1ffffff	// 32 megs 
-#define ION_VERTCACHE_FRAME_SHIFT   49
-#define ION_VERTCACHE_FRAME_MASK    0x7fff		// 15 bits = 32k frames to wrap around
 
 #define ION_VERTEX_CACHE_ALIGN      32
 #define ION_INDEX_CACHE_ALIGN       16
@@ -79,14 +77,10 @@ public:
     ionBool Init(const VkDevice& _device, VkDeviceSize _uniformBufferOffsetAlignment);
     void    Shutdown();
 
-    ionS32 GetCurrentFrame()    { return m_currentFrame; }
-    ionS32 GetFrameListCount()  { return m_listNum; }
-    ionS32 GetDrawListCount()   { return m_drawListNum; }
     VkDeviceSize GetUniformBufferOffsetAlignment()   { return m_uniformBufferOffsetAlignment; }
 
     const GeometryBufferSet& GetStaticData() const { return m_staticData; }
-    const GeometryBufferSet& GetFrameData(ionU32 _frame) const { return m_frameData[_frame % ION_FRAME_DATA_COUNT]; }
-    const GeometryBufferSet* GetFrameData() const { return m_frameData; }
+    const GeometryBufferSet& GetFrameData() const { return m_frameData; }
 
     // purge everything
     void PurgeAll();
@@ -106,10 +100,6 @@ public:
     ionU8* MappedVertexBuffer(VertexCacheHandler _handler);
     ionU8* MappedIndexBuffer(VertexCacheHandler _handler);
 
-    // Returns false if it's been purged
-    // This can only be called by the front end, the back end should only be looking at
-    // VertexCacheHandler that are already validated.
-    ionBool			CacheIsCurrent(const VertexCacheHandler _handler);
     static ionBool	CacheIsStatic(const VertexCacheHandler _handler) { return (_handler & ION_VERTCACHE_STATIC) != 0; }
 
     // vb/ib is a temporary reference -- don't store it
@@ -117,7 +107,8 @@ public:
     ionBool			GetIndexBuffer(VertexCacheHandler _handler, IndexBuffer* _ib);
     ionBool			GetJointBuffer(VertexCacheHandler _handler, UniformBuffer* _jb);
 
-    void			BeginFrame();
+    void			BeginMapping();
+    void			EndMapping();
 
 public:
     VertexCacheManager();
@@ -135,9 +126,6 @@ private:
     void UnmapGeometryBufferSet(GeometryBufferSet& _buffer);
 
 private:
-    ionS32				m_currentFrame;	// for determining the active buffers
-    ionS32				m_listNum;		// currentFrame % NUM_FRAME_DATA
-    ionS32				m_drawListNum;	// (currentFrame-1) % NUM_FRAME_DATA
     VkDeviceSize		m_uniformBufferOffsetAlignment;
 
     // High water marks for the per-frame buffers
@@ -147,7 +135,7 @@ private:
 
     VkDevice            m_device;
     GeometryBufferSet	m_staticData;
-    GeometryBufferSet	m_frameData[ION_FRAME_DATA_COUNT];
+    GeometryBufferSet	m_frameData;
 
 private:
     static VertexCacheManager *s_instance;

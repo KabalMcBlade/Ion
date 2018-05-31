@@ -91,7 +91,6 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
-        locationOffset += sizeof(Vertex::m_color2); // UNUSED because anything next! I keep it just to check at runtime!  
     }
 
     {
@@ -125,9 +124,34 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
-        locationOffset += sizeof(SimpleVertex::m_normal);         // UNUSED because anything next! I keep it just to check at runtime!  
     }
 
+
+    {
+        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Vertices_Plain_Color];
+
+        vertexLayout.m_inputState = createInfo;
+
+        ionU32 locationIndex = 0;
+        ionU32 locationOffset = 0;
+
+        binding.stride = sizeof(PlainColorVertex);
+        binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+        vertexLayout.m_bindinggDescription.push_back(binding);
+
+        // Position
+        attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+        attribute.location = locationIndex++;
+        attribute.offset = locationOffset;
+        vertexLayout.m_attributegDescription.push_back(attribute);
+        locationOffset += sizeof(PlainColorVertex::m_position);
+
+        // Color
+        attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
+        attribute.location = locationIndex++;
+        attribute.offset = locationOffset;
+        vertexLayout.m_attributegDescription.push_back(attribute);
+    }
 
     {
         ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Vertices_Plain];
@@ -151,7 +175,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
     }
 }
 
-void ShaderProgramHelper::CreateDescriptorPools(const VkDevice& _device, VkDescriptorPool(& _pools)[ION_FRAME_DATA_COUNT])
+void ShaderProgramHelper::CreateDescriptorPools(const VkDevice& _device, VkDescriptorPool& _pool)
 {
     const ionU32 poolCount = 2;
     VkDescriptorPoolSize poolSizes[poolCount];
@@ -167,11 +191,8 @@ void ShaderProgramHelper::CreateDescriptorPools(const VkDevice& _device, VkDescr
     createInfo.poolSizeCount = poolCount;
     createInfo.pPoolSizes = poolSizes;
 
-    for (ionSize i = 0; i < ION_FRAME_DATA_COUNT; ++i)
-    {
-        VkResult result = vkCreateDescriptorPool(_device, &createInfo, vkMemory, &_pools[i]);
-        ionAssertReturnVoid(result == VK_SUCCESS, "vkCreateDescriptorPool cannot create descriptor pool!");
-    }
+    VkResult result = vkCreateDescriptorPool(_device, &createInfo, vkMemory, &_pool);
+    ionAssertReturnVoid(result == VK_SUCCESS, "vkCreateDescriptorPool cannot create descriptor pool!");
 }
 
 VkDescriptorType ShaderProgramHelper::GetDescriptorType(EShaderBinding _type)

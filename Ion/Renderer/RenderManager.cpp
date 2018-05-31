@@ -149,6 +149,7 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrix();
         //const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrixInverse();
 
+        /*
         // not aligned... just to test
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
@@ -169,6 +170,26 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetVertexBuffer(0, 0), m_entityNodes[i]->GetVertexBufferSize(0, 0));
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetIndexBuffer(0, 0), m_entityNodes[i]->GetIndexBufferSize(0, 0));
         m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMaterial(0, 0);
+        */
+
+        //////////////////////////////////////////////////////////////////////////
+        // TEST FOR DebugDrawTriangle2
+        //m_drawSurfaces[i].m_position = { 0.0f, -0.5f, 0.0f, 1.0f };
+
+        eosVector(PlainColorVertex) vertices;
+        vertices.resize(3);
+
+        Vector positions[3] = { Vector(0.0f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
+        
+        vertices[0].SetPosition(positions[0]);
+        vertices[1].SetPosition(positions[1]);
+        vertices[2].SetPosition(positions[2]);
+
+        vertices[0].SetColor(1.0f, 0.0f, 0.0f, 1.0f);
+        vertices[1].SetColor(0.0f, 1.0f, 0.0f, 1.0f);
+        vertices[2].SetColor(0.0f, 0.0f, 1.0f, 1.0f);
+
+        m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(vertices.data(), vertices.size());
     }
 
 }
@@ -188,7 +209,9 @@ void RenderManager::Update()
     const Matrix& projection = m_mainCamera->GetPerspectiveProjection();
     const Matrix& view = m_mainCamera->GetView();
      
-    //UpdateDrawSurface(projection, view, m_nodeCount);
+    ionVertexCacheManager().BeginMapping();
+    UpdateDrawSurface(projection, view, m_nodeCount);
+    ionVertexCacheManager().EndMapping();
 }
 
 void RenderManager::Frame()
@@ -206,7 +229,8 @@ void RenderManager::Frame()
         m_renderCore.SetState(ECullingMode_Front);
         m_renderCore.SetClear(true, true, true, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 0.0f, 0.0f, 0.0f);
         
-        m_renderCore.DrawTriangle();
+        //m_renderCore.DebugDrawTriangle1();
+        m_renderCore.DebugDrawTriangle2(m_drawSurfaces[0]);
 
         /*
         for (ionSize i = 0; i < m_nodeCount; ++i)
