@@ -184,7 +184,6 @@ int main()
     EntityHandle test(pTest);
     test->GetTransformHandle()->SetPosition(entityPos);
     test->GetTransformHandle()->SetRotation(entityRot);
-    test->GetTransformHandle()->SetScale(10.0f);
 
     //
     /*

@@ -135,8 +135,8 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         // here we need to update the entity position
 
         //
-        static const Vector up(0.0f, 1.0f, 0.0f, 1.0f);
-        m_entityNodes[i]->GetTransformHandle()->SetRotation(m_time * NIX_DEG_TO_RAD(90.0f), up);
+        static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
+        m_entityNodes[i]->GetTransformHandle()->SetRotation(m_time * NIX_DEG_TO_RAD(90.0f), axis);
 
         m_entityNodes[i]->GetTransformHandle()->UpdateTransform();
         //m_entityNodes[i]->GetTransformHandle()->UpdateTransformInverse();
@@ -249,6 +249,8 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[4], _projection[1]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[8], _projection[2]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[12], _projection[3]);
+
+        //m_drawSurfaces[i].m_projectionMatrix[5] *= -1.0f;
 
         m_drawSurfaces[i].m_indexCount = 6;
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(vertices.data(), vertices.size());
