@@ -1803,4 +1803,35 @@ void RenderCore::DebugDrawTriangle2(const DrawSurface& _surface)
     vkCmdDraw(commandBuffer, static_cast<ionU32>(vertexSize), 1, 0, 0);
 }
 
+void RenderCore::DebugDrawQuad(const DrawSurface& _surface)
+{
+    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
+
+    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("BaseTriangle2", EVertexLayout_Vertices_Plain_Color, 0, 1);
+    ionShaderProgramManager().BindProgram(shaderProgramIndex);
+    ionShaderProgramManager().CommitCurrent(*this, m_stateBits, commandBuffer);
+
+    ionSize indexOffset = 0;
+    ionSize vertexOffset = 0;
+    IndexBuffer indexBuffer;
+    if (ionVertexCacheManager().GetIndexBuffer(_surface.m_indexCache, &indexBuffer))
+    {
+        const VkBuffer buffer = indexBuffer.GetObject();
+        const VkDeviceSize offset = indexBuffer.GetOffset();
+        indexOffset = offset;
+        vkCmdBindIndexBuffer(commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT32);
+    }
+
+    VertexBuffer vertexBufer;
+    if (ionVertexCacheManager().GetVertexBuffer(_surface.m_vertexCache, &vertexBufer))
+    {
+        const VkBuffer buffer = vertexBufer.GetObject();
+        const VkDeviceSize offset = vertexBufer.GetOffset();
+        vertexOffset = offset;
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, &buffer, &offset);
+    }
+
+    vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, (indexOffset >> 1), vertexOffset / sizeof(Vertex), 0);
+}
+
 ION_NAMESPACE_END

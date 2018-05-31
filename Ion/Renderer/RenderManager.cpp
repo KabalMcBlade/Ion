@@ -117,18 +117,6 @@ void RenderManager::Resize()
 
 void RenderManager::Prepare()
 {    
-    /*
-    const ionSize nodeCount = m_entityNodes.size();
-    for (ionSize i = 0; i < nodeCount; ++i)
-    {
-        VertexCacheHandler vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetVertexBuffer(0, 0), m_entityNodes[i]->GetVertexBufferSize(0, 0));
-        VertexCacheHandler indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetIndexBuffer(0, 0), m_entityNodes[i]->GetIndexBufferSize(0, 0));
-
-        m_vertexCache.push_back(vertexCache);
-        m_indexCache.push_back(indexCache);
-    }
-    */
-
     //
     // Update entities
     m_nodeCount = m_entityNodes.size();
@@ -174,8 +162,7 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
 
         //////////////////////////////////////////////////////////////////////////
         // TEST FOR DebugDrawTriangle2
-        //m_drawSurfaces[i].m_position = { 0.0f, -0.5f, 0.0f, 1.0f };
-
+        /*
         eosVector(PlainColorVertex) vertices;
         vertices.resize(3);
 
@@ -190,6 +177,31 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         vertices[2].SetColor(0.0f, 0.0f, 1.0f, 1.0f);
 
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(vertices.data(), vertices.size());
+        */
+
+        //////////////////////////////////////////////////////////////////////////
+        // TEST FOR DebugDrawQuad
+        eosVector(PlainColorVertex) vertices;
+        eosVector(Index) indices;
+        vertices.resize(4);
+        indices.resize(6);
+        indices = { 0, 1, 2, 2, 3, 0 };
+
+        Vector positions[4] = { Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
+
+        vertices[0].SetPosition(positions[0]);
+        vertices[1].SetPosition(positions[1]);
+        vertices[2].SetPosition(positions[2]);
+        vertices[3].SetPosition(positions[3]);
+
+        vertices[0].SetColor(1.0f, 0.0f, 0.0f, 1.0f);
+        vertices[1].SetColor(0.0f, 1.0f, 0.0f, 1.0f);
+        vertices[2].SetColor(0.0f, 0.0f, 1.0f, 1.0f);
+        vertices[3].SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+        m_drawSurfaces[i].m_indexCount = 6;
+        m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(vertices.data(), vertices.size());
+        m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(indices.data(), indices.size());
     }
 
 }
@@ -216,9 +228,6 @@ void RenderManager::Update()
 
 void RenderManager::Frame()
 {
-    //ionVertexCacheManager().BeginFrame();
-
-    // Render here
     const ionU32 width = m_renderCore.GetWidth();
     const ionU32 height = m_renderCore.GetHeight();
 
@@ -230,7 +239,8 @@ void RenderManager::Frame()
         m_renderCore.SetClear(true, true, true, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 0.0f, 0.0f, 0.0f);
         
         //m_renderCore.DebugDrawTriangle1();
-        m_renderCore.DebugDrawTriangle2(m_drawSurfaces[0]);
+        //m_renderCore.DebugDrawTriangle2(m_drawSurfaces[0]);
+        m_renderCore.DebugDrawQuad(m_drawSurfaces[0]);
 
         /*
         for (ionSize i = 0; i < m_nodeCount; ++i)
