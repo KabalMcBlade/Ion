@@ -165,10 +165,10 @@ int main()
     vertexLayout.m_bindings.push_back(EShaderBinding_Uniform);
     vertexLayout.m_uniforms.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
     vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
+    vertexLayout.m_uniforms.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
     vertexLayout.m_uniforms.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
-	vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
-	vertexLayout.m_uniforms.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
-	vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
+    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
     ShaderLayoutDef fragmentLayout;
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Fragment, fragmentLayout);
@@ -195,14 +195,25 @@ int main()
     */
 
     //
-    //layout(location = 0) in vec4 inPosition;
-    //layout(location = 1) in vec4 inColor;
+    /*
     ShaderLayoutDef vertexLayout;
     ShaderLayoutDef fragmentLayout;
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle2", EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle2", EShaderStage_Fragment, fragmentLayout);
+    */
 
-
+    //
+    ShaderLayoutDef vertexLayout;
+    vertexLayout.m_bindings.push_back(EShaderBinding_Uniform);
+    vertexLayout.m_uniforms.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
+    vertexLayout.m_uniforms.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
+    vertexLayout.m_uniforms.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
+    ShaderLayoutDef fragmentLayout;
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle3", EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle3", EShaderStage_Fragment, fragmentLayout);
 
     //
     camera->AttachToParent(*root);

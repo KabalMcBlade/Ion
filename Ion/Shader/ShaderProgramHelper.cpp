@@ -222,7 +222,7 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
             binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
             for (ionSize i = 0; i < _vertexShader.m_bindings.size(); ++i)
             {
-                binding.binding = ++bindingId;
+                binding.binding = bindingId++;
                 binding.descriptorType = GetDescriptorType(_vertexShader.m_bindings[i]);
                 _shaderProgram.m_bindings.push_back(_vertexShader.m_bindings[i]);
 
@@ -236,7 +236,7 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
                 binding.stageFlags = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
                 for (ionSize i = 0; i < _tessellationControlShader.m_bindings.size(); ++i)
                 {
-                    binding.binding = ++bindingId;
+                    binding.binding = bindingId++;
                     binding.descriptorType = GetDescriptorType(_tessellationControlShader.m_bindings[i]);
                     _shaderProgram.m_bindings.push_back(_tessellationControlShader.m_bindings[i]);
 
@@ -251,7 +251,7 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
                 binding.stageFlags = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
                 for (ionSize i = 0; i < _tessellationEvaluatorShader.m_bindings.size(); ++i)
                 {
-                    binding.binding = ++bindingId;
+                    binding.binding = bindingId++;
                     binding.descriptorType = GetDescriptorType(_tessellationEvaluatorShader.m_bindings[i]);
                     _shaderProgram.m_bindings.push_back(_tessellationEvaluatorShader.m_bindings[i]);
 
@@ -266,7 +266,7 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
                 binding.stageFlags = VK_SHADER_STAGE_GEOMETRY_BIT;
                 for (ionSize i = 0; i < _geometryShader.m_bindings.size(); ++i)
                 {
-                    binding.binding = ++bindingId;
+                    binding.binding = bindingId++;
                     binding.descriptorType = GetDescriptorType(_geometryShader.m_bindings[i]);
                     _shaderProgram.m_bindings.push_back(_geometryShader.m_bindings[i]);
 

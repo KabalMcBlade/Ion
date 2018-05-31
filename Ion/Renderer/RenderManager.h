@@ -5,6 +5,7 @@
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
+#include "../Core/StandardIncludes.h"
 #include "../Core/CoreDefs.h"
 
 #include "RenderDefs.h"
@@ -60,6 +61,10 @@ private:
 
 private:
     RenderCore              m_renderCore;
+
+    ionFloat                m_time;
+    ionFloat                m_lastTime;
+    ionFloat                m_deltaTime;
 
     //////////////////////////////////////////////////////////////////////////
     // Should be inside a "scene graph" class or a "scene" class
