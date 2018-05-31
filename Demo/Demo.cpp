@@ -138,13 +138,13 @@ int main()
 
 
     //
-    Entity *pRoot = eosNew(Entity, EOS_MEMORY_ALIGNMENT_SIZE);
+    Entity *pRoot = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     EntityHandle root(pRoot);
     root->GetTransformHandle()->SetPosition(rootPos);
     root->GetTransformHandle()->SetRotation(rootRot);
 
     //
-    BaseCamera *pBaseCamera = eosNew(BaseCamera, EOS_MEMORY_ALIGNMENT_SIZE);
+    BaseCamera *pBaseCamera = eosNew(BaseCamera, ION_MEMORY_ALIGNMENT_SIZE);
     BaseCameraHandle camera(pBaseCamera);
     camera->SetCameraType(BaseCamera::ECameraType::ECameraType_FirstPerson);
     camera->SetPerspectiveProjection(90.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 100.0f);
@@ -153,7 +153,7 @@ int main()
 
     /*
     //
-    Entity *pTest = eosNew(Entity, EOS_MEMORY_ALIGNMENT_SIZE);
+    Entity *pTest = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     EntityHandle test(pTest);
     ionRenderManager().LoadModelFromFile(DEMO_MODEL_FILENAME, *test);
     test->GetTransformHandle()->SetPosition(entityPos);
@@ -180,7 +180,7 @@ int main()
     */
 
     //
-    Entity *pTest = eosNew(Entity, EOS_MEMORY_ALIGNMENT_SIZE);
+    Entity *pTest = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     EntityHandle test(pTest);
     test->GetTransformHandle()->SetPosition(entityPos);
     test->GetTransformHandle()->SetRotation(entityRot);

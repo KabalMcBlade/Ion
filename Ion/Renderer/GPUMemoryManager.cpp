@@ -23,7 +23,7 @@ void GPUMemoryManager::Create()
 {
     if (!s_instance)
     {
-        s_instance = eosNew(GPUMemoryManager, EOS_MEMORY_ALIGNMENT_SIZE);
+        s_instance = eosNew(GPUMemoryManager, ION_MEMORY_ALIGNMENT_SIZE);
     }
 }
 

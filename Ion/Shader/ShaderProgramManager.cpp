@@ -34,7 +34,7 @@ void ShaderProgramManager::Create()
 {
     if (!s_instance)
     {
-        s_instance = eosNew(ShaderProgramManager, EOS_MEMORY_ALIGNMENT_SIZE);
+        s_instance = eosNew(ShaderProgramManager, ION_MEMORY_ALIGNMENT_SIZE);
     }
 }
 
@@ -61,13 +61,13 @@ ionBool ShaderProgramManager::Init(VkDevice _vkDevice, const eosString& _shaderF
 
     ShaderProgramHelper::CreateDescriptorPools(m_vkDevice, m_descriptorPool);
 
-    m_parmBufferVector = eosNew(UniformBuffer, EOS_MEMORY_ALIGNMENT_SIZE);
+    m_parmBufferVector = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
     m_parmBufferVector->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS * sizeof(Vector), EBufferUsage_Dynamic);
 
-    m_parmBufferMatrix = eosNew(UniformBuffer, EOS_MEMORY_ALIGNMENT_SIZE);
+    m_parmBufferMatrix = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
     m_parmBufferMatrix->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS * sizeof(Matrix), EBufferUsage_Dynamic);
 
-    m_skinningUniformBuffer = eosNew(UniformBuffer, EOS_MEMORY_ALIGNMENT_SIZE);
+    m_skinningUniformBuffer = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
     m_skinningUniformBuffer->Alloc(m_vkDevice, nullptr, sizeof(Vector), EBufferUsage_Dynamic);
 
     return true;

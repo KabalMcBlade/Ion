@@ -24,7 +24,7 @@ void TextureManager::Create()
 {
     if (!s_instance)
     {
-        s_instance = eosNew(TextureManager, EOS_MEMORY_ALIGNMENT_SIZE);
+        s_instance = eosNew(TextureManager, ION_MEMORY_ALIGNMENT_SIZE);
     }
 }
 
@@ -206,7 +206,7 @@ Texture* TextureManager::CreateTexture(VkDevice _vkDevice, const eosString& _nam
     auto search = m_hashTexture.find(hash);
     ionAssert(!(search != m_hashTexture.end()), "An image with the same name has already added!");
 
-    Texture* texture = eosNew(Texture, EOS_MEMORY_ALIGNMENT_SIZE, _vkDevice, _name, _index);
+    Texture* texture = eosNew(Texture, ION_MEMORY_ALIGNMENT_SIZE, _vkDevice, _name, _index);
 
     m_hashTexture[hash] = texture;
 

@@ -4,11 +4,14 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.h>
 
+#include "../Dependencies/Nix/Nix/Nix.h"
 #include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
 #include "../Core/CoreDefs.h"
 
 
+// Actually I don't need this using, because I want to access just to the define in Architecture
+NIX_USING_NAMESPACE             
 VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
@@ -57,6 +60,67 @@ protected:
     VkBuffer			    m_object;
     vkGpuMemoryAllocation   m_allocation;
 };
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#if NIX_ARCH & NIX_ARCH_SSE2_FLAG
+
+ION_INLINE void CopyBuffer(ionU8* _dst, const ionU8* _src, ionS32 _size)
+{
+    ionAssertReturnVoid(ION_IS_ALIGNED(_dst, ION_MEMORY_ALIGNMENT_SIZE), "Buffer not aligned to 16");
+    ionAssertReturnVoid(ION_IS_ALIGNED(_src, ION_MEMORY_ALIGNMENT_SIZE), "Buffer not aligned to 16");
+
+
+    ionS32 i = 0;
+    for (; i + 128 <= _size; i += 128)
+    {
+        __nixInt4 d0 = _mm_load_si128((__nixInt4 *)&_src[i + 0 * 16]);
+        __nixInt4 d1 = _mm_load_si128((__nixInt4 *)&_src[i + 1 * 16]);
+        __nixInt4 d2 = _mm_load_si128((__nixInt4 *)&_src[i + 2 * 16]);
+        __nixInt4 d3 = _mm_load_si128((__nixInt4 *)&_src[i + 3 * 16]);
+        __nixInt4 d4 = _mm_load_si128((__nixInt4 *)&_src[i + 4 * 16]);
+        __nixInt4 d5 = _mm_load_si128((__nixInt4 *)&_src[i + 5 * 16]);
+        __nixInt4 d6 = _mm_load_si128((__nixInt4 *)&_src[i + 6 * 16]);
+        __nixInt4 d7 = _mm_load_si128((__nixInt4 *)&_src[i + 7 * 16]);
+        _mm_stream_si128((__nixInt4 *)&_dst[i + 0 * 16], d0);
+        _mm_stream_si128((__nixInt4 *)&_dst[i + 1 * 16], d1);
+        _mm_stream_si128((__nixInt4 *)&_dst[i + 2 * 16], d2);
+        _mm_stream_si128((__nixInt4 *)&_dst[i + 3 * 16], d3);
+        _mm_stream_si128((__nixInt4 *)&_dst[i + 4 * 16], d4);
+        _mm_stream_si128((__nixInt4 *)&_dst[i + 5 * 16], d5);
+        _mm_stream_si128((__nixInt4 *)&_dst[i + 6 * 16], d6);
+        _mm_stream_si128((__nixInt4 *)&_dst[i + 7 * 16], d7);
+    }
+    for (; i + 16 <= _size; i += 16) 
+    {
+        __nixInt4 d = _mm_load_si128((__nixInt4 *)&_src[i]);
+        _mm_stream_si128((__nixInt4 *)&_dst[i], d);
+    }
+    for (; i + 4 <= _size; i += 4)
+    {
+        *(ionU32 *)&_dst[i] = *(const ionU32 *)&_src[i];
+    }
+    for (; i < _size; i++)
+    {
+        _dst[i] = _src[i];
+    }
+    _mm_sfence();
+}
+
+#else
+
+ION_INLINE void CopyBuffer(ionU8* _dst, const ionU8* _src, ionS32 _size)
+{
+    ionAssertReturnVoid(ION_IS_ALIGNED(_dst, ION_MEMORY_ALIGNMENT_SIZE), "Buffer not aligned to 16");
+    ionAssertReturnVoid(ION_IS_ALIGNED(_src, ION_MEMORY_ALIGNMENT_SIZE), "Buffer not aligned to 16");
+    memcpy(_dst, _src, _size);
+}
+
+#endif
+
+
 
 
 ION_NAMESPACE_END

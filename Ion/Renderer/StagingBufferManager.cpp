@@ -145,7 +145,7 @@ void StagingBufferManager::Create()
 {
     if (!s_instance)
     {
-        s_instance = eosNew(StagingBufferManager, EOS_MEMORY_ALIGNMENT_SIZE);
+        s_instance = eosNew(StagingBufferManager, ION_MEMORY_ALIGNMENT_SIZE);
     }
 }
 

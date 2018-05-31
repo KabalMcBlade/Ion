@@ -17,7 +17,7 @@ void ShaderProgramHelper::Create()
 {
     if (!m_vertexLayouts)
     {
-        m_vertexLayouts = (ShaderVertexLayout*)eosNewRaw(sizeof(ShaderVertexLayout) * EVertexLayout_Count, EOS_MEMORY_ALIGNMENT_SIZE);
+        m_vertexLayouts = (ShaderVertexLayout*)eosNewRaw(sizeof(ShaderVertexLayout) * EVertexLayout_Count, ION_MEMORY_ALIGNMENT_SIZE);
     }
 }
 

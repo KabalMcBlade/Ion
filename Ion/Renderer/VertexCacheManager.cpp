@@ -54,7 +54,7 @@ void VertexCacheManager::Create()
 {
     if (!s_instance)
     {
-        s_instance = eosNew(VertexCacheManager, EOS_MEMORY_ALIGNMENT_SIZE);
+        s_instance = eosNew(VertexCacheManager, ION_MEMORY_ALIGNMENT_SIZE);
     }
 }
 

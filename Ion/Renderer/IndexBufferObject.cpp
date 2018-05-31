@@ -19,7 +19,7 @@ IndexBuffer::~IndexBuffer()
 ionBool IndexBuffer::Alloc(const VkDevice& _device, const void* _data, ionSize _allocSize, EBufferUsage _usage)
 {
     ionAssertReturnValue(m_object == VK_NULL_HANDLE, "Buffer already allocated", false);
-    ionAssertReturnValue(ION_IS_ALIGNED(_data, 16), "Buffer not aligned to 16", false);
+    ionAssertReturnValue(ION_IS_ALIGNED(_data, ION_MEMORY_ALIGNMENT_SIZE), "Buffer not aligned to 16", false);
     ionAssertReturnValue(_allocSize > 0, "Size must be greeter than 0", false);
 
     m_size = _allocSize;
@@ -132,24 +132,24 @@ void IndexBuffer::ReferenceTo(const IndexBuffer& _other, ionSize _refOffset, ion
 void IndexBuffer::Update(const void* _data, ionSize _size, ionSize _offset /*= 0*/) const
 {
     ionAssertReturnVoid(m_object != VK_NULL_HANDLE, "Buffer must be allocated");
-    ionAssertReturnVoid(ION_IS_ALIGNED(_data, 16), "Buffer not aligned to 16");
+    ionAssertReturnVoid(ION_IS_ALIGNED(_data, ION_MEMORY_ALIGNMENT_SIZE), "Buffer not aligned to 16");
     ionAssertReturnVoid((GetOffset() & 15) == 0, "Offset not aligned to 16");
     ionAssertReturnVoid(_size < GetSize(), "Size must be less of the total size than 0");
 
     if (m_usage == EBufferUsage_Dynamic)
     {
-        ionAssertReturnVoid(ION_IS_ALIGNED(m_allocation.m_mappedData + GetOffset() + _offset, 16), "Buffer not aligned to 16");
-        ionAssertReturnVoid(ION_IS_ALIGNED((const ionU8*)_data, 16), "Buffer not aligned to 16");
-        memcpy(m_allocation.m_mappedData + GetOffset() + _offset, (const ionU8*)_data, _size);
+        ionAssertReturnVoid(ION_IS_ALIGNED(m_allocation.m_mappedData + GetOffset() + _offset, ION_MEMORY_ALIGNMENT_SIZE), "Buffer not aligned to 16");
+        ionAssertReturnVoid(ION_IS_ALIGNED((const ionU8*)_data, ION_MEMORY_ALIGNMENT_SIZE), "Buffer not aligned to 16");
+        CopyBuffer(m_allocation.m_mappedData + GetOffset() + _offset, (const ionU8*)_data, _size);
     }
     else
     {
         VkBuffer stageBuffer;
         VkCommandBuffer commandBuffer;
         ionSize stageOffset = 0;
-        ionU8* stageData = ionStagingBufferManager().Stage(_size, EOS_MEMORY_ALIGNMENT_SIZE, commandBuffer, stageBuffer, stageOffset);
+        ionU8* stageData = ionStagingBufferManager().Stage(_size, ION_MEMORY_ALIGNMENT_SIZE, commandBuffer, stageBuffer, stageOffset);
 
-        memcpy(stageData, _data, _size);
+        CopyBuffer(stageData, (const ionU8*)_data, _size);
 
         VkBufferCopy bufferCopy = {};
         bufferCopy.srcOffset = stageOffset;

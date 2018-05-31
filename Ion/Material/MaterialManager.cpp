@@ -23,7 +23,7 @@ void MaterialManager::Create()
 {
     if (!s_instance)
     {
-        s_instance = eosNew(MaterialManager, EOS_MEMORY_ALIGNMENT_SIZE);
+        s_instance = eosNew(MaterialManager, ION_MEMORY_ALIGNMENT_SIZE);
     }
 }
 
@@ -137,7 +137,7 @@ Material* MaterialManager::InternalCreateMaterial(const eosString& _name, ionS32
     auto search = m_hashMaterial.find(hash);
     ionAssert(!(search != m_hashMaterial.end()), "A material with the same name has already added!");
 
-    Material* material = eosNew(Material, EOS_MEMORY_ALIGNMENT_SIZE, _name, _index);
+    Material* material = eosNew(Material, ION_MEMORY_ALIGNMENT_SIZE, _name, _index);
 
     m_hashMaterial[hash] = material;
 

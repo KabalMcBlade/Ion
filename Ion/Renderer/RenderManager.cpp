@@ -50,7 +50,7 @@ void RenderManager::Create()
 {
     if (!s_instance)
     {
-        s_instance = eosNew(RenderManager, EOS_MEMORY_ALIGNMENT_SIZE);
+        s_instance = eosNew(RenderManager, ION_MEMORY_ALIGNMENT_SIZE);
     }
 }
 

@@ -264,7 +264,7 @@ ionBool Texture::CreateFromBinary(ionU32 _width, ionU32 _height, ionU32 _numChan
     if (_numChannels == 3)
     {
         bufferSize = _width * _height * 4;
-        buffer = (ionU8*)eosNewRaw(sizeof(ionU8) * bufferSize, EOS_MEMORY_ALIGNMENT_SIZE);
+        buffer = (ionU8*)eosNewRaw(sizeof(ionU8) * bufferSize, ION_MEMORY_ALIGNMENT_SIZE);
         ionU8* rgba = buffer;
         ionU8* rgb = _buffer;
         for (ionSize i = 0; i < _width * _height; ++i)

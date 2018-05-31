@@ -9,7 +9,7 @@ ION_NAMESPACE_BEGIN
 
 ionU32 Node::g_nextValidNodeIndex = 0;
 
-Node::Node() : m_transform(eosNew(Transform, EOS_MEMORY_ALIGNMENT_SIZE))
+Node::Node() : m_transform(eosNew(Transform, ION_MEMORY_ALIGNMENT_SIZE))
 {
     m_nodeIndex = g_nextValidNodeIndex;
     ++g_nextValidNodeIndex;
@@ -18,7 +18,7 @@ Node::Node() : m_transform(eosNew(Transform, EOS_MEMORY_ALIGNMENT_SIZE))
     m_nodeType = ENodeType_EmptyNode;
 }
 
-Node::Node(const eosString & _name) : m_transform(eosNew(Transform, EOS_MEMORY_ALIGNMENT_SIZE))
+Node::Node(const eosString & _name) : m_transform(eosNew(Transform, ION_MEMORY_ALIGNMENT_SIZE))
 {
     m_nodeIndex = g_nextValidNodeIndex;
     ++g_nextValidNodeIndex;
