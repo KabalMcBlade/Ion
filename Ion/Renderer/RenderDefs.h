@@ -1,7 +1,6 @@
 #pragma once
 
 #define ION_FRAME_ALLOC_ALIGNMENT                   128
-#define ION_FRAME_DATA_COUNT                        1//2
 #define ION_RENDER_MAX_IMAGE_PARMS                  16
 #define ION_RENDER_QUERY_POOL                       16
 

@@ -60,12 +60,10 @@ private:
     VkQueue         m_vkGraphicsQueue;
     ionS32          m_vkGraphicsFamilyIndex;
     ionSize			m_maxBufferSize;
-    ionU32			m_currentBuffer;
     ionU8*			m_mappedData;
     VkDeviceMemory	m_vkMemory;
     VkCommandPool	m_vkCommandPool;
-
-    eosVector(StagingBuffer) m_buffers;
+    StagingBuffer   m_buffer;
 
     static StagingBufferManager *s_instance;
 };

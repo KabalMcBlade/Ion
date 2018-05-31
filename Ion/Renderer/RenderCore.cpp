@@ -127,7 +127,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags,
         prefix += "[DEBUG]";
     }
 
-    std::cerr << prefix << "[" << layerPrefix << "]:" << msg << std::endl;
+    std::cerr << prefix << "[" << layerPrefix << "] - " << msg << std::endl;
     return VK_FALSE;
 }
 
@@ -1422,7 +1422,7 @@ ionBool RenderCore::StartFrame()
     result = vkResetFences(m_vkDevice, 1, &m_vkCommandBufferFences[m_currentSwapIndex]);
     ionAssertReturnValue(result == VK_SUCCESS, "Reset fences failed!", false);
 
-    //ionStagingBufferManager().Submit();
+    ionStagingBufferManager().Submit();
     ionShaderProgramManager().StartFrame();
 	
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];

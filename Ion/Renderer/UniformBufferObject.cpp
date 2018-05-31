@@ -148,7 +148,7 @@ void UniformBuffer::Update(const void* _data, ionSize _size, ionSize _offset /*=
         VkBuffer stageBuffer;
         VkCommandBuffer commandBuffer;
         ionSize stageOffset = 0;
-        ionU8* stageData = ionStagingBufferManager().Stage(_size, 1, commandBuffer, stageBuffer, stageOffset);
+        ionU8* stageData = ionStagingBufferManager().Stage(_size, EOS_MEMORY_ALIGNMENT_SIZE, commandBuffer, stageBuffer, stageOffset);
 
         memcpy(stageData, _data, _size);
 
