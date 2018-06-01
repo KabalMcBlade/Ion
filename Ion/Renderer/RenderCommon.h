@@ -73,6 +73,7 @@ enum EVertexLayout
     EVertexLayout_Vertices,
     EVertexLayout_Vertices_Simple,
     EVertexLayout_Vertices_Plain_Color,
+    EVertexLayout_Vertices_Plain_Color_Texture,
     EVertexLayout_Vertices_Plain,
     EVertexLayout_Empty,
     EVertexLayout_Count
@@ -89,11 +90,11 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct ShaderVertexLayout
 
 //////////////////////////////////////////////////////////////////////////
 
-// 40 bytes aligned to 16 -> 48
+// 64 bytes aligned to 16 -> 64
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 {
-    Vector				m_position;		        // 16 bytes
-    ionFloat            m_textureCoordUV[2];    // 8 bytes
+    Vector				m_position;		        // 32 bytes
+    ionFloat            m_textureCoordUV[2];    // 16 bytes
     ionU8				m_normal[4];	        // 4 bytes
     ionU8				m_tangent[4];		    // 4 bytes
     ionU8				m_color1[4];		    // 4 bytes
@@ -424,11 +425,11 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
 //////////////////////////////////////////////////////////////////////////
 
-// 28 bytes aligned to 16 -> 32
+// 52 bytes aligned to 16 -> 64
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct SimpleVertex
 {
-    Vector				m_position;		        // 16 bytes
-    ionFloat            m_textureCoordUV[2];    // 8 bytes
+    Vector				m_position;		        // 32 bytes
+    ionFloat            m_textureCoordUV[2];    // 16 bytes
     ionU8				m_normal[4];	        // 4 bytes
  
     SimpleVertex()
@@ -547,10 +548,10 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct SimpleVertex
 
 //////////////////////////////////////////////////////////////////////////
 
-// 20 bytes == 32
+// 36 bytes aligned to 16 -> 64
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorVertex
 {
-    Vector				m_position;		        // 16 bytes
+    Vector				m_position;		        // 32 bytes
     ionU8				m_color[4];		        // 4 bytes
 
     PlainColorVertex()
@@ -611,12 +612,122 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorVertex
 };
 
 
+//////////////////////////////////////////////////////////////////////////
+
+// 52 bytes aligned to 16 -> 64
+ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorTextureVertex
+{
+    Vector				m_position;		        // 32 bytes
+    ionFloat            m_textureCoordUV[2];    // 16 bytes
+    ionU8				m_color[4];		        // 4 bytes
+
+    PlainColorTextureVertex()
+    {
+        Clear();
+    }
+
+    ION_INLINE void Clear()
+    {
+        m_position = VectorHelper::GetZero();
+        this->m_textureCoordUV[0] = 0.0f;
+        this->m_textureCoordUV[1] = 0.0f;
+        *reinterpret_cast<ionU64*>(this->m_color) = 0;
+    }
+
+    ION_INLINE Vector GetPosition() const
+    {
+        return m_position;
+    }
+
+    ION_INLINE Vector GetColorV() const
+    {
+        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_color[0]), ION_VERTEX_BYTE_TO_FLOAT(m_color[1]), ION_VERTEX_BYTE_TO_FLOAT(m_color[2]), ION_VERTEX_BYTE_TO_FLOAT(m_color[3]));
+        v.Normalize();
+        return v;
+    }
+
+    ION_INLINE ionU64 GetColor() const
+    {
+        *reinterpret_cast<const ionU64*>(this->m_color);
+    }
+
+    ION_INLINE Vector GetTexCoordUVUV() const
+    {
+        return Vector(m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[0], m_textureCoordUV[1]);
+    }
+
+    ION_INLINE Vector GetTexCoordUUVV() const
+    {
+        return Vector(m_textureCoordUV[0], m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[1]);
+    }
+
+    ION_INLINE Vector GetTexCoordVUVU() const
+    {
+        return Vector(m_textureCoordUV[1], m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[0]);
+    }
+
+    ION_INLINE ionFloat GetTexCoordU() const
+    {
+        return m_textureCoordUV[0];
+    }
+
+    ION_INLINE ionFloat GetTexCoordV() const
+    {
+        return m_textureCoordUV[1];
+    }
+
+    ION_INLINE void SetPosition(const Vector& _position)
+    {
+        m_position = _position;
+    }
+
+    ION_INLINE void SetColor(ionU64 _color)
+    {
+        *reinterpret_cast<ionU64*>(this->m_color) = _color;
+    }
+
+    ION_INLINE void SetColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
+    {
+        MathHelper::VectorToByte(_r, _g, _b, _a, m_color);
+    }
+
+    ION_INLINE void SetColor(const Vector& _color)
+    {
+        MathHelper::VectorToByte(_color, m_color);
+    }
+
+    ION_INLINE void SetTexCoordU(ionFloat _u)
+    {
+        m_textureCoordUV[0] = _u;
+    }
+
+    ION_INLINE void SetTexCoordV(ionFloat _v)
+    {
+        m_textureCoordUV[1] = _v;
+    }
+
+    ION_INLINE void SetTexCoordUV(ionFloat _u, ionFloat _v)
+    {
+        SetTexCoordU(_u);
+        SetTexCoordV(_v);
+    }
+
+    ION_INLINE void Lerp(const Vertex& _a, const Vertex& _b, const ionFloat _t)
+    {
+        const Vector t(_t);
+
+        m_position = VectorHelper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
+    }
+};
+
+
 
 //////////////////////////////////////////////////////////////////////////
 
+// 32 bytes aligned to 16 -> 32
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainVertex
 {
-    Vector				m_position;		        // 16 bytes
+    Vector				m_position;		        // 32 bytes
 
     PlainVertex()
     {

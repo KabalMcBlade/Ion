@@ -10,6 +10,9 @@
 
 #include "../Geometry/Mesh.h"
 
+#include "../Texture/TextureManager.h"
+
+
 
 //#define SHADOW_MAP_SIZE					1024
 
@@ -133,17 +136,12 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
     for (ionSize i = 0; i < _nodeCount; ++i)
     {
         //
-        // here we need to update the entity position
-
-        //
         static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
         m_entityNodes[i]->GetTransformHandle()->SetRotation(m_time * NIX_DEG_TO_RAD(90.0f), axis);
 
         m_entityNodes[i]->GetTransformHandle()->UpdateTransform();
-        //m_entityNodes[i]->GetTransformHandle()->UpdateTransformInverse();
-
         const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrix();
-        //const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrixInverse();
+
 
         
 
@@ -215,6 +213,8 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(indices.data(), indices.size());
         */
 
+
+        
         //////////////////////////////////////////////////////////////////////////
         // TEST FOR DebugDrawQuad2
         eosVector(PlainColorVertex) vertices;
@@ -251,11 +251,61 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[8], _projection[2]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[12], _projection[3]);
 
-        //m_drawSurfaces[i].m_projectionMatrix[5] *= -1.0f;
+        m_drawSurfaces[i].m_indexCount = 6;
+        m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(vertices.data(), vertices.size());
+        m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(indices.data(), indices.size());
+        
+
+        /*
+        //////////////////////////////////////////////////////////////////////////
+        // TEST FOR DebugDrawQuadTextured
+        eosVector(PlainColorTextureVertex) vertices;
+        eosVector(Index) indices;
+        vertices.resize(4);
+        indices.resize(6);
+        indices = { 0, 1, 2, 2, 3, 0 };
+
+        Vector positions[4] = { Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
+
+        vertices[0].SetPosition(positions[0]);
+        vertices[1].SetPosition(positions[1]);
+        vertices[2].SetPosition(positions[2]);
+        vertices[3].SetPosition(positions[3]);
+
+        vertices[0].SetTexCoordUV(1.0f, 0.0f);
+        vertices[1].SetTexCoordUV(0.0f, 0.0f);
+        vertices[2].SetTexCoordUV(0.0f, 1.0f);
+        vertices[3].SetTexCoordUV(1.0f, 1.0f);
+
+        // actually is the color.. but just for test!
+        vertices[0].SetColor(1.0f, 0.0f, 0.0f, 1.0f);
+        vertices[1].SetColor(0.0f, 1.0f, 0.0f, 1.0f);
+        vertices[2].SetColor(0.0f, 0.0f, 1.0f, 1.0f);
+        vertices[3].SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+
+        m_renderCore.BindTexture(0, ionTextureManger().GetTexture("dva"));
+
+
+        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[8], model[2]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[12], model[3]);
+
+        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[0], _view[0]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[4], _view[1]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[8], _view[2]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[12], _view[3]);
+
+        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[0], _projection[0]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[4], _projection[1]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[8], _projection[2]);
+        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[12], _projection[3]);
 
         m_drawSurfaces[i].m_indexCount = 6;
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(vertices.data(), vertices.size());
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(indices.data(), indices.size());
+        */
     }
 
 }
@@ -308,6 +358,7 @@ void RenderManager::Frame()
         //m_renderCore.DebugDrawTriangle2(m_drawSurfaces[0]);
         //m_renderCore.DebugDrawQuad1(m_drawSurfaces[0]);
         m_renderCore.DebugDrawQuad2(m_drawSurfaces[0]);
+        //m_renderCore.DebugDrawQuadTextured(m_drawSurfaces[0]);
 
         /*
         for (ionSize i = 0; i < m_nodeCount; ++i)

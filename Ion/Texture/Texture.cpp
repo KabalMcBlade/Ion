@@ -238,7 +238,7 @@ ionBool Texture::CreateFromFile(const eosString& _path, ETextureFilter _filter /
             ionAssertReturnValue(false, "Cannot load 3d texture!", false);
         }
     }
-    else if (m_options.m_textureType == ETextureType_Cubic)
+    else if (m_options.m_textureType == ETextureType_2D)
     {
         if (!LoadTexture2D(_path))
         {
@@ -421,7 +421,7 @@ void Texture::UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _
     VkBuffer buffer;
     VkCommandBuffer commandBuffer;
     ionSize offset = 0;
-    ionU8* data = ionStagingBufferManager().Stage(size, 16, commandBuffer, buffer, offset);
+    ionU8* data = ionStagingBufferManager().Stage(size, ION_MEMORY_ALIGNMENT_SIZE, commandBuffer, buffer, offset);
     if (m_options.m_format == ETextureFormat_RGB565)
     {
         ionU8* tmpData = (ionU8*)_buffer;

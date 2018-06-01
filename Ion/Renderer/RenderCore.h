@@ -51,6 +51,7 @@ public:
     void    DebugDrawTriangle2(const DrawSurface& _surface);
     void    DebugDrawQuad1(const DrawSurface& _surface);
     void    DebugDrawQuad2(const DrawSurface& _surface);
+    void    DebugDrawQuadTextured(const DrawSurface& _surface);
     // DEBUG
 
     VkDevice& GetDevice() { return m_vkDevice; }
