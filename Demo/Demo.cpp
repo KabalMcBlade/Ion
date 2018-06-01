@@ -130,7 +130,7 @@ int main()
     Vector rootPos(0.0f, 0.0f, 0.0f, 1.0f);
     Quaternion rootRot(NIX_DEG_TO_RAD(0.0f), up);
 
-    Vector cameraPos(0.0f, 0.0f, -10.0f, 1.0f);
+    Vector cameraPos(0.0f, 0.0f, -1.0f, 1.0f);
     Quaternion cameraRot(NIX_DEG_TO_RAD(0.0f), up);
 
     Vector entityPos(0.0f, 0.0f, 0.0f, 1.0f);

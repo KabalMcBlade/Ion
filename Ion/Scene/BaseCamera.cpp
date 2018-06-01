@@ -31,15 +31,13 @@ BaseCamera::~BaseCamera()
 
 Matrix BaseCamera::PerspectiveProjectionMatrix(ionFloat _fovDeg, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar)
 {
-    _fovDeg *= NIX_VALUE_DEGTORAD;  //  this is PI / 180.0;
-
     ionFloat field = 1.0f / tanf(0.5f * _fovDeg);
 
     Matrix perspective(
-        field / _aspect,    0.0f,       0.0f,                                   0.0f,
-        0.0f,               field,      0.0f,                                   0.0f,
-        0.0f,               0.0f,       (_zFar + _zNear) / (_zNear - _zFar),    (2.0f * _zFar * _zNear) / (_zNear - _zFar),
-        0.0f,               0.0f,       -1.0f,                                  0.0f
+        field / _aspect,    0.0f,       0.0f,                                       0.0f,
+        0.0f,               field,      0.0f,                                       0.0f,
+        0.0f,               0.0f,       (_zFar + _zNear) / (_zNear - _zFar),        -1.0f,
+        0.0f,               0.0f,       (2.0f * _zFar * _zNear) / (_zNear - _zFar), 0.0f
     );
 
     return perspective;

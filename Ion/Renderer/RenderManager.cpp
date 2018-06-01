@@ -115,6 +115,7 @@ void RenderManager::AddScene(Node& _root)
 void RenderManager::Resize()
 {
 	m_renderCore.Recreate();
+    m_mainCamera->UpdateAspectRatio((ionFloat)m_renderCore.GetWidth() / (ionFloat)m_renderCore.GetHeight());
 }
 
 
