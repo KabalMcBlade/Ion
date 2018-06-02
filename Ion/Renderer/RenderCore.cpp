@@ -1006,7 +1006,7 @@ ionBool RenderCore::CreateRenderPass()
         colorRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference depthRef = {};
-        depthRef.attachment = 21;
+        depthRef.attachment = 1;
         depthRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 
