@@ -90,15 +90,15 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct ShaderVertexLayout
 
 //////////////////////////////////////////////////////////////////////////
 
-// 64 bytes aligned to 16 -> 64
+
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 {
-    Vector				m_position;		        // 32 bytes
-    ionFloat            m_textureCoordUV[2];    // 16 bytes
-    ionU8				m_normal[4];	        // 4 bytes
-    ionU8				m_tangent[4];		    // 4 bytes
-    ionU8				m_color1[4];		    // 4 bytes
-    ionU8				m_color2[4];		    // 4 bytes: if with skinning here will be placed the weights
+    Vector				m_position;
+    ionFloat            m_textureCoordUV[2]; 
+    ionU8				m_normal[4];
+    ionU8				m_tangent[4];
+    ionU8				m_color1[4];
+    ionU8				m_color2[4];
 
     Vertex()
     {
@@ -425,12 +425,11 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
 //////////////////////////////////////////////////////////////////////////
 
-// 52 bytes aligned to 16 -> 64
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct SimpleVertex
 {
-    Vector				m_position;		        // 32 bytes
-    ionFloat            m_textureCoordUV[2];    // 16 bytes
-    ionU8				m_normal[4];	        // 4 bytes
+    Vector				m_position;	
+    ionFloat            m_textureCoordUV[2];
+    ionU8				m_normal[4];
  
     SimpleVertex()
     {
@@ -548,11 +547,10 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct SimpleVertex
 
 //////////////////////////////////////////////////////////////////////////
 
-// 36 bytes aligned to 16 -> 64
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorVertex
 {
-    Vector				m_position;		        // 32 bytes
-    ionU8				m_color[4];		        // 4 bytes
+    Vector				m_position;
+    ionU8				m_color[4];	
 
     PlainColorVertex()
     {
@@ -614,12 +612,11 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorVertex
 
 //////////////////////////////////////////////////////////////////////////
 
-// 52 bytes aligned to 16 -> 64
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorTextureVertex
 {
-    Vector				m_position;		        // 32 bytes
-    ionFloat            m_textureCoordUV[2];    // 16 bytes
-    ionU8				m_color[4];		        // 4 bytes
+    Vector				m_position;
+    ionFloat            m_textureCoordUV[2];
+    ionU8				m_color[4];
 
     PlainColorTextureVertex()
     {
@@ -724,10 +721,9 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorTextureVertex
 
 //////////////////////////////////////////////////////////////////////////
 
-// 32 bytes aligned to 16 -> 32
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainVertex
 {
-    Vector				m_position;		        // 32 bytes
+    Vector				m_position;	
 
     PlainVertex()
     {
