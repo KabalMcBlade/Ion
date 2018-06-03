@@ -20,6 +20,7 @@ For many part of the initialization and setup of the Vulkan code I just merely c
 ## Status
 
 **[X64] WORKING**
+
 I'm not planning to do a x86 version
 
 
