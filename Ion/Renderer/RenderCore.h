@@ -32,7 +32,7 @@ public:
 	void	Recreate();
     void    Clear();
 
-    ionBool StartFrame();
+    ionBool StartFrame(ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue);
     void    EndFrame();
     void    BindTexture(ionS32 _index, Texture* _image);
     void    SetDefaultState();
@@ -41,7 +41,6 @@ public:
     void    SetViewport(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS32 _height);
     void    SetPolygonOffset(ionFloat _scale, ionFloat _bias);
     void    SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax);
-    void    SetClear(ionBool _color, ionBool _depth, ionBool _stencil, ionU8 _stencilValue, ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a);
     void    CopyFrameBuffer(Texture* _texture, ionS32 _x, ionS32 _y, ionS32 _textureWidth, ionS32 _textureHeight);
     void    SetColor(const eosString& _param, ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a);
     void    Draw(const DrawSurface& _surface);

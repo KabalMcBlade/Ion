@@ -92,8 +92,8 @@ void ShaderProgramManager::Shutdown()
         }
         shaderProgram.m_pipelines.clear();
 
+		vkDestroyPipelineLayout(m_vkDevice, shaderProgram.m_pipelineLayout, vkMemory);
         vkDestroyDescriptorSetLayout(m_vkDevice, shaderProgram.m_descriptorSetLayout, vkMemory);
-        vkDestroyPipelineLayout(m_vkDevice, shaderProgram.m_pipelineLayout, vkMemory);
     }
     m_shaderPrograms.clear();
 
@@ -583,19 +583,20 @@ ionS32 ShaderProgramManager::FindProgram(const eosString& _name, EVertexLayout _
 
 void ShaderProgramManager::Restart()
 {
-    for (ionSize i = 0; i < m_shaderPrograms.size(); ++i)
-    {
-        ShaderProgram& shaderProgram = m_shaderPrograms[i];
+	for (ionSize i = 0; i < m_shaderPrograms.size(); ++i)
+	{
+		ShaderProgram& shaderProgram = m_shaderPrograms[i];
 
-        for (ionSize j = 0; j < shaderProgram.m_pipelines.size(); ++j)
-        {
-            vkDestroyPipeline(m_vkDevice, shaderProgram.m_pipelines[j].m_pipeline, vkMemory);
-        }
-        shaderProgram.m_pipelines.clear();
+		for (ionSize j = 0; j < shaderProgram.m_pipelines.size(); ++j)
+		{
+			vkDestroyPipeline(m_vkDevice, shaderProgram.m_pipelines[j].m_pipeline, vkMemory);
+		}
+		shaderProgram.m_pipelines.clear();
 
-        vkDestroyPipelineLayout(m_vkDevice, shaderProgram.m_pipelineLayout, vkMemory);
-        m_shaderPrograms.clear();
-    }
+		vkDestroyPipelineLayout(m_vkDevice, shaderProgram.m_pipelineLayout, vkMemory);
+		vkDestroyDescriptorSetLayout(m_vkDevice, shaderProgram.m_descriptorSetLayout, vkMemory);
+	}
+	m_shaderPrograms.clear();
 }
 
 

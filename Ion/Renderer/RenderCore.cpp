@@ -631,18 +631,6 @@ ionBool RenderCore::CreateRenderTargets()
     VkFormat formats[] = { VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D32_SFLOAT, VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM_S8_UINT, VK_FORMAT_D16_UNORM };
     m_vkDepthFormat = SelectSupportedFormat(m_vkGPU.m_vkPhysicalDevice, formats, 5, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
     
-    /*
-    TextureOptions depthTextureOptions;
-    depthTextureOptions.m_vkDepthFormat = m_vkDepthFormat;
-    depthTextureOptions.m_format = ETextureFormat_Depth;
-    depthTextureOptions.m_width = m_width;
-    depthTextureOptions.m_height = m_height;
-    depthTextureOptions.m_numLevels = 1;
-    depthTextureOptions.m_samples = static_cast<ETextureSamplesPerBit>(m_vkSampleCount);
-
-    ionTextureManger().CreateTextureFromOptions(m_vkDevice, "_ION_ViewDepth", depthTextureOptions);
-    */
-
     if (m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT) 
     {
         m_vkSupersampling = m_vkGPU.m_vkPhysicalDevFeatures.sampleRateShading == VK_TRUE;
@@ -1071,15 +1059,6 @@ ionBool RenderCore::CreateFrameBuffers()
 {
     VkImageView attachments[4] = {};
 
-    // depth attachment is the same
-    /*
-    Texture* depthTexture = ionTextureManger().GetTexture("_ION_ViewDepth");
-
-    ionAssertReturnValue(depthTexture != nullptr, "No view depth texture found.", false);
-
-    attachments[1] = depthTexture->GetView();
-    */
-
     const ionBool resolve = m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT;
     if (resolve)
     {
@@ -1165,8 +1144,8 @@ void RenderCore::Clear()
 
     // core
     m_counter = 0;
-    m_width = 640;
-    m_height = 480;
+    m_width = 800;
+    m_height = 600;
     m_vkInstance = VK_NULL_HANDLE;
     m_vkFullScreen = false;
     m_vkSwapchain = VK_NULL_HANDLE;
@@ -1283,6 +1262,8 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
 
 void RenderCore::Shutdown()
 {
+	vkDeviceWaitIdle(m_vkDevice);
+
     ionVertexCacheManager().Shutdown();
 
     ionShaderProgramManager().Shutdown();
@@ -1311,7 +1292,7 @@ void RenderCore::Shutdown()
         }
     }
 
-    // Deallocate command buffer?
+	vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
 
     if (m_vkCommandPool != VK_NULL_HANDLE)
     {
@@ -1328,15 +1309,8 @@ void RenderCore::Shutdown()
         vkDestroySemaphore(m_vkDevice, m_vkCompletedSemaphore, vkMemory);
     }
     
-
     ionStagingBufferManager().Shutdown();
-
-    ionGPUMemoryManager().Shutdown();
-
-    if (m_vkDevice != VK_NULL_HANDLE)
-    {
-        vkDestroyDevice(m_vkDevice, vkMemory);
-    }
+	ionGPUMemoryManager().Shutdown();
 
     // Create physical device has not destruction because is more as "selected" 
 
@@ -1345,7 +1319,12 @@ void RenderCore::Shutdown()
         vkDestroySurfaceKHR(m_vkInstance, m_vkSurface, vkMemory);
     }
 
-    DestroyDebugReport();
+	if (m_vkDevice != VK_NULL_HANDLE)
+	{
+		vkDestroyDevice(m_vkDevice, vkMemory);
+	}
+
+	DestroyDebugReport();
 
     if (m_vkInstance != VK_NULL_HANDLE)
     {
@@ -1362,9 +1341,6 @@ void RenderCore::Recreate()
 		vkDestroyFramebuffer(m_vkDevice, m_vkFrameBuffers[i], vkMemory);
 	}
 
-	vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
-
-    //ionShaderProgramManager().Restart();
     vkDestroyPipelineCache(m_vkDevice, m_vkPipelineCache, vkMemory);
 
 	if (m_vkRenderPass != VK_NULL_HANDLE)
@@ -1372,22 +1348,6 @@ void RenderCore::Recreate()
 		vkDestroyRenderPass(m_vkDevice, m_vkRenderPass, vkMemory);
 	}
 
-    /*
-	for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
-	{
-		if (m_vkSwapchainViews[i] != VK_NULL_HANDLE)
-		{
-			vkDestroyImageView(m_vkDevice, m_vkSwapchainViews[i], vkMemory);
-		}
-	}
-
-	if (m_vkSwapchain != VK_NULL_HANDLE)
-	{
-		vkDestroySwapchainKHR(m_vkDevice, m_vkSwapchain, vkMemory);
-	}
-    */
-
-	//ionTextureManger().DestroyTexture("_ION_ViewDepth");
 	DestroyRenderTargets();
 
 	VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_vkGPU.m_vkPhysicalDevice, m_vkSurface, &m_vkGPU.m_vkSurfaceCaps);
@@ -1398,15 +1358,29 @@ void RenderCore::Recreate()
 	ionAssertReturnVoid(result == VK_SUCCESS, "Device surface changed and not supported!");
 	ionAssertReturnVoid(supportsPresent == VK_TRUE, "New surface does not support present");
 
+	for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
+	{
+		if (m_vkCommandBufferFences[i] != VK_NULL_HANDLE)
+		{
+			vkDestroyFence(m_vkDevice, m_vkCommandBufferFences[i], vkMemory);
+		}
+	}
+
+	vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
+
 	CreateSwapChain();
+	CreateCommandBuffer();
 	CreateRenderTargets();
 	CreateRenderPass();
 	CreatePipelineCache();
 	CreateFrameBuffers();
+
+
+	ionShaderProgramManager().Restart();
 }
 
 
-ionBool RenderCore::StartFrame()
+ionBool RenderCore::StartFrame(ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue)
 {
     VkResult result = vkAcquireNextImageKHR(m_vkDevice, m_vkSwapchain, UINT64_MAX, m_vkAcquiringSemaphore, VK_NULL_HANDLE, &m_currentSwapIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) 
@@ -1437,13 +1411,13 @@ ionBool RenderCore::StartFrame()
     VkClearValue clearValues[3];
     if (resolve)
     {
-        clearValues[0].color = { { 1.0f, 1.0f, 1.0f, 1.0f } };
-        clearValues[1].color = { { 1.0f, 1.0f, 1.0f, 1.0f } };
-        clearValues[2].depthStencil = { 1.0f, 0 };
+        clearValues[0].color = { { _clearRed, _clearGreen, _clearBlue, 1.0f } };
+        clearValues[1].color = { { _clearRed, _clearGreen, _clearBlue, 1.0f } };
+        clearValues[2].depthStencil = { 1.0f, _clearStencilValue };
     }
     else {
-        clearValues[0].color = { { 0.1f, 0.1f, 0.1f, 1.0f } };
-        clearValues[1].depthStencil = { 1.0f, 0 };
+        clearValues[0].color = { { _clearRed, _clearGreen, _clearBlue, 1.0f } };
+        clearValues[1].depthStencil = { 1.0f, _clearStencilValue };
     }
     
     VkRenderPassBeginInfo renderPassBeginInfo = {};
@@ -1597,63 +1571,6 @@ void RenderCore::SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax)
         m_stateBits |= ERasterization_DepthTest_Mask;
         vkCmdSetDepthBounds(m_vkCommandBuffers[m_currentSwapIndex], _zMin, _zMax);
     }
-}
-
-void RenderCore::SetClear(ionBool _color, ionBool _depth, ionBool _stencil, ionU8 _stencilValue, ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
-{
-    const ionBool resolve = m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT;
-
-    ionU32 numAttachments = 0;
-    VkClearAttachment attachments[3];
-    memset(attachments, 0, sizeof(attachments));
-
-    if (_color)
-    {
-        {
-            VkClearAttachment & attachment = attachments[numAttachments++];
-            attachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            attachment.colorAttachment = 0;
-            VkClearColorValue & color = attachment.clearValue.color;
-            color.float32[0] = _r;
-            color.float32[1] = _g;
-            color.float32[2] = _b;
-            color.float32[3] = _a;
-        }
-
-        if (resolve)
-        {
-            VkClearAttachment & attachment = attachments[numAttachments++];
-            attachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            attachment.colorAttachment = 0;
-            VkClearColorValue & color = attachment.clearValue.color;
-            color.float32[0] = _r;
-            color.float32[1] = _g;
-            color.float32[2] = _b;
-            color.float32[3] = _a;
-        }
-    }
-
-    if (_depth || _stencil)
-    {
-        VkClearAttachment & attachment = attachments[numAttachments++];
-        if (_depth) 
-        {
-            attachment.aspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
-        }
-        if (_stencil)
-        {
-            attachment.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
-        }
-        attachment.clearValue.depthStencil.depth = 1.0f;
-        attachment.clearValue.depthStencil.stencil = _stencilValue;
-    }
-
-    VkClearRect clearRect = {};
-    clearRect.baseArrayLayer = 0;
-    clearRect.layerCount = 1;
-    clearRect.rect.extent = m_vkSwapchainExtent;
-
-    vkCmdClearAttachments(m_vkCommandBuffers[m_currentSwapIndex], numAttachments, attachments, 1, &clearRect);
 }
 
 void RenderCore::CopyFrameBuffer(Texture* _texture, ionS32 _x, ionS32 _y, ionS32 _textureWidth, ionS32 _textureHeight)

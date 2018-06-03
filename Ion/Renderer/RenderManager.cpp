@@ -347,12 +347,11 @@ void RenderManager::Frame()
     const ionU32 width = m_renderCore.GetWidth();
     const ionU32 height = m_renderCore.GetHeight();
 
-    if (m_renderCore.StartFrame())
+    if (m_renderCore.StartFrame(ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f))
     {
         m_renderCore.SetViewport(0, 0, width, height);
         m_renderCore.SetScissor(0, 0, width, height);
         m_renderCore.SetState(ECullingMode_Front);
-        m_renderCore.SetClear(true, true, true, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 0.0f, 0.0f, 0.0f);
         
         //m_renderCore.DebugDrawTriangle1();
         //m_renderCore.DebugDrawTriangle2(m_drawSurfaces[0]);

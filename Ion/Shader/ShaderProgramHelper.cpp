@@ -562,11 +562,12 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
     VkPipelineMultisampleStateCreateInfo multisampleState = {};
     multisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampleState.rasterizationSamples = _render.GetSampleCount();
+	/*		// cause a pipeline compilation bug on some GPU
     if (_render.GetUsesSuperSampling())
     {
         multisampleState.sampleShadingEnable = VK_TRUE;
         multisampleState.minSampleShading = 1.0f;
-    }
+    }*/
 
     eosVector(VkPipelineShaderStageCreateInfo) stages;
     VkPipelineShaderStageCreateInfo stage = {};

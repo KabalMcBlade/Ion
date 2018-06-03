@@ -58,14 +58,14 @@
 //////////////////////////////////////////////////////////////////////////
 
 
-#define DEMO_WIDTH 640
-#define DEMO_HEIGHT 480
+#define DEMO_WIDTH 800
+#define DEMO_HEIGHT 600
 
 
-#define DEMO_MODEL_FILENAME "E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
-//#define DEMO_MODEL_FILENAME "C:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
-#define DEMO_SHADER_PATH    "E:/Projects/Ion/Demo/Assets/"
-//#define DEMO_SHADER_PATH    "C:/Projects/Ion/Demo/Assets/"
+//#define DEMO_MODEL_FILENAME "E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
+#define DEMO_MODEL_FILENAME "C:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
+//#define DEMO_SHADER_PATH    "E:/Projects/Ion/Demo/Assets/"
+#define DEMO_SHADER_PATH    "C:/Projects/Ion/Demo/Assets/"
 
 #define DEMO_SHADER_MODEL   "DamagedHelmet"
 #define DEMO_SHADER_PROG    "DamagedHelmet"
