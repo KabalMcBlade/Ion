@@ -167,14 +167,17 @@ int main()
     camera->GetTransformHandle()->SetPosition(cameraPos);
     camera->GetTransformHandle()->SetRotation(cameraRot);
 
-    /*
+
+
     //
     Entity *pTest = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     EntityHandle test(pTest);
-    ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, *test);
     test->GetTransformHandle()->SetPosition(entityPos);
     test->GetTransformHandle()->SetRotation(entityRot);
-    test->GetTransformHandle()->SetScale(10.0f);
+
+    /*
+    //
+    ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, *test);
 
     //
     ShaderLayoutDef vertexLayout;
@@ -192,14 +195,10 @@ int main()
     test->GetMaterial(0, 0)->SetVertexLayout(EVertexLayout_Vertices_Simple);
     test->GetMaterial(0, 0)->SetVertexShaderIndex(vertexShaderIndex);
     test->GetMaterial(0, 0)->SetFragmentShaderIndex(fragmentShaderIndex);
-    //ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(DEMO_SHADER_PROG, EVertexLayout_Vertices_Simple, vertexShaderIndex, fragmentShaderIndex);
     */
+    
 
-    //
-    Entity *pTest = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
-    EntityHandle test(pTest);
-    test->GetTransformHandle()->SetPosition(entityPos);
-    test->GetTransformHandle()->SetRotation(entityRot);
+
 
     //
     /*
