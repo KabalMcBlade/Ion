@@ -46,7 +46,7 @@ public:
     const Frustum& GetFrustum() const { return m_frustum; }
 
 public:
-    static Matrix PerspectiveProjectionMatrix(ionFloat _fovDeg, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar);
+    static Matrix PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar);
 
 protected:
     // to override if you do something like moving the camera (rotation/position)
