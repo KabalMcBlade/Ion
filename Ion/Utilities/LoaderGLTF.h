@@ -32,6 +32,9 @@ private:
     eosString m_filename;
     eosString m_filenameNoExt;
     eosString m_ext;
+
+    eosMap(ionS32, eosString) m_textureIndexToTextureName;
+    eosMap(ionS32, eosString) m_materialIndexToMaterialName;
 };
 
 

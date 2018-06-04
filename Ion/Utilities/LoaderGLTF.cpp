@@ -25,9 +25,8 @@ LoaderGLTF::~LoaderGLTF()
 {
 }
 
-
 // for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
-void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity& _entity)
+void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity& _entity, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName)
 {
     Vector position;
     if (_node.translation.size() == 3)
@@ -58,7 +57,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
         {
             Entity child;
             child.AttachToParent(_entity);
-            LoadNode(_model.nodes[_node.children[i]], _model, child);
+            LoadNode(_model.nodes[_node.children[i]], _model, child, _textureIndexToTextureName, _materialIndexToMaterialName);
         }
     }
 
@@ -246,7 +245,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
             }
 
             // add material and add all to primitive
-            prim.m_material = ionMaterialManger().GetMaterial(primitive.material);
+            prim.m_material = ionMaterialManger().GetMaterial(_materialIndexToMaterialName[primitive.material]);
 
             ionMesh.AddPrimitive(prim);
         }
@@ -335,7 +334,6 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
     // 1. Load all the texture inside the texture manager
     for (ionSize i = 0; i < _model.images.size(); ++i)
     {
-        ionS32 textureIndex = (ionS32)i;
         if (_model.images[i].uri.empty())                    // no uri, so image could be stored in binary format
         {
             eosString name = _model.images[i].name.c_str();  // no filename, I just give you one
@@ -345,13 +343,18 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
                 name = m_filenameNoExt + underscore + val;
             }
 
-            //ionTextureManger().CreateTextureFromBinary(m_vkDevice, name, _model.images[i].width, _model.images[i].height, _model.images[i].component, &_model.images[i].image[0], _model.images[i].image.size(), textureIndex, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_LookUp_RGBA, ETextureType_2D);
+            m_textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, name.c_str()));
+
+            //ionTextureManger().CreateTextureFromBinary(m_vkDevice, name, _model.images[i].width, _model.images[i].height, _model.images[i].component, &_model.images[i].image[0], _model.images[i].image.size(), ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_LookUp_RGBA, ETextureType_2D);
         }
         else
         {
             eosString val = _model.images[i].uri.c_str();
             eosString path = m_dir + backslash + val;
-            //ionTextureManger().CreateTextureFromFile(m_vkDevice, m_filename, path, textureIndex);
+
+            m_textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, m_filename.c_str()));
+
+            //ionTextureManger().CreateTextureFromFile(m_vkDevice, m_filename, path);
         }
     }
 
@@ -363,7 +366,10 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
     {
         const tinygltf::Material& mat = _model.materials[i];
 
-        Material* material = ionMaterialManger().CreateMaterial(mat.name.c_str(), 0u, (ionU32)i);
+
+        m_materialIndexToMaterialName.insert(std::pair<ionS32, eosString>((ionS32)i, mat.name.c_str()));
+
+        Material* material = ionMaterialManger().CreateMaterial(mat.name.c_str(), 0u);
 
         for (auto const& x : mat.values)
         {
@@ -460,7 +466,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
         {
             const tinygltf::Node node = _model.nodes[scene.nodes[i]];
 
-            LoadNode(node, _model, _entity);
+            LoadNode(node, _model, _entity, m_textureIndexToTextureName, m_materialIndexToMaterialName);
         }
 
     }

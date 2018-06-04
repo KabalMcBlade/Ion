@@ -58,7 +58,7 @@ void TextureManager::Shutdown()
     m_hashTexture.clear();
 }
 
-Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosString& _name, const eosString& _path, ionS32 _index /*= -1*/, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_Default*/, ETextureType _type /*= ETextureType_2D*/)
+Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosString& _name, const eosString& _path, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_Default*/, ETextureType _type /*= ETextureType_2D*/)
 {
     if (_name.empty() || _path.empty())
     {
@@ -68,7 +68,7 @@ Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosStri
     Texture* texture = GetTexture(_name);
     if (texture == nullptr)
     {
-        texture = CreateTexture(_vkDevice, _name, _index);
+        texture = CreateTexture(_vkDevice, _name);
     }
     else
     {
@@ -89,7 +89,7 @@ Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosStri
     }
 }
 
-Texture* TextureManager::CreateTextureFromBinary(VkDevice _vkDevice, const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _numChannels, ionU8* _buffer, VkDeviceSize _bufferSize, ionS32 _index /*= -1*/, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_Default*/, ETextureType _type /*= ETextureType_2D*/)
+Texture* TextureManager::CreateTextureFromBinary(VkDevice _vkDevice, const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _numChannels, ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_Default*/, ETextureType _type /*= ETextureType_2D*/)
 {
     if (_name.empty())
     {
@@ -99,7 +99,7 @@ Texture* TextureManager::CreateTextureFromBinary(VkDevice _vkDevice, const eosSt
     Texture* texture = GetTexture(_name);
     if (texture == nullptr)
     {
-        texture = CreateTexture(_vkDevice, _name, _index);
+        texture = CreateTexture(_vkDevice, _name);
     }
     else
     {
@@ -120,7 +120,7 @@ Texture* TextureManager::CreateTextureFromBinary(VkDevice _vkDevice, const eosSt
     }
 }
 
-Texture* TextureManager::CreateTextureFromOptions(VkDevice _vkDevice, const eosString& _name, const TextureOptions& _options, ionS32 _index /*= -1*/)
+Texture* TextureManager::CreateTextureFromOptions(VkDevice _vkDevice, const eosString& _name, const TextureOptions& _options)
 {
     if (_name.empty())
     {
@@ -130,7 +130,7 @@ Texture* TextureManager::CreateTextureFromOptions(VkDevice _vkDevice, const eosS
     Texture* texture = GetTexture(_name);
     if (texture == nullptr)
     {
-        texture = CreateTexture(_vkDevice, _name, _index);
+        texture = CreateTexture(_vkDevice, _name);
     }
     else 
     {
@@ -168,32 +168,13 @@ Texture* TextureManager::GetTexture(const eosString& _name) const
     }
 }
 
-Texture* TextureManager::GetTexture(ionS32 _index) const
-{
-    if (_index < 0)
-    {
-        return nullptr;
-    }
-
-    for (auto const& x : m_hashTexture)
-    {
-        const Texture& texture = (*x.second);
-        if (texture.GetIndex() == _index)
-        {
-            return x.second;
-        }
-    }
-
-    return nullptr;
-}
-
 void TextureManager::DestroyTexture(const eosString& _name)
 {
 	ionSize hash = std::hash<eosString>{}(_name);   // from the original with extension
 	DestroyTexture(hash);
 }
 
-Texture* TextureManager::CreateTexture(VkDevice _vkDevice, const eosString& _name, ionS32 _index /*= -1*/)
+Texture* TextureManager::CreateTexture(VkDevice _vkDevice, const eosString& _name)
 {
     if (_name.empty())
     {
@@ -206,7 +187,7 @@ Texture* TextureManager::CreateTexture(VkDevice _vkDevice, const eosString& _nam
     auto search = m_hashTexture.find(hash);
     ionAssert(!(search != m_hashTexture.end()), "An image with the same name has already added!");
 
-    Texture* texture = eosNew(Texture, ION_MEMORY_ALIGNMENT_SIZE, _vkDevice, _name, _index);
+    Texture* texture = eosNew(Texture, ION_MEMORY_ALIGNMENT_SIZE, _vkDevice, _name);
 
     m_hashTexture[hash] = texture;
 

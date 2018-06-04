@@ -57,7 +57,7 @@ void MaterialManager::Shutdown()
     m_hashMaterial.clear();
 }
 
-Material* MaterialManager::CreateMaterial(const eosString& _name, ionU64 _stateBits /*= 0*/, ionS32 _index /*= -1*/)
+Material* MaterialManager::CreateMaterial(const eosString& _name, ionU64 _stateBits /*= 0*/)
 {
     if (_name.empty())
     {
@@ -67,7 +67,7 @@ Material* MaterialManager::CreateMaterial(const eosString& _name, ionU64 _stateB
     Material* material = GetMaterial(_name);
     if (material == nullptr)
     {
-        material = InternalCreateMaterial(_name, _index);
+        material = InternalCreateMaterial(_name);
     }
     else
     {
@@ -105,26 +105,7 @@ Material* MaterialManager::GetMaterial(const eosString& _name) const
     }
 }
 
-Material* MaterialManager::GetMaterial(ionS32 _index) const
-{
-    if (_index < 0)
-    {
-        return nullptr;
-    }
-
-    for (auto const& x : m_hashMaterial)
-    {
-        const Material& material = (*x.second);
-        if (material.GetIndex() == _index)
-        {
-            return x.second;
-        }
-    }
-
-    return nullptr;
-}
-
-Material* MaterialManager::InternalCreateMaterial(const eosString& _name, ionS32 _index /*= -1*/)
+Material* MaterialManager::InternalCreateMaterial(const eosString& _name)
 {
     if (_name.empty())
     {
@@ -137,7 +118,7 @@ Material* MaterialManager::InternalCreateMaterial(const eosString& _name, ionS32
     auto search = m_hashMaterial.find(hash);
     ionAssert(!(search != m_hashMaterial.end()), "A material with the same name has already added!");
 
-    Material* material = eosNew(Material, ION_MEMORY_ALIGNMENT_SIZE, _name, _index);
+    Material* material = eosNew(Material, ION_MEMORY_ALIGNMENT_SIZE, _name);
 
     m_hashMaterial[hash] = material;
 

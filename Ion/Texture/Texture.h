@@ -20,18 +20,15 @@ ION_NAMESPACE_BEGIN
 class Texture final
 {
 public:
-    Texture(VkDevice _vkDevice, const eosString& _name, ionS32 _index = -1);
+    Texture(VkDevice _vkDevice, const eosString& _name);
     ~Texture();
 
     const eosString& GetName() const { return m_name; }
-    const ionS32 GetIndex() const { return m_index; }
     const TextureOptions& GetOptions() const { return m_options; }
     const VkImageView& GetView() const { return m_view; }
     const VkImageLayout& GetLayout() const { return m_layout; }
     const VkSampler& GetSampler() const { return m_sampler; }
     const VkImage& GetImage() const { return m_image; }
-
-    void SetIndex(ionS32 _index) { m_index = _index; }
 
 private:
     friend class TextureManager;
@@ -61,7 +58,6 @@ private:
 
 private:
     eosString               m_name;
-    ionS32                  m_index;    // -1 means rely on the name, with valid index, rely on the index, this due GLTF support
     VkDevice                m_vkDevice;
     vkGpuMemoryAllocation	m_allocation;
     TextureOptions	        m_options;

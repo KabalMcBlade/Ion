@@ -24,12 +24,11 @@ public:
     void        Init();
     void        Shutdown();
 
-    Material*    CreateMaterial(const eosString& _name, ionU64 _stateBits = 0, ionS32 _index = -1);
+    Material*    CreateMaterial(const eosString& _name, ionU64 _stateBits = 0);
     Material*    GetMaterial(const eosString& _name) const;
-    Material*    GetMaterial(ionS32 _index) const;
 
 private:
-    Material*   InternalCreateMaterial(const eosString& _name, ionS32 _index = -1);
+    Material*   InternalCreateMaterial(const eosString& _name);
     void        DestroyMaterial(Material* _material);
     void        DestroyMaterial(ionSize _hash);
 

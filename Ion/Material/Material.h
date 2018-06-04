@@ -16,11 +16,8 @@ class Texture;
 class ION_DLL Material
 {
 public:
-    Material(const eosString& _name, ionS32 _index = -1);
+    Material(const eosString& _name);
     ~Material();
-
-    const ionS32 GetIndex() const { return m_index; }
-    void SetIndex(ionS32 _index) { m_index = _index; }
 
     ionU64 GetStateBits() const { return m_stateBits; }
     void SetStateBits(ionU64 _stateBits) { m_stateBits = _stateBits; }
@@ -119,7 +116,6 @@ public:
 private:
     eosString       m_name;
     eosString       m_shaderProgramName;
-    ionS32          m_index;    // -1 means rely on the name, with valid index, rely on the index, this due GLTF support
 
     // here the index for all type of shader, for testing purpose just vertex and fragment now!
     ionS32          m_vertexShaderIndex;
