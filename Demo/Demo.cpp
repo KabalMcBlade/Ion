@@ -61,12 +61,6 @@
 #define DEMO_WIDTH 800
 #define DEMO_HEIGHT 600
 
-
-//#define DEMO_MODEL_FILENAME "E:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
-#define DEMO_MODEL_FILENAME "C:/Projects/Ion/Demo/Assets/DamagedHelmet.gltf"
-//#define DEMO_SHADER_PATH    "E:/Projects/Ion/Demo/Assets/"
-#define DEMO_SHADER_PATH    "C:/Projects/Ion/Demo/Assets/"
-
 #define DEMO_SHADER_MODEL   "DamagedHelmet"
 #define DEMO_SHADER_PROG    "DamagedHelmet"
 
@@ -76,6 +70,19 @@ ION_USING_NAMESPACE
 
 EOS_OPTIMIZATION_OFF
 ION_OPTIMIZATION_OFF
+
+
+
+ionBool GetFullPath(const eosString& partialPath, eosString& fullPath)
+{
+    char full[_MAX_PATH];
+    if (_fullpath(full, partialPath.c_str(), _MAX_PATH) != NULL)
+    {
+        fullPath = full;
+        return true;
+    }
+    return false;
+}
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -112,6 +119,15 @@ int main()
 
     ION_SCOPE_BEGIN
 
+
+    eosString demoPath;
+    GetFullPath("./", demoPath);
+    demoPath.append("Assets/");
+
+    eosString damagedHelmetModelPath = demoPath;
+    damagedHelmetModelPath.append("DamagedHelmet.gltf");
+
+
     ionBool rendererInitialized = false;
     Window window;
 
@@ -119,7 +135,7 @@ int main()
 
     if (window.Create(WndProc, L"Ion Demo", DEMO_WIDTH, DEMO_HEIGHT, false))
     {
-        rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, DEMO_SHADER_PATH, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
+        rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, demoPath, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
     }
 
 
@@ -155,7 +171,7 @@ int main()
     //
     Entity *pTest = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     EntityHandle test(pTest);
-    ionRenderManager().LoadModelFromFile(DEMO_MODEL_FILENAME, *test);
+    ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, *test);
     test->GetTransformHandle()->SetPosition(entityPos);
     test->GetTransformHandle()->SetRotation(entityRot);
     test->GetTransformHandle()->SetScale(10.0f);

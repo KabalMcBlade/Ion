@@ -351,7 +351,8 @@ void RenderManager::Frame()
     {
         m_renderCore.SetViewport(0, 0, width, height);
         m_renderCore.SetScissor(0, 0, width, height);
-        m_renderCore.SetState(ECullingMode_Front);
+        //m_renderCore.SetState(ECullingMode_Front);
+        m_renderCore.SetState(ECullingMode_TwoSide);    // just because I drawn a plane quad I want to see both side.
         
         //m_renderCore.DebugDrawTriangle1();
         //m_renderCore.DebugDrawTriangle2(m_drawSurfaces[0]);
