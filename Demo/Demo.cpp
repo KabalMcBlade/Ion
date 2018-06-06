@@ -193,10 +193,10 @@ int main()
     ShaderLayoutDef fragmentLayout;
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Fragment, fragmentLayout);
-    test->GetMaterial(0, 0)->SetShaderProgramName(DEMO_SHADER_PROG);
-    test->GetMaterial(0, 0)->SetVertexLayout(EVertexLayout_Vertices_Simple);
-    test->GetMaterial(0, 0)->SetVertexShaderIndex(vertexShaderIndex);
-    test->GetMaterial(0, 0)->SetFragmentShaderIndex(fragmentShaderIndex);
+    test->GetMaterial(0)->SetShaderProgramName(DEMO_SHADER_PROG);
+    test->GetMaterial(0)->SetVertexLayout(EVertexLayout_Pos_UV_Normal);
+    test->GetMaterial(0)->SetVertexShaderIndex(vertexShaderIndex);
+    test->GetMaterial(0)->SetFragmentShaderIndex(fragmentShaderIndex);
     */
     
     /*

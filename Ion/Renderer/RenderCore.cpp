@@ -1685,9 +1685,7 @@ void RenderCore::Draw(const DrawSurface& _surface)
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, &buffer, &offset);
     }
 
-    vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, (indexOffset >> 1), vertexOffset / sizeof(Vertex), 0);
-
-    //vkCmdDrawIndexed(commandBuffer, static_cast<ionU32>(_surface.m_indexCount), 1, 0, 0, 0);
+    vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, _surface.m_indexStart, vertexOffset / sizeof(Vertex) /*0*/, 0);
 }
 
 void RenderCore::DebugDrawQuad(const DrawSurface& _surface)

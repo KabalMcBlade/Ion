@@ -259,7 +259,6 @@
     <ClCompile Include="Renderer\GPUMemoryManager.cpp" />
     <ClCompile Include="Renderer\IndexBufferObject.cpp" />
     <ClCompile Include="Material\Material.cpp" />
-    <ClCompile Include="Geometry\Mesh.cpp" />
     <ClCompile Include="Renderer\RenderCore.cpp" />
     <ClCompile Include="Renderer\RenderManager.cpp" />
     <ClCompile Include="Shader\ShaderProgram.cpp" />

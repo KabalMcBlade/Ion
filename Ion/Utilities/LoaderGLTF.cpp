@@ -63,7 +63,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
 
     for (ionSize i = 0; i < (_node.mesh + 1); ++i)
     {
-        Mesh ionMesh;
         const tinygltf::Mesh mesh = _model.meshes[i];
 
         //ionMesh.GetPrimitives().resize(mesh.primitives.size());
@@ -75,11 +74,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
                 continue;
             }
 
-            Primitive prim;
+            Mesh ionMesh;
 
-			ionU32 vertexStart = static_cast<ionU32>(ionMesh.GetPrimitives().size());
-			//ionU32 indexStart = static_cast<ionU32>(ionMesh.GetIndexList().size());
-			//ionU32 indexCount = 0;
+            ionMesh.m_indexStart = static_cast<ionU32>(ionMesh.m_indexes.size());
+
+            ionU32 vertexStart = static_cast<ionU32>(ionMesh.m_vertexes.size());
 
 			// Vertices
 			{
@@ -186,9 +185,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
                         vert.SetColor2(1.0f, 1.0f, 1.0f, 1.0f);
                     }
 
-                    prim.m_vertexes.push_back(vert);
-
-					//ionMesh.PushBackVertex(vert);
+                    ionMesh.m_vertexes.push_back(vert);
 				}
 			}
 
@@ -199,7 +196,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
                 const tinygltf::BufferView &bufferView = _model.bufferViews[accessor.bufferView];
                 const tinygltf::Buffer &buffer = _model.buffers[bufferView.buffer];
 
-                //indexCount = static_cast<ionU32>(accessor.count);
+                ionMesh.m_indexCount = static_cast<ionU32>(accessor.count);
 
                 // I WANT TO USE ALWAYS THE 16 BYTES INDEX, SO I'll CAST EVERYTHING DOWN OR UP TO THIS
                 switch (accessor.componentType)
@@ -211,7 +208,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
                         //ionMesh.PushBackIndex((Index)(buf[index] + vertexStart));
-                        prim.m_indexes.push_back((Index)(buf[index] + vertexStart));
+                        ionMesh.m_indexes.push_back((Index)(buf[index] + vertexStart));
                     }
                     break;
                 }
@@ -224,7 +221,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
                         //ionMesh.PushBackIndex(buf[index] + vertexStart);
-                        prim.m_indexes.push_back(buf[index] + vertexStart);
+                        ionMesh.m_indexes.push_back(buf[index] + vertexStart);
                     }
                     break;
                 }
@@ -235,7 +232,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
                         //ionMesh.PushBackIndex((Index)(buf[index] + vertexStart));
-                        prim.m_indexes.push_back((Index)(buf[index] + vertexStart));
+                        ionMesh.m_indexes.push_back((Index)(buf[index] + vertexStart));
                     }
                     break;
                 }
@@ -245,17 +242,15 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
             }
 
             // add material and add all to primitive
-            prim.m_material = ionMaterialManger().GetMaterial(_materialIndexToMaterialName[primitive.material]);
+            ionMesh.m_material = ionMaterialManger().GetMaterial(_materialIndexToMaterialName[primitive.material]);
 
-            ionMesh.AddPrimitive(prim);
+            // add to mesh list
+            _entity.GetMeshList().push_back(ionMesh);
         }
 
         // Bone weight for morph targets (NEXT: After the base renderer will works)
         {
         }
-
-        // add to mesh list
-        _entity.GetMeshList().push_back(ionMesh);
     }
 }
 

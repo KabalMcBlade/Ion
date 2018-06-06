@@ -34,19 +34,21 @@ public:
     BoundingBox GetTransformedBoundingBox();
 
     ionU32  GetMeshCount() const;
-    ionU32  GetPrimitiveCount(ionU32 _meshIndex) const;
 
-    const void* GetVertexBuffer(ionU32 _meshIndex, ionU32 _primitiveIndex) const;
-    ionSize GetVertexBufferSize(ionU32 _meshIndex, ionU32 _primitiveIndex) const;
+    ionSize GetIndexStart(ionU32 _meshIndex) const;
+    ionSize GetIndexCount(ionU32 _meshIndex) const;
 
-    const void* GetIndexBuffer(ionU32 _meshIndex, ionU32 _primitiveIndex) const;
-    ionSize GetIndexBufferSize(ionU32 _meshIndex, ionU32 _primitiveIndex) const;
+    const void* GetVertexBuffer(ionU32 _meshIndex) const;
+    ionSize GetVertexBufferSize(ionU32 _meshIndex) const;
 
-    const Material* GetMaterial(ionU32 _meshIndex, ionU32 _primitiveIndex) const;
-    Material* GetMaterial(ionU32 _meshIndex, ionU32 _primitiveIndex);
+    const void* GetIndexBuffer(ionU32 _meshIndex) const;
+    ionSize GetIndexBufferSize(ionU32 _meshIndex) const;
+
+    const Material* GetMaterial(ionU32 _meshIndex) const;
+    Material* GetMaterial(ionU32 _meshIndex);
     /*
-    void*   GetJointBuffer(ionU32 _meshIndex, ionU32 _primitiveIndex) const;
-    ionSize GetJointBufferSize(ionU32 _meshIndex, ionU32 _primitiveIndex) const;
+    void*   GetJointBuffer(ionU32 _meshIndex) const;
+    ionSize GetJointBufferSize(ionU32 _meshIndex) const;
     */
 private:
     Entity(const Entity& _Orig) = delete;

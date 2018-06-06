@@ -323,9 +323,6 @@
     <ClCompile Include="Material\MaterialManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Geometry\Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Geometry\BoundingBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

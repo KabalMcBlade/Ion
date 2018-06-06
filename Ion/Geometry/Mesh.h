@@ -19,53 +19,27 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-struct Primitive
+struct Mesh
 {
     eosVector(Vertex)   m_vertexes;
     eosVector(Index)    m_indexes;
+    ionU32              m_indexStart;
+    ionU32              m_indexCount;
     Material*           m_material;
 
-    Primitive()
+    Mesh()
     {
+        m_indexStart = 0;
+        m_indexCount = 0;
         m_material = nullptr;
     }
 
-    ~Primitive()
+    ~Mesh()
     {
         m_vertexes.clear();
         m_indexes.clear();
         m_material = nullptr;
     }
-};
-
-
-class ION_DLL Mesh 
-{
-public:
-    Mesh();
-    ~Mesh();
-
-    const eosVector(Primitive)& GetPrimitives() const;
-    eosVector(Primitive)& GetPrimitives();
-
-    const Primitive& GetPrimitive(ionU32 _index) const;
-    Primitive& GetPrimitive(ionU32 _index);
-
-    void AddPrimitive(const Primitive& _primitive);
-
-    /*
-    void PushBackVertex(const Vertex& _vertex);
-    void PushBackIndex(const Index& _index);
-
-	const eosVector(Vertex)& GetVertexList() const { return m_vertexes; }
-	const eosVector(Index)& GetIndexList() const { return m_indexes; }
-    */
-
-protected:
-    ionBool m_uniformDataChanged;
-
-private:
-    eosVector(Primitive)  m_primitives;
 };
 
 ION_NAMESPACE_END
