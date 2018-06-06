@@ -191,6 +191,7 @@ int main()
     vertexLayout.m_uniforms.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
     vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
     ShaderLayoutDef fragmentLayout;
+    fragmentLayout.m_bindings.push_back(EShaderBinding_Sampler);
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Fragment, fragmentLayout);
     test->GetMaterial(0)->SetShaderProgramName(DEMO_SHADER_PROG);
