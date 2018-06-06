@@ -580,6 +580,10 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorVertex
         *reinterpret_cast<const ionU64*>(this->m_color);
     }
 
+    ION_INLINE void SetPosition(ionFloat _x, ionFloat _y, ionFloat _z)
+    {
+        m_position = Vector(_x, _y, _z, 1.0f);
+    }
 
     ION_INLINE void SetPosition(const Vector& _position)
     {
@@ -671,6 +675,11 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorTextureVertex
     ION_INLINE ionFloat GetTexCoordV() const
     {
         return m_textureCoordUV[1];
+    }
+
+    ION_INLINE void SetPosition(ionFloat _x, ionFloat _y, ionFloat _z)
+    {
+        m_position = Vector(_x, _y, _z, 1.0f);
     }
 
     ION_INLINE void SetPosition(const Vector& _position)
