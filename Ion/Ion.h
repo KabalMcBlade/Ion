@@ -23,7 +23,6 @@
 #include "Renderer/VertexCacheManager.h"
 
 #include "Texture/TextureCommon.h"
-#include "Texture/TextureOptions.h"
 #include "Texture/Texture.h"
 #include "Texture/TextureManager.h"
 

@@ -22,39 +22,35 @@ Texture::Texture(VkDevice _vkDevice, const eosString& _name) :
     m_vkDevice(_vkDevice),
     m_name(_name)
 {
-    m_isSwapChainImage = false;
     m_format = VK_FORMAT_UNDEFINED;
     m_image = VK_NULL_HANDLE;
     m_view = VK_NULL_HANDLE;
     m_layout = VK_IMAGE_LAYOUT_GENERAL;
     m_sampler = VK_NULL_HANDLE;
-    m_filter = ETextureFilter_Default;
-    m_repeat = ETextureRepeat_Repeat;
-    m_usage = ETextureUsage_Default;
-    m_isCubeMap = false;
-    m_isProvedurallyGenerated = false;
+
+    m_optFilter = ETextureFilter_Default;
+    m_optRepeat = ETextureRepeat_Repeat;
+    m_optUsage = ETextureUsage_RGBA;
+    m_optTextureType = ETextureType_2D;
+    m_optFormat = ETextureFormat_RGBA8;
 }
 
 Texture::~Texture()
 {
-    if (!m_isSwapChainImage)
-    {
-        Destroy();
-    }
+    Destroy();
 }
 
-ionBool Texture::LoadTexture(ionU32 _width, ionU32 _height, ionU32 _numChannels, ionU8* _buffer)
+ionBool Texture::LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU8* _buffer)
 {
-    m_options.m_width = _width;
-    m_options.m_height = _height;
-    m_options.m_numChannels = _numChannels;
-    m_options.m_numLevels = 0;
+    m_width = _width;
+    m_height = _height;
+    m_numLevels = 0;
 
     GenerateOptions();
 
     if (Create())
     {
-        UploadTextureToMemory(m_options.m_numLevels, m_options.m_width, m_options.m_height, _buffer, 0);
+        UploadTextureToMemory(m_numLevels, m_width, m_height, _buffer, 0);
 
         return true;
     }
@@ -62,22 +58,49 @@ ionBool Texture::LoadTexture(ionU32 _width, ionU32 _height, ionU32 _numChannels,
     return false;
 }
 
-ionBool Texture::LoadTexture2D(const eosString& _path)
+
+void Texture::ConvertFrom3ChannelTo4Channel(ionU32 _width, ionU32 _height, const ionU8* _inBuffer, ionU8* _outBuffer)
+{
+    ionU8* rgba = _outBuffer;
+    const ionU8* rgb = _inBuffer;
+    for (ionSize i = 0; i < _width * _height; ++i)
+    {
+        for (int32_t j = 0; j < 3; ++j)
+        {
+            rgba[j] = rgb[j];
+        }
+        rgba += 4;
+        rgb += 3;
+    }
+}
+
+
+ionBool Texture::LoadTextureFromFile(const eosString& _path)
 {
     ionS32 w = 0, h = 0, c = 0;
     ionU8* buffer = stbi_load(_path.c_str(), &w, &h, &c, 0);
 
-    m_options.m_width = w;
-    m_options.m_height = h;
-    m_options.m_numChannels = c;
-    m_options.m_numLevels = 0;
+    m_width = w;
+    m_height = h;
+    m_numLevels = 0;
 
     GenerateOptions();
 
     ionBool result = Create();
     if (result)
     {
-        UploadTextureToMemory(m_options.m_numLevels, m_options.m_width, m_options.m_height, buffer, 0);
+        if (c == 3)
+        {
+            ionSize newBufferSize = m_width * m_height * 4;
+            ionU8* newBuffer = (ionU8*)eosNewRaw(sizeof(ionU8) * newBufferSize, EOS_MEMORY_ALIGNMENT_SIZE);
+            ConvertFrom3ChannelTo4Channel(m_width, m_height, buffer, newBuffer);
+            UploadTextureToMemory(m_numLevels, m_width, m_height, newBuffer, 0);
+            eosDeleteRaw(newBuffer);
+        }
+        else
+        {
+            UploadTextureToMemory(m_numLevels, m_width, m_height, buffer, 0);
+        }
     }
 
     stbi_image_free(buffer);
@@ -86,7 +109,7 @@ ionBool Texture::LoadTexture2D(const eosString& _path)
 }
 
 // Adding the side name to the file with "_": for instance: "test.png" become "test_left.png", "test_top.png" etc etc
-ionBool Texture::LoadTexture3D(const eosString& _path)
+ionBool Texture::LoadCubeTextureFromFile(const eosString& _path)
 {
     eosString ext;
     eosString path;
@@ -106,140 +129,79 @@ ionBool Texture::LoadTexture3D(const eosString& _path)
 
     ionBool result = true;
 
-    ionS32 w = 0, h = 0, c = 0;
     for(ionU8 i = 0; i < 6; ++i)
     {
         eosString newPath = path + suffix[i] + ext;
-        ionU8* buffer = stbi_load(newPath.c_str(), &w, &h, &c, 0);
-
-        m_options.m_width = w;
-        m_options.m_height = h;
-        m_options.m_numChannels = c;
-        m_options.m_numLevels = 0;
-
-        GenerateOptions();
-
-        // if one fail, all fails
-        result &= Create();
-        if (result)
+        if (!LoadTextureFromFile(newPath.c_str()))
         {
-            UploadTextureToMemory(m_options.m_numLevels, m_options.m_width, m_options.m_height, buffer, i);
+            result = false;
+            break;
         }
-
-        stbi_image_free(buffer);
     }
 
     return result;
 }
 
-void Texture::SetOptions(const TextureOptions& _options)
-{
-    m_options = _options;
-}
-
 void Texture::GenerateOptions()
 {
-    if (m_options.m_format == ETextureFormat_None)
+    if (m_optFormat == ETextureFormat_None)
     {
-        m_options.m_colorFormat = ETextureColor_Default;
-        switch (m_usage) 
+        switch (m_optUsage) 
         {
-        case ETextureUsage_Coverage:
-            m_options.m_format = ETextureFormat_DXT1;
-            m_options.m_colorFormat = ETextureColor_Green_To_Aalpha;
-            break;
-        case ETextureUsage_Depth:
-            m_options.m_format = ETextureFormat_Depth;
-            break;
-        case ETextureUsage_Diffuse:
-            m_options.m_useGammaMips = true;
-            m_options.m_format = ETextureFormat_DXT5;
-            m_options.m_colorFormat = ETextureColor_RGBA_To_CoCgY;
-            break;
-        case ETextureUsage_Specular:
-            m_options.m_useGammaMips = true;
-            m_options.m_format = ETextureFormat_DXT1;
-            m_options.m_colorFormat = ETextureColor_Default;
-            break;
-        case ETextureUsage_Default:
-            m_options.m_useGammaMips = true;
-            m_options.m_format = ETextureFormat_DXT5;
-            m_options.m_colorFormat = ETextureColor_Default;
-            break;
-        case ETextureUsage_Bump:
-            m_options.m_format = ETextureFormat_DXT5;
-            m_options.m_colorFormat = ETextureColor_Normal_DXT5;
-            break;
-        case ETextureUsage_Font:
-            m_options.m_format = ETextureFormat_DXT1;
-            m_options.m_colorFormat = ETextureColor_Green_To_Aalpha;
-            m_options.m_numLevels = 4; 
-            m_options.m_useGammaMips = true;
-            break;
         case ETextureUsage_Light:
-            m_options.m_format = ETextureFormat_RGB565;
-            m_options.m_useGammaMips = true;
+            m_optFormat = ETextureFormat_RGB565;
             break;
-        case ETextureUsage_LookUp_Mono:
-            m_options.m_format = ETextureFormat_Intensity8;
+        case ETextureUsage_Mono:
+            m_optFormat = ETextureFormat_Intensity8;
             break;
-        case ETextureUsage_LookUp_Alpha:
-            m_options.m_format = ETextureFormat_Alpha;
+        case ETextureUsage_Alpha:
+            m_optFormat = ETextureFormat_Alpha;
             break;
-        case ETextureUsage_LookUp_RGB1:
-        case ETextureUsage_LookUp_RGBA:
-            m_options.m_format = ETextureFormat_RGBA8;
+        case ETextureUsage_RGB1:
+        case ETextureUsage_RGBA:
+            m_optFormat = ETextureFormat_RGBA8;
+            break;
+        case ETextureUsage_RGB:
+            m_optFormat = ETextureFormat_XRGB8;
             break;
         default:
             ionAssertReturnVoid(false, "Cannot generate proper texture options!");
-            m_options.m_format = ETextureFormat_RGBA8;
+            m_optFormat = ETextureFormat_RGBA8;
         }
     }
 
-    if (m_options.m_numLevels == 0) 
+    if (m_numLevels == 0) 
     {
-        m_options.m_numLevels = 1;
+        m_numLevels = 1;
 
-        if (m_filter != ETextureFilter_Linear && m_filter != ETextureFilter_Nearest)
+        if (m_optFilter == ETextureFilter_Default)
         {
-            ionS32 width = m_options.m_width;
-            ionS32 height = m_options.m_height;
+            ionS32 width = m_width;
+            ionS32 height = m_height;
             while (width > 1 || height > 1)
             {
                 width >>= 1;
                 height >>= 1;
-                if ((m_options.m_format == ETextureFormat_DXT1 || m_options.m_format == ETextureFormat_DXT5) && ((width & 0x3) != 0 || (height & 0x3) != 0))
-                {
-                    break;
-                }
-                m_options.m_numLevels++;
+
+                m_numLevels++;
             }
         }
     }
 }
 
-ionBool Texture::CreateFromFile(const eosString& _path, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_Default*/, ETextureType _type /*= ETextureType_2D*/)
+ionBool Texture::CreateFromFile(const eosString& _path)
 {
-    // clear before create
-    Destroy();
-
-    m_options.m_textureType = _type;
-
-    m_filter = _filter;
-    m_repeat = _repeat;
-    m_usage = _usage;
-    
-    if (m_options.m_textureType == ETextureType_Cubic)
+    if (m_optTextureType == ETextureType_Cubic)
     {
-        m_repeat = ETextureRepeat_Clamp;
-        if (!LoadTexture3D(_path))
+        m_optRepeat = ETextureRepeat_Clamp;
+        if (!LoadCubeTextureFromFile(_path))
         {
             ionAssertReturnValue(false, "Cannot load 3d texture!", false);
         }
     }
-    else if (m_options.m_textureType == ETextureType_2D)
+    else if (m_optTextureType == ETextureType_2D)
     {
-        if (!LoadTexture2D(_path))
+        if (!LoadTextureFromFile(_path))
         {
             ionAssertReturnValue(false, "Cannot load 2d texture!", false);
         }
@@ -252,51 +214,11 @@ ionBool Texture::CreateFromFile(const eosString& _path, ETextureFilter _filter /
     return true;
 }
 
-ionBool Texture::CreateFromBinary(ionU32 _width, ionU32 _height, ionU32 _numChannels, ionU8* _buffer, VkDeviceSize _bufferSize)
+ionBool Texture::CreateFromBuffer(ionU32 _width, ionU32 _height, ionU8* _buffer, VkDeviceSize _bufferSize)
 {
-    // clear before create
-    Destroy();
-
-    ionU8* buffer;
-    VkDeviceSize bufferSize;
-    ionBool releaseBuffer = false;
-    if (_numChannels == 3)
+    if (!LoadTextureFromBuffer( _width, _height, _buffer))
     {
-        bufferSize = _width * _height * 4;
-        buffer = (ionU8*)eosNewRaw(sizeof(ionU8) * bufferSize, ION_MEMORY_ALIGNMENT_SIZE);
-        ionU8* rgba = buffer;
-        ionU8* rgb = _buffer;
-        for (ionSize i = 0; i < _width * _height; ++i)
-        {
-            for (int32_t j = 0; j < 3; ++j)
-            {
-                rgba[j] = rgb[j];
-            }
-            rgba += 4;
-            rgb += 3;
-        }
-        _numChannels = 4;
-        releaseBuffer = true;
-    }
-    else
-    {
-        buffer = _buffer;
-        bufferSize = _bufferSize;
-    }
-
-    if (!LoadTexture( _width, _height, _numChannels, buffer))
-    {
-        if (releaseBuffer)
-        {
-            eosDeleteRaw(buffer);
-        }
-        releaseBuffer = false;
         ionAssertReturnValue(false, "Cannot load binary texture!", false);
-    }
-
-    if(releaseBuffer)
-    {
-        eosDeleteRaw(buffer);
     }
 
     return true;
@@ -309,32 +231,22 @@ ionBool Texture::Create()
 
     if (CreateSampler())
     {
-        m_format = GetVulkanFormatFromTextureFormat(m_options.m_format);
-
-        VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
-        if (m_options.m_format == ETextureFormat_Depth)
-        {
-            usageFlags |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-        }
-        else
-        {
-            usageFlags |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-        }
+        m_format = GetVulkanFormatFromTextureFormat(m_optFormat);
 
         {
             VkImageCreateInfo createInfo = {};
             createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-            createInfo.flags = (m_options.m_textureType == ETextureType_Cubic) ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
+            createInfo.flags = (m_optTextureType == ETextureType_Cubic) ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
             createInfo.imageType = VK_IMAGE_TYPE_2D;
             createInfo.format = m_format;
-            createInfo.extent.width = m_options.m_width;
-            createInfo.extent.height = m_options.m_height;
+            createInfo.extent.width = m_width;
+            createInfo.extent.height = m_height;
             createInfo.extent.depth = 1;
-            createInfo.mipLevels = m_options.m_numLevels;
-            createInfo.arrayLayers = (m_options.m_textureType == ETextureType_Cubic) ? 6 : 1;
-            createInfo.samples = static_cast<VkSampleCountFlagBits>(m_options.m_samples);
+            createInfo.mipLevels = m_numLevels;
+            createInfo.arrayLayers = (m_optTextureType == ETextureType_Cubic) ? 6 : 1;
+            createInfo.samples = VK_SAMPLE_COUNT_1_BIT;//m_sampleCount;
             createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-            createInfo.usage = usageFlags;
+            createInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
             createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -364,13 +276,14 @@ ionBool Texture::Create()
             VkImageViewCreateInfo createInfo = {};
             createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
             createInfo.image = m_image;
-            createInfo.viewType = (m_options.m_textureType == ETextureType_Cubic) ? VK_IMAGE_VIEW_TYPE_CUBE : VK_IMAGE_VIEW_TYPE_2D;
+            createInfo.viewType = (m_optTextureType == ETextureType_Cubic) ? VK_IMAGE_VIEW_TYPE_CUBE : VK_IMAGE_VIEW_TYPE_2D;
             createInfo.format = m_format;
-            createInfo.components = GetVulkanComponentMappingFromTextureFormat(m_options.m_format, m_options.m_colorFormat);
-            createInfo.subresourceRange.aspectMask = (m_options.m_format == ETextureFormat_Depth) ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
-            createInfo.subresourceRange.levelCount = m_options.m_numLevels;
-            createInfo.subresourceRange.layerCount = (m_options.m_textureType == ETextureType_Cubic) ? 6 : 1;
+            createInfo.components = GetVulkanComponentMappingFromTextureFormat(m_optFormat);
+            createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            createInfo.subresourceRange.levelCount = m_numLevels;
+            createInfo.subresourceRange.layerCount = (m_optTextureType == ETextureType_Cubic) ? 6 : 1;
             createInfo.subresourceRange.baseMipLevel = 0;
+            //createInfo.subresourceRange.baseArrayLayer = 0;
 
             VkResult result = vkCreateImageView(m_vkDevice, &createInfo, vkMemory, &m_view);
             ionAssertReturnValue(result == VK_SUCCESS, "Cannot create image view!", false);
@@ -396,11 +309,6 @@ ionU32 Texture::BitsPerFormat(ETextureFormat _format)
     case ETextureFormat_Alpha:		        return 8;
     case ETextureFormat_Luminance8:		    return 8;
     case ETextureFormat_Intensity8:		    return 8;
-    case ETextureFormat_DXT1:		        return 4;
-    case ETextureFormat_DXT5:		        return 8;
-    case ETextureFormat_Depth:		        return 32;
-    case ETextureFormat_X16:		        return 16;
-    case ETextureFormat_Y16_X16:	        return 32;
     default:
         ionAssertReturnValue(false, "Invalid format!", 0);
         return 0;
@@ -409,19 +317,13 @@ ionU32 Texture::BitsPerFormat(ETextureFormat _format)
 
 void Texture::UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _height, const ionU8* _buffer, ionU32 _index /* = 0 // index of texture for cube-map, 0 by default */ )
 {
-    if (IsCompressed()) 
-    {
-        _width = (_width + 3) & ~3;
-        _height = (_height + 3) & ~3;
-    }
-
-    ionSize size = _width * _height * BitsPerFormat(m_options.m_format) / 8;
+    ionSize size = _width * _height * BitsPerFormat(m_optFormat) / 8;
 
     VkBuffer buffer;
     VkCommandBuffer commandBuffer;
     ionSize offset = 0;
     ionU8* data = ionStagingBufferManager().Stage(size, ION_MEMORY_ALIGNMENT_SIZE, commandBuffer, buffer, offset);
-    if (m_options.m_format == ETextureFormat_RGB565)
+    if (m_optFormat == ETextureFormat_RGB565)
     {
         ionU8* tmpData = (ionU8*)_buffer;
         for (int i = 0; i < size; i += 2) 
@@ -438,11 +340,11 @@ void Texture::UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _
     VkBufferImageCopy imgCopy = {};
     imgCopy.bufferOffset = offset;
     imgCopy.bufferRowLength = 0;
-    imgCopy.bufferImageHeight = _height;
+    imgCopy.bufferImageHeight = 0;  //_height;
     imgCopy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     imgCopy.imageSubresource.layerCount = 1;
-    imgCopy.imageSubresource.mipLevel = _mipMapLevel;
-    imgCopy.imageSubresource.baseArrayLayer = _index;
+    imgCopy.imageSubresource.mipLevel = 0;  // _mipMapLevel;
+    imgCopy.imageSubresource.baseArrayLayer = _index;           // 0 for 2d
     imgCopy.imageOffset.x = 0;
     imgCopy.imageOffset.y = 0;
     imgCopy.imageOffset.z = 0;
@@ -457,7 +359,7 @@ void Texture::UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _
     barrier.image = m_image;
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = m_options.m_numLevels;
+    barrier.subresourceRange.levelCount = m_numLevels;
     barrier.subresourceRange.baseArrayLayer = _index;               // 0 for 2d
     barrier.subresourceRange.layerCount = 1;
     barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -487,18 +389,12 @@ VkFormat Texture::GetVulkanFormatFromTextureFormat(ETextureFormat _format)
     case ETextureFormat_Luminance8Alpha8: return VK_FORMAT_R8G8_UNORM;
     case ETextureFormat_Luminance8: return VK_FORMAT_R8_UNORM;
     case ETextureFormat_Intensity8: return VK_FORMAT_R8_UNORM;
-    case ETextureFormat_DXT1: return VK_FORMAT_BC1_RGB_UNORM_BLOCK;
-    case ETextureFormat_DXT5: return VK_FORMAT_BC3_UNORM_BLOCK;
-    case ETextureFormat_Depth: return m_options.m_vkDepthFormat;
-    case ETextureFormat_X16: return VK_FORMAT_R16_UNORM;
-    case ETextureFormat_Y16_X16: return VK_FORMAT_R16G16_UNORM;
-    case ETextureFormat_RGB565: return VK_FORMAT_R5G6B5_UNORM_PACK16;
     default:
         return VK_FORMAT_UNDEFINED;
     }
 }
 
-VkComponentMapping Texture::GetVulkanComponentMappingFromTextureFormat(ETextureFormat _format, ETextureColor _color)
+VkComponentMapping Texture::GetVulkanComponentMappingFromTextureFormat(ETextureFormat _format)
 {
     VkComponentMapping componentMapping = 
     {
@@ -507,15 +403,6 @@ VkComponentMapping Texture::GetVulkanComponentMappingFromTextureFormat(ETextureF
         VK_COMPONENT_SWIZZLE_ZERO,
         VK_COMPONENT_SWIZZLE_ZERO
     };
-
-    if (_color == ETextureColor_Green_To_Aalpha)
-    {
-        componentMapping.r = VK_COMPONENT_SWIZZLE_ONE;
-        componentMapping.g = VK_COMPONENT_SWIZZLE_ONE;
-        componentMapping.b = VK_COMPONENT_SWIZZLE_ONE;
-        componentMapping.a = VK_COMPONENT_SWIZZLE_G;
-        return componentMapping;
-    }
 
     switch (_format)
     {
@@ -558,12 +445,15 @@ ionBool Texture::CreateSampler()
 {
     VkSamplerCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    createInfo.maxAnisotropy = 1.0f;
-    createInfo.anisotropyEnable = VK_FALSE;
-    createInfo.compareEnable = (m_options.m_format == ETextureFormat_Depth);
-    createInfo.compareOp = (m_options.m_format == ETextureFormat_Depth) ? VK_COMPARE_OP_LESS_OR_EQUAL : VK_COMPARE_OP_NEVER;
+    createInfo.maxAnisotropy = (ionFloat)m_maxAnisotropy;
+    createInfo.anisotropyEnable = m_maxAnisotropy > 1 ? VK_TRUE : VK_FALSE;
+    createInfo.compareEnable = VK_FALSE;
+    createInfo.compareOp = VK_COMPARE_OP_NEVER; // : VK_COMPARE_OP_ALWAYS ?
+    createInfo.unnormalizedCoordinates = VK_FALSE;
+    createInfo.minLod = 0;
+    createInfo.maxLod = static_cast<ionFloat>(m_numLevels);
 
-    switch (m_filter) 
+    switch (m_optFilter) 
     {
     case ETextureFilter_Default:
     case ETextureFilter_Linear:
@@ -580,14 +470,16 @@ ionBool Texture::CreateSampler()
         ionAssertReturnValue(false, "Texture filter not supported", false);
     }
 
-    switch (m_repeat) 
+    switch (m_optRepeat) 
     {
     case ETextureRepeat_Repeat:
+        createInfo.borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
         createInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         createInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         break;
     case ETextureRepeat_Clamp:
+        createInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
         createInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         createInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;

@@ -215,7 +215,6 @@
     <ClInclude Include="Scene\Entity.h" />
     <ClInclude Include="Texture\Texture.h" />
     <ClInclude Include="Texture\TextureManager.h" />
-    <ClInclude Include="Texture\TextureOptions.h" />
     <ClInclude Include="Texture\TextureCommon.h" />
     <ClInclude Include="Ion.h" />
     <ClInclude Include="Renderer\GPU.h" />
@@ -277,7 +276,6 @@
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Texture\Texture.cpp" />
     <ClCompile Include="Texture\TextureManager.cpp" />
-    <ClCompile Include="Texture\TextureOptions.cpp" />
     <ClCompile Include="Utilities\LoaderGLTF.cpp" />
     <ClCompile Include="Wrapper\Memory.cpp" />
   </ItemGroup>

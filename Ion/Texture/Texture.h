@@ -8,7 +8,6 @@
 #include "../Dependencies/Eos/Eos/Eos.h"
 
 #include "TextureCommon.h"
-#include "TextureOptions.h"
 
 #include "../Renderer/GPUMemoryManager.h"
 
@@ -24,7 +23,6 @@ public:
     ~Texture();
 
     const eosString& GetName() const { return m_name; }
-    const TextureOptions& GetOptions() const { return m_options; }
     const VkImageView& GetView() const { return m_view; }
     const VkImageLayout& GetLayout() const { return m_layout; }
     const VkSampler& GetSampler() const { return m_sampler; }
@@ -33,23 +31,23 @@ public:
 private:
     friend class TextureManager;
 
-    void SetOptions(const TextureOptions& _options);
-    ionBool IsCompressed() const { return (m_options.m_format == ETextureFormat_DXT1 || m_options.m_format == ETextureFormat_DXT5); }
-
-    ionBool CreateFromFile(const eosString& _path, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureUsage _usage = ETextureUsage_Default, ETextureType _type = ETextureType_2D);
-    ionBool CreateFromBinary(ionU32 _width, ionU32 _height, ionU32 _numChannels, ionU8* _buffer, VkDeviceSize _bufferSize);
+    ionBool CreateFromFile(const eosString& _path);
+    ionBool CreateFromBuffer(ionU32 _width, ionU32 _height, ionU8* _buffer, VkDeviceSize _bufferSize);
     ionBool Create();
+
+    // this needed because Vulkan limitation
+    void ConvertFrom3ChannelTo4Channel(ionU32 _width, ionU32 _height, const ionU8* _inBuffer, ionU8* _outBuffer);
 
     void Destroy();
 
     ionBool CreateSampler();
     VkFormat GetVulkanFormatFromTextureFormat(ETextureFormat _format);
-    VkComponentMapping GetVulkanComponentMappingFromTextureFormat(ETextureFormat _format, ETextureColor _color);
+    VkComponentMapping GetVulkanComponentMappingFromTextureFormat(ETextureFormat _format);
 
-    ionBool LoadTexture2D(const eosString& _path);
-    ionBool LoadTexture3D(const eosString& _path);
+    ionBool LoadTextureFromFile(const eosString& _path);
+    ionBool LoadCubeTextureFromFile(const eosString& _path);
 
-    ionBool LoadTexture(ionU32 _width, ionU32 _height, ionU32 _numChannels, ionU8* _buffer);
+    ionBool LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU8* _buffer);
 
     ionU32 BitsPerFormat(ETextureFormat _format);
     void GenerateOptions();
@@ -60,18 +58,25 @@ private:
     eosString               m_name;
     VkDevice                m_vkDevice;
     vkGpuMemoryAllocation	m_allocation;
-    TextureOptions	        m_options;
+
+    VkFormat                m_format;
     VkImageView		        m_view;
-    VkFormat		        m_format;
     VkImage			        m_image;
     VkImageLayout	        m_layout;
     VkSampler		        m_sampler;
-    ETextureUsage	        m_usage;
-    ETextureFilter	        m_filter;
-    ETextureRepeat	        m_repeat;
-    ionBool                 m_isCubeMap;
-    ionBool			        m_isSwapChainImage;
-    ionBool			        m_isProvedurallyGenerated;
+    VkSampleCountFlagBits	m_sampleCount;
+
+    ETextureUsage	        m_optUsage;
+    ETextureFilter	        m_optFilter;
+    ETextureRepeat	        m_optRepeat;
+    ETextureType		    m_optTextureType;
+    ETextureFormat		    m_optFormat;
+
+    ionU32					m_width;
+    ionU32					m_height;			// not needed for cube maps, actually.. it is a cube and so.. all same width :)
+    ionU32					m_numLevels;		// if this is set to 0, during generation it will be 1 for ETextureFilter_Nearest or ETextureFilter_Linear filters, otherwise will be based on the size
+
+    ionU32					m_maxAnisotropy;    // 1 means DISABLED anisotropy
 };
 
 

@@ -135,9 +135,6 @@
     <ClInclude Include="Texture\TextureCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Texture\TextureOptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Texture\TextureManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -267,9 +264,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\GPU.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture\TextureOptions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Texture\TextureManager.cpp">

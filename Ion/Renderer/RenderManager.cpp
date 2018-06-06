@@ -214,7 +214,7 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         */
 
 
-        
+        /*
         //////////////////////////////////////////////////////////////////////////
         // TEST FOR DebugDrawQuad2
         eosVector(PlainColorVertex) vertices;
@@ -254,9 +254,9 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         m_drawSurfaces[i].m_indexCount = 6;
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(vertices.data(), vertices.size());
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(indices.data(), indices.size());
-        
+        */
 
-        /*
+        
         //////////////////////////////////////////////////////////////////////////
         // TEST FOR DebugDrawQuadTextured
         eosVector(PlainColorTextureVertex) vertices;
@@ -305,7 +305,7 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         m_drawSurfaces[i].m_indexCount = 6;
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(vertices.data(), vertices.size());
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(indices.data(), indices.size());
-        */
+        
     }
 
 }
@@ -357,8 +357,8 @@ void RenderManager::Frame()
         //m_renderCore.DebugDrawTriangle1();
         //m_renderCore.DebugDrawTriangle2(m_drawSurfaces[0]);
         //m_renderCore.DebugDrawQuad1(m_drawSurfaces[0]);
-        m_renderCore.DebugDrawQuad2(m_drawSurfaces[0]);
-        //m_renderCore.DebugDrawQuadTextured(m_drawSurfaces[0]);
+        //m_renderCore.DebugDrawQuad2(m_drawSurfaces[0]);
+        m_renderCore.DebugDrawQuadTextured(m_drawSurfaces[0]);
 
         /*
         for (ionSize i = 0; i < m_nodeCount; ++i)

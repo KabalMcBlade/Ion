@@ -216,7 +216,7 @@ int main()
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle2", EShaderStage_Fragment, fragmentLayout);
     */
 
-    
+    /*
     //
     ShaderLayoutDef vertexLayout;
     vertexLayout.m_bindings.push_back(EShaderBinding_Uniform);
@@ -229,9 +229,9 @@ int main()
     ShaderLayoutDef fragmentLayout;
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle3", EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle3", EShaderStage_Fragment, fragmentLayout);
-   
+   */
 
-    /*
+    
     ShaderLayoutDef vertexLayout;
     vertexLayout.m_bindings.push_back(EShaderBinding_Uniform);
     vertexLayout.m_uniforms.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
@@ -244,8 +244,8 @@ int main()
     fragmentLayout.m_bindings.push_back(EShaderBinding_Sampler);
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("BaseTriangleTextured", EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("BaseTriangleTextured", EShaderStage_Fragment, fragmentLayout);
-    ionTextureManger().CreateTextureFromFile(ionRenderManager().GetRenderer().GetDevice(), "dva", "E:/Projects/Ion/Demo/Assets/dva.png", ETextureFilter_Linear, ETextureRepeat_Repeat, ETextureUsage_LookUp_RGBA, ETextureType_2D);
-    */
+    ionTextureManger().CreateTextureFromFile(ionRenderManager().GetRenderer().GetDevice(), "dva", "E:/Projects/Ion/Demo/Assets/dva.png", ETextureFilter_Nearest, ETextureRepeat_Repeat, ETextureUsage_RGBA, ETextureType_2D);
+    
     
 
 

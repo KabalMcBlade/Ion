@@ -345,7 +345,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
 
             m_textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, name.c_str()));
 
-            //ionTextureManger().CreateTextureFromBinary(m_vkDevice, name, _model.images[i].width, _model.images[i].height, _model.images[i].component, &_model.images[i].image[0], _model.images[i].image.size(), ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_LookUp_RGBA, ETextureType_2D);
+            //ionTextureManger().CreateTextureFromBuffer(m_vkDevice, name, _model.images[i].width, _model.images[i].height, &_model.images[i].image[0], _model.images[i].image.size(), ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_LookUp_RGBA, ETextureType_2D);
         }
         else
         {

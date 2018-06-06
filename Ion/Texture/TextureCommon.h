@@ -29,6 +29,7 @@ enum ETextureFormat
 
     ETextureFormat_RGBA8,   // 32 bpp
     ETextureFormat_XRGB8,   // 32 bpp
+    ETextureFormat_RGB565,	// 16 bpp
 
     // alpha channel only
     ETextureFormat_Alpha,
@@ -38,49 +39,23 @@ enum ETextureFormat
     ETextureFormat_Luminance8Alpha8,	// 16 bpp
     ETextureFormat_Luminance8,		    //  8 bpp
     ETextureFormat_Intensity8,		    //  8 bpp
-
-    // compress format
-    ETextureFormat_DXT1,	// 4 bpp
-    ETextureFormat_DXT5,	// 8 bpp
-
-    // depth buffer
-    ETextureFormat_Depth,    // 24 bpp
-
-    // Other formats
-    ETextureFormat_X16,			// 16 bpp
-    ETextureFormat_Y16_X16,		// 32 bpp
-    ETextureFormat_RGB565,		// 16 bpp
-};
-
-enum ETextureColor
-{
-    ETextureColor_Default   = 0,	// RGBA
-    ETextureColor_Normal_DXT5,		// XY format and use the fast DXT5 compressor
-    ETextureColor_RGBA_To_CoCgY,
-    ETextureColor_Green_To_Aalpha	// Copy the alpha channel to green
 };
 
  enum ETextureUsage
  {
-    ETextureUsage_Specular,			// maybe compressed, and always zeros the alpha channel
-    ETextureUsage_Diffuse,			// maybe compressed
-    ETextureUsage_Default,			// RGBA texture
-    ETextureUsage_Bump,				// maybe compressed with 8 bit lookup
-    ETextureUsage_Font,				// Font image
     ETextureUsage_Light,			// Light image
-    ETextureUsage_LookUp_Mono,	    // Mono lookup table (including alpha) used for falloff for instance
-    ETextureUsage_LookUp_Alpha,	    // Alpha lookup table with a white color channel
-    ETextureUsage_LookUp_RGB1,	    // RGB lookup table with a solid white alpha
-    ETextureUsage_LookUp_RGBA,	    // RGBA lookup table
-    ETextureUsage_Coverage,			// coverage map for fill depth pass when YCoCG is used
-    ETextureUsage_Depth,			// depth buffer copy for motion blur
+    ETextureUsage_Mono,	            // Mono used for falloff for instance
+    ETextureUsage_Alpha,	        // Alpha with a white color channel
+    ETextureUsage_RGB1,	            // RGB with Alpha to 1
+    ETextureUsage_RGBA,	            // RGBA
+    ETextureUsage_RGB,	            // RGB
 };
 
  enum ETextureFilter
  {
      ETextureFilter_Linear,
-     ETextureFilter_Nearest,
-     ETextureFilter_Default
+     ETextureFilter_Nearest,    
+     ETextureFilter_Default         // Using this filtering, the TextureOptions::m_numLevels will be computed by width and height, and the filtering will be set as ETextureFilter_Linear
  };
 
  enum ETextureRepeat

@@ -58,7 +58,7 @@ void TextureManager::Shutdown()
     m_hashTexture.clear();
 }
 
-Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosString& _name, const eosString& _path, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_Default*/, ETextureType _type /*= ETextureType_2D*/)
+Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosString& _name, const eosString& _path, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/)
 {
     if (_name.empty() || _path.empty())
     {
@@ -75,11 +75,15 @@ Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosStri
         DestroyTexture(texture);
     }
 
-    texture->m_isCubeMap = _type == ETextureType_Cubic;
-    texture->m_usage = _usage;
-    texture->m_filter = _filter;
-    texture->m_repeat = _repeat;
-    if (texture->CreateFromFile(_path, _filter, _repeat, _usage, _type))
+    texture->m_optUsage = _usage;
+    texture->m_optFilter = _filter;
+    texture->m_optRepeat = _repeat;
+    texture->m_optTextureType = _type;
+
+    texture->m_sampleCount = m_sampleCount;
+    texture->m_maxAnisotropy = _maxAnisotrpy;
+
+    if (texture->CreateFromFile(_path))
     {
         return texture;
     }
@@ -89,7 +93,7 @@ Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosStri
     }
 }
 
-Texture* TextureManager::CreateTextureFromBinary(VkDevice _vkDevice, const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _numChannels, ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_Default*/, ETextureType _type /*= ETextureType_2D*/)
+Texture* TextureManager::CreateTextureFromBuffer(VkDevice _vkDevice, const eosString& _name, ionU32 _width, ionU32 _height, ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/)
 {
     if (_name.empty())
     {
@@ -106,39 +110,15 @@ Texture* TextureManager::CreateTextureFromBinary(VkDevice _vkDevice, const eosSt
         DestroyTexture(texture);
     }
 
-    texture->m_isCubeMap = _type == ETextureType_Cubic;
-    texture->m_usage = _usage;
-    texture->m_filter = _filter;
-    texture->m_repeat = _repeat;
-    if (texture->CreateFromBinary(_width, _height, _numChannels, _buffer, _bufferSize))
-    {
-        return texture;
-    }
-    else
-    {
-        return nullptr;
-    }
-}
+    texture->m_optUsage = _usage;
+    texture->m_optFilter = _filter;
+    texture->m_optRepeat = _repeat;
+    texture->m_optTextureType = _type;
 
-Texture* TextureManager::CreateTextureFromOptions(VkDevice _vkDevice, const eosString& _name, const TextureOptions& _options)
-{
-    if (_name.empty())
-    {
-        return nullptr;
-    }
+    texture->m_sampleCount = m_sampleCount;
+    texture->m_maxAnisotropy = _maxAnisotrpy;
 
-    Texture* texture = GetTexture(_name);
-    if (texture == nullptr)
-    {
-        texture = CreateTexture(_vkDevice, _name);
-    }
-    else 
-    {
-        DestroyTexture(texture);
-    }
-
-    texture->SetOptions(_options);
-    if (texture->Create())
+    if (texture->CreateFromBuffer(_width, _height, _buffer, _bufferSize))
     {
         return texture;
     }

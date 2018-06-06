@@ -5,7 +5,6 @@
 #include "../Dependencies/Eos/Eos/Eos.h"
 
 #include "TextureCommon.h"
-#include "TextureOptions.h"
 #include "Texture.h"
 
 EOS_USING_NAMESPACE
@@ -28,16 +27,16 @@ public:
     void        Init(ETextureSamplesPerBit _textureSample);
     void        Shutdown();
 
+    Texture*    CreateTextureFromFile(VkDevice _vkDevice, const eosString& _name, const eosString& _path, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureUsage _usage = ETextureUsage_RGBA, ETextureType _type = ETextureType_2D, ionU32 _maxAnisotrpy = 1);
+    Texture*    CreateTextureFromBuffer(VkDevice _vkDevice, const eosString& _name, ionU32 _width, ionU32 _height, ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureUsage _usage = ETextureUsage_RGBA, ETextureType _type = ETextureType_2D, ionU32 _maxAnisotrpy = 1);
     
-
-    Texture*    CreateTextureFromFile(VkDevice _vkDevice, const eosString& _name, const eosString& _path, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureUsage _usage = ETextureUsage_Default, ETextureType _type = ETextureType_2D);
-    Texture*    CreateTextureFromBinary(VkDevice _vkDevice, const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _numChannels, ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureUsage _usage = ETextureUsage_Default, ETextureType _type = ETextureType_2D);
-    Texture*    CreateTextureFromOptions(VkDevice _vkDevice, const eosString& _name, const TextureOptions& _options);
     Texture*    GetTexture(const eosString& _name) const;
 
 	void        DestroyTexture(const eosString& _name);
 
     const ETextureSamplesPerBit& GetMainSamplePerBits() const { return m_mainSamplesPerBit; }
+
+    void SetSampleCount(VkSampleCountFlagBits _sampleCount) { m_sampleCount = _sampleCount; }
 
 private:
     Texture*    CreateTexture(VkDevice _vkDevice, const eosString& _name);
@@ -47,6 +46,7 @@ private:
 private:
     eosMap(ionSize, Texture*) m_hashTexture;
 
+    VkSampleCountFlagBits m_sampleCount;
     ETextureSamplesPerBit m_mainSamplesPerBit;
 
     static TextureManager *s_instance;
