@@ -1258,12 +1258,16 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
 
     ionVertexCacheManager().Init(m_vkDevice, m_vkGPU.m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment);
 
+    ionTextureManger().Init(ETextureSamplesPerBit_16);
+
     return true;
 }
 
 void RenderCore::Shutdown()
 {
 	vkDeviceWaitIdle(m_vkDevice);
+
+    ionTextureManger().Shutdown();
 
     ionVertexCacheManager().Shutdown();
 

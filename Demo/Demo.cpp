@@ -131,8 +131,6 @@ int main()
     ionBool rendererInitialized = false;
     Window window;
 
-    ionTextureManger().Init(ion::ETextureSamplesPerBit_16); // init AFTER render core (not important)
-
     if (window.Create(WndProc, L"Ion Demo", DEMO_WIDTH, DEMO_HEIGHT, false))
     {
         rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, demoPath, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
@@ -263,8 +261,6 @@ int main()
     {
         window.Loop();
     }
-
-    ionTextureManger().Shutdown();  // Shutdown BEFORE render core (VERY IMPORTANT)
 
     ionRenderManager().Shutdown();
 
