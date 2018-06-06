@@ -199,25 +199,6 @@ int main()
     test->GetMaterial(0, 0)->SetFragmentShaderIndex(fragmentShaderIndex);
     */
     
-
-
-
-    //
-    /*
-    ShaderLayoutDef vertexLayout;
-    ShaderLayoutDef fragmentLayout;
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle1", EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle1", EShaderStage_Fragment, fragmentLayout);
-    */
-
-    //
-    /*
-    ShaderLayoutDef vertexLayout;
-    ShaderLayoutDef fragmentLayout;
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle2", EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle2", EShaderStage_Fragment, fragmentLayout);
-    */
-
     /*
     //
     ShaderLayoutDef vertexLayout;
@@ -229,9 +210,9 @@ int main()
     vertexLayout.m_uniforms.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
     vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
     ShaderLayoutDef fragmentLayout;
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle3", EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("BaseTriangle3", EShaderStage_Fragment, fragmentLayout);
-   */
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", EShaderStage_Fragment, fragmentLayout);
+    */
 
     
     ShaderLayoutDef vertexLayout;
@@ -244,13 +225,12 @@ int main()
     vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
     ShaderLayoutDef fragmentLayout;
     fragmentLayout.m_bindings.push_back(EShaderBinding_Sampler);
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("BaseTriangleTextured", EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("BaseTriangleTextured", EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColorTextured", EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColorTextured", EShaderStage_Fragment, fragmentLayout);
 
     eosString textureDVA = demoPath;
     textureDVA.append("dva.png");
     ionTextureManger().CreateTextureFromFile(ionRenderManager().GetRenderer().GetDevice(), "dva", textureDVA, ETextureFilter_Nearest, ETextureRepeat_Clamp, ETextureUsage_RGBA, ETextureType_2D);
-    
     
 
 

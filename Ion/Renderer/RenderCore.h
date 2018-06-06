@@ -46,10 +46,7 @@ public:
     void    Draw(const DrawSurface& _surface);
 
     // DEBUG
-    void    DebugDrawTriangle1();
-    void    DebugDrawTriangle2(const DrawSurface& _surface);
-    void    DebugDrawQuad1(const DrawSurface& _surface);
-    void    DebugDrawQuad2(const DrawSurface& _surface);
+    void    DebugDrawQuad(const DrawSurface& _surface);
     void    DebugDrawQuadTextured(const DrawSurface& _surface);
     // DEBUG
 

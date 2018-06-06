@@ -67,17 +67,6 @@ enum EVertexMask
     EVertexMask_Color2          = 0b00000100    // other color, also weight for skinning
 };
 
-enum EVertexLayout
-{
-    EVertexLayout_Unknow = -1,
-    EVertexLayout_Vertices,
-    EVertexLayout_Vertices_Simple,
-    EVertexLayout_Vertices_Plain_Color,
-    EVertexLayout_Vertices_Plain_Color_Texture,
-    EVertexLayout_Vertices_Plain,
-    EVertexLayout_Empty,
-    EVertexLayout_Count
-};
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -89,6 +78,26 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct ShaderVertexLayout
 };
 
 //////////////////////////////////////////////////////////////////////////
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+
+enum EVertexLayout
+{
+    EVertexLayout_Unknow = -1,
+
+    EVertexLayout_Full,             // Vertex
+    EVertexLayout_Pos_UV_Normal,    // VertexSimple
+    EVertexLayout_Pos_Color,        // VertexColored
+    EVertexLayout_Pos_UV,           // VertexUV
+    EVertexLayout_Pos,              // VertexPlain
+
+    EVertexLayout_Empty,
+
+    EVertexLayout_Count
+};
 
 
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
@@ -420,18 +429,15 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
     }
 };
 
-
-
-
 //////////////////////////////////////////////////////////////////////////
 
-ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct SimpleVertex
+ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
 {
     Vector				m_position;	
     ionFloat            m_textureCoordUV[2];
     ionU8				m_normal[4];
  
-    SimpleVertex()
+    VertexSimple()
     {
         Clear();
     }
@@ -530,7 +536,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct SimpleVertex
     //////////////////////////////////////////////////////////////////////////
     // FUNCTIONS
 
-    ION_INLINE void Lerp(const SimpleVertex& _a, const SimpleVertex& _b, const ionFloat _t)
+    ION_INLINE void Lerp(const VertexSimple& _a, const VertexSimple& _b, const ionFloat _t)
     {
         const Vector t(_t);
 
@@ -543,16 +549,14 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct SimpleVertex
     }
 };
 
-
-
 //////////////////////////////////////////////////////////////////////////
 
-ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorVertex
+ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
 {
     Vector				m_position;
     ionU8				m_color[4];	
 
-    PlainColorVertex()
+    VertexColored()
     {
         Clear();
     }
@@ -605,7 +609,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorVertex
         MathHelper::VectorToByte(_color, m_color);
     }
 
-    ION_INLINE void Lerp(const Vertex& _a, const Vertex& _b, const ionFloat _t)
+    ION_INLINE void Lerp(const VertexColored& _a, const VertexColored& _b, const ionFloat _t)
     {
         const Vector t(_t);
 
@@ -613,16 +617,14 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorVertex
     }
 };
 
-
 //////////////////////////////////////////////////////////////////////////
 
-ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorTextureVertex
+ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
 {
     Vector				m_position;
     ionFloat            m_textureCoordUV[2];
-    ionU8				m_color[4];
 
-    PlainColorTextureVertex()
+    VertexUV()
     {
         Clear();
     }
@@ -632,24 +634,11 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorTextureVertex
         m_position = VectorHelper::GetZero();
         this->m_textureCoordUV[0] = 0.0f;
         this->m_textureCoordUV[1] = 0.0f;
-        *reinterpret_cast<ionU64*>(this->m_color) = 0;
     }
 
     ION_INLINE Vector GetPosition() const
     {
         return m_position;
-    }
-
-    ION_INLINE Vector GetColorV() const
-    {
-        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_color[0]), ION_VERTEX_BYTE_TO_FLOAT(m_color[1]), ION_VERTEX_BYTE_TO_FLOAT(m_color[2]), ION_VERTEX_BYTE_TO_FLOAT(m_color[3]));
-        v.Normalize();
-        return v;
-    }
-
-    ION_INLINE ionU64 GetColor() const
-    {
-        *reinterpret_cast<const ionU64*>(this->m_color);
     }
 
     ION_INLINE Vector GetTexCoordUVUV() const
@@ -687,21 +676,6 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorTextureVertex
         m_position = _position;
     }
 
-    ION_INLINE void SetColor(ionU64 _color)
-    {
-        *reinterpret_cast<ionU64*>(this->m_color) = _color;
-    }
-
-    ION_INLINE void SetColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
-    {
-        MathHelper::VectorToByte(_r, _g, _b, _a, m_color);
-    }
-
-    ION_INLINE void SetColor(const Vector& _color)
-    {
-        MathHelper::VectorToByte(_color, m_color);
-    }
-
     ION_INLINE void SetTexCoordU(ionFloat _u)
     {
         m_textureCoordUV[0] = _u;
@@ -718,7 +692,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorTextureVertex
         SetTexCoordV(_v);
     }
 
-    ION_INLINE void Lerp(const Vertex& _a, const Vertex& _b, const ionFloat _t)
+    ION_INLINE void Lerp(const VertexUV& _a, const VertexUV& _b, const ionFloat _t)
     {
         const Vector t(_t);
 
@@ -726,15 +700,13 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainColorTextureVertex
     }
 };
 
-
-
 //////////////////////////////////////////////////////////////////////////
 
-ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainVertex
+ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexPlain
 {
     Vector				m_position;	
 
-    PlainVertex()
+    VertexPlain()
     {
         Clear();
     }
@@ -763,6 +735,11 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct PlainVertex
     }
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+// vertex indices
+typedef ionU16 Index;
+
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -771,14 +748,12 @@ typedef ionU64 VertexCacheHandler;
 
 //////////////////////////////////////////////////////////////////////////
 
-typedef ionU16 Index;
+//////////////////////////////////////////////////////////////////////////
+
 
 
 
 //////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-
 
 class Material;
 struct DrawSurface final

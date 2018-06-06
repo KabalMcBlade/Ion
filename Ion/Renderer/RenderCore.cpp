@@ -1690,73 +1690,7 @@ void RenderCore::Draw(const DrawSurface& _surface)
     //vkCmdDrawIndexed(commandBuffer, static_cast<ionU32>(_surface.m_indexCount), 1, 0, 0, 0);
 }
 
-void RenderCore::DebugDrawTriangle1()
-{
-    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
-
-    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("BaseTriangle1", EVertexLayout_Empty, 0, 1);
-    ionShaderProgramManager().BindProgram(shaderProgramIndex);
-    ionShaderProgramManager().CommitCurrent(*this, m_stateBits, commandBuffer);
-
-    vkCmdDraw(commandBuffer, 3, 1, 0, 0);
-}
-
-void RenderCore::DebugDrawTriangle2(const DrawSurface& _surface)
-{
-    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
-
-
-    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("BaseTriangle2", EVertexLayout_Vertices_Plain_Color, 0, 1);
-    ionShaderProgramManager().BindProgram(shaderProgramIndex);
-    ionShaderProgramManager().CommitCurrent(*this, m_stateBits, commandBuffer);
-
-    ionSize vertexSize = 0;
-    ionSize vertexOffset = 0;
-    VertexBuffer vertexBufer;
-    if (ionVertexCacheManager().GetVertexBuffer(_surface.m_vertexCache, &vertexBufer))
-    {
-        const VkBuffer buffer = vertexBufer.GetObject();
-        const VkDeviceSize offset = vertexBufer.GetOffset();
-        vertexSize = vertexBufer.GetSize();
-        vertexOffset = offset;
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, &buffer, &offset);
-    }
-
-    vkCmdDraw(commandBuffer, static_cast<ionU32>(vertexSize), 1, 0, 0);
-}
-
-void RenderCore::DebugDrawQuad1(const DrawSurface& _surface)
-{
-    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
-
-    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("BaseTriangle2", EVertexLayout_Vertices_Plain_Color, 0, 1);
-    ionShaderProgramManager().BindProgram(shaderProgramIndex);
-    ionShaderProgramManager().CommitCurrent(*this, m_stateBits, commandBuffer);
-
-    ionSize indexOffset = 0;
-    ionSize vertexOffset = 0;
-    IndexBuffer indexBuffer;
-    if (ionVertexCacheManager().GetIndexBuffer(_surface.m_indexCache, &indexBuffer))
-    {
-        const VkBuffer buffer = indexBuffer.GetObject();
-        const VkDeviceSize offset = indexBuffer.GetOffset();
-        indexOffset = offset;
-        vkCmdBindIndexBuffer(commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT32);
-    }
-
-    VertexBuffer vertexBufer;
-    if (ionVertexCacheManager().GetVertexBuffer(_surface.m_vertexCache, &vertexBufer))
-    {
-        const VkBuffer buffer = vertexBufer.GetObject();
-        const VkDeviceSize offset = vertexBufer.GetOffset();
-        vertexOffset = offset;
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, &buffer, &offset);
-    }
-
-    vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, (indexOffset >> 1), vertexOffset / sizeof(Vertex), 0);
-}
-
-void RenderCore::DebugDrawQuad2(const DrawSurface& _surface)
+void RenderCore::DebugDrawQuad(const DrawSurface& _surface)
 {
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
 
@@ -1764,7 +1698,7 @@ void RenderCore::DebugDrawQuad2(const DrawSurface& _surface)
     ionShaderProgramManager().SetRenderParmMatrix(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0]);
     ionShaderProgramManager().SetRenderParmMatrix(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0]);
 
-    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("BaseTriangle3", EVertexLayout_Vertices_Plain_Color, 0, 1);
+    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("SimplePosColor", EVertexLayout_Pos_Color, 0, 1);
     ionShaderProgramManager().BindProgram(shaderProgramIndex);
     ionShaderProgramManager().CommitCurrent(*this, m_stateBits, commandBuffer);
 
@@ -1800,7 +1734,7 @@ void RenderCore::DebugDrawQuadTextured(const DrawSurface& _surface)
     ionShaderProgramManager().SetRenderParmMatrix(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0]);
     ionShaderProgramManager().SetRenderParmMatrix(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0]);
 
-    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("BaseTriangleTextured", EVertexLayout_Vertices_Plain_Color_Texture, 0, 1);
+    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("SimplePosColorTextured", EVertexLayout_Pos_UV, 0, 1);
     ionShaderProgramManager().BindProgram(shaderProgramIndex);
     ionShaderProgramManager().CommitCurrent(*this, m_stateBits, commandBuffer);
 

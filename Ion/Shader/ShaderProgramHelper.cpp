@@ -40,7 +40,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
     VkVertexInputAttributeDescription attribute = {};
     
     {
-        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Vertices];
+        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Full];
 
         vertexLayout.m_inputState = createInfo;
 
@@ -94,14 +94,14 @@ void ShaderProgramHelper::CreateVertexDescriptor()
     }
 
     {
-        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Vertices_Simple];
+        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Pos_UV_Normal];
 
         vertexLayout.m_inputState = createInfo;
 
         ionU32 locationIndex = 0;
         ionU32 locationOffset = 0;
 
-        binding.stride = sizeof(SimpleVertex);
+        binding.stride = sizeof(VertexSimple);
         binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
         vertexLayout.m_bindinggDescription.push_back(binding);
 
@@ -110,14 +110,14 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
-        locationOffset += sizeof(SimpleVertex::m_position);
+        locationOffset += sizeof(VertexSimple::m_position);
 
         // TexCoord
         attribute.format = VK_FORMAT_R32G32_SFLOAT;         //VK_FORMAT_R16G16_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
-        locationOffset += sizeof(SimpleVertex::m_textureCoordUV);
+        locationOffset += sizeof(VertexSimple::m_textureCoordUV);
 
         // Normal
         attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
@@ -127,14 +127,14 @@ void ShaderProgramHelper::CreateVertexDescriptor()
     }
 
     {
-        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Vertices_Plain_Color_Texture];
+        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Pos_UV];
 
         vertexLayout.m_inputState = createInfo;
 
         ionU32 locationIndex = 0;
         ionU32 locationOffset = 0;
 
-        binding.stride = sizeof(PlainColorTextureVertex);
+        binding.stride = sizeof(VertexUV);
         binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
         vertexLayout.m_bindinggDescription.push_back(binding);
 
@@ -143,31 +143,24 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
-        locationOffset += sizeof(PlainColorTextureVertex::m_position);
+        locationOffset += sizeof(VertexUV::m_position);
 
         // TexCoord
         attribute.format = VK_FORMAT_R32G32_SFLOAT;         //VK_FORMAT_R16G16_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
-        locationOffset += sizeof(PlainColorTextureVertex::m_textureCoordUV);
-
-        // Color
-        attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
-        attribute.location = locationIndex++;
-        attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription.push_back(attribute);
     }
 
     {
-        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Vertices_Plain_Color];
+        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Pos_Color];
 
         vertexLayout.m_inputState = createInfo;
 
         ionU32 locationIndex = 0;
         ionU32 locationOffset = 0;
 
-        binding.stride = sizeof(PlainColorVertex);
+        binding.stride = sizeof(VertexColored);
         binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
         vertexLayout.m_bindinggDescription.push_back(binding);
 
@@ -176,7 +169,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
-        locationOffset += sizeof(PlainColorVertex::m_position);
+        locationOffset += sizeof(VertexColored::m_position);
 
         // Color
         attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
@@ -186,11 +179,11 @@ void ShaderProgramHelper::CreateVertexDescriptor()
     }
 
     {
-        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Vertices_Plain];
+        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Pos];
 
         vertexLayout.m_inputState = createInfo;
 
-        binding.stride = sizeof(PlainVertex);
+        binding.stride = sizeof(VertexPlain);
         binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
         vertexLayout.m_bindinggDescription.push_back(binding);
 

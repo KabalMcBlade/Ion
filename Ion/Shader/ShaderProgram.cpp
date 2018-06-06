@@ -16,7 +16,7 @@ ShaderProgram::ShaderProgram() :
     m_tessellationControlShaderIndex(-1),
     m_tessellationEvaluatorShaderIndex(-1),
     m_geometryShaderIndex(-1),
-    m_vertextLayoutType(EVertexLayout_Vertices),
+    m_vertextLayoutType(EVertexLayout_Full),
     m_pipelineLayout(VK_NULL_HANDLE),
     m_descriptorSetLayout(VK_NULL_HANDLE) 
 {
