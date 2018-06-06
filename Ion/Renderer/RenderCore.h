@@ -34,7 +34,7 @@ public:
 
     ionBool StartFrame(ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue);
     void    EndFrame();
-    void    BindTexture(ionS32 _index, Texture* _image);
+    void    BindTexture(ionS32 _index, const Texture* _image);
     void    SetDefaultState();
     void    SetState(ionU64 _stateBits);
     void    SetScissor(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS32 _height);
@@ -143,7 +143,7 @@ private:
     VkImage						m_vkDepthStencilImage;
     VkImageView					m_vkDepthStencilImageView;
 
-    eosVector(Texture*)         m_textureParams;        // Before using, Call Bind() [public function above] with the proper index texture
+    eosVector(const Texture*)   m_textureParams;        // Before using, Call Bind() [public function above] with the proper index texture
     eosVector(VkCommandBuffer)	m_vkCommandBuffers;
     eosVector(VkFramebuffer)	m_vkFrameBuffers;
     eosVector(VkFence)			m_vkCommandBufferFences;

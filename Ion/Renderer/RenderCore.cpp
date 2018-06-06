@@ -1510,7 +1510,7 @@ void RenderCore::EndFrame()
     ++m_counter;
 }
 
-void RenderCore::BindTexture(ionS32 _index, Texture* _image)
+void RenderCore::BindTexture(ionS32 _index, const Texture* _image)
 {
     ionAssertReturnVoid(_index >= 0 && _index < m_textureParams.capacity(), "Index out of bound of the capacity");
     m_textureParams[_index] = _image;

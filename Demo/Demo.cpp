@@ -173,7 +173,11 @@ int main()
     test->GetTransformHandle()->SetPosition(entityPos);
     test->GetTransformHandle()->SetRotation(entityRot);
 
+    
     /*
+    //
+    // this model has:
+    // Position, Normal, TextCoord
     //
     ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, *test);
 
@@ -245,7 +249,7 @@ int main()
 
     eosString textureDVA = demoPath;
     textureDVA.append("dva.png");
-    ionTextureManger().CreateTextureFromFile(ionRenderManager().GetRenderer().GetDevice(), "dva", textureDVA, ETextureFilter_Nearest, ETextureRepeat_Repeat, ETextureUsage_RGBA, ETextureType_2D);
+    ionTextureManger().CreateTextureFromFile(ionRenderManager().GetRenderer().GetDevice(), "dva", textureDVA, ETextureFilter_Nearest, ETextureRepeat_Clamp, ETextureUsage_RGBA, ETextureType_2D);
     
     
 

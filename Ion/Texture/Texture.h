@@ -32,7 +32,7 @@ private:
     friend class TextureManager;
 
     ionBool CreateFromFile(const eosString& _path);
-    ionBool CreateFromBuffer(ionU32 _width, ionU32 _height, ionU8* _buffer, VkDeviceSize _bufferSize);
+    ionBool CreateFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer, VkDeviceSize _bufferSize);
     ionBool Create();
 
     // this needed because Vulkan limitation
@@ -47,7 +47,7 @@ private:
     ionBool LoadTextureFromFile(const eosString& _path);
     ionBool LoadCubeTextureFromFile(const eosString& _path);
 
-    ionBool LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU8* _buffer);
+    ionBool LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer);
 
     ionU32 BitsPerFormat(ETextureFormat _format);
     void GenerateOptions();

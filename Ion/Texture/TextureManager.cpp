@@ -93,7 +93,7 @@ Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosStri
     }
 }
 
-Texture* TextureManager::CreateTextureFromBuffer(VkDevice _vkDevice, const eosString& _name, ionU32 _width, ionU32 _height, ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/)
+Texture* TextureManager::CreateTextureFromBuffer(VkDevice _vkDevice, const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/)
 {
     if (_name.empty())
     {
@@ -118,7 +118,7 @@ Texture* TextureManager::CreateTextureFromBuffer(VkDevice _vkDevice, const eosSt
     texture->m_sampleCount = m_sampleCount;
     texture->m_maxAnisotropy = _maxAnisotrpy;
 
-    if (texture->CreateFromBuffer(_width, _height, _buffer, _bufferSize))
+    if (texture->CreateFromBuffer(_width, _height, _component, _buffer, _bufferSize))
     {
         return texture;
     }

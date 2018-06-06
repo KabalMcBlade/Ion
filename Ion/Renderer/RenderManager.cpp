@@ -143,10 +143,7 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrix();
 
 
-        
-
         /*
-        // not aligned... just to test
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[8], model[2]);
@@ -166,6 +163,9 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetVertexBuffer(0, 0), m_entityNodes[i]->GetVertexBufferSize(0, 0));
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetIndexBuffer(0, 0), m_entityNodes[i]->GetIndexBufferSize(0, 0));
         m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMaterial(0, 0);
+        
+        // just for test! I need a proper way to bind automatically inside material!
+        m_renderCore.BindTexture(0, m_drawSurfaces[i].m_material->GetMetalnessMap());
         */
 
         //////////////////////////////////////////////////////////////////////////
@@ -305,7 +305,6 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         m_drawSurfaces[i].m_indexCount = 6;
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(vertices.data(), vertices.size());
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(indices.data(), indices.size());
-        
     }
 
 }
@@ -359,6 +358,7 @@ void RenderManager::Frame()
         //m_renderCore.DebugDrawQuad1(m_drawSurfaces[0]);
         //m_renderCore.DebugDrawQuad2(m_drawSurfaces[0]);
         m_renderCore.DebugDrawQuadTextured(m_drawSurfaces[0]);
+        //m_renderCore.Draw(m_drawSurfaces[0]);
 
         /*
         for (ionSize i = 0; i < m_nodeCount; ++i)

@@ -40,25 +40,6 @@ Texture::~Texture()
     Destroy();
 }
 
-ionBool Texture::LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU8* _buffer)
-{
-    m_width = _width;
-    m_height = _height;
-    m_numLevels = 0;
-
-    GenerateOptions();
-
-    if (Create())
-    {
-        UploadTextureToMemory(m_numLevels, m_width, m_height, _buffer, 0);
-
-        return true;
-    }
-
-    return false;
-}
-
-
 void Texture::ConvertFrom3ChannelTo4Channel(ionU32 _width, ionU32 _height, const ionU8* _inBuffer, ionU8* _outBuffer)
 {
     ionU8* rgba = _outBuffer;
@@ -74,6 +55,33 @@ void Texture::ConvertFrom3ChannelTo4Channel(ionU32 _width, ionU32 _height, const
     }
 }
 
+ionBool Texture::LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer)
+{
+    m_width = _width;
+    m_height = _height;
+    m_numLevels = 0;
+
+    GenerateOptions();
+
+    ionBool result = Create();
+    if (result)
+    {
+        if (_component == 3)
+        {
+            ionSize newBufferSize = m_width * m_height * 4;
+            ionU8* newBuffer = (ionU8*)eosNewRaw(sizeof(ionU8) * newBufferSize, EOS_MEMORY_ALIGNMENT_SIZE);
+            ConvertFrom3ChannelTo4Channel(m_width, m_height, _buffer, newBuffer);
+            UploadTextureToMemory(m_numLevels, m_width, m_height, newBuffer, 0);
+            eosDeleteRaw(newBuffer);
+        }
+        else
+        {
+            UploadTextureToMemory(m_numLevels, m_width, m_height, _buffer, 0);
+        }
+    }
+
+    return result;
+}
 
 ionBool Texture::LoadTextureFromFile(const eosString& _path)
 {
@@ -214,9 +222,9 @@ ionBool Texture::CreateFromFile(const eosString& _path)
     return true;
 }
 
-ionBool Texture::CreateFromBuffer(ionU32 _width, ionU32 _height, ionU8* _buffer, VkDeviceSize _bufferSize)
+ionBool Texture::CreateFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer, VkDeviceSize _bufferSize)
 {
-    if (!LoadTextureFromBuffer( _width, _height, _buffer))
+    if (!LoadTextureFromBuffer( _width, _height, _component, _buffer))
     {
         ionAssertReturnValue(false, "Cannot load binary texture!", false);
     }
