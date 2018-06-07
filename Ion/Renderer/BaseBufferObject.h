@@ -67,13 +67,13 @@ protected:
 
 #if NIX_ARCH & NIX_ARCH_SSE2_FLAG
 
-ION_INLINE void CopyBuffer(ionU8* _dst, const ionU8* _src, ionS32 _size)
+ION_INLINE void CopyBuffer(ionU8* _dst, const ionU8* _src, ionSize _size)
 {
     ionAssertReturnVoid(ION_IS_ALIGNED(_dst, ION_MEMORY_ALIGNMENT_SIZE), "Buffer not aligned to 16");
     ionAssertReturnVoid(ION_IS_ALIGNED(_src, ION_MEMORY_ALIGNMENT_SIZE), "Buffer not aligned to 16");
 
 
-    ionS32 i = 0;
+    ionSize i = 0;
     for (; i + 128 <= _size; i += 128)
     {
         __nixInt4 d0 = _mm_load_si128((__nixInt4 *)&_src[i + 0 * 16]);
@@ -111,7 +111,7 @@ ION_INLINE void CopyBuffer(ionU8* _dst, const ionU8* _src, ionS32 _size)
 
 #else
 
-ION_INLINE void CopyBuffer(ionU8* _dst, const ionU8* _src, ionS32 _size)
+ION_INLINE void CopyBuffer(ionU8* _dst, const ionU8* _src, ionSize _size)
 {
     ionAssertReturnVoid(ION_IS_ALIGNED(_dst, ION_MEMORY_ALIGNMENT_SIZE), "Buffer not aligned to 16");
     ionAssertReturnVoid(ION_IS_ALIGNED(_src, ION_MEMORY_ALIGNMENT_SIZE), "Buffer not aligned to 16");

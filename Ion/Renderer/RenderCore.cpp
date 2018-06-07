@@ -1673,7 +1673,7 @@ void RenderCore::Draw(const DrawSurface& _surface)
         const VkBuffer buffer = indexBuffer.GetObject();
         const VkDeviceSize offset = indexBuffer.GetOffset();
         indexOffset = offset;
-        vkCmdBindIndexBuffer(commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(commandBuffer, buffer, offset, _surface.m_indexType);
     }
 
     VertexBuffer vertexBufer;
@@ -1685,7 +1685,7 @@ void RenderCore::Draw(const DrawSurface& _surface)
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, &buffer, &offset);
     }
 
-    vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, _surface.m_indexStart, vertexOffset / sizeof(Vertex) /*0*/, 0);
+    vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, _surface.m_indexStart /*(indexOffset >> 1)*/, 0 /*vertexOffset / sizeof(Vertex)*/, 0);
 }
 
 void RenderCore::DebugDrawQuad(const DrawSurface& _surface)
@@ -1708,7 +1708,7 @@ void RenderCore::DebugDrawQuad(const DrawSurface& _surface)
         const VkBuffer buffer = indexBuffer.GetObject();
         const VkDeviceSize offset = indexBuffer.GetOffset();
         indexOffset = offset;
-        vkCmdBindIndexBuffer(commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(commandBuffer, buffer, offset, _surface.m_indexType);
     }
 
     VertexBuffer vertexBufer;
@@ -1720,7 +1720,7 @@ void RenderCore::DebugDrawQuad(const DrawSurface& _surface)
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, &buffer, &offset);
     }
 
-    vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, (indexOffset >> 1), vertexOffset / sizeof(Vertex), 0);
+    vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, _surface.m_indexStart /*(indexOffset >> 1)*/, 0 /*vertexOffset / sizeof(Vertex)*/, 0);
 }
 
 
@@ -1744,7 +1744,7 @@ void RenderCore::DebugDrawQuadTextured(const DrawSurface& _surface)
         const VkBuffer buffer = indexBuffer.GetObject();
         const VkDeviceSize offset = indexBuffer.GetOffset();
         indexOffset = offset;
-        vkCmdBindIndexBuffer(commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(commandBuffer, buffer, offset, _surface.m_indexType);
     }
 
     VertexBuffer vertexBufer;
@@ -1756,7 +1756,7 @@ void RenderCore::DebugDrawQuadTextured(const DrawSurface& _surface)
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, &buffer, &offset);
     }
 
-    vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, (indexOffset >> 1), vertexOffset / sizeof(Vertex), 0);
+    vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, _surface.m_indexStart /*(indexOffset >> 1)*/, 0 /*vertexOffset / sizeof(Vertex)*/, 0);
 }
 
 

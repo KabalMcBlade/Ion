@@ -144,7 +144,7 @@ int main()
     Vector rootPos(0.0f, 0.0f, 0.0f, 1.0f);
     Quaternion rootRot(NIX_DEG_TO_RAD(0.0f), up);
 
-    Vector cameraPos(0.0f, 0.0f, -1.0f, 1.0f);
+    Vector cameraPos(0.0f, 0.0f, -2.0f, 1.0f);
     Quaternion cameraRot(NIX_DEG_TO_RAD(0.0f), up);
 
     Vector entityPos(0.0f, 0.0f, 0.0f, 1.0f);
@@ -174,12 +174,14 @@ int main()
     test->GetTransformHandle()->SetRotation(entityRot);
 
     
-    /*
+    
     //
     // this model has:
     // Position, Normal, TextCoord
     //
     ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, *test);
+    //entityPos += Vector(0.0f, 0.0f, 5.0f, 0.0f);
+    //test->GetTransformHandle()->SetPosition(entityPos); // override position because in the gltf loader the position is set
 
     //
     ShaderLayoutDef vertexLayout;
@@ -195,10 +197,10 @@ int main()
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Fragment, fragmentLayout);
     test->GetMaterial(0)->SetShaderProgramName(DEMO_SHADER_PROG);
-    test->GetMaterial(0)->SetVertexLayout(EVertexLayout_Pos_UV_Normal);
+    test->GetMaterial(0)->SetVertexLayout(EVertexLayout_Full);
     test->GetMaterial(0)->SetVertexShaderIndex(vertexShaderIndex);
     test->GetMaterial(0)->SetFragmentShaderIndex(fragmentShaderIndex);
-    */
+    
     
     /*
     //
@@ -215,7 +217,7 @@ int main()
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", EShaderStage_Fragment, fragmentLayout);
     */
 
-    
+    /*
     ShaderLayoutDef vertexLayout;
     vertexLayout.m_bindings.push_back(EShaderBinding_Uniform);
     vertexLayout.m_uniforms.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
@@ -232,7 +234,7 @@ int main()
     eosString textureDVA = demoPath;
     textureDVA.append("dva.png");
     ionTextureManger().CreateTextureFromFile(ionRenderManager().GetRenderer().GetDevice(), "dva", textureDVA, ETextureFilter_Nearest, ETextureRepeat_Clamp, ETextureUsage_RGBA, ETextureType_2D);
-    
+    */
 
 
     //

@@ -143,7 +143,7 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrix();
 
 
-        /*
+        
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[8], model[2]);
@@ -161,13 +161,14 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
 
         m_drawSurfaces[i].m_indexStart = m_entityNodes[i]->GetIndexStart(0);
         m_drawSurfaces[i].m_indexCount = m_entityNodes[i]->GetIndexCount(0);
+        m_drawSurfaces[i].m_indexType = m_entityNodes[i]->GetIndexType(0);
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetVertexBuffer(0), m_entityNodes[i]->GetVertexBufferSize(0));
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetIndexBuffer(0), m_entityNodes[i]->GetIndexBufferSize(0));
         m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMaterial(0);
         
         // just for test! I need a proper way to bind automatically inside material!
-        m_renderCore.BindTexture(0, m_drawSurfaces[i].m_material->GetMetalnessMap());
-        */
+        m_renderCore.BindTexture(0, m_drawSurfaces[i].m_material->GetRoughnessMap());
+        
 
         /*
         //////////////////////////////////////////////////////////////////////////
@@ -208,11 +209,12 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
 
         m_drawSurfaces[i].m_indexStart = 0;
         m_drawSurfaces[i].m_indexCount = 6;
+        m_drawSurfaces[i].m_indexType = VK_INDEX_TYPE_UINT32;
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(vertices.data(), vertices.size());
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(indices.data(), indices.size());
         */
 
-        
+        /*
         //////////////////////////////////////////////////////////////////////////
         // TEST FOR DebugDrawQuadTextured
         eosVector(VertexUV) vertices;
@@ -252,9 +254,10 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
 
         m_drawSurfaces[i].m_indexStart = 0;
         m_drawSurfaces[i].m_indexCount = 6;
+        m_drawSurfaces[i].m_indexType = VK_INDEX_TYPE_UINT32;
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(vertices.data(), vertices.size());
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(indices.data(), indices.size());
-        
+        */
     }
 
 }
@@ -300,12 +303,12 @@ void RenderManager::Frame()
     {
         m_renderCore.SetViewport(0, 0, width, height);
         m_renderCore.SetScissor(0, 0, width, height);
-        //m_renderCore.SetState(ECullingMode_Front);
-        m_renderCore.SetState(ECullingMode_TwoSide);    // just because I drawn a plane quad I want to see both side.
+        m_renderCore.SetState(ECullingMode_Front);
+        //m_renderCore.SetState(ECullingMode_TwoSide);    // just because I drawn a plane quad I want to see both side.
         
         //m_renderCore.DebugDrawQuad(m_drawSurfaces[0]);
-        m_renderCore.DebugDrawQuadTextured(m_drawSurfaces[0]);
-        //m_renderCore.Draw(m_drawSurfaces[0]);
+        //m_renderCore.DebugDrawQuadTextured(m_drawSurfaces[0]);
+        m_renderCore.Draw(m_drawSurfaces[0]);
 
         /*
         for (ionSize i = 0; i < m_nodeCount; ++i)

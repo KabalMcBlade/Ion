@@ -5,6 +5,7 @@
 #include "../Texture/TextureManager.h"
 #include "../Material/MaterialManager.h"
 
+#include "../Dependencies/Eos/Eos/Eos.h"
 #include "../Dependencies/Nix/Nix/Nix.h"
 
 
@@ -12,8 +13,8 @@
 // #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
 #include "../Dependencies/Miscellaneous/tiny_gltf.h"
 
-NIX_USING_NAMESPACE
 EOS_USING_NAMESPACE
+NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
@@ -198,42 +199,44 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
 
                 ionMesh.m_indexCount = static_cast<ionU32>(accessor.count);
 
-                // I WANT TO USE ALWAYS THE 16 BYTES INDEX, SO I'll CAST EVERYTHING DOWN OR UP TO THIS
                 switch (accessor.componentType)
                 {
                 case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT:
                 {
-                    ionU32 *buf = new ionU32[accessor.count];
+                    ionMesh.m_indexType = VK_INDEX_TYPE_UINT32;
+                    ionU32 *buf = (ionU32 *)eosNewRaw(sizeof(ionU32) * accessor.count, ION_MEMORY_ALIGNMENT_SIZE);
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU32));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
-                        //ionMesh.PushBackIndex((Index)(buf[index] + vertexStart));
                         ionMesh.m_indexes.push_back((Index)(buf[index] + vertexStart));
                     }
+                    eosDeleteRaw(buf);
                     break;
                 }
 
                 // just this is valid
                 case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
                 {
-                    ionU16 *buf = new ionU16[accessor.count];
+                    ionMesh.m_indexType = VK_INDEX_TYPE_UINT16;
+                    ionU16 *buf = (ionU16 *)eosNewRaw(sizeof(ionU16) * accessor.count, ION_MEMORY_ALIGNMENT_SIZE);
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU16));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
-                        //ionMesh.PushBackIndex(buf[index] + vertexStart);
                         ionMesh.m_indexes.push_back(buf[index] + vertexStart);
                     }
+                    eosDeleteRaw(buf);
                     break;
                 }
                 case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: 
                 {
-                    ionU8 *buf = new ionU8[accessor.count];
+                    ionMesh.m_indexType = VK_INDEX_TYPE_UINT16;
+                    ionU8 *buf = (ionU8 *)eosNewRaw(sizeof(ionU8) * accessor.count, ION_MEMORY_ALIGNMENT_SIZE);
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU8));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
-                        //ionMesh.PushBackIndex((Index)(buf[index] + vertexStart));
                         ionMesh.m_indexes.push_back((Index)(buf[index] + vertexStart));
                     }
+                    eosDeleteRaw(buf);
                     break;
                 }
                 default:

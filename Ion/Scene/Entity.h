@@ -35,6 +35,8 @@ public:
 
     ionU32  GetMeshCount() const;
 
+    VkIndexType GetIndexType(ionU32 _meshIndex) const;
+
     ionSize GetIndexStart(ionU32 _meshIndex) const;
     ionSize GetIndexCount(ionU32 _meshIndex) const;
 

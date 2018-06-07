@@ -31,7 +31,7 @@ ionBool IndexBuffer::Alloc(const VkDevice& _device, const void* _data, ionSize _
     createInfo.pNext = nullptr;
     createInfo.size = GetAllocedSize();
     createInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-    //createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     if (m_usage == EBufferUsage_Static)
     {

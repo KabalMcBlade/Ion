@@ -33,6 +33,13 @@ ionU32 Entity::GetMeshCount() const
     return static_cast<ionU32>(m_meshes.size());
 }
 
+VkIndexType Entity::GetIndexType(ionU32 _meshIndex) const
+{
+    ionAssertReturnValue(_meshIndex >= 0 && _meshIndex < m_meshes.size(), "Mesh index out of bound", VK_INDEX_TYPE_MAX_ENUM);
+
+    return m_meshes[_meshIndex].m_indexType;
+}
+
 ionSize Entity::GetIndexStart(ionU32 _meshIndex) const
 {
     ionAssertReturnValue(_meshIndex >= 0 && _meshIndex < m_meshes.size(), "Mesh index out of bound", -1);
