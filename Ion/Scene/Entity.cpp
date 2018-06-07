@@ -40,14 +40,14 @@ VkIndexType Entity::GetIndexType(ionU32 _meshIndex) const
     return m_meshes[_meshIndex].m_indexType;
 }
 
-ionSize Entity::GetIndexStart(ionU32 _meshIndex) const
+ionU32 Entity::GetIndexStart(ionU32 _meshIndex) const
 {
     ionAssertReturnValue(_meshIndex >= 0 && _meshIndex < m_meshes.size(), "Mesh index out of bound", -1);
 
     return m_meshes[_meshIndex].m_indexStart;
 }
 
-ionSize Entity::GetIndexCount(ionU32 _meshIndex) const
+ionU32 Entity::GetIndexCount(ionU32 _meshIndex) const
 {
     ionAssertReturnValue(_meshIndex >= 0 && _meshIndex < m_meshes.size(), "Mesh index out of bound", -1);
 

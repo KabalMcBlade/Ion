@@ -1719,7 +1719,7 @@ void RenderCore::DebugDrawQuad(const DrawSurface& _surface)
         vertexOffset = offset;
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, &buffer, &offset);
     }
-
+    
     vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, _surface.m_indexStart /*(indexOffset >> 1)*/, 0 /*vertexOffset / sizeof(Vertex)*/, 0);
 }
 

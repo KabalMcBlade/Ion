@@ -761,8 +761,8 @@ struct DrawSurface final
     ionFloat			m_modelMatrix[16];
     ionFloat			m_viewMatrix[16];
     ionFloat			m_projectionMatrix[16];
-    ionSize             m_indexStart;
-    ionSize             m_indexCount;
+    ionU32              m_indexStart;
+    ionU32              m_indexCount;
     VkIndexType         m_indexType;
     VertexCacheHandler  m_vertexCache;
     VertexCacheHandler  m_indexCache;

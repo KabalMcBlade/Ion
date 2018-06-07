@@ -37,8 +37,8 @@ public:
 
     VkIndexType GetIndexType(ionU32 _meshIndex) const;
 
-    ionSize GetIndexStart(ionU32 _meshIndex) const;
-    ionSize GetIndexCount(ionU32 _meshIndex) const;
+    ionU32 GetIndexStart(ionU32 _meshIndex) const;
+    ionU32 GetIndexCount(ionU32 _meshIndex) const;
 
     const void* GetVertexBuffer(ionU32 _meshIndex) const;
     ionSize GetVertexBufferSize(ionU32 _meshIndex) const;
