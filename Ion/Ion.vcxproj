@@ -158,6 +158,7 @@
   <ItemGroup>
     <ClInclude Include="App\Window.h" />
     <ClInclude Include="Core\CoreDefs.h" />
+    <ClInclude Include="Core\FileSystemManager.h" />
     <ClInclude Include="Core\StandardIncludes.h" />
     <ClInclude Include="Dependencies\Eos\Eos\CoreDefs.h" />
     <ClInclude Include="Dependencies\Eos\Eos\Eos.h" />
@@ -231,6 +232,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\Window.cpp" />
+    <ClCompile Include="Core\FileSystemManager.cpp" />
     <ClCompile Include="Dependencies\Eos\Eos\MemoryManager.cpp" />
     <ClCompile Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuMemory.cpp" />
     <ClCompile Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryFunctions.cpp" />

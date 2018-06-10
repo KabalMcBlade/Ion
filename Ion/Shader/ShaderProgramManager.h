@@ -33,7 +33,7 @@ public:
 
     ION_NO_INLINE static ShaderProgramManager& Instance();
 
-    ionBool Init(VkDevice _vkDevice, const eosString& _shaderFolderPath);
+    ionBool Init(VkDevice _vkDevice);
     void    Shutdown();
 
     ShaderProgramManager();
@@ -55,7 +55,7 @@ public:
 	void	SetRenderParmsMatrix(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
 	void	SetRenderParmsMatrix(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
 
-    // Shader name WITHOUT extension!!
+    // Shader name WITHOUT extension, because is chose by the shader stage!
     ionS32	FindShader(const eosString& _name, EShaderStage _stage, const ShaderLayoutDef& _defines);
 
     void	StartFrame();
@@ -81,7 +81,6 @@ public:
 private:
     VkDevice                m_vkDevice;
     ionS32	                m_current;
-    eosString               m_shaderFolderPath;
     eosVector(Shader)	    m_shaders;
     eosMap(ionSize, Vector) m_uniformsVector; // is a map where the key is the hash of the name of the uniform in the shader and the value the vector associated
 	eosMap(ionSize, Matrix) m_uniformsMatrix;

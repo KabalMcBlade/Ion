@@ -258,11 +258,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
 }
 
 
-ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity& _entity)
+ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity)
 {
-    m_vkDevice = _vkDevice;
-    //_entity.m_meshes.empty();
-
     tinygltf::Model     _model;
     tinygltf::TinyGLTF  gltf;
     std::string         err;
@@ -343,7 +340,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
 
             m_textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, name.c_str()));
 
-            ionTextureManger().CreateTextureFromBuffer(m_vkDevice, name, _model.images[i].width, _model.images[i].height, _model.images[i].component, &_model.images[i].image[0], _model.images[i].image.size(), ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_RGBA, ETextureType_2D);
+            ionTextureManger().CreateTextureFromBuffer(name, _model.images[i].width, _model.images[i].height, _model.images[i].component, &_model.images[i].image[0], _model.images[i].image.size(), ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_RGBA, ETextureType_2D);
         }
         else
         {
@@ -352,7 +349,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, VkDevice _vkDevice, Entity
 
             m_textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, m_filename.c_str()));
 
-            ionTextureManger().CreateTextureFromFile(m_vkDevice, m_filename, path);
+            ionTextureManger().CreateTextureFromFile(m_filename, path);
         }
     }
 

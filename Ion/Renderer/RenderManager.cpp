@@ -42,9 +42,9 @@ RenderManager::~RenderManager()
 
 }
 
-ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
+ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
 {
-    return m_renderCore.Init(_instance, _handle, _width, _height, _fullScreen, _enableValidationLayer, _shaderFolderPath, _vkDeviceLocalSize, _vkHostVisibleSize, _vkStagingBufferSize);
+    return m_renderCore.Init(_instance, _handle, _width, _height, _fullScreen, _enableValidationLayer, _vkDeviceLocalSize, _vkHostVisibleSize, _vkStagingBufferSize);
 }
 
 void RenderManager::Shutdown()
@@ -77,7 +77,7 @@ RenderManager& RenderManager::Instance()
 ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, Entity& _entity)
 {
     LoaderGLTF loader;
-    return loader.Load(_fileName, m_renderCore.GetDevice(), _entity);
+    return loader.Load(_fileName, _entity);
 }
 
 void RenderManager::AddScene(NodeHandle& _root)

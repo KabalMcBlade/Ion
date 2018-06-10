@@ -1,5 +1,6 @@
 #include "Memory.h"
 
+#include "../Core/FileSystemManager.h"
 #include "../Renderer/GPUMemoryManager.h"
 #include "../Renderer/StagingBufferManager.h"
 #include "../Renderer/VertexCacheManager.h"
@@ -42,6 +43,7 @@ ION_DLL void ShutdownVulkanAllocators()
 
 ION_DLL void InitializeManagers()
 {
+	FileSystemManager::Create();
     GPUMemoryManager::Create();
     VertexCacheManager::Create();
     StagingBufferManager::Create();
@@ -62,6 +64,7 @@ ION_DLL void ShutdownManagers()
     StagingBufferManager::Destroy();
     VertexCacheManager::Destroy();
     GPUMemoryManager::Destroy();
+	FileSystemManager::Destroy();
 }
 
 

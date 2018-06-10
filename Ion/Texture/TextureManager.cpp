@@ -42,8 +42,9 @@ TextureManager& TextureManager::Instance()
     return *s_instance;
 }
 
-void TextureManager::Init(ETextureSamplesPerBit _textureSample)
+void TextureManager::Init(VkDevice _vkDevice, ETextureSamplesPerBit _textureSample)
 {
+	m_vkDevice = _vkDevice;
     m_mainSamplesPerBit = _textureSample;
 }
 
@@ -58,7 +59,7 @@ void TextureManager::Shutdown()
     m_hashTexture.clear();
 }
 
-Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosString& _name, const eosString& _path, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/)
+Texture* TextureManager::CreateTextureFromFile(const eosString& _name, const eosString& _path, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/)
 {
     if (_name.empty() || _path.empty())
     {
@@ -68,7 +69,7 @@ Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosStri
     Texture* texture = GetTexture(_name);
     if (texture == nullptr)
     {
-        texture = CreateTexture(_vkDevice, _name);
+        texture = CreateTexture(m_vkDevice, _name);
     }
     else
     {
@@ -93,7 +94,7 @@ Texture* TextureManager::CreateTextureFromFile(VkDevice _vkDevice, const eosStri
     }
 }
 
-Texture* TextureManager::CreateTextureFromBuffer(VkDevice _vkDevice, const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/)
+Texture* TextureManager::CreateTextureFromBuffer(const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/)
 {
     if (_name.empty())
     {
@@ -103,7 +104,7 @@ Texture* TextureManager::CreateTextureFromBuffer(VkDevice _vkDevice, const eosSt
     Texture* texture = GetTexture(_name);
     if (texture == nullptr)
     {
-        texture = CreateTexture(_vkDevice, _name);
+        texture = CreateTexture(m_vkDevice, _name);
     }
     else
     {

@@ -17,6 +17,7 @@
 
 #include "Core/StandardIncludes.h"
 #include "Core/CoreDefs.h"
+#include "Core/FileSystemManager.h"
 
 #include "Renderer/GPUMemoryManager.h"
 #include "Renderer/StagingBufferManager.h"

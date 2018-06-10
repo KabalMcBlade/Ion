@@ -2,6 +2,8 @@
 
 #include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
+#include "../Core/FileSystemManager.h"
+
 #include "ShaderProgramHelper.h"
 #include "../Renderer/RenderCore.h"
 
@@ -52,10 +54,9 @@ ShaderProgramManager& ShaderProgramManager::Instance()
     return *s_instance;
 }
 
-ionBool ShaderProgramManager::Init(VkDevice _vkDevice, const eosString& _shaderFolderPath)
+ionBool ShaderProgramManager::Init(VkDevice _vkDevice)
 {
     m_vkDevice = _vkDevice;
-    m_shaderFolderPath = _shaderFolderPath;
 
     ShaderProgramHelper::CreateVertexDescriptor();
 
@@ -492,7 +493,7 @@ void ShaderProgramManager::LoadShader(ionS32 _index, const ShaderLayoutDef& _def
 
 void ShaderProgramManager::LoadShader(Shader& _shader, const ShaderLayoutDef& _defines)
 {
-    eosString shaderPath = m_shaderFolderPath + _shader.m_name;
+    eosString shaderPath = ionFileSystemManager().GetShadersPath() + _shader.m_name;
 
     // just direct set, not binary
     switch(_shader.m_stage)

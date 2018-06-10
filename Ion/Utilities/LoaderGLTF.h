@@ -20,11 +20,7 @@ public:
     LoaderGLTF();
     ~LoaderGLTF();
 
-    ionBool Load(const eosString& _fileName, VkDevice _vkDevice, Entity& _entity);
-
-private:
-    void LoadTextures();
-    void LoadMaterials();
+    ionBool Load(const eosString& _fileName, Entity& _entity);
 
 private:
     VkDevice m_vkDevice;

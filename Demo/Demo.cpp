@@ -72,19 +72,6 @@ EOS_OPTIMIZATION_OFF
 ION_OPTIMIZATION_OFF
 
 
-
-ionBool GetFullPath(const eosString& partialPath, eosString& fullPath)
-{
-    char full[_MAX_PATH];
-    if (_fullpath(full, partialPath.c_str(), _MAX_PATH) != NULL)
-    {
-        fullPath = full;
-        return true;
-    }
-    return false;
-}
-
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
@@ -117,15 +104,10 @@ int main()
     InitializeVulkanAllocators(VULKAN_COMMAND_MEMORY_MB, VULKAN_OBJECT_MEMORY_MB, VULKAN_CACHE_MEMORY_MB, VULKAN_DEVICE_MEMORY_MB, VULKAN_INSTANCE_MEMORY_MB, VULKAN_GPU_MEMORY_MB);
     InitializeManagers();
 
-    ION_SCOPE_BEGIN
+	ION_SCOPE_BEGIN
 
 
-    eosString demoPath;
-    GetFullPath("./", demoPath);
-    demoPath.append("Assets/");
-
-    eosString damagedHelmetModelPath = demoPath;
-    damagedHelmetModelPath.append("DamagedHelmet.gltf");
+	ionFileSystemManager().Init("Assets", "Shaders", "Textures", "Models");
 
 
     ionBool rendererInitialized = false;
@@ -133,7 +115,7 @@ int main()
 
     if (window.Create(WndProc, L"Ion Demo", DEMO_WIDTH, DEMO_HEIGHT, false))
     {
-        rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, demoPath, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
+        rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
     }
 
 
@@ -179,6 +161,8 @@ int main()
     // this model has:
     // Position, Normal, TextCoord
     //
+	eosString damagedHelmetModelPath = ionFileSystemManager().GetModelsPath();
+	damagedHelmetModelPath.append("DamagedHelmet.gltf");
     ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, *test);
     //entityPos += Vector(0.0f, 0.0f, 5.0f, 0.0f);
     //test->GetTransformHandle()->SetPosition(entityPos); // override position because in the gltf loader the position is set
@@ -231,11 +215,10 @@ int main()
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColorTextured", EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColorTextured", EShaderStage_Fragment, fragmentLayout);
 
-    eosString textureDVA = demoPath;
+	eosString textureDVA = ionFileSystemManager().GetTexturesPath();
     textureDVA.append("dva.png");
-    ionTextureManger().CreateTextureFromFile(ionRenderManager().GetRenderer().GetDevice(), "dva", textureDVA, ETextureFilter_Nearest, ETextureRepeat_Clamp, ETextureUsage_RGBA, ETextureType_2D);
+    ionTextureManger().CreateTextureFromFile( "dva", textureDVA, ETextureFilter_Nearest, ETextureRepeat_Clamp, ETextureUsage_RGBA, ETextureType_2D);
     */
-
 
     //
     camera->AttachToParent(*root);
@@ -250,6 +233,8 @@ int main()
     }
 
     ionRenderManager().Shutdown();
+
+	ionFileSystemManager().Shutdown();
 
     ION_SCOPE_END
         

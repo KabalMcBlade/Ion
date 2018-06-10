@@ -1175,7 +1175,7 @@ void RenderCore::Clear()
     m_vkCommandBufferFences.clear();
 }
 
-ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, const eosString& _shaderFolderPath, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
+ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
 {
     Clear();
 
@@ -1254,11 +1254,11 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
         return false;
     }
 
-    ionShaderProgramManager().Init(m_vkDevice, _shaderFolderPath);
+    ionShaderProgramManager().Init(m_vkDevice);
 
     ionVertexCacheManager().Init(m_vkDevice, m_vkGPU.m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment);
 
-    ionTextureManger().Init(ETextureSamplesPerBit_16);
+    ionTextureManger().Init(m_vkDevice, ETextureSamplesPerBit_16);
 
     return true;
 }
