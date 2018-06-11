@@ -17,14 +17,6 @@ EOS_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 class RenderCore;
-
-struct ION_DLL ShaderLayoutDef final
-{
-    eosVector(eosString)			m_uniforms;
-	eosVector(EUniformParameterType)m_uniformTypes;
-    eosVector(EShaderBinding)		m_bindings;
-};
-
 class ION_DLL ShaderProgramManager final
 {
 public:
@@ -73,7 +65,7 @@ private:
     void	LoadShader(ionS32 _index, const ShaderLayoutDef& _defines);
     void	LoadShader(Shader& _shader, const ShaderLayoutDef& _defines);
 
-    void	AllocParametersBlockBuffer(const RenderCore& _render, const eosVector(ionSize) & paramsHash, const eosVector(EUniformParameterType) & paramsType, UniformBuffer& _ubo);
+    void	AllocUniformParametersBlockBuffer(const RenderCore& _render, const UniformBinding& _uniform, UniformBuffer& _ubo);
 
 public:
     eosVector(ShaderProgram) m_shaderPrograms;

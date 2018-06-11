@@ -239,77 +239,128 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
         VkDescriptorSetLayoutBinding binding = {};
         binding.descriptorCount = 1;
 
-        ionU32 bindingId = 0;
-
-
         if (_vertexShader.IsValid())
         {
             binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-            for (ionSize i = 0; i < _vertexShader.m_bindings.size(); ++i)
-            {
-                binding.binding = bindingId++;
-                binding.descriptorType = GetDescriptorType(_vertexShader.m_bindings[i]);
-                _shaderProgram.m_bindings.push_back(_vertexShader.m_bindings[i]);
 
+            ionSize uniformCount = _vertexShader.m_shaderLayout.m_uniforms.size();
+            for (ionSize i = 0; i < uniformCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                binding.binding = _vertexShader.m_shaderLayout.m_uniforms[i].m_bindingIndex;
                 layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
+            }
+
+            ionSize samplerCount = _vertexShader.m_shaderLayout.m_samplers.size();
+            for (ionSize i = 0; i < samplerCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                binding.binding = _vertexShader.m_shaderLayout.m_samplers[i].m_bindingIndex;
+                layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
         }
 
         if (_tessellationControlShader.IsValid())
         {
-            {
-                binding.stageFlags = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-                for (ionSize i = 0; i < _tessellationControlShader.m_bindings.size(); ++i)
-                {
-                    binding.binding = bindingId++;
-                    binding.descriptorType = GetDescriptorType(_tessellationControlShader.m_bindings[i]);
-                    _shaderProgram.m_bindings.push_back(_tessellationControlShader.m_bindings[i]);
+            binding.stageFlags = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
 
-                    layoutBindings.push_back(binding);
-                }
+            ionSize uniformCount = _tessellationControlShader.m_shaderLayout.m_uniforms.size();
+            for (ionSize i = 0; i < uniformCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                binding.binding = _tessellationControlShader.m_shaderLayout.m_uniforms[i].m_bindingIndex;
+                layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
+            }
+
+            ionSize samplerCount = _tessellationControlShader.m_shaderLayout.m_samplers.size();
+            for (ionSize i = 0; i < samplerCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                binding.binding = _tessellationControlShader.m_shaderLayout.m_samplers[i].m_bindingIndex;
+                layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
         }
 
         if (_tessellationEvaluatorShader.IsValid())
         {
-            {
-                binding.stageFlags = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-                for (ionSize i = 0; i < _tessellationEvaluatorShader.m_bindings.size(); ++i)
-                {
-                    binding.binding = bindingId++;
-                    binding.descriptorType = GetDescriptorType(_tessellationEvaluatorShader.m_bindings[i]);
-                    _shaderProgram.m_bindings.push_back(_tessellationEvaluatorShader.m_bindings[i]);
+            binding.stageFlags = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
 
-                    layoutBindings.push_back(binding);
-                }
+            ionSize uniformCount = _tessellationEvaluatorShader.m_shaderLayout.m_uniforms.size();
+            for (ionSize i = 0; i < uniformCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                binding.binding = _tessellationEvaluatorShader.m_shaderLayout.m_uniforms[i].m_bindingIndex;
+                layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
+            }
+
+            ionSize samplerCount = _tessellationEvaluatorShader.m_shaderLayout.m_samplers.size();
+            for (ionSize i = 0; i < samplerCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                binding.binding = _tessellationEvaluatorShader.m_shaderLayout.m_samplers[i].m_bindingIndex;
+                layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
         }
 
         if (_geometryShader.IsValid())
         {
-            {
-                binding.stageFlags = VK_SHADER_STAGE_GEOMETRY_BIT;
-                for (ionSize i = 0; i < _geometryShader.m_bindings.size(); ++i)
-                {
-                    binding.binding = bindingId++;
-                    binding.descriptorType = GetDescriptorType(_geometryShader.m_bindings[i]);
-                    _shaderProgram.m_bindings.push_back(_geometryShader.m_bindings[i]);
+            binding.stageFlags = VK_SHADER_STAGE_GEOMETRY_BIT;
 
-                    layoutBindings.push_back(binding);
-                }
+            ionSize uniformCount = _geometryShader.m_shaderLayout.m_uniforms.size();
+            for (ionSize i = 0; i < uniformCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                binding.binding = _geometryShader.m_shaderLayout.m_uniforms[i].m_bindingIndex;
+                layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
+            }
+
+            ionSize samplerCount = _geometryShader.m_shaderLayout.m_samplers.size();
+            for (ionSize i = 0; i < samplerCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                binding.binding = _geometryShader.m_shaderLayout.m_samplers[i].m_bindingIndex;
+                layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
         }
 
         if (_fragmentShader.IsValid())
         {
             binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-            for (ionSize i = 0; i < _fragmentShader.m_bindings.size(); ++i)
-            {
-                binding.binding = bindingId++;
-                binding.descriptorType = GetDescriptorType(_fragmentShader.m_bindings[i]);
-                _shaderProgram.m_bindings.push_back(_fragmentShader.m_bindings[i]);
 
+            ionSize uniformCount = _fragmentShader.m_shaderLayout.m_uniforms.size();
+            for (ionSize i = 0; i < uniformCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                binding.binding = _fragmentShader.m_shaderLayout.m_uniforms[i].m_bindingIndex;
                 layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
+            }
+
+            ionSize samplerCount = _fragmentShader.m_shaderLayout.m_samplers.size();
+            for (ionSize i = 0; i < samplerCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                binding.binding = _fragmentShader.m_shaderLayout.m_samplers[i].m_bindingIndex;
+                layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
         }
 

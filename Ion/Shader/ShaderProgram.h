@@ -15,16 +15,69 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-class RenderCore;
+
+
 
 enum EUniformParameterType
 {
     EUniformParameterType_Matrix = 0,
-	EUniformParameterType_Vector,
-	
+    EUniformParameterType_Vector,
+
     EUniformParameterType_Count
 };
 
+struct ION_DLL UniformBinding final
+{
+    ionU32                              m_bindingIndex;
+    eosVector(eosString)	            m_parameters;
+    eosVector(EUniformParameterType)    m_type;
+
+    // it is computed by the engine, do not set manually
+    eosVector(ionSize)	                m_runtimeParameters;
+
+    ~UniformBinding()
+    {
+        m_parameters.clear();
+        m_type.clear();
+        m_runtimeParameters.clear();
+    }
+};
+
+class Texture;
+struct ION_DLL SamplerBinding final
+{
+    ionU32                      m_bindingIndex;
+    const Texture*              m_texture;
+
+    SamplerBinding()
+    {
+        m_texture = nullptr;
+    }
+
+    ~SamplerBinding()
+    {
+        m_texture = nullptr;
+    }
+};
+
+struct ION_DLL ShaderLayoutDef final
+{
+    eosVector(UniformBinding)	m_uniforms;
+    eosVector(SamplerBinding)   m_samplers;
+
+    ~ShaderLayoutDef()
+    {
+        Clear();
+    }
+
+    void Clear()
+    {
+        m_uniforms.clear();
+        m_samplers.clear();
+    }
+};
+
+class RenderCore;
 struct Shader
 {
     Shader() :
@@ -33,8 +86,7 @@ struct Shader
 
     ~Shader()
     {
-        m_bindings.clear();
-        m_parametersHash.clear();
+        m_shaderLayout.Clear();
     }
 
     ionBool IsValid() const
@@ -45,9 +97,7 @@ struct Shader
     eosString						m_name;
     EShaderStage					m_stage;
     VkShaderModule					m_shaderModule;
-    eosVector(EShaderBinding)		m_bindings;
-    eosVector(ionSize)				m_parametersHash;   // while load a shader, we need to pass the parameters, here we save the hash which will be used as key
-	eosVector(EUniformParameterType)m_parameterType;
+    ShaderLayoutDef                 m_shaderLayout;
 };
 
 struct ShaderProgram

@@ -164,20 +164,30 @@ int main()
 	eosString damagedHelmetModelPath = ionFileSystemManager().GetModelsPath();
 	damagedHelmetModelPath.append("DamagedHelmet.gltf");
     ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, *test);
-    //entityPos += Vector(0.0f, 0.0f, 5.0f, 0.0f);
-    //test->GetTransformHandle()->SetPosition(entityPos); // override position because in the gltf loader the position is set
 
     //
+    // one uniform structure bound in the index 0 in the shader stage
+    UniformBinding uniform;
+    uniform.m_bindingIndex = 0;
+    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(EUniformParameterType_Matrix);
+
+    // one sampler bound in the index 1 in the shader stage
+    SamplerBinding sampler;
+    sampler.m_bindingIndex = 1;
+    sampler.m_texture = test->GetMaterial(0)->GetRoughnessMap();
+
+    // set the shaders layout
     ShaderLayoutDef vertexLayout;
-    vertexLayout.m_bindings.push_back(EShaderBinding_Uniform);
-    vertexLayout.m_uniforms.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
-    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
-    vertexLayout.m_uniforms.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
-    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
-    vertexLayout.m_uniforms.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
-    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
+    vertexLayout.m_uniforms.push_back(uniform);
+
     ShaderLayoutDef fragmentLayout;
-    fragmentLayout.m_bindings.push_back(EShaderBinding_Sampler);
+    fragmentLayout.m_samplers.push_back(sampler);
+
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Fragment, fragmentLayout);
     test->GetMaterial(0)->SetShaderProgramName(DEMO_SHADER_PROG);

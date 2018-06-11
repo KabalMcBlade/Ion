@@ -165,10 +165,7 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetVertexBuffer(0), m_entityNodes[i]->GetVertexBufferSize(0));
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetIndexBuffer(0), m_entityNodes[i]->GetIndexBufferSize(0));
         m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMaterial(0);
-        
-        // just for test! I need a proper way to bind automatically inside material!
-        m_renderCore.BindTexture(0, m_drawSurfaces[i].m_material->GetRoughnessMap());
-        
+
 
         /*
         //////////////////////////////////////////////////////////////////////////

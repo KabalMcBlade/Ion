@@ -264,17 +264,42 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, ionU64 _stat
     memset(&bufferInfos, 0, sizeof(bufferInfos));
     memset(&imageInfos, 0, sizeof(imageInfos));
 
+    ionS32 samplerIndex = 0;
     ionS32 uboIndex = 0;
-    UniformBuffer* ubos[6] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+    UniformBuffer* ubos[ION_MAX_DESCRIPTOR_SET_WRITES];
+    const Texture* textures[ION_MAX_DESCRIPTOR_SET_WRITES];
+    ionU32 destBinding[ION_MAX_DESCRIPTOR_SET_WRITES];
+    ionU32 destBindingTexture[ION_MAX_DESCRIPTOR_SET_WRITES];
+    memset(&ubos, 0, sizeof(ubos));
+    memset(&textures, 0, sizeof(textures));
+    memset(&destBinding, 0, sizeof(destBinding)); 
+    memset(&destBindingTexture, 0, sizeof(destBindingTexture));
 
     UniformBuffer vertParms;
-    if (shaderProgram.m_vertexShaderIndex > -1 && m_shaders[shaderProgram.m_vertexShaderIndex].m_parametersHash.size() > 0)
+    if (shaderProgram.m_vertexShaderIndex > -1)
     {
-        AllocParametersBlockBuffer(_render, m_shaders[shaderProgram.m_vertexShaderIndex].m_parametersHash, m_shaders[shaderProgram.m_vertexShaderIndex].m_parameterType, vertParms);
+        ionSize uniformCount = m_shaders[shaderProgram.m_vertexShaderIndex].m_shaderLayout.m_uniforms.size();
+        for (ionSize i = 0; i < uniformCount; ++i)
+        {
+            AllocUniformParametersBlockBuffer(_render, m_shaders[shaderProgram.m_vertexShaderIndex].m_shaderLayout.m_uniforms[i], vertParms);
 
-        ubos[uboIndex++] = &vertParms;
+            destBinding[uboIndex] = m_shaders[shaderProgram.m_vertexShaderIndex].m_shaderLayout.m_uniforms[i].m_bindingIndex;
+            ubos[uboIndex] = &vertParms;
+
+            ++uboIndex;
+        }
+
+        ionSize samplerCount = m_shaders[shaderProgram.m_vertexShaderIndex].m_shaderLayout.m_samplers.size();
+        for (ionSize i = 0; i < samplerCount; ++i)
+        {
+            destBindingTexture[samplerIndex] = m_shaders[shaderProgram.m_vertexShaderIndex].m_shaderLayout.m_samplers[i].m_bindingIndex;
+            textures[samplerIndex] = m_shaders[shaderProgram.m_vertexShaderIndex].m_shaderLayout.m_samplers[i].m_texture;
+
+            ++samplerIndex;
+        }
     }
 
+    // Need to rework here for skinning
     UniformBuffer jointBuffer;
     if (shaderProgram.m_usesJoints && _render.GetJointCacheHandler() > 0)
     {
@@ -293,37 +318,104 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, ionU64 _stat
     }
 
     UniformBuffer tessCtrlParms;
-    if (shaderProgram.m_tessellationControlShaderIndex > -1 && m_shaders[shaderProgram.m_tessellationControlShaderIndex].m_parametersHash.size() > 0)
+    
+    if (shaderProgram.m_tessellationControlShaderIndex > -1)
     {
-        AllocParametersBlockBuffer(_render, m_shaders[shaderProgram.m_tessellationControlShaderIndex].m_parametersHash, m_shaders[shaderProgram.m_tessellationControlShaderIndex].m_parameterType, tessCtrlParms);
+        ionSize uniformCount = m_shaders[shaderProgram.m_tessellationControlShaderIndex].m_shaderLayout.m_uniforms.size();
+        for (ionSize i = 0; i < uniformCount; ++i)
+        {
+            AllocUniformParametersBlockBuffer(_render, m_shaders[shaderProgram.m_tessellationControlShaderIndex].m_shaderLayout.m_uniforms[i], tessCtrlParms);
 
-        ubos[uboIndex++] = &tessCtrlParms;
+            destBinding[uboIndex] = m_shaders[shaderProgram.m_tessellationControlShaderIndex].m_shaderLayout.m_uniforms[i].m_bindingIndex;
+            ubos[uboIndex] = &tessCtrlParms;
+
+            ++uboIndex;
+        }
+
+        ionSize samplerCount = m_shaders[shaderProgram.m_tessellationControlShaderIndex].m_shaderLayout.m_samplers.size();
+        for (ionSize i = 0; i < samplerCount; ++i)
+        {
+            destBindingTexture[samplerIndex] = m_shaders[shaderProgram.m_tessellationControlShaderIndex].m_shaderLayout.m_samplers[i].m_bindingIndex;
+            textures[samplerIndex] = m_shaders[shaderProgram.m_tessellationControlShaderIndex].m_shaderLayout.m_samplers[i].m_texture;
+
+            ++samplerIndex;
+        }
     }
 
     UniformBuffer tessEvalParms;
-    if (shaderProgram.m_tessellationEvaluatorShaderIndex > -1 && m_shaders[shaderProgram.m_tessellationEvaluatorShaderIndex].m_parametersHash.size() > 0)
+    if (shaderProgram.m_tessellationEvaluatorShaderIndex > -1)
     {
-        AllocParametersBlockBuffer(_render, m_shaders[shaderProgram.m_tessellationEvaluatorShaderIndex].m_parametersHash, m_shaders[shaderProgram.m_tessellationEvaluatorShaderIndex].m_parameterType, tessEvalParms);
+        ionSize uniformCount = m_shaders[shaderProgram.m_tessellationEvaluatorShaderIndex].m_shaderLayout.m_uniforms.size();
+        for (ionSize i = 0; i < uniformCount; ++i)
+        {
+            AllocUniformParametersBlockBuffer(_render, m_shaders[shaderProgram.m_tessellationEvaluatorShaderIndex].m_shaderLayout.m_uniforms[i], tessEvalParms);
 
-        ubos[uboIndex++] = &tessEvalParms;
+            destBinding[uboIndex] = m_shaders[shaderProgram.m_tessellationEvaluatorShaderIndex].m_shaderLayout.m_uniforms[i].m_bindingIndex;
+            ubos[uboIndex] = &tessEvalParms;
+
+            ++uboIndex;
+        }
+
+        ionSize samplerCount = m_shaders[shaderProgram.m_tessellationEvaluatorShaderIndex].m_shaderLayout.m_samplers.size();
+        for (ionSize i = 0; i < samplerCount; ++i)
+        {
+            destBindingTexture[samplerIndex] = m_shaders[shaderProgram.m_tessellationEvaluatorShaderIndex].m_shaderLayout.m_samplers[i].m_bindingIndex;
+            textures[samplerIndex] = m_shaders[shaderProgram.m_tessellationEvaluatorShaderIndex].m_shaderLayout.m_samplers[i].m_texture;
+
+            ++samplerIndex;
+        }
     }
 
     UniformBuffer geometryParms;
-    if (shaderProgram.m_geometryShaderIndex > -1 && m_shaders[shaderProgram.m_geometryShaderIndex].m_parametersHash.size() > 0)
+    if (shaderProgram.m_geometryShaderIndex > -1)
     {
-        AllocParametersBlockBuffer(_render, m_shaders[shaderProgram.m_geometryShaderIndex].m_parametersHash, m_shaders[shaderProgram.m_geometryShaderIndex].m_parameterType, geometryParms);
+        ionSize uniformCount = m_shaders[shaderProgram.m_geometryShaderIndex].m_shaderLayout.m_uniforms.size();
+        for (ionSize i = 0; i < uniformCount; ++i)
+        {
+            AllocUniformParametersBlockBuffer(_render, m_shaders[shaderProgram.m_geometryShaderIndex].m_shaderLayout.m_uniforms[i], geometryParms);
 
-        ubos[uboIndex++] = &geometryParms;
+            destBinding[uboIndex] = m_shaders[shaderProgram.m_geometryShaderIndex].m_shaderLayout.m_uniforms[i].m_bindingIndex;
+            ubos[uboIndex] = &geometryParms;
+
+            ++uboIndex;
+        }
+
+        ionSize samplerCount = m_shaders[shaderProgram.m_geometryShaderIndex].m_shaderLayout.m_samplers.size();
+        for (ionSize i = 0; i < samplerCount; ++i)
+        {
+            destBindingTexture[samplerIndex] = m_shaders[shaderProgram.m_geometryShaderIndex].m_shaderLayout.m_samplers[i].m_bindingIndex;
+            textures[samplerIndex] = m_shaders[shaderProgram.m_geometryShaderIndex].m_shaderLayout.m_samplers[i].m_texture;
+
+            ++samplerIndex;
+        }
     }
 
     UniformBuffer fragParms;
-    if (shaderProgram.m_fragmentShaderIndex > -1 && m_shaders[shaderProgram.m_fragmentShaderIndex].m_parametersHash.size() > 0)
+    if (shaderProgram.m_fragmentShaderIndex > -1)
     {
-        AllocParametersBlockBuffer(_render, m_shaders[shaderProgram.m_fragmentShaderIndex].m_parametersHash, m_shaders[shaderProgram.m_fragmentShaderIndex].m_parameterType, fragParms);
+        ionSize uniformCount = m_shaders[shaderProgram.m_fragmentShaderIndex].m_shaderLayout.m_uniforms.size();
+        for (ionSize i = 0; i < uniformCount; ++i)
+        {
+            AllocUniformParametersBlockBuffer(_render, m_shaders[shaderProgram.m_fragmentShaderIndex].m_shaderLayout.m_uniforms[i], fragParms);
 
-        ubos[uboIndex++] = &fragParms;
+            destBinding[uboIndex] = m_shaders[shaderProgram.m_fragmentShaderIndex].m_shaderLayout.m_uniforms[i].m_bindingIndex;
+            ubos[uboIndex] = &fragParms;
+
+            ++uboIndex;
+        }
+
+        ionSize samplerCount = m_shaders[shaderProgram.m_fragmentShaderIndex].m_shaderLayout.m_samplers.size();
+        for (ionSize i = 0; i < samplerCount; ++i)
+        {
+            destBindingTexture[samplerIndex] = m_shaders[shaderProgram.m_fragmentShaderIndex].m_shaderLayout.m_samplers[i].m_bindingIndex;
+            textures[samplerIndex] = m_shaders[shaderProgram.m_fragmentShaderIndex].m_shaderLayout.m_samplers[i].m_texture;
+
+            ++samplerIndex;
+        }
     }
 
+    ionAssertReturnVoid(uboIndex < ION_MAX_DESCRIPTOR_SET_WRITES, "Uniforms exceed count");
+    ionAssertReturnVoid(samplerIndex < ION_MAX_DESCRIPTOR_SET_WRITES, "Samplers exceed count");
 
     for (ionSize i = 0; i < shaderProgram.m_bindings.size(); ++i)
     {
@@ -335,7 +427,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, ionU64 _stat
         {
             UniformBuffer* ubo = ubos[bufferIndex];
 
-            VkDescriptorBufferInfo & bufferInfo = bufferInfos[bufferIndex++];
+            VkDescriptorBufferInfo & bufferInfo = bufferInfos[bufferIndex];
             memset(&bufferInfo, 0, sizeof(VkDescriptorBufferInfo));
             bufferInfo.buffer = ubo->GetObject();
             bufferInfo.offset = ubo->GetOffset();
@@ -345,7 +437,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, ionU64 _stat
             memset(&write, 0, sizeof(VkWriteDescriptorSet));
             write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             write.dstSet = descSet;
-            write.dstBinding = bindingIndex++;
+            write.dstBinding = destBinding[bufferIndex++];
             write.descriptorCount = 1;
             write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             write.pBufferInfo = &bufferInfo;
@@ -354,9 +446,9 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, ionU64 _stat
         }
         case EShaderBinding_Sampler:
         {
-            const Texture* image = _render.GetTextureParam(imageIndex);
+            const Texture* image = textures[imageIndex];
 
-            VkDescriptorImageInfo & imageInfo = imageInfos[imageIndex++];
+            VkDescriptorImageInfo & imageInfo = imageInfos[imageIndex];
             memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
             imageInfo.imageLayout = image->GetLayout();
             imageInfo.imageView = image->GetView();
@@ -368,7 +460,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, ionU64 _stat
             memset(&write, 0, sizeof(VkWriteDescriptorSet));
             write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             write.dstSet = descSet;
-            write.dstBinding = bindingIndex++;
+            write.dstBinding = destBindingTexture[imageIndex++];
             write.descriptorCount = 1;
             write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             write.pImageInfo = &imageInfo;
@@ -384,7 +476,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, ionU64 _stat
     vkCmdBindPipeline(_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 }
 
-void ShaderProgramManager::AllocParametersBlockBuffer(const RenderCore& _render, const eosVector(ionSize) & paramsHash, const eosVector(EUniformParameterType) & paramsType, UniformBuffer& _ubo)
+void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _render, const UniformBinding& _uniform, UniformBuffer& _ubo)
 {
     // gather all informations
     static const ionU32 sMaxParamsAmount = 32;
@@ -394,10 +486,10 @@ void ShaderProgramManager::AllocParametersBlockBuffer(const RenderCore& _render,
     memset(&counterForType, 0, sizeof(counterForType));
     memset(&indexForType, 0, sizeof(indexForType));
 
-    const ionSize numParmsType = paramsType.size();
+    const ionSize numParmsType = _uniform.m_type.size();
     for (ionSize i = 0; i < numParmsType; ++i)
     {
-        const EUniformParameterType type = paramsType[i];
+        const EUniformParameterType type = _uniform.m_type[i];
         if (type == EUniformParameterType_Vector)
         {
             indexForType[EUniformParameterType_Vector][counterForType[EUniformParameterType_Vector]] = i;
@@ -410,6 +502,14 @@ void ShaderProgramManager::AllocParametersBlockBuffer(const RenderCore& _render,
         }
     }
 
+
+    /*
+    ORDER OF UNIFORM ELEMENTS
+    Matrix
+    Vector
+    Float   (next)
+    Integer (next)
+    */
 
     //////////////////////////////////////////////////////////////////////////
     // Matrix 
@@ -427,7 +527,7 @@ void ShaderProgramManager::AllocParametersBlockBuffer(const RenderCore& _render,
 
         for (ionSize i = 0; i < numParms; ++i)
         {
-            uniforms[i] = GetRenderParmMatrix(paramsHash[indexForType[EUniformParameterType_Matrix][i]]);
+            uniforms[i] = GetRenderParmMatrix(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Matrix][i]]);
         }
 
         _ubo.UnmapBuffer();
@@ -451,7 +551,7 @@ void ShaderProgramManager::AllocParametersBlockBuffer(const RenderCore& _render,
 
         for (ionSize i = 0; i < numParms; ++i)
         {
-            uniforms[i] = GetRenderParmVector(paramsHash[indexForType[EUniformParameterType_Vector][i]]);
+            uniforms[i] = GetRenderParmVector(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Vector][i]]);
         }
 
         _ubo.UnmapBuffer();
@@ -518,18 +618,18 @@ void ShaderProgramManager::LoadShader(Shader& _shader, const ShaderLayoutDef& _d
 
     fileStream.close();
 
-    ionSize size = _defines.m_uniforms.size();
-    for (ionSize i = 0; i < size; ++i)
+    _shader.m_shaderLayout = _defines;
+
+    ionSize uniformCount = _shader.m_shaderLayout.m_uniforms.size();
+    for (ionSize i = 0; i < uniformCount; ++i)
     {
-        const ionSize hash = std::hash<eosString>{}(_defines.m_uniforms[i]);
-        _shader.m_parametersHash.push_back(hash);
-		_shader.m_parameterType.push_back(_defines.m_uniformTypes[i]);
-    }
-     
-    size = _defines.m_bindings.size();
-    for (ionSize i = 0; i < size; ++i)
-    {
-        _shader.m_bindings.push_back(_defines.m_bindings[i]);
+        ionSize paramCount = _shader.m_shaderLayout.m_uniforms[i].m_parameters.size();
+        _shader.m_shaderLayout.m_uniforms[i].m_runtimeParameters.resize(paramCount);
+        for (ionSize j = 0; j < paramCount; ++j)
+        {
+            const ionSize hash = std::hash<eosString>{}(_shader.m_shaderLayout.m_uniforms[i].m_parameters[j]);
+            _shader.m_shaderLayout.m_uniforms[i].m_runtimeParameters[j] = hash;
+        }
     }
 
     VkShaderModuleCreateInfo createInfo = {};
