@@ -84,22 +84,6 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct ShaderVertexLayout
 
 //////////////////////////////////////////////////////////////////////////
 
-enum EVertexLayout
-{
-    EVertexLayout_Unknow = -1,
-
-    EVertexLayout_Full,             // Vertex
-    EVertexLayout_Pos_UV_Normal,    // VertexSimple
-    EVertexLayout_Pos_Color,        // VertexColored
-    EVertexLayout_Pos_UV,           // VertexUV
-    EVertexLayout_Pos,              // VertexPlain
-
-    EVertexLayout_Empty,
-
-    EVertexLayout_Count
-};
-
-
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 {
     Vector				m_position;
@@ -738,7 +722,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexPlain
 //////////////////////////////////////////////////////////////////////////
 
 // vertex indices
-typedef ionU16 Index;
+typedef ionU32 Index;
 
 
 //////////////////////////////////////////////////////////////////////////

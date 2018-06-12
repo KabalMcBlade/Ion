@@ -51,6 +51,7 @@
 #include "Geometry/Mesh.h"
 #include "Geometry/Intersection.h"
 #include "Geometry/Frustum.h"
+#include "Geometry/PrimitiveFactory.h"
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"

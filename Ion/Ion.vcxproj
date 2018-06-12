@@ -197,6 +197,7 @@
     <ClInclude Include="Geometry\BoundingBox.h" />
     <ClInclude Include="Geometry\Frustum.h" />
     <ClInclude Include="Geometry\Intersection.h" />
+    <ClInclude Include="Geometry\PrimitiveFactory.h" />
     <ClInclude Include="Geometry\Ray.h" />
     <ClInclude Include="Material\MaterialManager.h" />
     <ClInclude Include="Renderer\BaseBufferObject.h" />
@@ -253,6 +254,7 @@
     <ClCompile Include="Geometry\BoundingBox.cpp" />
     <ClCompile Include="Geometry\Frustum.cpp" />
     <ClCompile Include="Geometry\Intersection.cpp" />
+    <ClCompile Include="Geometry\PrimitiveFactory.cpp" />
     <ClCompile Include="Geometry\Ray.cpp" />
     <ClCompile Include="Ion.cpp" />
     <ClCompile Include="Material\MaterialManager.cpp" />

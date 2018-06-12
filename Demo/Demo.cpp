@@ -165,6 +165,7 @@ int main()
 	damagedHelmetModelPath.append("DamagedHelmet.gltf");
     ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, *test);
 
+
     //
     // one uniform structure bound in the index 0 in the shader stage
     UniformBinding uniform;
@@ -179,7 +180,7 @@ int main()
     // one sampler bound in the index 1 in the shader stage
     SamplerBinding sampler;
     sampler.m_bindingIndex = 1;
-    sampler.m_texture = test->GetMaterial(0)->GetRoughnessMap();
+    sampler.m_texture = test->GetMesh(0)->GetMaterial()->GetRoughnessMap();
 
     // set the shaders layout
     ShaderLayoutDef vertexLayout;
@@ -190,10 +191,12 @@ int main()
 
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Fragment, fragmentLayout);
-    test->GetMaterial(0)->SetShaderProgramName(DEMO_SHADER_PROG);
-    test->GetMaterial(0)->SetVertexLayout(EVertexLayout_Full);
-    test->GetMaterial(0)->SetVertexShaderIndex(vertexShaderIndex);
-    test->GetMaterial(0)->SetFragmentShaderIndex(fragmentShaderIndex);
+
+    test->GetMesh(0)->GetMaterial()->SetShaderProgramName(DEMO_SHADER_PROG);
+    test->GetMesh(0)->GetMaterial()->SetVertexLayout(test->GetMesh(0)->GetLayout());
+
+    test->GetMesh(0)->GetMaterial()->SetVertexShaderIndex(vertexShaderIndex);
+    test->GetMesh(0)->GetMaterial()->SetFragmentShaderIndex(fragmentShaderIndex);
     
     
     /*

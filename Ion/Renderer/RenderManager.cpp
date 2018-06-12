@@ -12,7 +12,7 @@
 
 #include "../Texture/TextureManager.h"
 
-
+#include "../Geometry/PrimitiveFactory.h"
 
 //#define SHADOW_MAP_SIZE					1024
 
@@ -78,6 +78,31 @@ ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, Entity& _en
 {
     LoaderGLTF loader;
     return loader.Load(_fileName, _entity);
+}
+
+void RenderManager::LoadPrimitive(EVertexLayout _layout, EPrimitiveType _type, Entity& _entity)
+{
+    switch(_type)
+    {
+    case EPrimitiveType_Triangle:
+        PrimitiveFactory::GenerateTriangle(_layout, _entity);
+        break;
+    case EPrimitiveType_Quad:
+        PrimitiveFactory::GenerateQuad(_layout, _entity);
+        break;
+    case EPrimitiveType_Cube:
+
+        break;
+    case EPrimitiveType_Sphere:
+
+        break;
+    case EPrimitiveType_Piramid:
+
+        break;
+    case EPrimitiveType_Torus:
+
+        break;
+    }
 }
 
 void RenderManager::AddScene(NodeHandle& _root)
@@ -159,12 +184,12 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[8], _projection[2]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[12], _projection[3]);
 
-        m_drawSurfaces[i].m_indexStart = m_entityNodes[i]->GetIndexStart(0);
-        m_drawSurfaces[i].m_indexCount = m_entityNodes[i]->GetIndexCount(0);
-        m_drawSurfaces[i].m_indexType = m_entityNodes[i]->GetIndexType(0);
-        m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetVertexBuffer(0), m_entityNodes[i]->GetVertexBufferSize(0));
-        m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetIndexBuffer(0), m_entityNodes[i]->GetIndexBufferSize(0));
-        m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMaterial(0);
+        m_drawSurfaces[i].m_indexStart = m_entityNodes[i]->GetMesh(0)->GetIndexStart();
+        m_drawSurfaces[i].m_indexCount = m_entityNodes[i]->GetMesh(0)->GetIndexCount();
+        m_drawSurfaces[i].m_indexType = m_entityNodes[i]->GetMesh(0)->GetIndexType();
+        m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetMesh(0)->GetVertexData(), m_entityNodes[i]->GetMesh(0)->GetVertexSize());
+        m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetMesh(0)->GetIndexData(), m_entityNodes[i]->GetMesh(0)->GetIndexSize());
+        m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMesh(0)->GetMaterial();
 
 
         /*

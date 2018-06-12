@@ -11,3 +11,23 @@
 #define ION_MAX_DESCRIPTOR_SET_UNIFORMS             48
 #define ION_MAX_IMAGE_PARMAMETERS                   16
 #define ION_MAX_UNIFORM_BUFFER_OBJECT_PARMAMETERS   2
+
+
+ION_NAMESPACE_BEGIN
+
+enum EVertexLayout
+{
+    EVertexLayout_Unknow = -1,
+
+    EVertexLayout_Full,             // Vertex
+    EVertexLayout_Pos_UV_Normal,    // VertexSimple
+    EVertexLayout_Pos_Color,        // VertexColored
+    EVertexLayout_Pos_UV,           // VertexUV
+    EVertexLayout_Pos,              // VertexPlain
+
+    EVertexLayout_Empty,
+
+    EVertexLayout_Count
+};
+
+ION_NAMESPACE_END

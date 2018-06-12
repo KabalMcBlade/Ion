@@ -23,9 +23,18 @@ EOS_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 
+enum EPrimitiveType
+{
+    EPrimitiveType_Triangle,
+    EPrimitiveType_Quad,
+    EPrimitiveType_Cube,
+    EPrimitiveType_Sphere,
+    EPrimitiveType_Piramid,
+    EPrimitiveType_Torus
+};
+
 
 class Entity;
-
 class ION_DLL RenderManager final
 {
 public:
@@ -35,6 +44,7 @@ public:
     ION_NO_INLINE static RenderManager& Instance();
 
     ionBool LoadModelFromFile(const eosString& _fileName, Entity& _entity);
+    void LoadPrimitive(EVertexLayout _layout, EPrimitiveType _type, Entity& _entity);
 
     ionBool Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
     void    Shutdown();

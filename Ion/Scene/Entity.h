@@ -25,8 +25,16 @@ public:
     explicit Entity(const eosString & _name);
     virtual ~Entity();
 
-    const eosVector(Mesh)& GetMeshList() const { return m_meshes; }
-    eosVector(Mesh)& GetMeshList() { return m_meshes; }
+    template<typename T>
+    T* AddMesh()
+    {
+        T* mesh = eosNew(T, ION_MEMORY_ALIGNMENT_SIZE);
+        m_meshes.push_back(mesh);
+        return mesh;
+    }
+
+    const BaseMesh* GetMesh(ionU32 _index) const { return m_meshes[_index]; }
+    BaseMesh* GetMesh(ionU32 _index) { return m_meshes[_index]; }
 
     const BoundingBox& GetBoundingBox() const { return m_boundingBox; }
     BoundingBox& GetBoundingBox() { return m_boundingBox; }
@@ -35,30 +43,13 @@ public:
 
     ionU32  GetMeshCount() const;
 
-    VkIndexType GetIndexType(ionU32 _meshIndex) const;
-
-    ionU32 GetIndexStart(ionU32 _meshIndex) const;
-    ionU32 GetIndexCount(ionU32 _meshIndex) const;
-
-    const void* GetVertexBuffer(ionU32 _meshIndex) const;
-    ionSize GetVertexBufferSize(ionU32 _meshIndex) const;
-
-    const void* GetIndexBuffer(ionU32 _meshIndex) const;
-    ionSize GetIndexBufferSize(ionU32 _meshIndex) const;
-
-    const Material* GetMaterial(ionU32 _meshIndex) const;
-    Material* GetMaterial(ionU32 _meshIndex);
-    /*
-    void*   GetJointBuffer(ionU32 _meshIndex) const;
-    ionSize GetJointBufferSize(ionU32 _meshIndex) const;
-    */
 private:
     Entity(const Entity& _Orig) = delete;
     Entity& operator = (const Entity&) = delete;
 
 private:
-    BoundingBox     m_boundingBox;
-    eosVector(Mesh) m_meshes;    // 0 to empty entity, logic purpose only
+    BoundingBox             m_boundingBox;
+    eosVector(BaseMesh*)    m_meshes;    // 0 to empty entity, logic purpose only
 };
 
 ION_NAMESPACE_END

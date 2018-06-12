@@ -62,11 +62,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
         }
     }
 
+    ionU32 prevIndexSize = 0;
+    ionU32 prevVertexSize = 0;
     for (ionSize i = 0; i < (_node.mesh + 1); ++i)
     {
         const tinygltf::Mesh mesh = _model.meshes[i];
 
-        //ionMesh.GetPrimitives().resize(mesh.primitives.size());
         for (ionSize j = 0; j < mesh.primitives.size(); ++j)
         {
             const tinygltf::Primitive &primitive = mesh.primitives[j];
@@ -75,11 +76,10 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
                 continue;
             }
 
-            Mesh ionMesh;
+            Mesh* ionMesh = _entity.AddMesh<Mesh>();
 
-            ionMesh.m_indexStart = static_cast<ionU32>(ionMesh.m_indexes.size());
-
-            ionU32 vertexStart = static_cast<ionU32>(ionMesh.m_vertexes.size());
+            ionMesh->SetIndexStart(prevIndexSize);
+            ionU32 vertexStart = prevVertexSize;
 
 			// Vertices
 			{
@@ -186,7 +186,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
                         vert.SetColor2(1.0f, 1.0f, 1.0f, 1.0f);
                     }
 
-                    ionMesh.m_vertexes.push_back(vert);
+                    ionMesh->PushBackVertex(vert);
 				}
 			}
 
@@ -197,18 +197,18 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
                 const tinygltf::BufferView &bufferView = _model.bufferViews[accessor.bufferView];
                 const tinygltf::Buffer &buffer = _model.buffers[bufferView.buffer];
 
-                ionMesh.m_indexCount = static_cast<ionU32>(accessor.count);
+                ionMesh->SetIndexCount(static_cast<ionU32>(accessor.count));
 
                 switch (accessor.componentType)
                 {
                 case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT:
                 {
-                    ionMesh.m_indexType = VK_INDEX_TYPE_UINT32;
+                    ionMesh->SetIndexType(VK_INDEX_TYPE_UINT32);
                     ionU32 *buf = (ionU32 *)eosNewRaw(sizeof(ionU32) * accessor.count, ION_MEMORY_ALIGNMENT_SIZE);
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU32));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
-                        ionMesh.m_indexes.push_back((Index)(buf[index] + vertexStart));
+                        ionMesh->PushBackIndex((Index)(buf[index] + vertexStart));
                     }
                     eosDeleteRaw(buf);
                     break;
@@ -217,24 +217,24 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
                 // just this is valid
                 case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
                 {
-                    ionMesh.m_indexType = VK_INDEX_TYPE_UINT16;
+                    ionMesh->SetIndexType(VK_INDEX_TYPE_UINT16);
                     ionU16 *buf = (ionU16 *)eosNewRaw(sizeof(ionU16) * accessor.count, ION_MEMORY_ALIGNMENT_SIZE);
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU16));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
-                        ionMesh.m_indexes.push_back(buf[index] + vertexStart);
+                        ionMesh->PushBackIndex(buf[index] + vertexStart);
                     }
                     eosDeleteRaw(buf);
                     break;
                 }
                 case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: 
                 {
-                    ionMesh.m_indexType = VK_INDEX_TYPE_UINT16;
+                    ionMesh->SetIndexType(VK_INDEX_TYPE_UINT16);
                     ionU8 *buf = (ionU8 *)eosNewRaw(sizeof(ionU8) * accessor.count, ION_MEMORY_ALIGNMENT_SIZE);
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU8));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
-                        ionMesh.m_indexes.push_back((Index)(buf[index] + vertexStart));
+                        ionMesh->PushBackIndex((Index)(buf[index] + vertexStart));
                     }
                     eosDeleteRaw(buf);
                     break;
@@ -245,10 +245,13 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
             }
 
             // add material and add all to primitive
-            ionMesh.m_material = ionMaterialManger().GetMaterial(_materialIndexToMaterialName[primitive.material]);
+            ionMesh->SetMaterial(ionMaterialManger().GetMaterial(_materialIndexToMaterialName[primitive.material]));
+
+            prevIndexSize = static_cast<ionU32>(ionMesh->GetIndexSize());
+            prevVertexSize = static_cast<ionU32>(ionMesh->GetVertexSize());
 
             // add to mesh list
-            _entity.GetMeshList().push_back(ionMesh);
+            //_entity.GetMeshList().push_back(ionMesh);
         }
 
         // Bone weight for morph targets (NEXT: After the base renderer will works)

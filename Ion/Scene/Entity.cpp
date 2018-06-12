@@ -20,6 +20,12 @@ Entity::Entity(const eosString & _name) : Node(_name)
 
 Entity::~Entity()
 {
+    auto begin = m_meshes.begin(), end = m_meshes.end();
+    std::vector<BaseMesh*>::iterator it = begin;
+    for (; it != end; ++it)
+    {
+        eosDelete((*it)); 
+    }
     m_meshes.clear();
 }
 
@@ -32,80 +38,5 @@ ionU32 Entity::GetMeshCount() const
 {
     return static_cast<ionU32>(m_meshes.size());
 }
-
-VkIndexType Entity::GetIndexType(ionU32 _meshIndex) const
-{
-    ionAssertReturnValue(_meshIndex >= 0 && _meshIndex < m_meshes.size(), "Mesh index out of bound", VK_INDEX_TYPE_MAX_ENUM);
-
-    return m_meshes[_meshIndex].m_indexType;
-}
-
-ionU32 Entity::GetIndexStart(ionU32 _meshIndex) const
-{
-    ionAssertReturnValue(_meshIndex >= 0 && _meshIndex < m_meshes.size(), "Mesh index out of bound", -1);
-
-    return m_meshes[_meshIndex].m_indexStart;
-}
-
-ionU32 Entity::GetIndexCount(ionU32 _meshIndex) const
-{
-    ionAssertReturnValue(_meshIndex >= 0 && _meshIndex < m_meshes.size(), "Mesh index out of bound", -1);
-
-    return m_meshes[_meshIndex].m_indexCount;
-}
-
-const void* Entity::GetVertexBuffer(ionU32 _meshIndex) const
-{
-    ionAssertReturnValue(_meshIndex >= 0 && _meshIndex < m_meshes.size(), "Mesh index out of bound", nullptr);
-
-    return m_meshes[_meshIndex].m_vertexes.data();
-}
-
-ionSize Entity::GetVertexBufferSize(ionU32 _meshIndex) const
-{
-    ionAssertReturnValue(_meshIndex >= 0 && _meshIndex < m_meshes.size(), "Mesh index out of bound", -1);
-
-    return m_meshes[_meshIndex].m_vertexes.size();
-}
-
-const void* Entity::GetIndexBuffer(ionU32 _meshIndex) const
-{
-    ionAssertReturnValue(_meshIndex >= 0 && _meshIndex < m_meshes.size(), "Mesh index out of bound", nullptr);
-
-    return m_meshes[_meshIndex].m_indexes.data();
-}
-
-ionSize Entity::GetIndexBufferSize(ionU32 _meshIndex) const
-{
-    ionAssertReturnValue(_meshIndex >= 0 && _meshIndex < m_meshes.size(), "Mesh index out of bound", -1);
- 
-    return m_meshes[_meshIndex].m_indexes.size();
-}
-
-const Material* Entity::GetMaterial(ionU32 _meshIndex) const
-{
-    ionAssertReturnValue(_meshIndex >= 0 && _meshIndex < m_meshes.size(), "Mesh index out of bound", nullptr);
-
-    return m_meshes[_meshIndex].m_material;
-}
-
-Material* Entity::GetMaterial(ionU32 _meshIndex)
-{
-    ionAssertReturnValue(_meshIndex >= 0 && _meshIndex < m_meshes.size(), "Mesh index out of bound", nullptr);
-
-    return m_meshes[_meshIndex].m_material;
-}
-
-/*
-void* Entity::GetJointBuffer(ionU32 _meshIndex) const
-{
-
-}
-
-ionSize  Entity::GetJointBufferSize(ionU32 _meshIndex) const
-{
-
-}
-*/
 
 ION_NAMESPACE_END
