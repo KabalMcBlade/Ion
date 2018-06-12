@@ -167,7 +167,6 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         m_entityNodes[i]->GetTransformHandle()->UpdateTransform();
         const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrix();
 
-
         
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
@@ -190,96 +189,6 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetMesh(0)->GetVertexData(), m_entityNodes[i]->GetMesh(0)->GetVertexSize());
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetMesh(0)->GetIndexData(), m_entityNodes[i]->GetMesh(0)->GetIndexSize());
         m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMesh(0)->GetMaterial();
-
-
-        /*
-        //////////////////////////////////////////////////////////////////////////
-        // TEST FOR DebugDrawQuad
-        eosVector(VertexColored) vertices;
-        eosVector(Index) indices;
-        vertices.resize(4);
-        indices.resize(6);
-        indices = { 0, 1, 2, 2, 3, 0 };
-
-        Vector positions[4] = { Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
-
-        vertices[0].SetPosition(positions[0]);
-        vertices[1].SetPosition(positions[1]);
-        vertices[2].SetPosition(positions[2]);
-        vertices[3].SetPosition(positions[3]);
-
-        vertices[0].SetColor(1.0f, 0.0f, 0.0f, 1.0f);
-        vertices[1].SetColor(0.0f, 1.0f, 0.0f, 1.0f);
-        vertices[2].SetColor(0.0f, 0.0f, 1.0f, 1.0f);
-        vertices[3].SetColor(1.0f, 1.0f, 1.0f, 1.0f);
-
-
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[8], model[2]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[12], model[3]);
-
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[0], _view[0]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[4], _view[1]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[8], _view[2]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[12], _view[3]);
-
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[0], _projection[0]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[4], _projection[1]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[8], _projection[2]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[12], _projection[3]);
-
-        m_drawSurfaces[i].m_indexStart = 0;
-        m_drawSurfaces[i].m_indexCount = 6;
-        m_drawSurfaces[i].m_indexType = VK_INDEX_TYPE_UINT32;
-        m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(vertices.data(), vertices.size());
-        m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(indices.data(), indices.size());
-        */
-
-        /*
-        //////////////////////////////////////////////////////////////////////////
-        // TEST FOR DebugDrawQuadTextured
-        eosVector(VertexUV) vertices;
-        eosVector(Index) indices;
-        vertices.resize(4);
-        indices.resize(6);
-        indices = { 0, 1, 2, 2, 3, 0 };
-
-        Vector positions[4] = { Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
-
-        vertices[0].SetPosition(positions[0]);
-        vertices[1].SetPosition(positions[1]);
-        vertices[2].SetPosition(positions[2]);
-        vertices[3].SetPosition(positions[3]);
-
-        vertices[0].SetTexCoordUV(1.0f, 0.0f);
-        vertices[1].SetTexCoordUV(0.0f, 0.0f);
-        vertices[2].SetTexCoordUV(0.0f, 1.0f);
-        vertices[3].SetTexCoordUV(1.0f, 1.0f);
-
-        m_renderCore.BindTexture(0, ionTextureManger().GetTexture("dva"));
-
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[8], model[2]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[12], model[3]);
-
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[0], _view[0]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[4], _view[1]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[8], _view[2]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[12], _view[3]);
-
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[0], _projection[0]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[4], _projection[1]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[8], _projection[2]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[12], _projection[3]);
-
-        m_drawSurfaces[i].m_indexStart = 0;
-        m_drawSurfaces[i].m_indexCount = 6;
-        m_drawSurfaces[i].m_indexType = VK_INDEX_TYPE_UINT32;
-        m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(vertices.data(), vertices.size());
-        m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(indices.data(), indices.size());
-        */
     }
 
 }
@@ -327,11 +236,8 @@ void RenderManager::Frame()
         m_renderCore.SetScissor(0, 0, width, height);
         m_renderCore.SetState(ECullingMode_Front);
         //m_renderCore.SetState(ECullingMode_TwoSide);    // just because I drawn a plane quad I want to see both side.
-        
-        //m_renderCore.DebugDrawQuad(m_drawSurfaces[0]);
-        //m_renderCore.DebugDrawQuadTextured(m_drawSurfaces[0]);
-        m_renderCore.Draw(m_drawSurfaces[0]);
 
+        m_renderCore.Draw(m_drawSurfaces[0]);
         /*
         for (ionSize i = 0; i < m_nodeCount; ++i)
         {

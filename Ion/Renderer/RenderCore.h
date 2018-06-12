@@ -45,11 +45,6 @@ public:
     void    SetColor(const eosString& _param, ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a);
     void    Draw(const DrawSurface& _surface);
 
-    // DEBUG
-    void    DebugDrawQuad(const DrawSurface& _surface);
-    void    DebugDrawQuadTextured(const DrawSurface& _surface);
-    // DEBUG
-
     VkDevice& GetDevice() { return m_vkDevice; }
     const VkDevice& GetDevice() const { return m_vkDevice; }
 

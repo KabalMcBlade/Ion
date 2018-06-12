@@ -179,6 +179,79 @@ private:
 };
 
 
+//////////////////////////////////////////////////////////////////////////
+class ION_DLL MeshColored : public BaseMesh
+{
+public:
+    MeshColored() : BaseMesh()
+    {
+    }
+
+    ~MeshColored()
+    {
+        m_vertexes.clear();
+    }
+
+    void PushBackVertex(VertexColored _vertex)
+    {
+        m_vertexes.push_back(_vertex);
+    }
+
+    virtual EVertexLayout GetLayout() const override
+    {
+        return EVertexLayout_Pos_Color;
+    }
+
+    virtual const void* GetVertexData() const override
+    {
+        return m_vertexes.data();
+    }
+
+    virtual ionSize GetVertexSize() const override
+    {
+        return m_vertexes.size();
+    }
+
+private:
+    eosVector(VertexColored)   m_vertexes;
+};
+
+//////////////////////////////////////////////////////////////////////////
+class ION_DLL MeshUV : public BaseMesh
+{
+public:
+    MeshUV() : BaseMesh()
+    {
+    }
+
+    ~MeshUV()
+    {
+        m_vertexes.clear();
+    }
+
+    void PushBackVertex(VertexUV _vertex)
+    {
+        m_vertexes.push_back(_vertex);
+    }
+
+    virtual EVertexLayout GetLayout() const override
+    {
+        return EVertexLayout_Pos_UV;
+    }
+
+    virtual const void* GetVertexData() const override
+    {
+        return m_vertexes.data();
+    }
+
+    virtual ionSize GetVertexSize() const override
+    {
+        return m_vertexes.size();
+    }
+
+private:
+    eosVector(VertexUV)   m_vertexes;
+};
 
 //////////////////////////////////////////////////////////////////////////
 class ION_DLL Mesh : public BaseMesh

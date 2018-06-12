@@ -165,7 +165,7 @@ int main()
 	damagedHelmetModelPath.append("DamagedHelmet.gltf");
     ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, *test);
 
-
+    
     //
     // one uniform structure bound in the index 0 in the shader stage
     UniformBinding uniform;
@@ -198,41 +198,92 @@ int main()
     test->GetMesh(0)->GetMaterial()->SetVertexShaderIndex(vertexShaderIndex);
     test->GetMesh(0)->GetMaterial()->SetFragmentShaderIndex(fragmentShaderIndex);
     
+
+    //////////////////////////////////////////////////////////////////////////
     
     /*
     //
+    ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_Color, ion::EPrimitiveType_Quad, *test);
+
+    ion::Material* material = ionMaterialManger().CreateMaterial("EmptyQuad", 0u);
+    test->GetMesh(0)->SetMaterial(material);
+
+    // one uniform structure bound in the index 0 in the shader stage
+    UniformBinding uniform;
+    uniform.m_bindingIndex = 0;
+    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(EUniformParameterType_Matrix);
+
+    // set the shaders layout
     ShaderLayoutDef vertexLayout;
-    vertexLayout.m_bindings.push_back(EShaderBinding_Uniform);
-    vertexLayout.m_uniforms.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
-    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
-    vertexLayout.m_uniforms.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
-    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
-    vertexLayout.m_uniforms.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
-    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
+    vertexLayout.m_uniforms.push_back(uniform);
+
     ShaderLayoutDef fragmentLayout;
+
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", EShaderStage_Fragment, fragmentLayout);
+
+    test->GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
+    test->GetMesh(0)->GetMaterial()->SetVertexLayout(test->GetMesh(0)->GetLayout());
+
+    test->GetMesh(0)->GetMaterial()->SetVertexShaderIndex(vertexShaderIndex);
+    test->GetMesh(0)->GetMaterial()->SetFragmentShaderIndex(fragmentShaderIndex);
     */
 
+    //////////////////////////////////////////////////////////////////////////
+
     /*
+    ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_UV, ion::EPrimitiveType_Quad, *test);
+
+    eosString dvaTextureFile = ionFileSystemManager().GetTexturesPath();
+    dvaTextureFile.append("dva.png");
+    ion::Texture* dvaTexture = ionTextureManger().CreateTextureFromFile("dva", dvaTextureFile, ETextureFilter_Nearest, ETextureRepeat_Clamp, ETextureUsage_RGBA, ETextureType_2D);
+
+    ion::Material* material = ionMaterialManger().CreateMaterial("dva", 0u);
+    material->SetAlbedoMap(dvaTexture);
+
+    test->GetMesh(0)->SetMaterial(material);
+
+    //
+    // one uniform structure bound in the index 0 in the shader stage
+    UniformBinding uniform;
+    uniform.m_bindingIndex = 0;
+    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(EUniformParameterType_Matrix);
+
+    // one sampler bound in the index 1 in the shader stage
+    SamplerBinding sampler;
+    sampler.m_bindingIndex = 1;
+    sampler.m_texture = test->GetMesh(0)->GetMaterial()->GetAlbedoMap();
+
+    // set the shaders layout
     ShaderLayoutDef vertexLayout;
-    vertexLayout.m_bindings.push_back(EShaderBinding_Uniform);
-    vertexLayout.m_uniforms.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
-    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
-    vertexLayout.m_uniforms.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
-    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
-    vertexLayout.m_uniforms.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
-    vertexLayout.m_uniformTypes.push_back(EUniformParameterType_Matrix);
+    vertexLayout.m_uniforms.push_back(uniform);
+
     ShaderLayoutDef fragmentLayout;
-    fragmentLayout.m_bindings.push_back(EShaderBinding_Sampler);
+    fragmentLayout.m_samplers.push_back(sampler);
+
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColorTextured", EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColorTextured", EShaderStage_Fragment, fragmentLayout);
 
-	eosString textureDVA = ionFileSystemManager().GetTexturesPath();
-    textureDVA.append("dva.png");
-    ionTextureManger().CreateTextureFromFile( "dva", textureDVA, ETextureFilter_Nearest, ETextureRepeat_Clamp, ETextureUsage_RGBA, ETextureType_2D);
+    test->GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColorTextured");
+    test->GetMesh(0)->GetMaterial()->SetVertexLayout(test->GetMesh(0)->GetLayout());
+
+    test->GetMesh(0)->GetMaterial()->SetVertexShaderIndex(vertexShaderIndex);
+    test->GetMesh(0)->GetMaterial()->SetFragmentShaderIndex(fragmentShaderIndex);
     */
 
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
     //
     camera->AttachToParent(*root);
     test->AttachToParent(*root);
