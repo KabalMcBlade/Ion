@@ -101,11 +101,8 @@ public:
     void SetOcclusionMap(Texture* _texture) { m_occlusionMap = _texture; }
     void SetEmissiveMap(Texture* _texture) { m_emissiveMap = _texture; }
 
-    void SetVertexShaderIndex(ionS32 _index) { m_vertexShaderIndex = _index;  }
-    void SetFragmentShaderIndex(ionS32 _index) { m_fragmentShaderIndex = _index; }
-
-    ionS32 GetVertexShaderIndex() const { return m_vertexShaderIndex; }
-    ionS32 GetFragmentShaderIndex() const { return m_fragmentShaderIndex; }
+    void SetShaders(const ionS32 _vertexIndex, const ionS32 _fragmentIndex = -1, const ionS32 _tessellationControlIndex = -1, const ionS32 _tessellationEvaluationIndex = -1, const ionS32 _geometryIndex = -1, const ionBool _useJoint = false, const ionBool _useSkinning = false);
+    void GetShaders(ionS32& _vertexIndex, ionS32& _fragmentIndex, ionS32& _tessellationControlIndex, ionS32& _tessellationEvaluationIndex, ionS32& _geometryIndex, ionBool& _useJoint, ionBool& _useSkinning) const;
 
     void SetVertexLayout(EVertexLayout _layout) { m_vertexLayout = _layout; }
     EVertexLayout GetVertexLayout() const { return m_vertexLayout; }
@@ -117,12 +114,15 @@ private:
     eosString       m_name;
     eosString       m_shaderProgramName;
 
-    // here the index for all type of shader, for testing purpose just vertex and fragment now!
+    ionU64          m_stateBits;
+
     ionS32          m_vertexShaderIndex;
     ionS32          m_fragmentShaderIndex;
-    EVertexLayout   m_vertexLayout;
+    ionS32          m_tessellationControlIndex;
+    ionS32          m_tessellationEvaluationIndex;
+    ionS32          m_geometryIndex;
 
-    ionU64          m_stateBits;
+    EVertexLayout   m_vertexLayout;
 
     ionFloat        m_alphaCutoff;
     ionFloat        m_metallicFactor;
@@ -139,6 +139,9 @@ private:
 
     ionFloat        m_color[4];
     ionFloat        m_emissiveColor[4];
+
+    ionBool         m_useJoint;
+    ionBool         m_useSkinning;
 };
 
 ION_NAMESPACE_END

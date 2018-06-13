@@ -2,6 +2,8 @@
 
 #include "../Texture/Texture.h"
 
+#include "../Shader/ShaderProgramManager.h"
+
 ION_NAMESPACE_BEGIN
 
 Material::Material(const eosString& _name) :
@@ -15,7 +17,14 @@ Material::Material(const eosString& _name) :
     m_emissiveMap(nullptr),
     m_alphaCutoff(1.0f),
     m_metallicFactor(1.0f),
-    m_roughnessFactor(1.0f)
+    m_roughnessFactor(1.0f),
+    m_vertexShaderIndex(-1),
+    m_fragmentShaderIndex(-1),
+    m_tessellationControlIndex(-1),
+    m_tessellationEvaluationIndex(-1),
+    m_geometryIndex(-1),
+    m_useJoint(false),
+    m_useSkinning(false)
 {
 }
 
@@ -39,6 +48,28 @@ void Material::Destroy()
     m_metalnessMap = nullptr;
     m_occlusionMap = nullptr;
     m_emissiveMap = nullptr;
+}
+
+void Material::SetShaders(const ionS32 _vertexIndex, const ionS32 _fragmentIndex /*= -1*/, const ionS32 _tessellationControlIndex /*= -1*/, const ionS32 _tessellationEvaluationIndex /*= -1*/, const ionS32 _geometryIndex /*= -1*/, const ionBool _useJoint /*= false*/, const ionBool _useSkinning /*= false*/)
+{
+    m_vertexShaderIndex = _vertexIndex;
+    m_fragmentShaderIndex = _fragmentIndex;
+    m_tessellationControlIndex = _tessellationControlIndex;
+    m_tessellationEvaluationIndex = _tessellationEvaluationIndex;
+    m_geometryIndex = _geometryIndex;
+    m_useJoint = _useJoint;
+    m_useSkinning = _useSkinning;
+}
+
+void Material::GetShaders(ionS32& _vertexIndex, ionS32& _fragmentIndex, ionS32& _tessellationControlIndex, ionS32& _tessellationEvaluationIndex, ionS32& _geometryIndex, ionBool& _useJoint, ionBool& _useSkinning) const
+{
+    _vertexIndex = m_vertexShaderIndex;
+    _fragmentIndex = m_fragmentShaderIndex;
+    _tessellationControlIndex = m_tessellationControlIndex;
+    _tessellationEvaluationIndex = m_tessellationEvaluationIndex;
+    _geometryIndex = m_geometryIndex;
+    _useJoint = m_useJoint;
+    _useSkinning = m_useSkinning;
 }
 
 ION_NAMESPACE_END

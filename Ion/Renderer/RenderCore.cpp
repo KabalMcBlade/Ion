@@ -1661,7 +1661,21 @@ void RenderCore::Draw(const DrawSurface& _surface)
     ionShaderProgramManager().SetRenderParmMatrix(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0]);
     ionShaderProgramManager().SetRenderParmMatrix(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0]);
   
-    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(_surface.m_material->GetShaderProgramName(), _surface.m_material->GetVertexLayout(), _surface.m_material->GetVertexShaderIndex(), _surface.m_material->GetFragmentShaderIndex());
+
+    ionS32  vertexShaderIndex = -1;
+    ionS32  fragmentShaderIndex = -1;
+    ionS32  tessellationControlIndex = -1;
+    ionS32  tessellationEvaluationIndex = -1;
+    ionS32  geometryIndex = -1;
+    ionBool useJoint = false;
+    ionBool useSkinning = false;
+
+    _surface.m_material->GetShaders(vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
+
+    const ionS32 shaderProgramIndex = 
+        ionShaderProgramManager().FindProgram(_surface.m_material->GetShaderProgramName(), _surface.m_material->GetVertexLayout(), 
+        vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
+
     ionShaderProgramManager().BindProgram(shaderProgramIndex);
     ionShaderProgramManager().CommitCurrent(*this, m_stateBits, commandBuffer);
 

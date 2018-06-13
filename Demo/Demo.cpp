@@ -195,9 +195,8 @@ int main()
     test->GetMesh(0)->GetMaterial()->SetShaderProgramName(DEMO_SHADER_PROG);
     test->GetMesh(0)->GetMaterial()->SetVertexLayout(test->GetMesh(0)->GetLayout());
 
-    test->GetMesh(0)->GetMaterial()->SetVertexShaderIndex(vertexShaderIndex);
-    test->GetMesh(0)->GetMaterial()->SetFragmentShaderIndex(fragmentShaderIndex);
-    
+    test->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+
 
     //////////////////////////////////////////////////////////////////////////
     
@@ -230,8 +229,7 @@ int main()
     test->GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
     test->GetMesh(0)->GetMaterial()->SetVertexLayout(test->GetMesh(0)->GetLayout());
 
-    test->GetMesh(0)->GetMaterial()->SetVertexShaderIndex(vertexShaderIndex);
-    test->GetMesh(0)->GetMaterial()->SetFragmentShaderIndex(fragmentShaderIndex);
+    test->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
     */
 
     //////////////////////////////////////////////////////////////////////////
@@ -277,8 +275,7 @@ int main()
     test->GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColorTextured");
     test->GetMesh(0)->GetMaterial()->SetVertexLayout(test->GetMesh(0)->GetLayout());
 
-    test->GetMesh(0)->GetMaterial()->SetVertexShaderIndex(vertexShaderIndex);
-    test->GetMesh(0)->GetMaterial()->SetFragmentShaderIndex(fragmentShaderIndex);
+    test->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
     */
 
     //////////////////////////////////////////////////////////////////////////
