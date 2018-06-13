@@ -120,6 +120,18 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
+    /*
+    case EVertexLayout_Pos_UV_Normal:
+    {
+
+    }
+    break;
+    */
+    case EVertexLayout_Unknow:
+    case EVertexLayout_Empty:
+    case EVertexLayout_Count:
+        ionAssertReturnVoid(false, "Layout does not exist!");
+    break;
 
     default:
         ionAssertReturnVoid(false, "Layout not yet implemented");

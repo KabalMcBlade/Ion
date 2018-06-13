@@ -59,6 +59,7 @@
 #include "Scene/Entity.h"
 
 #include "Utilities/LoaderGLTF.h"
+#include "Utilities/GeometryHelper.h"
 
 #include "Wrapper/Memory.h"
 
