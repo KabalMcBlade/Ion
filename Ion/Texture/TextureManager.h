@@ -56,4 +56,4 @@ private:
 ION_NAMESPACE_END
 
 
-#define ionTextureManger() TextureManager::Instance()
+#define ionTextureManger() ion::TextureManager::Instance()

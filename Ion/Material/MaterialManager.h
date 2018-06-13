@@ -41,4 +41,4 @@ private:
 ION_NAMESPACE_END
 
 
-#define ionMaterialManger() MaterialManager::Instance()
+#define ionMaterialManger() ion::MaterialManager::Instance()

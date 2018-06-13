@@ -63,20 +63,3 @@
 #include "Wrapper/Memory.h"
 
 #include "App/Window.h"
-
-ION_NAMESPACE_BEGIN
-
-
-// External Linkage Class 
-class ION_DLL Linkage
-{
-private:
-    ionS32 m_iCounterLinks;
-
-    void IncrementLinkage();
-
-public:
-    Linkage();
-};
-
-ION_NAMESPACE_END

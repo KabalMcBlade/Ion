@@ -6,6 +6,8 @@
 //#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 #include "../Ion/Ion.h"
 
+#include "Test.h"
+
 //////////////////////////////////////////////////////////////////////////
 // COMMON MEMORY
 
@@ -61,8 +63,8 @@
 #define DEMO_WIDTH 800
 #define DEMO_HEIGHT 600
 
-#define DEMO_SHADER_MODEL   "DamagedHelmet"
-#define DEMO_SHADER_PROG    "DamagedHelmet"
+//#define DEMO_SHADER_MODEL   "DamagedHelmet"
+//#define DEMO_SHADER_PROG    "DamagedHelmet"
 
 EOS_USING_NAMESPACE
 VK_ALLOCATOR_USING_NAMESPACE
@@ -103,6 +105,33 @@ int main()
     InitializeAllocators(ALL_HEAP_MEMORY, ALL_LINEAR_MEMORY, ALL_STACK_MEMORY, MAX_STACK_MEMORY_BLOCK);
     InitializeVulkanAllocators(VULKAN_COMMAND_MEMORY_MB, VULKAN_OBJECT_MEMORY_MB, VULKAN_CACHE_MEMORY_MB, VULKAN_DEVICE_MEMORY_MB, VULKAN_INSTANCE_MEMORY_MB, VULKAN_GPU_MEMORY_MB);
     InitializeManagers();
+
+
+
+    //////////////////////////////////////////////////////////////////////////
+    //
+    //  CHOOSE TEST
+    //
+    //////////////////////////////////////////////////////////////////////////
+
+    ionS32 choice = 0;
+
+    std::cout << "Choose the test to run" << std::endl;
+    std::cout << "1 - Colored Triangle" << std::endl;
+    std::cout << "2 - Colored Quad" << std::endl;
+    std::cout << "3 - Texture Quad" << std::endl;
+    std::cout << "4 - Model GLTF using PBR (WORK IN PROGRESS, NEED A WHILE TO LOAD!)" << std::endl;
+    std::cout << "Selection: ";
+
+    std::cin >> choice;
+
+    std::cout << std::endl;
+
+    //////////////////////////////////////////////////////////////////////////
+    //
+    //
+    //////////////////////////////////////////////////////////////////////////
+
 
 	ION_SCOPE_BEGIN
 
@@ -155,130 +184,37 @@ int main()
     test->GetTransformHandle()->SetPosition(entityPos);
     test->GetTransformHandle()->SetRotation(entityRot);
 
-    
-    
-    //
-    // this model has:
-    // Position, Normal, TextCoord
-    //
-	eosString damagedHelmetModelPath = ionFileSystemManager().GetModelsPath();
-	damagedHelmetModelPath.append("DamagedHelmet.gltf");
-    ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, *test);
-
-    
-    //
-    // one uniform structure bound in the index 0 in the shader stage
-    UniformBinding uniform;
-    uniform.m_bindingIndex = 0;
-    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
-
-    // one sampler bound in the index 1 in the shader stage
-    SamplerBinding sampler;
-    sampler.m_bindingIndex = 1;
-    sampler.m_texture = test->GetMesh(0)->GetMaterial()->GetRoughnessMap();
-
-    // set the shaders layout
-    ShaderLayoutDef vertexLayout;
-    vertexLayout.m_uniforms.push_back(uniform);
-
-    ShaderLayoutDef fragmentLayout;
-    fragmentLayout.m_samplers.push_back(sampler);
-
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, EShaderStage_Fragment, fragmentLayout);
-
-    test->GetMesh(0)->GetMaterial()->SetShaderProgramName(DEMO_SHADER_PROG);
-    test->GetMesh(0)->GetMaterial()->SetVertexLayout(test->GetMesh(0)->GetLayout());
-
-    test->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
-
 
     //////////////////////////////////////////////////////////////////////////
-    
-    /*
     //
-    ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_Color, ion::EPrimitiveType_Quad, *test);
-
-    ion::Material* material = ionMaterialManger().CreateMaterial("EmptyQuad", 0u);
-    test->GetMesh(0)->SetMaterial(material);
-
-    // one uniform structure bound in the index 0 in the shader stage
-    UniformBinding uniform;
-    uniform.m_bindingIndex = 0;
-    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
-
-    // set the shaders layout
-    ShaderLayoutDef vertexLayout;
-    vertexLayout.m_uniforms.push_back(uniform);
-
-    ShaderLayoutDef fragmentLayout;
-
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", EShaderStage_Fragment, fragmentLayout);
-
-    test->GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
-    test->GetMesh(0)->GetMaterial()->SetVertexLayout(test->GetMesh(0)->GetLayout());
-
-    test->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
-    */
-
+    //  EXECUTE THE CHOSEN TEST
+    //
     //////////////////////////////////////////////////////////////////////////
 
-    /*
-    ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_UV, ion::EPrimitiveType_Quad, *test);
-
-    eosString dvaTextureFile = ionFileSystemManager().GetTexturesPath();
-    dvaTextureFile.append("dva.png");
-    ion::Texture* dvaTexture = ionTextureManger().CreateTextureFromFile("dva", dvaTextureFile, ETextureFilter_Nearest, ETextureRepeat_Clamp, ETextureUsage_RGBA, ETextureType_2D);
-
-    ion::Material* material = ionMaterialManger().CreateMaterial("dva", 0u);
-    material->SetAlbedoMap(dvaTexture);
-
-    test->GetMesh(0)->SetMaterial(material);
-
-    //
-    // one uniform structure bound in the index 0 in the shader stage
-    UniformBinding uniform;
-    uniform.m_bindingIndex = 0;
-    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
-
-    // one sampler bound in the index 1 in the shader stage
-    SamplerBinding sampler;
-    sampler.m_bindingIndex = 1;
-    sampler.m_texture = test->GetMesh(0)->GetMaterial()->GetAlbedoMap();
-
-    // set the shaders layout
-    ShaderLayoutDef vertexLayout;
-    vertexLayout.m_uniforms.push_back(uniform);
-
-    ShaderLayoutDef fragmentLayout;
-    fragmentLayout.m_samplers.push_back(sampler);
-
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColorTextured", EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColorTextured", EShaderStage_Fragment, fragmentLayout);
-
-    test->GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColorTextured");
-    test->GetMesh(0)->GetMaterial()->SetVertexLayout(test->GetMesh(0)->GetLayout());
-
-    test->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
-    */
+    switch(choice)
+    {
+    case 1:
+        Test_ColoredTriangle(*test);
+        break;
+    case 2:
+        Test_ColoredQuad(*test);
+        break;
+    case 3:
+        Test_TexturedQuad(*test);
+        break;
+    case 4:
+        Test_ModelPBR_WIP(*test);
+        break;
+    default:
+        std::cout << "Any valid choose made, will run the Colored Triangle test" << std::endl;
+        Test_ColoredTriangle(*test);
+        break;
+    }
 
     //////////////////////////////////////////////////////////////////////////
+    //
+    //////////////////////////////////////////////////////////////////////////
+
 
     //////////////////////////////////////////////////////////////////////////
     //
