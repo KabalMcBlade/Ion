@@ -77,7 +77,7 @@ void Test_TexturedQuad(ion::Entity& _entity)
 
     eosString dvaTextureFile = ionFileSystemManager().GetTexturesPath();
     dvaTextureFile.append("dva.png");
-    ion::Texture* dvaTexture = ionTextureManger().CreateTextureFromFile("dva", dvaTextureFile, ion::ETextureFilter_Nearest, ion::ETextureRepeat_Clamp, ion::ETextureUsage_RGBA, ion::ETextureType_2D);
+    ion::Texture* dvaTexture = ionTextureManger().CreateTextureFromFile("dva", dvaTextureFile, ion::ETextureFilter_Default, ion::ETextureRepeat_Clamp, ion::ETextureUsage_RGBA, ion::ETextureType_2D);
 
     ion::Material* material = ionMaterialManger().CreateMaterial("dva", 0u);
     material->SetAlbedoMap(dvaTexture);

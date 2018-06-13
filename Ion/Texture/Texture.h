@@ -54,6 +54,8 @@ private:
 
     void UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _height, const ionU8* _buffer, ionU32 _index /* = 0 // index of texture for cube-map, 0 by default */);
 
+    void GenerateMipMaps();
+
 private:
     eosString               m_name;
     VkDevice                m_vkDevice;
