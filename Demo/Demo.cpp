@@ -120,7 +120,8 @@ int main()
     std::cout << "1 - Colored Triangle" << std::endl;
     std::cout << "2 - Colored Quad" << std::endl;
     std::cout << "3 - Texture Quad" << std::endl;
-    std::cout << "4 - Model GLTF using PBR (WORK IN PROGRESS, NEED A WHILE TO LOAD!)" << std::endl;
+    std::cout << "4 - Model GLTF in white ambient (need a while to load!)" << std::endl;
+    std::cout << "5 - Model GLTF using PBR (WORK IN PROGRESS, NEED A WHILE TO LOAD!)" << std::endl;
     std::cout << "Selection: ";
 
     std::cin >> choice;
@@ -203,6 +204,9 @@ int main()
         Test_TexturedQuad(*test);
         break;
     case 4:
+        Test_Model_Ambient(*test);
+        break;
+    case 5:
         Test_ModelPBR_WIP(*test);
         break;
     default:

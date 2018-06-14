@@ -230,12 +230,12 @@ void RenderManager::Frame()
     const ionU32 width = m_renderCore.GetWidth();
     const ionU32 height = m_renderCore.GetHeight();
 
-    if (m_renderCore.StartFrame(ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f))
+    if (m_renderCore.StartFrame(0, 1.0f, 1.0f, 1.0f))
     {
         m_renderCore.SetViewport(0, 0, width, height);
         m_renderCore.SetScissor(0, 0, width, height);
         m_renderCore.SetState(ECullingMode_Front);
-        //m_renderCore.SetState(ECullingMode_TwoSide);    // just because I drawn a plane quad I want to see both side.
+        //m_renderCore.SetState(ECullingMode_TwoSide);
 
         m_renderCore.Draw(m_drawSurfaces[0]);
         /*

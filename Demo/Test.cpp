@@ -2,11 +2,6 @@
 
 #include "stdafx.h"
 
-
-#define DEMO_SHADER_MODEL   "DamagedHelmet"
-#define DEMO_SHADER_PROG    "DamagedHelmet"
-
-
 void Test_ColoredTriangle(ion::Entity& _entity)
 {
     ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_Color, ion::EPrimitiveType_Triangle, _entity);
@@ -116,6 +111,39 @@ void Test_TexturedQuad(ion::Entity& _entity)
     _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 }
 
+
+void Test_Model_Ambient(ion::Entity& _entity)
+{
+    eosString damagedHelmetModelPath = ionFileSystemManager().GetModelsPath();
+    damagedHelmetModelPath.append("DamagedHelmet.gltf");
+    ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, _entity);
+
+    //
+    // one uniform structure bound in the index 0 in the shader stage
+    ion::UniformBinding uniform;
+    uniform.m_bindingIndex = 0;
+    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+
+    // set the shaders layout
+    ion::ShaderLayoutDef vertexLayout;
+    vertexLayout.m_uniforms.push_back(uniform);
+
+    ion::ShaderLayoutDef fragmentLayout;
+
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("DamagedHelmetWhitePlain", ion::EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("DamagedHelmetWhitePlain", ion::EShaderStage_Fragment, fragmentLayout);
+
+    _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("DamagedHelmetWhitePlain");
+    _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
+
+    _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+}
+
 void Test_ModelPBR_WIP(ion::Entity& _entity)
 {
     eosString damagedHelmetModelPath = ionFileSystemManager().GetModelsPath();
@@ -145,10 +173,10 @@ void Test_ModelPBR_WIP(ion::Entity& _entity)
     ion::ShaderLayoutDef fragmentLayout;
     fragmentLayout.m_samplers.push_back(sampler);
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(DEMO_SHADER_MODEL, ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("DamagedHelmet", ion::EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("DamagedHelmet", ion::EShaderStage_Fragment, fragmentLayout);
 
-    _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName(DEMO_SHADER_PROG);
+    _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("DamagedHelmet");
     _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
 
     _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
