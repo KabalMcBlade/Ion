@@ -253,6 +253,44 @@ private:
     eosVector(VertexUV)   m_vertexes;
 };
 
+
+//////////////////////////////////////////////////////////////////////////
+class ION_DLL MeshSimple : public BaseMesh
+{
+public:
+    MeshSimple() : BaseMesh()
+    {
+    }
+
+    ~MeshSimple()
+    {
+        m_vertexes.clear();
+    }
+
+    void PushBackVertex(VertexSimple _vertex)
+    {
+        m_vertexes.push_back(_vertex);
+    }
+
+    virtual EVertexLayout GetLayout() const override
+    {
+        return EVertexLayout_Pos_UV;
+    }
+
+    virtual const void* GetVertexData() const override
+    {
+        return m_vertexes.data();
+    }
+
+    virtual ionSize GetVertexSize() const override
+    {
+        return m_vertexes.size();
+    }
+
+private:
+    eosVector(VertexSimple)   m_vertexes;
+};
+
 //////////////////////////////////////////////////////////////////////////
 class ION_DLL Mesh : public BaseMesh
 {
