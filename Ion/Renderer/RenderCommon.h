@@ -304,6 +304,12 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         SetTexCoordV(_v);
     }
 
+    ION_INLINE void SetTexCoordUV(const Vector& _uvuv)
+    {
+        SetTexCoordU(VectorHelper::ExtractElement_0(_uvuv));
+        SetTexCoordV(VectorHelper::ExtractElement_1(_uvuv));
+    }
+
     //////////////////////////////////////////////////////////////////////////
     // FUNCTIONS
 

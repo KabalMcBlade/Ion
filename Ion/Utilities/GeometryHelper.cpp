@@ -132,10 +132,10 @@ void GeometryHelper::CalculateNormalPerVertex(const Vector* _vectorArray, const 
 // THIS FUNCTION IS NOT OPTIMIZED! DO NOT A RUNTIME!
 // FROM:
 // http://www.terathon.com/code/tangent.html
-void GeometryHelper::CalculateTangentBitangent(
-    const Vector* _vectorArray, const Vector* _normalArray, const Vector* _textCoordUVUVArray, const ionU32 _vectorCount,  /* to iterate and get the value to use */
-    const ionU32* _indexList, const ionU32 _indexCount,                                 /* to generate face (triangle) */
-    Vector* _outTangentVectorArray, Vector* _outBitangentVectorArray                    /* output tangent and bi-tangent */
+void GeometryHelper::CalculateTangent(
+    const Vector* _vectorArray, const Vector* _normalArray, const Vector* _textCoordUVUVArray, const ionU32 _vectorCount,   /* to iterate and get the value to use */
+    const ionU32* _indexList, const ionU32 _indexCount,                                                                     /* to generate face (triangle) */
+    Vector* _outTangentVectorArray                                                                                          /* output tangent */
 )
 {
     //
@@ -274,7 +274,6 @@ void GeometryHelper::CalculateTangentBitangent(
         const ionFloat tangentZ = VectorHelper::ExtractElement_2(_outTangentVectorArray[i]);
 
         _outTangentVectorArray[i] = VectorHelper::Set(tangentX, tangentY, tangentZ, tangentW);
-        _outBitangentVectorArray[i] = n.Cross(_outTangentVectorArray[i]);
     }
 
     //
