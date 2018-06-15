@@ -1381,7 +1381,7 @@ void RenderCore::Recreate()
 }
 
 
-ionBool RenderCore::StartFrame(ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue)
+ionBool RenderCore::StartFrame()
 {
     VkResult result = vkAcquireNextImageKHR(m_vkDevice, m_vkSwapchain, UINT64_MAX, m_vkAcquiringSemaphore, VK_NULL_HANDLE, &m_currentSwapIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) 
@@ -1407,6 +1407,17 @@ ionBool RenderCore::StartFrame(ionU8 _clearStencilValue, ionFloat _clearRed, ion
     result = vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
     ionAssertReturnValue(result == VK_SUCCESS, "vkBeginCommandBuffer failed!", false);
 
+
+    return true;
+}
+
+void RenderCore::StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue)
+{
+    ionAssertReturnVoid(_clearDepthValue >= 0.0f && _clearDepthValue <= 1.0f, "Clear depth must be between 0 and 1!");
+    ionAssertReturnVoid(_clearRed >= 0.0f && _clearRed <= 1.0f, "Clear red must be between 0 and 1!");
+    ionAssertReturnVoid(_clearGreen >= 0.0f && _clearGreen <= 1.0f, "Clear green must be between 0 and 1!");
+    ionAssertReturnVoid(_clearBlue >= 0.0f && _clearBlue <= 1.0f, "Clear blue must be between 0 and 1!");
+
     const ionBool resolve = m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT;
 
     VkClearValue clearValues[3];
@@ -1414,33 +1425,35 @@ ionBool RenderCore::StartFrame(ionU8 _clearStencilValue, ionFloat _clearRed, ion
     {
         clearValues[0].color = { { _clearRed, _clearGreen, _clearBlue, 1.0f } };
         clearValues[1].color = { { _clearRed, _clearGreen, _clearBlue, 1.0f } };
-        clearValues[2].depthStencil = { 1.0f, _clearStencilValue };
+        clearValues[2].depthStencil = { _clearDepthValue, _clearStencilValue };
     }
     else {
         clearValues[0].color = { { _clearRed, _clearGreen, _clearBlue, 1.0f } };
-        clearValues[1].depthStencil = { 1.0f, _clearStencilValue };
+        clearValues[1].depthStencil = { _clearDepthValue, _clearStencilValue };
     }
-    
+
     VkRenderPassBeginInfo renderPassBeginInfo = {};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassBeginInfo.renderPass = m_vkRenderPass;
     renderPassBeginInfo.framebuffer = m_vkFrameBuffers[m_currentSwapIndex];
     renderPassBeginInfo.renderArea.extent = m_vkSwapchainExtent;
     renderPassBeginInfo.renderArea.offset.x = 0;
-    renderPassBeginInfo.renderArea.offset.y = 0;
+    renderPassBeginInfo.renderArea.offset.y = 0;    
     renderPassBeginInfo.clearValueCount = resolve ? 3 : 2;
     renderPassBeginInfo.pClearValues = clearValues;
 
-    vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(m_vkCommandBuffers[m_currentSwapIndex], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+}
 
-    return true;
+void RenderCore::EndRenderPass()
+{
+    vkCmdEndRenderPass(m_vkCommandBuffers[m_currentSwapIndex]);
 }
 
 void RenderCore::EndFrame()
 {
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
 
-    vkCmdEndRenderPass(commandBuffer);
 
     // Transition our swap image to present.
     // Do this instead of having the renderpass do the transition

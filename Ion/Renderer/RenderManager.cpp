@@ -230,8 +230,10 @@ void RenderManager::Frame()
     const ionU32 width = m_renderCore.GetWidth();
     const ionU32 height = m_renderCore.GetHeight();
 
-    if (m_renderCore.StartFrame(ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f))
+    if (m_renderCore.StartFrame())
     {
+        m_renderCore.StartRenderPass(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
+
         m_renderCore.SetViewport(0, 0, width, height);
         m_renderCore.SetScissor(0, 0, width, height);
         m_renderCore.SetState(ECullingMode_Front);
@@ -244,6 +246,9 @@ void RenderManager::Frame()
             m_renderCore.Draw(m_drawSurfaces[i]);
         }
         */
+
+        m_renderCore.EndRenderPass();
+
         m_renderCore.EndFrame();
     }
 }

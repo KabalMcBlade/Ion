@@ -32,8 +32,12 @@ public:
 	void	Recreate();
     void    Clear();
 
-    ionBool StartFrame(ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue);
+    ionBool StartFrame();
     void    EndFrame();
+
+    void    StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue);
+    void    EndRenderPass();
+
     void    SetDefaultState();
     void    SetState(ionU64 _stateBits);
     void    SetScissor(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS32 _height);
