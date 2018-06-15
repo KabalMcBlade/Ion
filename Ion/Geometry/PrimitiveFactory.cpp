@@ -569,7 +569,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
         mesh->PushBackIndex(indices[4]);
         mesh->PushBackIndex(indices[5]);
 
-        mesh->SetIndexCount(6);
+        mesh->SetIndexCount(36);
         mesh->SetIndexStart(0);
         mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
