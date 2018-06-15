@@ -36,7 +36,7 @@ void Test_ColoredTriangle(ion::Entity& _entity)
 
 void Test_ColoredQuad(ion::Entity& _entity)
 {
-    ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_Color, ion::EPrimitiveType_Quad, _entity);
+    ionRenderManager().LoadPrimitive(ion::EVertexLayout_Full, ion::EPrimitiveType_Quad, _entity);
 
     ion::Material* material = ionMaterialManger().CreateMaterial("EmptyQuad", 0u);
     _entity.GetMesh(0)->SetMaterial(material);

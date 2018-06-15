@@ -15,7 +15,6 @@ class ION_DLL GeometryHelper
 public:
     static Vector CalculateAvarageVector(const Vector* _vectorArray, const ionU32 _count);
 
-    static Vector CalculateSurfaceNormalTriangle(const Vector* _vectorArray);
     static Vector CalculateSurfaceNormalTriangle(const Vector* _vectorArray, const ionU32 _index);
     static Vector CalculateSurfaceNormalQuad(const Vector* _vectorArray);
 

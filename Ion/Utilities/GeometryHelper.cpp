@@ -26,19 +26,10 @@ Vector GeometryHelper::CalculateAvarageVector(const Vector* _vectorArray, const 
     return vResult;
 }
 
-Vector GeometryHelper::CalculateSurfaceNormalTriangle(const Vector* _vectorArray)
-{
-    const Vector v1 = _vectorArray[1] - _vectorArray[0];
-    const Vector v2 = _vectorArray[2] - _vectorArray[0];
-    Vector vSurfaceNormal = v1.Cross(v2);
-    vSurfaceNormal.Normalize3();
-    return vSurfaceNormal;
-}
-
 Vector GeometryHelper::CalculateSurfaceNormalTriangle(const Vector* _vectorArray, const ionU32 _index)
 {
     const Vector v1 = _vectorArray[(_index + 1) % 3] - _vectorArray[_index];
-    const Vector v2 = _vectorArray[(_index + 1) % 3] - _vectorArray[_index];
+    const Vector v2 = _vectorArray[(_index + 2) % 3] - _vectorArray[_index];
     Vector vSurfaceNormal = v1.Cross(v2);
     vSurfaceNormal.Normalize3();
     return vSurfaceNormal;
@@ -106,17 +97,21 @@ void GeometryHelper::CalculateNormalPerVertex(const Vector* _vectorArray, const 
         faces.push_back(eosNew(_Face, ION_MEMORY_ALIGNMENT_SIZE, _indexList[i * 3], _indexList[i * 3 + 1], _indexList[i * 3 + 2]));
     }
 
+    eosVector(Vector) normals;
     for (ionU32 i = 0; i < _indexCount; ++i)
     {
-        Vector normal = VectorHelper::GetZero();
+        //Vector normal = VectorHelper::GetZero();
         for (ionU32 j = 0; j < faces.size(); ++j)
         {
             if (faces[j]->e[0].u == i || faces[j]->e[0].v == i || faces[j]->e[1].u == i || faces[j]->e[1].v == i || faces[j]->e[2].u == i || faces[j]->e[2].v == i)
             {
-                normal += CalculateSurfaceNormalTriangle(&(_vectorArray[_indexList[i]]));
+                //normal += CalculateSurfaceNormalTriangle(_vectorArray, _indexList[i]);
+                normals.push_back(CalculateSurfaceNormalTriangle(_vectorArray, _indexList[i]));
             }
         }
-        _outNormalVectorArray[_indexList[i]] = normal;
+
+        //_outNormalVectorArray[_indexList[i]] = normal;
+        _outNormalVectorArray[_indexList[i]] = CalculateAvarageVector(normals.data(), static_cast<ionU32>(normals.size()));
     }
 
     //
