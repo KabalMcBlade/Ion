@@ -12,6 +12,7 @@ class ION_DLL PrimitiveFactory
 public:
     static void GenerateTriangle(EVertexLayout _layout, Entity& _entity);
     static void GenerateQuad(EVertexLayout _layout, Entity& _entity);
+    static void GenerateCube(EVertexLayout _layout, Entity& _entity);
 };
 
 ION_NAMESPACE_END

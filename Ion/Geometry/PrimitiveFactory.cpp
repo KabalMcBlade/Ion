@@ -500,5 +500,179 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
     }
 }
 
+void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
+{
+    switch (_layout)
+    {
+    case EVertexLayout_Pos:
+    {
+        MeshPlain* mesh = _entity.AddMesh<MeshPlain>();
+
+        eosVector(VertexPlain) vertices;
+        eosVector(Index) indices;
+        vertices.resize(24);
+        indices.resize(36);
+        indices = { 
+            0,1,2,0,2,3,
+            4,5,6,4,6,7,
+            8,9,10,8,10,11,
+            12,13,14,12,14,15,
+            16,17,18,16,18,19,
+            20,21,22,20,22,23 };
+
+        Vector positions[24] = { 
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
+
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
+
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
+
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f)
+        };
+
+        vertices[0].SetPosition(positions[0]);
+        vertices[1].SetPosition(positions[1]);
+        vertices[2].SetPosition(positions[2]);
+        vertices[3].SetPosition(positions[3]);
+
+        mesh->PushBackVertex(vertices[0]);
+        mesh->PushBackVertex(vertices[1]);
+        mesh->PushBackVertex(vertices[2]);
+        mesh->PushBackVertex(vertices[3]);
+
+        mesh->PushBackIndex(indices[0]);
+        mesh->PushBackIndex(indices[1]);
+        mesh->PushBackIndex(indices[2]);
+        mesh->PushBackIndex(indices[3]);
+        mesh->PushBackIndex(indices[4]);
+        mesh->PushBackIndex(indices[5]);
+
+        mesh->SetIndexCount(6);
+        mesh->SetIndexStart(0);
+        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
+    }
+    break;
+
+    case EVertexLayout_Pos_Color:
+    {
+      
+    }
+    break;
+
+    case EVertexLayout_Pos_UV:
+    {
+        /*
+        float texCoords[] = {
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+        };
+        */
+    }
+    break;
+
+
+    case EVertexLayout_Pos_UV_Normal:
+    {
+        Vector normals[24] = {
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+
+            Vector(0.0f, 0.0f, -1.0f, 1.0f),
+            Vector(0.0f, 0.0f, -1.0f, 1.0f),
+            Vector(0.0f, 0.0f, -1.0f, 1.0f),
+            Vector(0.0f, 0.0f, -1.0f, 1.0f),
+
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+
+            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+
+            Vector(0.0f, -1.0f, 0.0f, 1.0f),
+            Vector(0.0f, -1.0f, 0.0f, 1.0f),
+            Vector(0.0f, -1.0f, 0.0f, 1.0f),
+            Vector(0.0f, -1.0f, 0.0f, 1.0f)
+        };
+    }
+    break;
+
+    case EVertexLayout_Full:
+    {
+       
+    }
+    break;
+
+    case EVertexLayout_Unknow:
+    case EVertexLayout_Empty:
+    case EVertexLayout_Count:
+        ionAssertReturnVoid(false, "Layout does not exist!");
+        break;
+
+    default:
+        ionAssertReturnVoid(false, "Layout not yet implemented");
+        break;
+    }
+}
+
 
 ION_NAMESPACE_END
