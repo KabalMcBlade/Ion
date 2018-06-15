@@ -145,6 +145,11 @@ void Test_Model_Ambient(ion::Entity& _entity)
 
     //static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
     //_entity.GetTransformHandle()->SetRotation(NIX_DEG_TO_RAD(130.0f), axis);
+
+    _entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_Back);
+    _entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
+    _entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    _entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 void Test_ModelPBR_WIP(ion::Entity& _entity)
@@ -183,4 +188,12 @@ void Test_ModelPBR_WIP(ion::Entity& _entity)
     _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
 
     _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+
+    //static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
+    //_entity.GetTransformHandle()->SetRotation(NIX_DEG_TO_RAD(130.0f), axis);
+
+    _entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_Back);
+    _entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
+    _entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    _entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
 }

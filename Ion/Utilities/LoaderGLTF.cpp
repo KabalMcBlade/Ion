@@ -378,9 +378,20 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity)
             {
                 material->SetMetalnessMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
             }
+
             if (key == "metallicRoughnessTexture")
             {
                 material->SetRoughnessMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+            }
+
+            if (key == "roughnessFactor")
+            {
+                material->SetRoughnessFactor((ionFloat)param.Factor());
+            }
+
+            if (key == "metallicFactor")
+            {
+                material->SetMetallicFactor((ionFloat)param.Factor());
             }
         }
 
@@ -406,56 +417,27 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity)
             {
                 material->SetOcclusionMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
             }
-        }
 
-        // OR THIS WAY
-        /*
-        "baseColorFactor": [1, 1, 1, 1],
-        "baseColorTexture": "texture_Default_albedo_9098",
-        "roughnessFactor": 0,
-        "metallicFactor": 0,
-        "metallicTexture": "texture_Default_MetalSmooth_21596_metallic",
-        "roughnessTexture": "texture_Default_MetalSmooth_21596_roughness",
-        "normalFactor": 1,
-        "normalTexture": "texture_Default_normal_22700",
-        "aoFactor": 1,
-        "aoTexture": "texture_Default_AO_25064",
-        "emissiveFactor": [1, 1, 1, 1],
-        "emissiveTexture": "texture_Default_emissive_22780"
-        */
-
-        // OR THIS WAY
-        /*
-         "materials" : [
-        {
-            "emissiveFactor" : [
-                1.0,
-                1.0,
-                1.0
-            ],
-            "emissiveTexture" : {
-                "index" : 2
-            },
-            "name" : "Material_MR",
-            "normalTexture" : {
-                "index" : 4
-            },
-            "occlusionTexture" : {
-                "index" : 3
-            },
-            "pbrMetallicRoughness" : {
-                "baseColorTexture" : {
-                    "index" : 0
-                },
-                "metallicRoughnessTexture" : {
-                    "index" : 1
+            if (key == "alphaMode")
+            {
+                if (param.string_value == "BLEND") 
+                {
+                    material->SetColorMaskMode(EColorMask_Depth);
+                    material->SetCullingMode(ECullingMode_TwoSide);
+                }
+                if (param.string_value == "MASK") 
+                {
+                    material->SetColorMaskMode(EColorMask_Color);
+                    material->SetBlendStateMode(EBlendState_Source_Source_Alpha);
+                    material->SetBlendStateMode(EBlendState_Dest_One_Minus_Source_Alpha);
                 }
             }
-        }
-        ],
-        */
-        // SO I'LL NEED A MAP....
 
+            if (key == "alphaCutoff")
+            {
+                material->SetAlphaCutoff((ionFloat)param.Factor());
+            }
+        }
 
         //
         // 3. Load all meshes..

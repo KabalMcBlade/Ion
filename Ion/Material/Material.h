@@ -9,6 +9,7 @@
 #include "../Renderer/RenderCommon.h"
 #include "../Renderer/RenderState.h"
 
+
 ION_NAMESPACE_BEGIN
 
 class Texture;
@@ -21,6 +22,9 @@ public:
 
     ionU64 GetStateBits() const { return m_stateBits; }
     void SetStateBits(ionU64 _stateBits) { m_stateBits = _stateBits; }
+
+    void SetCustomBits(ionU64 _stateBits) { m_stateBits |= _stateBits; }
+    void UnsetCustomBits(ionU64 _stateBits) { m_stateBits &= ~_stateBits; }
 
     void SetRasterizationMode(ERasterization _state) { m_stateBits |= _state; }
     void UnsetRasterizationMode(ERasterization _state) { m_stateBits &= ~_state; }

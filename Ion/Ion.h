@@ -22,6 +22,7 @@
 #include "Renderer/GPUMemoryManager.h"
 #include "Renderer/StagingBufferManager.h"
 #include "Renderer/VertexCacheManager.h"
+#include "Renderer/RenderState.h"
 
 #include "Texture/TextureCommon.h"
 #include "Texture/Texture.h"

@@ -466,7 +466,8 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
         {
             rasterizationState.cullMode = VK_CULL_MODE_FRONT_BIT;
         }
-        else {
+        else 
+        {
             rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
         }
         break;
@@ -476,7 +477,8 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
         {
             rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
         }
-        else {
+        else 
+        {
             rasterizationState.cullMode = VK_CULL_MODE_FRONT_BIT;
         }
         break;

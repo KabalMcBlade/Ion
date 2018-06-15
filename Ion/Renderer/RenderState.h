@@ -9,6 +9,15 @@ ION_NAMESPACE_BEGIN
 #define ION_STENCIL_SHADOW_MASK_VALUE		255
 
 
+#define ION_STENCIL_FUNC_REF_SHIFT  20ULL
+#define ION_STENCIL_FUNC_REF_BITS   0xFFll << ION_STENCIL_FUNC_REF_SHIFT
+
+#define ION_STENCIL_FUNC_MASK_SHIFT 28ULL
+#define ION_STENCIL_FUNC_MASK_BITS  0xFFll << ION_STENCIL_FUNC_MASK_SHIFT
+
+#define ION_STENCIL_MAKE_REF( x ) ( ( (ionU64)(x) << ION_STENCIL_FUNC_REF_SHIFT ) & ION_STENCIL_FUNC_REF_BITS )
+#define ION_STENCIL_MAKE_MASK( x ) ( ( (ionU64)(x) << ION_STENCIL_FUNC_MASK_SHIFT ) & ION_STENCIL_FUNC_MASK_BITS )
+
 enum EStencilFrontFunction : ionU64
 {
     EStencilFrontFunction_Always = 0ULL << 36,
@@ -34,7 +43,6 @@ enum EStencilBackFunction : ionU64
     EStencilBackFunction_Never = 7ULL << 48,
     EStencilBackFunction_Bits = 7ULL << 48
 };
-
 
 enum EStencilBackOperator : ionU64
 {
