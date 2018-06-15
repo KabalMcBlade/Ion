@@ -34,7 +34,6 @@ public:
 
     ionBool StartFrame(ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue);
     void    EndFrame();
-    void    BindTexture(ionS32 _index, const Texture* _image);
     void    SetDefaultState();
     void    SetState(ionU64 _stateBits);
     void    SetScissor(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS32 _height);
@@ -64,8 +63,6 @@ public:
     const VkPipelineCache& GetPipelineCache() const { return m_vkPipelineCache; }
 
     const VertexCacheHandler& GetJointCacheHandler() const { return m_jointCacheHandler; }
-
-    const Texture* GetTextureParam(ionS32 _imageIndex) const { ionAssertReturnValue(_imageIndex >= 0 && _imageIndex < m_textureParams.size(), "Index out of bound", nullptr); return m_textureParams[_imageIndex]; }
 
     ionU32 GetWidth() const { return m_width; }
     ionU32 GetHeight() const { return m_height; }
@@ -135,7 +132,6 @@ private:
     VkImage						m_vkDepthStencilImage;
     VkImageView					m_vkDepthStencilImageView;
 
-    eosVector(const Texture*)   m_textureParams;        // Before using, Call Bind() [public function above] with the proper index texture
     eosVector(VkCommandBuffer)	m_vkCommandBuffers;
     eosVector(VkFramebuffer)	m_vkFrameBuffers;
     eosVector(VkFence)			m_vkCommandBufferFences;

@@ -1122,7 +1122,6 @@ RenderCore::~RenderCore()
     m_vkSwapchainImages.clear();
     m_vkCommandBufferFences.clear();
     m_vkCommandBuffers.clear();
-    m_textureParams.clear();
 }
 
 void RenderCore::Clear()
@@ -1140,7 +1139,6 @@ void RenderCore::Clear()
     m_vkPipelineCache = VK_NULL_HANDLE;
     m_vkSampleCount = VK_SAMPLE_COUNT_1_BIT;
     m_vkSupersampling = false;
-    m_textureParams.clear();
 
 
     // core
@@ -1185,8 +1183,6 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
     m_width = _width;
     m_height = _height;
     m_vkFullScreen = _fullScreen;
-
-    m_textureParams.resize(ION_RENDER_MAX_IMAGE_PARMS, nullptr);
 
     if (!CreateInstance(_enableValidationLayer))
     {
@@ -1508,12 +1504,6 @@ void RenderCore::EndFrame()
     }
 
     ++m_counter;
-}
-
-void RenderCore::BindTexture(ionS32 _index, const Texture* _image)
-{
-    ionAssertReturnVoid(_index >= 0 && _index < m_textureParams.capacity(), "Index out of bound of the capacity");
-    m_textureParams[_index] = _image;
 }
 
 void RenderCore::SetDefaultState()
