@@ -236,11 +236,9 @@ void RenderManager::Frame()
         m_mainCamera->SetViewport(m_renderCore, 0, 0, width, height, 1.0f, 0.0f, 0.0f);
         m_mainCamera->SetScissor(m_renderCore, 0, 0, width, height, 1.0f);
 
-        m_renderCore.SetState(ECullingMode_Front);
-        //m_renderCore.SetState(ECullingMode_TwoSide);
-
         for (ionSize i = 0; i < m_nodeCount; ++i)
         {
+            m_renderCore.SetState(m_drawSurfaces[i].m_material->GetStateBits());
             m_renderCore.Draw(m_drawSurfaces[i]);
         }
 
