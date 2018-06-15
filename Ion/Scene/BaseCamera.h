@@ -16,6 +16,7 @@ ION_NAMESPACE_BEGIN
 class BaseCamera;
 typedef SmartPointer<BaseCamera> BaseCameraHandle;
 
+class RenderCore;
 class ION_DLL BaseCamera : public Node
 {
 public:
@@ -44,6 +45,11 @@ public:
     const Matrix& GetView() const { return m_view; }
 
     const Frustum& GetFrustum() const { return m_frustum; }
+
+    void SetViewport(RenderCore& _renderCore, ionS32 _fromX, ionS32 _fromY, ionS32 _width, ionS32 _height, ionFloat _percentageOfWithHeight, ionFloat _minDepth, ionFloat _maxDepth);
+    void SetScissor(RenderCore& _renderCore, ionS32 _fromX, ionS32 _fromY, ionS32 _width, ionS32 _height, ionFloat _percentageOfWithHeight);
+    void StartRenderPass(RenderCore& _renderCore, ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue);
+    void EndRenderPass(RenderCore& _renderCore);
 
 public:
     static Matrix PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar);

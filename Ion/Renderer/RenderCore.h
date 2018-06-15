@@ -34,14 +34,12 @@ public:
 
     ionBool StartFrame();
     void    EndFrame();
-
     void    StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue);
     void    EndRenderPass();
-
     void    SetDefaultState();
     void    SetState(ionU64 _stateBits);
-    void    SetScissor(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS32 _height);
-    void    SetViewport(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS32 _height);
+    void    SetScissor(ionS32 _leftX, ionS32 _bottomY, ionU32 _width, ionU32 _height);
+    void    SetViewport(ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth);
     void    SetPolygonOffset(ionFloat _scale, ionFloat _bias);
     void    SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax);
     void    CopyFrameBuffer(Texture* _texture, ionS32 _x, ionS32 _y, ionS32 _textureWidth, ionS32 _textureHeight);

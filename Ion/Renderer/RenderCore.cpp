@@ -1536,7 +1536,7 @@ void RenderCore::SetState(ionU64 _stateBits)
     // m_stateBits |= ERasterization_View_Specular;
 }
 
-void RenderCore::SetScissor(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS32 _height)
+void RenderCore::SetScissor(ionS32 _leftX, ionS32 _bottomY, ionU32 _width, ionU32 _height)
 {
     VkRect2D scissor;
     scissor.offset.x = _leftX;
@@ -1546,15 +1546,15 @@ void RenderCore::SetScissor(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS3
     vkCmdSetScissor(m_vkCommandBuffers[m_currentSwapIndex], 0, 1, &scissor);
 }
 
-void RenderCore::SetViewport(ionS32 _leftX, ionS32 _bottomY, ionS32 _width, ionS32 _height)
+void RenderCore::SetViewport(ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth)
 {
     VkViewport viewport;
-    viewport.x = (ionFloat)_leftX;
-    viewport.y = (ionFloat)_bottomY;
-    viewport.width = (ionFloat)_width;
-    viewport.height = (ionFloat)_height;
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
+    viewport.x = _leftX;
+    viewport.y = _bottomY;
+    viewport.width = _width;
+    viewport.height = _height;
+    viewport.minDepth = _minDepth;
+    viewport.maxDepth = _maxDepth;
     vkCmdSetViewport(m_vkCommandBuffers[m_currentSwapIndex], 0, 1, &viewport);
 }
 

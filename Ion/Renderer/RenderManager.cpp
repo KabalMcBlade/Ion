@@ -232,22 +232,19 @@ void RenderManager::Frame()
 
     if (m_renderCore.StartFrame())
     {
-        m_renderCore.StartRenderPass(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
+        m_mainCamera->StartRenderPass(m_renderCore, 1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
+        m_mainCamera->SetViewport(m_renderCore, 0, 0, width, height, 1.0f, 0.0f, 0.0f);
+        m_mainCamera->SetScissor(m_renderCore, 0, 0, width, height, 1.0f);
 
-        m_renderCore.SetViewport(0, 0, width, height);
-        m_renderCore.SetScissor(0, 0, width, height);
         m_renderCore.SetState(ECullingMode_Front);
         //m_renderCore.SetState(ECullingMode_TwoSide);
 
-        m_renderCore.Draw(m_drawSurfaces[0]);
-        /*
         for (ionSize i = 0; i < m_nodeCount; ++i)
         {
             m_renderCore.Draw(m_drawSurfaces[i]);
         }
-        */
 
-        m_renderCore.EndRenderPass();
+        m_mainCamera->EndRenderPass(m_renderCore);
 
         m_renderCore.EndFrame();
     }
