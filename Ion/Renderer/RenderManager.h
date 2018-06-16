@@ -28,9 +28,7 @@ enum EPrimitiveType
     EPrimitiveType_Triangle,
     EPrimitiveType_Quad,
     EPrimitiveType_Cube,
-    EPrimitiveType_Sphere,
-    EPrimitiveType_Piramid,
-    EPrimitiveType_Torus
+    EPrimitiveType_Sphere
 };
 
 

@@ -523,6 +523,12 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
         SetTexCoordV(_v);
     }
 
+    ION_INLINE void SetTexCoordUV(const Vector& _uvuv)
+    {
+        SetTexCoordU(VectorHelper::ExtractElement_0(_uvuv));
+        SetTexCoordV(VectorHelper::ExtractElement_1(_uvuv));
+    }
+
     //////////////////////////////////////////////////////////////////////////
     // FUNCTIONS
 
@@ -680,6 +686,12 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
     {
         SetTexCoordU(_u);
         SetTexCoordV(_v);
+    }
+
+    ION_INLINE void SetTexCoordUV(const Vector& _uvuv)
+    {
+        SetTexCoordU(VectorHelper::ExtractElement_0(_uvuv));
+        SetTexCoordV(VectorHelper::ExtractElement_1(_uvuv));
     }
 
     ION_INLINE void Lerp(const VertexUV& _a, const VertexUV& _b, const ionFloat _t)

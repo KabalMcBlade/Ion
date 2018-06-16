@@ -91,16 +91,10 @@ void RenderManager::LoadPrimitive(EVertexLayout _layout, EPrimitiveType _type, E
         PrimitiveFactory::GenerateQuad(_layout, _entity);
         break;
     case EPrimitiveType_Cube:
-
+		PrimitiveFactory::GenerateCube(_layout, _entity);
         break;
     case EPrimitiveType_Sphere:
-
-        break;
-    case EPrimitiveType_Piramid:
-
-        break;
-    case EPrimitiveType_Torus:
-
+		PrimitiveFactory::GenerateSphere(_layout, _entity);
         break;
     }
 }
@@ -161,8 +155,8 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
     for (ionSize i = 0; i < _nodeCount; ++i)
     {
         //
-        //static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
-        //m_entityNodes[i]->GetTransformHandle()->SetRotation(m_time * NIX_DEG_TO_RAD(90.0f), axis);
+        static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
+        m_entityNodes[i]->GetTransformHandle()->SetRotation(m_time * NIX_DEG_TO_RAD(90.0f), axis);
 
         m_entityNodes[i]->GetTransformHandle()->UpdateTransform();
         const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrix();
