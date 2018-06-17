@@ -175,7 +175,7 @@ int main()
     BaseCamera *pBaseCamera = eosNew(BaseCamera, ION_MEMORY_ALIGNMENT_SIZE);
     BaseCameraHandle camera(pBaseCamera);
     camera->SetCameraType(BaseCamera::ECameraType::ECameraType_FirstPerson);
-    camera->SetPerspectiveProjection(90.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 100.0f);
+    camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
     camera->GetTransformHandle()->SetPosition(cameraPos);
     camera->GetTransformHandle()->SetRotation(cameraRot);
 

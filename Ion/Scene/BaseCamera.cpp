@@ -34,14 +34,30 @@ BaseCamera::~BaseCamera()
 
 Matrix BaseCamera::PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar)
 {
+    // This is the normalized device space of OpenGL:
+    // Left hand
+    // -1 to 1 depth
+    /*
     ionFloat field = 1.0f / tanf(0.5f * _fov);
-
     Matrix perspective(
         field / _aspect,    0.0f,       0.0f,                                       0.0f,
         0.0f,               field,      0.0f,                                       0.0f,
         0.0f,               0.0f,       (_zFar + _zNear) / (_zNear - _zFar),        -1.0f,
         0.0f,               0.0f,       (2.0f * _zFar * _zNear) / (_zNear - _zFar), 0.0f
     );
+    */
+
+    // This is the normalized device space for Vulkan
+    // Right Hand
+    // 0 to 1 depth
+    ionFloat field = tanf(0.5f * _fov);
+    Matrix perspective(
+        1 / (_aspect * field),  0.0f,           0.0f,                                       0.0f,
+        0.0f,                   1 / field,      0.0f,                                       0.0f,
+        0.0f,                   0.0f,           _zFar / (_zNear - _zFar),                   -1.0f,
+        0.0f,                   0.0f,           -(_zFar * _zNear) / (_zFar - _zNear),       0.0f
+    );
+    
 
     return perspective;
 }
