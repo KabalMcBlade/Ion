@@ -27,12 +27,12 @@ LoaderGLTF::~LoaderGLTF()
 }
 
 // for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
-void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity& _entity, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName)
+void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const Matrix& _parentMatrix, Entity& _entity, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName)
 {
-    Vector position;
+    Vector position(0.0f, 0.0f, 0.0f, 1.0f);
     if (_node.translation.size() == 3)
     {
-        position = Vector((ionFloat)_node.translation[0], (ionFloat)_node.translation[1], (ionFloat)_node.translation[2]);
+        position = Vector((ionFloat)_node.translation[0], (ionFloat)_node.translation[1], (ionFloat)_node.translation[2], 1.0f);
     }
 
     Quaternion rotation;
@@ -47,9 +47,31 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
         scale = Vector((ionFloat)_node.scale[0], (ionFloat)_node.scale[1], (ionFloat)_node.scale[2]);
     }
 
+    /*
+    Matrix localNodeMatrix;
+    if (_node.matrix.size() == 16)
+    {
+        localNodeMatrix = Matrix(
+            _node.matrix.data()[0], _node.matrix.data()[1], _node.matrix.data()[2], _node.matrix.data()[3], 
+            _node.matrix.data()[4], _node.matrix.data()[5], _node.matrix.data()[6], _node.matrix.data()[7], 
+            _node.matrix.data()[8], _node.matrix.data()[9], _node.matrix.data()[10], _node.matrix.data()[11], 
+            _node.matrix.data()[12], _node.matrix.data()[13], _node.matrix.data()[14], _node.matrix.data()[15]);
+    }
+    else 
+    {
+        localNodeMatrix = localNodeMatrix.Translate(position);
+        localNodeMatrix = localNodeMatrix * rotation.ToMatrix();
+        localNodeMatrix = localNodeMatrix.Scale(scale);
+    }
+    localNodeMatrix = _parentMatrix * localNodeMatrix;
+    */
+
     _entity.GetTransformHandle()->SetPosition(position);
     _entity.GetTransformHandle()->SetRotation(rotation);
     _entity.GetTransformHandle()->SetScale(scale);
+
+    _entity.GetTransformHandle()->UpdateTransform(_parentMatrix);
+    Matrix localNodeMatrix =_entity.GetTransformHandle()->GetMatrix();
 
     // calculate matrix for all children if any
     if (_node.children.size() > 0)
@@ -58,7 +80,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
         {
             Entity child;
             child.AttachToParent(_entity);
-            LoadNode(_model.nodes[_node.children[i]], _model, child, _textureIndexToTextureName, _materialIndexToMaterialName);
+            LoadNode(_model.nodes[_node.children[i]], _model, localNodeMatrix, child, _textureIndexToTextureName, _materialIndexToMaterialName);
         }
     }
 
@@ -137,27 +159,36 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Entity
 					// the Y value of all vectors is inverted due Vulkan coordinate system
 
 					Vertex vert;
-					vert.SetPosition((&bufferPos[v * 3])[0], -((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2]);
+
+                    Vector pos((&bufferPos[v * 3])[0], -((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2], 1.0f);
+                    pos = localNodeMatrix * pos;
+					vert.SetPosition(pos);
 
                     _entity.GetBoundingBox().Expande(vert.GetPosition(), vert.GetPosition());
                     
+                    Vector normal;
 					if (bufferNormals != nullptr)
 					{
-						vert.SetNormal((&bufferNormals[v * 3])[0], -((&bufferNormals[v * 3])[1]), (&bufferNormals[v * 3])[2]);
+                        normal = VectorHelper::Set((&bufferNormals[v * 3])[0], -((&bufferNormals[v * 3])[1]), (&bufferNormals[v * 3])[2], 1.0f);
 					}
                     else
                     {
-                        vert.SetNormal(0.0f, 0.0f, 0.0f);
+                        normal = VectorHelper::Set(0.0f, 0.0f, 0.0f, 1.0f);
                     }
+                    normal = localNodeMatrix * normal;
+                    vert.SetNormal(normal);
 
+                    Vector tangent;
 					if (bufferTangent != nullptr)
 					{
-						vert.SetTangent((&bufferTangent[v * 3])[0], -((&bufferTangent[v * 3])[1]), (&bufferTangent[v * 3])[2]);
+                        tangent = VectorHelper::Set((&bufferTangent[v * 3])[0], -((&bufferTangent[v * 3])[1]), (&bufferTangent[v * 3])[2], 1.0f);
 					}
                     else
                     {
-                        vert.SetTangent(0.0f, 0.0f, 0.0f);
+                        tangent = VectorHelper::Set(0.0f, 0.0f, 0.0f, 1.0f);
                     }
+                    tangent = localNodeMatrix * tangent;
+                    vert.SetTangent(tangent);
 
 					if (bufferTexCoords != nullptr)
 					{
@@ -438,17 +469,17 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity)
                 material->SetAlphaCutoff((ionFloat)param.Factor());
             }
         }
+    }
 
-        //
-        // 3. Load all meshes..
-        const tinygltf::Scene &scene = _model.scenes[_model.defaultScene];
-        for (ionSize i = 0; i < scene.nodes.size(); ++i) 
-        {
-            const tinygltf::Node node = _model.nodes[scene.nodes[i]];
+    //
+    // 3. Load all meshes..
+    Matrix parent;
+    const tinygltf::Scene &scene = _model.scenes[_model.defaultScene];
+    for (ionSize i = 0; i < scene.nodes.size(); ++i)
+    {
+        const tinygltf::Node node = _model.nodes[scene.nodes[i]];
 
-            LoadNode(node, _model, _entity, m_textureIndexToTextureName, m_materialIndexToMaterialName);
-        }
-
+        LoadNode(node, _model, parent, _entity, m_textureIndexToTextureName, m_materialIndexToMaterialName);
     }
 
     return true;
