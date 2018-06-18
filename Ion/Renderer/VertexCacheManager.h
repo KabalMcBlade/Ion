@@ -22,14 +22,14 @@
 
 
 #define ION_STATIC_INDEX_MEMORY                 31 * 1024 * 1024
-#define ION_STATIC_VERTEX_MEMORY                31 * 1024 * 1024	// make sure it fits in ION_VERTCACHE_OFFSET_MASK!
+#define ION_STATIC_VERTEX_MEMORY                31 * 1024 * 1024    // make sure it fits in ION_VERTCACHE_OFFSET_MASK!
 
 
-#define ION_VERTCACHE_STATIC        1					// in the static set, not the per-frame set
+#define ION_VERTCACHE_STATIC        1                    // in the static set, not the per-frame set
 #define ION_VERTCACHE_SIZE_SHIFT    1
-#define ION_VERTCACHE_SIZE_MASK     0x7fffff		// 8 megs 
+#define ION_VERTCACHE_SIZE_MASK     0x7fffff        // 8 megs 
 #define ION_VERTCACHE_OFFSET_SHIFT  24
-#define ION_VERTCACHE_OFFSET_MASK   0x1ffffff	// 32 megs 
+#define ION_VERTCACHE_OFFSET_MASK   0x1ffffff    // 32 megs 
 
 #define ION_VERTEX_CACHE_ALIGN      32
 #define ION_INDEX_CACHE_ALIGN       16
@@ -53,16 +53,16 @@ private:
     typedef std::atomic_size_t   AtomicSize;
 
 public:
-    IndexBuffer			m_indexBuffer;
-    VertexBuffer		m_vertexBuffer;
-    UniformBuffer		m_jointBuffer;
-    ionU8*				m_mappedVertexBase;
+    IndexBuffer            m_indexBuffer;
+    VertexBuffer        m_vertexBuffer;
+    UniformBuffer        m_jointBuffer;
+    ionU8*                m_mappedVertexBase;
     ionU8*              m_mappedIndexBase;
     ionU8*              m_mappedJointBase;
-    AtomicSize	        m_indexMemUsed;
-    AtomicSize	        m_vertexMemUsed;
-    AtomicSize	        m_jointMemUsed;
-    ionS32				m_allocations;	// index and vertex allocations count combined
+    AtomicSize            m_indexMemUsed;
+    AtomicSize            m_vertexMemUsed;
+    AtomicSize            m_jointMemUsed;
+    ionS32                m_allocations;    // index and vertex allocations count combined
 };
 
 
@@ -89,26 +89,26 @@ public:
     void FreeStaticData();
 
     // this data is only valid for one frame of rendering
-    VertexCacheHandler	AllocVertex(const void* _data, ionSize _num, ionSize _size = sizeof(Vertex));
-    VertexCacheHandler	AllocIndex(const void* _data, ionSize _num, ionSize _size = sizeof(Index));
-    VertexCacheHandler	AllocJoint(const void* _data, ionSize _num, ionSize _size = sizeof(Matrix));
+    VertexCacheHandler    AllocVertex(const void* _data, ionSize _num, ionSize _size = sizeof(Vertex));
+    VertexCacheHandler    AllocIndex(const void* _data, ionSize _num, ionSize _size = sizeof(Index));
+    VertexCacheHandler    AllocJoint(const void* _data, ionSize _num, ionSize _size = sizeof(Matrix));
 
     // this data is valid until the next level load
-    VertexCacheHandler	AllocStaticVertex(const void* _data, ionSize _bytes);
-    VertexCacheHandler	AllocStaticIndex(const void* _data, ionSize _bytes);
+    VertexCacheHandler    AllocStaticVertex(const void* _data, ionSize _bytes);
+    VertexCacheHandler    AllocStaticIndex(const void* _data, ionSize _bytes);
 
     ionU8* MappedVertexBuffer(VertexCacheHandler _handler);
     ionU8* MappedIndexBuffer(VertexCacheHandler _handler);
 
-    static ionBool	CacheIsStatic(const VertexCacheHandler _handler) { return (_handler & ION_VERTCACHE_STATIC) != 0; }
+    static ionBool    CacheIsStatic(const VertexCacheHandler _handler) { return (_handler & ION_VERTCACHE_STATIC) != 0; }
 
     // vb/ib is a temporary reference -- don't store it
-    ionBool			GetVertexBuffer(VertexCacheHandler _handler, VertexBuffer* _vb);
-    ionBool			GetIndexBuffer(VertexCacheHandler _handler, IndexBuffer* _ib);
-    ionBool			GetJointBuffer(VertexCacheHandler _handler, UniformBuffer* _jb);
+    ionBool            GetVertexBuffer(VertexCacheHandler _handler, VertexBuffer* _vb);
+    ionBool            GetIndexBuffer(VertexCacheHandler _handler, IndexBuffer* _ib);
+    ionBool            GetJointBuffer(VertexCacheHandler _handler, UniformBuffer* _jb);
 
-    void			BeginMapping();
-    void			EndMapping();
+    void            BeginMapping();
+    void            EndMapping();
 
 public:
     VertexCacheManager();
@@ -126,16 +126,16 @@ private:
     void UnmapGeometryBufferSet(GeometryBufferSet& _buffer);
 
 private:
-    VkDeviceSize		m_uniformBufferOffsetAlignment;
+    VkDeviceSize        m_uniformBufferOffsetAlignment;
 
     // High water marks for the per-frame buffers
-    ionSize				m_mostUsedVertex;
-    ionSize				m_mostUsedIndex;
-    ionSize				m_mostUsedJoint;
+    ionSize                m_mostUsedVertex;
+    ionSize                m_mostUsedIndex;
+    ionSize                m_mostUsedJoint;
 
     VkDevice            m_device;
-    GeometryBufferSet	m_staticData;
-    GeometryBufferSet	m_frameData;
+    GeometryBufferSet    m_staticData;
+    GeometryBufferSet    m_frameData;
 
 private:
     static VertexCacheManager *s_instance;

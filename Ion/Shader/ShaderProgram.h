@@ -29,11 +29,11 @@ enum EUniformParameterType
 struct ION_DLL UniformBinding final
 {
     ionU32                              m_bindingIndex;
-    eosVector(eosString)	            m_parameters;
+    eosVector(eosString)                m_parameters;
     eosVector(EUniformParameterType)    m_type;
 
     // it is computed by the engine, do not set manually
-    eosVector(ionSize)	                m_runtimeParameters;
+    eosVector(ionSize)                    m_runtimeParameters;
 
     ~UniformBinding()
     {
@@ -62,7 +62,7 @@ struct ION_DLL SamplerBinding final
 
 struct ION_DLL ShaderLayoutDef final
 {
-    eosVector(UniformBinding)	m_uniforms;
+    eosVector(UniformBinding)    m_uniforms;
     eosVector(SamplerBinding)   m_samplers;
 
     ~ShaderLayoutDef()
@@ -94,9 +94,9 @@ struct Shader
         return m_shaderModule != VK_NULL_HANDLE;
     }
 
-    eosString						m_name;
-    EShaderStage					m_stage;
-    VkShaderModule					m_shaderModule;
+    eosString                        m_name;
+    EShaderStage                    m_stage;
+    VkShaderModule                    m_shaderModule;
     ShaderLayoutDef                 m_shaderLayout;
 };
 
@@ -108,25 +108,25 @@ struct ShaderProgram
     {
         PipelineState();
 
-        ionU64		m_stateBits;
-        VkPipeline	m_pipeline;
+        ionU64        m_stateBits;
+        VkPipeline    m_pipeline;
     };
 
     VkPipeline GetPipeline(const RenderCore& _render, ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationControlShader = VK_NULL_HANDLE, VkShaderModule _tessellationEvaluatorShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE);
 
-    eosString				    m_name;
-    ionBool						m_usesJoints;
-    ionBool						m_usesSkinning;
-    ionS32						m_vertexShaderIndex;
-    ionS32						m_fragmentShaderIndex;
-    ionS32						m_tessellationControlShaderIndex;
-    ionS32						m_tessellationEvaluatorShaderIndex;
-    ionS32						m_geometryShaderIndex;
+    eosString                    m_name;
+    ionBool                        m_usesJoints;
+    ionBool                        m_usesSkinning;
+    ionS32                        m_vertexShaderIndex;
+    ionS32                        m_fragmentShaderIndex;
+    ionS32                        m_tessellationControlShaderIndex;
+    ionS32                        m_tessellationEvaluatorShaderIndex;
+    ionS32                        m_geometryShaderIndex;
     EVertexLayout               m_vertextLayoutType;
-    VkPipelineLayout			m_pipelineLayout;
-    VkDescriptorSetLayout		m_descriptorSetLayout;
-    eosVector(EShaderBinding)	m_bindings;
-    eosVector(PipelineState)	m_pipelines;
+    VkPipelineLayout            m_pipelineLayout;
+    VkDescriptorSetLayout        m_descriptorSetLayout;
+    eosVector(EShaderBinding)    m_bindings;
+    eosVector(PipelineState)    m_pipelines;
 };
 
 

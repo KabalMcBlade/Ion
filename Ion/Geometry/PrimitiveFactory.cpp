@@ -20,7 +20,7 @@ EOS_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 ///
-///			TRIANGLE
+///            TRIANGLE
 ///
 void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 {
@@ -246,7 +246,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 
 
 ///
-///			QUAD
+///            QUAD
 ///
 void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 {
@@ -508,7 +508,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 
 
 ///
-///			CUBE
+///            CUBE
 ///
 void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 {
@@ -562,18 +562,18 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
             Vector(1.0f, 0.0f, 1.0f, 1.0f)
         };
 
-		for (ionU32 i = 0; i < 24; ++i)
-		{
-			vertices[i].SetPosition(positions[i]);
-		}
-		for (ionU32 i = 0; i < 24; ++i)
-		{
-			mesh->PushBackVertex(vertices[i]);
-		}
-		for (ionU32 i = 0; i < 36; ++i)
-		{
-			mesh->PushBackIndex(indices[i]);
-		}
+        for (ionU32 i = 0; i < 24; ++i)
+        {
+            vertices[i].SetPosition(positions[i]);
+        }
+        for (ionU32 i = 0; i < 24; ++i)
+        {
+            mesh->PushBackVertex(vertices[i]);
+        }
+        for (ionU32 i = 0; i < 36; ++i)
+        {
+            mesh->PushBackIndex(indices[i]);
+        }
 
         mesh->SetIndexCount(36);
         mesh->SetIndexStart(0);
@@ -583,507 +583,507 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Pos_Color:
     {
-		MeshColored* mesh = _entity.AddMesh<MeshColored>();
+        MeshColored* mesh = _entity.AddMesh<MeshColored>();
 
-		eosVector(VertexColored) vertices;
-		eosVector(Index) indices;
-		vertices.resize(24);
-		indices.resize(36);
-		indices = {
-			0,1,2,0,2,3,
-			4,5,6,4,6,7,
-			8,9,10,8,10,11,
-			12,13,14,12,14,15,
-			16,17,18,16,18,19,
-			20,21,22,20,22,23 };
+        eosVector(VertexColored) vertices;
+        eosVector(Index) indices;
+        vertices.resize(24);
+        indices.resize(36);
+        indices = {
+            0,1,2,0,2,3,
+            4,5,6,4,6,7,
+            8,9,10,8,10,11,
+            12,13,14,12,14,15,
+            16,17,18,16,18,19,
+            20,21,22,20,22,23 };
 
-		Vector positions[24] = {
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
+        Vector positions[24] = {
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f)
-		};
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f)
+        };
 
-		Vector colors[24] = {
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
+        Vector colors[24] = {
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
 
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
 
-			Vector(1.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f)
-		};
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f)
+        };
 
-		for (ionU32 i = 0; i < 24; ++i)
-		{
-			vertices[i].SetPosition(positions[i]);
-			vertices[i].SetColor(colors[i]);
-		}
-		for (ionU32 i = 0; i < 24; ++i)
-		{
-			mesh->PushBackVertex(vertices[i]);
-		}
-		for (ionU32 i = 0; i < 36; ++i)
-		{
-			mesh->PushBackIndex(indices[i]);
-		}
+        for (ionU32 i = 0; i < 24; ++i)
+        {
+            vertices[i].SetPosition(positions[i]);
+            vertices[i].SetColor(colors[i]);
+        }
+        for (ionU32 i = 0; i < 24; ++i)
+        {
+            mesh->PushBackVertex(vertices[i]);
+        }
+        for (ionU32 i = 0; i < 36; ++i)
+        {
+            mesh->PushBackIndex(indices[i]);
+        }
 
-		mesh->SetIndexCount(36);
-		mesh->SetIndexStart(0);
-		mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
+        mesh->SetIndexCount(36);
+        mesh->SetIndexStart(0);
+        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
     case EVertexLayout_Pos_UV:
     {
-		MeshUV* mesh = _entity.AddMesh<MeshUV>();
+        MeshUV* mesh = _entity.AddMesh<MeshUV>();
 
-		eosVector(VertexUV) vertices;
-		eosVector(Index) indices;
-		vertices.resize(24);
-		indices.resize(36);
-		indices = {
-			0,1,2,0,2,3,
-			4,5,6,4,6,7,
-			8,9,10,8,10,11,
-			12,13,14,12,14,15,
-			16,17,18,16,18,19,
-			20,21,22,20,22,23 };
+        eosVector(VertexUV) vertices;
+        eosVector(Index) indices;
+        vertices.resize(24);
+        indices.resize(36);
+        indices = {
+            0,1,2,0,2,3,
+            4,5,6,4,6,7,
+            8,9,10,8,10,11,
+            12,13,14,12,14,15,
+            16,17,18,16,18,19,
+            20,21,22,20,22,23 };
 
-		Vector positions[24] = {
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
+        Vector positions[24] = {
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f)
-		};
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f)
+        };
 
-		ionFloat texCoords[] = {
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f,
+        ionFloat texCoords[] = {
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
 
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
 
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
 
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
 
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
 
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f,
-		};
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+        };
 
 
-		for (ionU32 i = 0, j = 0; i < 24; ++i, j += 2)
-		{
-			vertices[i].SetPosition(positions[i]);
-			vertices[i].SetTexCoordUV(texCoords[j], texCoords[j + 1]);
-		}
-		for (ionU32 i = 0; i < 24; ++i)
-		{
-			mesh->PushBackVertex(vertices[i]);
-		}
-		for (ionU32 i = 0; i < 36; ++i)
-		{
-			mesh->PushBackIndex(indices[i]);
-		}
+        for (ionU32 i = 0, j = 0; i < 24; ++i, j += 2)
+        {
+            vertices[i].SetPosition(positions[i]);
+            vertices[i].SetTexCoordUV(texCoords[j], texCoords[j + 1]);
+        }
+        for (ionU32 i = 0; i < 24; ++i)
+        {
+            mesh->PushBackVertex(vertices[i]);
+        }
+        for (ionU32 i = 0; i < 36; ++i)
+        {
+            mesh->PushBackIndex(indices[i]);
+        }
 
-		mesh->SetIndexCount(36);
-		mesh->SetIndexStart(0);
-		mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
+        mesh->SetIndexCount(36);
+        mesh->SetIndexStart(0);
+        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
 
     case EVertexLayout_Pos_UV_Normal:
     {
-		MeshSimple* mesh = _entity.AddMesh<MeshSimple>();
+        MeshSimple* mesh = _entity.AddMesh<MeshSimple>();
 
-		eosVector(VertexSimple) vertices;
-		eosVector(Index) indices;
-		vertices.resize(24);
-		indices.resize(36);
-		indices = {
-			0,1,2,0,2,3,
-			4,5,6,4,6,7,
-			8,9,10,8,10,11,
-			12,13,14,12,14,15,
-			16,17,18,16,18,19,
-			20,21,22,20,22,23 };
+        eosVector(VertexSimple) vertices;
+        eosVector(Index) indices;
+        vertices.resize(24);
+        indices.resize(36);
+        indices = {
+            0,1,2,0,2,3,
+            4,5,6,4,6,7,
+            8,9,10,8,10,11,
+            12,13,14,12,14,15,
+            16,17,18,16,18,19,
+            20,21,22,20,22,23 };
 
-		Vector positions[24] = {
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
+        Vector positions[24] = {
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f)
-		};
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f)
+        };
 
-		ionFloat texCoords[] = {
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f,
+        ionFloat texCoords[] = {
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
 
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
 
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
 
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
 
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
 
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-			1.0f, 1.0f,
-		};
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+        };
 
-		Vector normals[24] = {
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
+        Vector normals[24] = {
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
 
-			Vector(0.0f, 0.0f, -1.0f, 1.0f),
-			Vector(0.0f, 0.0f, -1.0f, 1.0f),
-			Vector(0.0f, 0.0f, -1.0f, 1.0f),
-			Vector(0.0f, 0.0f, -1.0f, 1.0f),
+            Vector(0.0f, 0.0f, -1.0f, 1.0f),
+            Vector(0.0f, 0.0f, -1.0f, 1.0f),
+            Vector(0.0f, 0.0f, -1.0f, 1.0f),
+            Vector(0.0f, 0.0f, -1.0f, 1.0f),
 
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, -1.0f, 0.0f, 1.0f),
-			Vector(0.0f, -1.0f, 0.0f, 1.0f),
-			Vector(0.0f, -1.0f, 0.0f, 1.0f),
-			Vector(0.0f, -1.0f, 0.0f, 1.0f)
-		};
+            Vector(0.0f, -1.0f, 0.0f, 1.0f),
+            Vector(0.0f, -1.0f, 0.0f, 1.0f),
+            Vector(0.0f, -1.0f, 0.0f, 1.0f),
+            Vector(0.0f, -1.0f, 0.0f, 1.0f)
+        };
 
-		for (ionU32 i = 0, j = 0; i < 24; ++i, j += 2)
-		{
-			vertices[i].SetPosition(positions[i]);
-			vertices[i].SetTexCoordUV(texCoords[j], texCoords[j + 1]);
-			vertices[i].SetNormal(normals[i]);
-		}
-		for (ionU32 i = 0; i < 24; ++i)
-		{
-			mesh->PushBackVertex(vertices[i]);
-		}
-		for (ionU32 i = 0; i < 36; ++i)
-		{
-			mesh->PushBackIndex(indices[i]);
-		}
+        for (ionU32 i = 0, j = 0; i < 24; ++i, j += 2)
+        {
+            vertices[i].SetPosition(positions[i]);
+            vertices[i].SetTexCoordUV(texCoords[j], texCoords[j + 1]);
+            vertices[i].SetNormal(normals[i]);
+        }
+        for (ionU32 i = 0; i < 24; ++i)
+        {
+            mesh->PushBackVertex(vertices[i]);
+        }
+        for (ionU32 i = 0; i < 36; ++i)
+        {
+            mesh->PushBackIndex(indices[i]);
+        }
 
-		mesh->SetIndexCount(36);
-		mesh->SetIndexStart(0);
-		mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
+        mesh->SetIndexCount(36);
+        mesh->SetIndexStart(0);
+        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
     case EVertexLayout_Full:
     {
-		Mesh* mesh = _entity.AddMesh<Mesh>();
+        Mesh* mesh = _entity.AddMesh<Mesh>();
 
-		eosVector(Vertex) vertices;
-		eosVector(Index) indices;
-		vertices.resize(24);
-		indices.resize(36);
-		indices = {
-			0,1,2,0,2,3,
-			4,5,6,4,6,7,
-			8,9,10,8,10,11,
-			12,13,14,12,14,15,
-			16,17,18,16,18,19,
-			20,21,22,20,22,23 };
+        eosVector(Vertex) vertices;
+        eosVector(Index) indices;
+        vertices.resize(24);
+        indices.resize(36);
+        indices = {
+            0,1,2,0,2,3,
+            4,5,6,4,6,7,
+            8,9,10,8,10,11,
+            12,13,14,12,14,15,
+            16,17,18,16,18,19,
+            20,21,22,20,22,23 };
 
-		Vector positions[24] = {
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
+        Vector positions[24] = {
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f)
-		};
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f)
+        };
 
-		Vector uvuv[24] = {
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 0.0f),
-			Vector(1.0f, 0.0f, 1.0f, 0.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
+        Vector uvuv[24] = {
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 0.0f),
+            Vector(1.0f, 0.0f, 1.0f, 0.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 0.0f),
-			Vector(1.0f, 0.0f, 1.0f, 0.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 0.0f),
+            Vector(1.0f, 0.0f, 1.0f, 0.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 0.0f),
-			Vector(1.0f, 0.0f, 1.0f, 0.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 0.0f),
+            Vector(1.0f, 0.0f, 1.0f, 0.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 0.0f),
-			Vector(1.0f, 0.0f, 1.0f, 0.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 0.0f),
+            Vector(1.0f, 0.0f, 1.0f, 0.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 0.0f),
-			Vector(1.0f, 0.0f, 1.0f, 0.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 0.0f),
+            Vector(1.0f, 0.0f, 1.0f, 0.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 0.0f),
-			Vector(1.0f, 0.0f, 1.0f, 0.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f)
-		};
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 0.0f),
+            Vector(1.0f, 0.0f, 1.0f, 0.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f)
+        };
 
-		Vector normals[24] = {
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
+        Vector normals[24] = {
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
 
-			Vector(0.0f, 0.0f, -1.0f, 1.0f),
-			Vector(0.0f, 0.0f, -1.0f, 1.0f),
-			Vector(0.0f, 0.0f, -1.0f, 1.0f),
-			Vector(0.0f, 0.0f, -1.0f, 1.0f),
+            Vector(0.0f, 0.0f, -1.0f, 1.0f),
+            Vector(0.0f, 0.0f, -1.0f, 1.0f),
+            Vector(0.0f, 0.0f, -1.0f, 1.0f),
+            Vector(0.0f, 0.0f, -1.0f, 1.0f),
 
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, -1.0f, 0.0f, 1.0f),
-			Vector(0.0f, -1.0f, 0.0f, 1.0f),
-			Vector(0.0f, -1.0f, 0.0f, 1.0f),
-			Vector(0.0f, -1.0f, 0.0f, 1.0f)
-		};
+            Vector(0.0f, -1.0f, 0.0f, 1.0f),
+            Vector(0.0f, -1.0f, 0.0f, 1.0f),
+            Vector(0.0f, -1.0f, 0.0f, 1.0f),
+            Vector(0.0f, -1.0f, 0.0f, 1.0f)
+        };
 
-		Vector colors[24] = {
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
+        Vector colors[24] = {
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
 
-			Vector(1.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
 
-			Vector(0.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, 0.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
 
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 1.0f, 1.0f, 1.0f),
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
-			Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 1.0f, 1.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
 
-			Vector(1.0f, 0.0f, 1.0f, 1.0f),
-			Vector(0.0f, 1.0f, 0.0f, 1.0f),
-			Vector(1.0f, 1.0f, 0.0f, 1.0f),
-			Vector(0.0f, 0.0f, 1.0f, 1.0f)
-		};
+            Vector(1.0f, 0.0f, 1.0f, 1.0f),
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),
+            Vector(1.0f, 1.0f, 0.0f, 1.0f),
+            Vector(0.0f, 0.0f, 1.0f, 1.0f)
+        };
 
-		Vector tangents[24];
-		GeometryHelper::CalculateTangent(positions, normals, uvuv, 24, indices.data(), 36, tangents);
+        Vector tangents[24];
+        GeometryHelper::CalculateTangent(positions, normals, uvuv, 24, indices.data(), 36, tangents);
 
-		for (ionU32 i = 0; i < 24; ++i)
-		{
-			vertices[i].SetPosition(positions[i]);
-			vertices[i].SetTexCoordUV(uvuv[i]);
-			vertices[i].SetNormal(normals[i]);
-			vertices[i].SetColor1(colors[i]);
-			vertices[i].SetColor2(colors[i]);
-			vertices[i].SetTangent(tangents[i]);
-		}
-		for (ionU32 i = 0; i < 24; ++i)
-		{
-			mesh->PushBackVertex(vertices[i]);
-		}
-		for (ionU32 i = 0; i < 36; ++i)
-		{
-			mesh->PushBackIndex(indices[i]);
-		}
+        for (ionU32 i = 0; i < 24; ++i)
+        {
+            vertices[i].SetPosition(positions[i]);
+            vertices[i].SetTexCoordUV(uvuv[i]);
+            vertices[i].SetNormal(normals[i]);
+            vertices[i].SetColor1(colors[i]);
+            vertices[i].SetColor2(colors[i]);
+            vertices[i].SetTangent(tangents[i]);
+        }
+        for (ionU32 i = 0; i < 24; ++i)
+        {
+            mesh->PushBackVertex(vertices[i]);
+        }
+        for (ionU32 i = 0; i < 36; ++i)
+        {
+            mesh->PushBackIndex(indices[i]);
+        }
 
-		mesh->SetIndexCount(36);
-		mesh->SetIndexStart(0);
-		mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
+        mesh->SetIndexCount(36);
+        mesh->SetIndexStart(0);
+        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -1101,22 +1101,22 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 
 
 ///
-///			SPHERE
+///            SPHERE
 ///
 void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
 {
-	static const ionFloat radius = 1.0f;
-	static const ionU32 rings = 24;
-	static const ionU32 sectors = 48;
+    static const ionFloat radius = 1.0f;
+    static const ionU32 rings = 24;
+    static const ionU32 sectors = 48;
 
-	switch (_layout)
-	{
-	case EVertexLayout_Pos:
-	{
-		MeshPlain* mesh = _entity.AddMesh<MeshPlain>();
+    switch (_layout)
+    {
+    case EVertexLayout_Pos:
+    {
+        MeshPlain* mesh = _entity.AddMesh<MeshPlain>();
 
-		eosVector(VertexPlain) vertices;
-		eosVector(Index) indices;
+        eosVector(VertexPlain) vertices;
+        eosVector(Index) indices;
 
         eosVector(Vector) positions;
 
@@ -1176,93 +1176,93 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
         mesh->SetIndexCount(indicesSize);
         mesh->SetIndexStart(0);
         mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
-	}
-	break;
+    }
+    break;
 
-	case EVertexLayout_Pos_Color:
-	{
-		MeshColored* mesh = _entity.AddMesh<MeshColored>();
+    case EVertexLayout_Pos_Color:
+    {
+        MeshColored* mesh = _entity.AddMesh<MeshColored>();
 
-		eosVector(VertexColored) vertices;
-		eosVector(Index) indices;
+        eosVector(VertexColored) vertices;
+        eosVector(Index) indices;
 
-		eosVector(Vector) positions;
-		eosVector(Vector) normals;
-		eosVector(Vector) colors;
+        eosVector(Vector) positions;
+        eosVector(Vector) normals;
+        eosVector(Vector) colors;
 
-		const ionU32 verticesSize = rings * sectors;
-		const ionU32 indicesSize = rings * sectors * 6;
+        const ionU32 verticesSize = rings * sectors;
+        const ionU32 indicesSize = rings * sectors * 6;
 
-		const ionFloat R = 1.0f / static_cast<ionFloat>(rings - 1);
-		const ionFloat S = 1.0f / static_cast<ionFloat>(sectors - 1);
-		ionS32 r, s;
+        const ionFloat R = 1.0f / static_cast<ionFloat>(rings - 1);
+        const ionFloat S = 1.0f / static_cast<ionFloat>(sectors - 1);
+        ionS32 r, s;
 
-		vertices.resize(verticesSize);
-		indices.resize(indicesSize);
+        vertices.resize(verticesSize);
+        indices.resize(indicesSize);
 
-		positions.resize(verticesSize);
-		normals.resize(verticesSize);
-		colors.resize(verticesSize);
+        positions.resize(verticesSize);
+        normals.resize(verticesSize);
+        colors.resize(verticesSize);
 
-		std::vector<Vector>::iterator v = positions.begin();
-		std::vector<Vector>::iterator n = normals.begin();
-		std::vector<Vector>::iterator c = colors.begin();
+        std::vector<Vector>::iterator v = positions.begin();
+        std::vector<Vector>::iterator n = normals.begin();
+        std::vector<Vector>::iterator c = colors.begin();
 
 
-		for (r = 0; r < rings; ++r)
-		{
-			for (s = 0; s < sectors; ++s)
-			{
-				const ionFloat y = std::sin(-MathHelper::kHalfPI + MathHelper::kPI * r * R);
-				const ionFloat x = std::cos(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
-				const ionFloat z = std::sin(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
+        for (r = 0; r < rings; ++r)
+        {
+            for (s = 0; s < sectors; ++s)
+            {
+                const ionFloat y = std::sin(-MathHelper::kHalfPI + MathHelper::kPI * r * R);
+                const ionFloat x = std::cos(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
+                const ionFloat z = std::sin(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
 
-				*v++ = VectorHelper::Set(x * radius, y * radius, z * radius, 1.0f);
-				*n++ = VectorHelper::Set(x, y, z, 1.0f);
-				*c++ = VectorHelper::Set(x, y, z, 1.0f);
-			}
-		}
+                *v++ = VectorHelper::Set(x * radius, y * radius, z * radius, 1.0f);
+                *n++ = VectorHelper::Set(x, y, z, 1.0f);
+                *c++ = VectorHelper::Set(x, y, z, 1.0f);
+            }
+        }
 
-		std::vector<Index>::iterator i = indices.begin();
-		for (r = 0; r < rings; ++r)
-		{
-			for (s = 0; s < sectors; ++s)
-			{
-				*i++ = r * sectors + s;
-				*i++ = (r + 1) * sectors + s;
-				*i++ = (r + 1) * sectors + (s + 1) % sectors;
-				*i++ = r * sectors + s;
-				*i++ = (r + 1) * sectors + (s + 1) % sectors;
-				*i++ = r * sectors + (s + 1) % sectors;
-			}
-		}
+        std::vector<Index>::iterator i = indices.begin();
+        for (r = 0; r < rings; ++r)
+        {
+            for (s = 0; s < sectors; ++s)
+            {
+                *i++ = r * sectors + s;
+                *i++ = (r + 1) * sectors + s;
+                *i++ = (r + 1) * sectors + (s + 1) % sectors;
+                *i++ = r * sectors + s;
+                *i++ = (r + 1) * sectors + (s + 1) % sectors;
+                *i++ = r * sectors + (s + 1) % sectors;
+            }
+        }
 
-		for (ionU32 i = 0; i < verticesSize; ++i)
-		{
-			vertices[i].SetPosition(positions[i]);
-			vertices[i].SetColor(colors[i]);
-		}
-		for (ionU32 i = 0; i < verticesSize; ++i)
-		{
-			mesh->PushBackVertex(vertices[i]);
-		}
-		for (ionU32 i = 0; i < indicesSize; ++i)
-		{
-			mesh->PushBackIndex(indices[i]);
-		}
+        for (ionU32 i = 0; i < verticesSize; ++i)
+        {
+            vertices[i].SetPosition(positions[i]);
+            vertices[i].SetColor(colors[i]);
+        }
+        for (ionU32 i = 0; i < verticesSize; ++i)
+        {
+            mesh->PushBackVertex(vertices[i]);
+        }
+        for (ionU32 i = 0; i < indicesSize; ++i)
+        {
+            mesh->PushBackIndex(indices[i]);
+        }
 
-		mesh->SetIndexCount(indicesSize);
-		mesh->SetIndexStart(0);
-		mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
-	}
-	break;
+        mesh->SetIndexCount(indicesSize);
+        mesh->SetIndexStart(0);
+        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
+    }
+    break;
 
-	case EVertexLayout_Pos_UV:
-	{
-		MeshUV* mesh = _entity.AddMesh<MeshUV>();
+    case EVertexLayout_Pos_UV:
+    {
+        MeshUV* mesh = _entity.AddMesh<MeshUV>();
 
-		eosVector(VertexUV) vertices;
-		eosVector(Index) indices;
+        eosVector(VertexUV) vertices;
+        eosVector(Index) indices;
 
         eosVector(Vector) positions;
         eosVector(Vector) uvuv;
@@ -1327,16 +1327,16 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
         mesh->SetIndexCount(indicesSize);
         mesh->SetIndexStart(0);
         mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
-	}
-	break;
+    }
+    break;
 
 
-	case EVertexLayout_Pos_UV_Normal:
-	{
-		MeshSimple* mesh = _entity.AddMesh<MeshSimple>();
+    case EVertexLayout_Pos_UV_Normal:
+    {
+        MeshSimple* mesh = _entity.AddMesh<MeshSimple>();
 
-		eosVector(VertexSimple) vertices;
-		eosVector(Index) indices;
+        eosVector(VertexSimple) vertices;
+        eosVector(Index) indices;
 
         eosVector(Vector) positions;
         eosVector(Vector) normals;
@@ -1406,15 +1406,15 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
         mesh->SetIndexCount(indicesSize);
         mesh->SetIndexStart(0);
         mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
-	}
-	break;
+    }
+    break;
 
-	case EVertexLayout_Full:
-	{
-		Mesh* mesh = _entity.AddMesh<Mesh>();
+    case EVertexLayout_Full:
+    {
+        Mesh* mesh = _entity.AddMesh<Mesh>();
 
-		eosVector(Vertex) vertices;
-		eosVector(Index) indices;
+        eosVector(Vertex) vertices;
+        eosVector(Index) indices;
 
         eosVector(Vector) positions;
         eosVector(Vector) normals;
@@ -1494,19 +1494,19 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
         mesh->SetIndexCount(indicesSize);
         mesh->SetIndexStart(0);
         mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
-	}
-	break;
+    }
+    break;
 
-	case EVertexLayout_Unknow:
-	case EVertexLayout_Empty:
-	case EVertexLayout_Count:
-		ionAssertReturnVoid(false, "Layout does not exist!");
-		break;
+    case EVertexLayout_Unknow:
+    case EVertexLayout_Empty:
+    case EVertexLayout_Count:
+        ionAssertReturnVoid(false, "Layout does not exist!");
+        break;
 
-	default:
-		ionAssertReturnVoid(false, "Layout not yet implemented");
-		break;
-	}
+    default:
+        ionAssertReturnVoid(false, "Layout not yet implemented");
+        break;
+    }
 }
 
 ION_NAMESPACE_END

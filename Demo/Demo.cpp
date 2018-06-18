@@ -89,10 +89,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_CLOSE:
         PostMessage(hWnd, WM_USER + 2, wParam, lParam);
         break;
-	case WM_SIZE:
-	case WM_EXITSIZEMOVE:
-		PostMessage(hWnd, WM_USER + 1, wParam, lParam);
-		break;
+    case WM_SIZE:
+    case WM_EXITSIZEMOVE:
+        PostMessage(hWnd, WM_USER + 1, wParam, lParam);
+        break;
     default:
         return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
@@ -120,8 +120,8 @@ int main()
     std::cout << "1 - Colored Triangle" << std::endl;
     std::cout << "2 - Colored Quad" << std::endl;
     std::cout << "3 - Texture Quad" << std::endl;
-	std::cout << "4 - Colored Cube" << std::endl;
-	std::cout << "5 - Colored Sphere" << std::endl;
+    std::cout << "4 - Colored Cube" << std::endl;
+    std::cout << "5 - Colored Sphere" << std::endl;
     std::cout << "6 - Model GLTF in white ambient (need a while to load!)" << std::endl;
     std::cout << "7 - Model GLTF using PBR (WORK IN PROGRESS, NEED A WHILE TO LOAD!)" << std::endl;
     std::cout << "Selection: ";
@@ -136,10 +136,10 @@ int main()
     //////////////////////////////////////////////////////////////////////////
 
 
-	ION_SCOPE_BEGIN
+    ION_SCOPE_BEGIN
 
 
-	ionFileSystemManager().Init("Assets", "Shaders", "Textures", "Models");
+    ionFileSystemManager().Init("Assets", "Shaders", "Textures", "Models");
 
 
     ionBool rendererInitialized = false;
@@ -205,15 +205,15 @@ int main()
     case 3:
         Test_TexturedQuad(*test);
         break;
-	case 4:
-		Test_ColoredCube(*test);
-		break;
-    case 5:
-		Test_ColoredSphere(*test);
+    case 4:
+        Test_ColoredCube(*test);
         break;
-	case 6:
-		Test_Model_Ambient(*test);
-		break;
+    case 5:
+        Test_ColoredSphere(*test);
+        break;
+    case 6:
+        Test_Model_Ambient(*test);
+        break;
     case 7:
         Test_ModelPBR_WIP(*test);
         break;
@@ -243,7 +243,7 @@ int main()
 
     ionRenderManager().Shutdown();
 
-	ionFileSystemManager().Shutdown();
+    ionFileSystemManager().Shutdown();
 
     ION_SCOPE_END
         

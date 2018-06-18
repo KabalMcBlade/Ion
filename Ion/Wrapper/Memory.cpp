@@ -43,7 +43,7 @@ ION_DLL void ShutdownVulkanAllocators()
 
 ION_DLL void InitializeManagers()
 {
-	FileSystemManager::Create();
+    FileSystemManager::Create();
     GPUMemoryManager::Create();
     VertexCacheManager::Create();
     StagingBufferManager::Create();
@@ -64,7 +64,7 @@ ION_DLL void ShutdownManagers()
     StagingBufferManager::Destroy();
     VertexCacheManager::Destroy();
     GPUMemoryManager::Destroy();
-	FileSystemManager::Destroy();
+    FileSystemManager::Destroy();
 }
 
 

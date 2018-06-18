@@ -29,26 +29,26 @@ enum ETextureFormat
 
     ETextureFormat_RGBA8,   // 32 bpp
     ETextureFormat_XRGB8,   // 32 bpp
-    ETextureFormat_RGB565,	// 16 bpp
+    ETextureFormat_RGB565,    // 16 bpp
 
     // alpha channel only
     ETextureFormat_Alpha,
 
     // Luminance give value across RGB with a constant A of 255
     // Intensity give value across RGBA
-    ETextureFormat_Luminance8Alpha8,	// 16 bpp
-    ETextureFormat_Luminance8,		    //  8 bpp
-    ETextureFormat_Intensity8,		    //  8 bpp
+    ETextureFormat_Luminance8Alpha8,    // 16 bpp
+    ETextureFormat_Luminance8,            //  8 bpp
+    ETextureFormat_Intensity8,            //  8 bpp
 };
 
  enum ETextureUsage
  {
-    ETextureUsage_Light,			// Light image
-    ETextureUsage_Mono,	            // Mono used for falloff for instance
-    ETextureUsage_Alpha,	        // Alpha with a white color channel
-    ETextureUsage_RGB1,	            // RGB with Alpha to 1
-    ETextureUsage_RGBA,	            // RGBA
-    ETextureUsage_RGB,	            // RGB
+    ETextureUsage_Light,            // Light image
+    ETextureUsage_Mono,                // Mono used for falloff for instance
+    ETextureUsage_Alpha,            // Alpha with a white color channel
+    ETextureUsage_RGB1,                // RGB with Alpha to 1
+    ETextureUsage_RGBA,                // RGBA
+    ETextureUsage_RGB,                // RGB
 };
 
  enum ETextureFilter
@@ -62,8 +62,8 @@ enum ETextureFormat
  {
      ETextureRepeat_Repeat,
      ETextureRepeat_Clamp,
-     ETextureRepeat_ClampZero,	// guarantee 0,0,0,255 edge for projected textures
-     ETextureRepeat_ClampAlpha	// guarantee 0 alpha edge for projected textures
+     ETextureRepeat_ClampZero,    // guarantee 0,0,0,255 edge for projected textures
+     ETextureRepeat_ClampAlpha    // guarantee 0 alpha edge for projected textures
  };
 
 ION_NAMESPACE_END

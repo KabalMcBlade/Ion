@@ -52,7 +52,7 @@ public:
     eosVector(NodeHandle) &GetChildren() { return m_children; };
 
 protected:
-    ENodeType	m_nodeType;
+    ENodeType    m_nodeType;
 
 private:
     Node(const Node& _Orig) = delete;

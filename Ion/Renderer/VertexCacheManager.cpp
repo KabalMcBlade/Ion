@@ -151,7 +151,7 @@ VertexCacheHandler VertexCacheManager::Alloc(GeometryBufferSet& _buffer, const v
     ionAssertReturnValue((((uintptr_t)(_data)) & 15) == 0, "Pointer is misaligned", (VertexCacheHandler)0);
     ionAssertReturnValue((_bytes & 15) == 0, "size is misaligned", (VertexCacheHandler)0);
 
-    ionSize	endPos = 0;
+    ionSize    endPos = 0;
     ionSize offset = 0;
 
     switch (_type)

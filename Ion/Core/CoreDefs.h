@@ -40,7 +40,7 @@
 #define ION_BIT_CHECK(value, bitpos)        ((value) & (1<<(bitpos))) 
 #define ION_BIT_CLEAR(value, bitpos)        ((value) &= ~((1) << (bitpos)))
 #define ION_BIT_TOGGLE(value, bitpos)       ((value) ^= (1<<(bitpos)))
-#define ION_BIT_GET(value, mask)	        ((value) & (mask)) 
+#define ION_BIT_GET(value, mask)            ((value) & (mask)) 
 
 #define ION_SCOPE_BEGIN \
 {
@@ -73,12 +73,12 @@ typedef std::size_t     ionSize;
 
 #ifdef _DEBUG
 #define ionAssert( condition, message ) \
-	if( !(condition) ) { \
-		std::cerr << "Assert: " << (#condition) << std::endl; \
-		std::cerr << "Message: " << message << std::endl; \
-		std::cerr << "File: " << __FILE__ << std::endl; \
+    if( !(condition) ) { \
+        std::cerr << "Assert: " << (#condition) << std::endl; \
+        std::cerr << "Message: " << message << std::endl; \
+        std::cerr << "File: " << __FILE__ << std::endl; \
         std::cerr << "Line: " << __LINE__ << std::endl << std::endl; \
-	}
+    }
 #define ionAssertDialog( condition ) assert(condition)
 #else
 #define ionAssert( condition, message )
@@ -87,12 +87,12 @@ typedef std::size_t     ionSize;
 
 #define ionAssertReturnVoid( condition, message ) \
     ionAssert( condition, message )\
-	if( !(condition) ) { \
+    if( !(condition) ) { \
         return;\
-	}
+    }
 
 #define ionAssertReturnValue( condition, message, return_value ) \
     ionAssert( condition, message )\
-	if( !(condition) ) { \
+    if( !(condition) ) { \
         return return_value;\
-	}
+    }

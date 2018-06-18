@@ -103,74 +103,74 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
             ionMesh->SetIndexStart(prevIndexSize);
             ionU32 vertexStart = prevVertexSize;
 
-			// Vertices
-			{
-				const ionFloat *bufferPos = nullptr;
-				const ionFloat *bufferNormals = nullptr;
-				const ionFloat *bufferTangent = nullptr;
-				const ionFloat *bufferTexCoords = nullptr;
-				const ionFloat *bufferColor0 = nullptr;
-				const ionFloat *bufferColor1 = nullptr;
+            // Vertices
+            {
+                const ionFloat *bufferPos = nullptr;
+                const ionFloat *bufferNormals = nullptr;
+                const ionFloat *bufferTangent = nullptr;
+                const ionFloat *bufferTexCoords = nullptr;
+                const ionFloat *bufferColor0 = nullptr;
+                const ionFloat *bufferColor1 = nullptr;
 
-				// Position attribute is required
-				ionAssertReturnVoid(primitive.attributes.find("POSITION") != primitive.attributes.end(), "POSITION ATTRIBUTE MISSING!");
+                // Position attribute is required
+                ionAssertReturnVoid(primitive.attributes.find("POSITION") != primitive.attributes.end(), "POSITION ATTRIBUTE MISSING!");
 
-				const tinygltf::Accessor &posAccessor = _model.accessors[primitive.attributes.find("POSITION")->second];
-				const tinygltf::BufferView &posView = _model.bufferViews[posAccessor.bufferView];
-				bufferPos = reinterpret_cast<const ionFloat *>(&(_model.buffers[posView.buffer].data[posAccessor.byteOffset + posView.byteOffset]));
+                const tinygltf::Accessor &posAccessor = _model.accessors[primitive.attributes.find("POSITION")->second];
+                const tinygltf::BufferView &posView = _model.bufferViews[posAccessor.bufferView];
+                bufferPos = reinterpret_cast<const ionFloat *>(&(_model.buffers[posView.buffer].data[posAccessor.byteOffset + posView.byteOffset]));
 
-				if (primitive.attributes.find("NORMAL") != primitive.attributes.end()) 
-				{
-					const tinygltf::Accessor &normAccessor = _model.accessors[primitive.attributes.find("NORMAL")->second];
-					const tinygltf::BufferView &normView = _model.bufferViews[normAccessor.bufferView];
-					bufferNormals = reinterpret_cast<const ionFloat *>(&(_model.buffers[normView.buffer].data[normAccessor.byteOffset + normView.byteOffset]));
-				}
+                if (primitive.attributes.find("NORMAL") != primitive.attributes.end()) 
+                {
+                    const tinygltf::Accessor &normAccessor = _model.accessors[primitive.attributes.find("NORMAL")->second];
+                    const tinygltf::BufferView &normView = _model.bufferViews[normAccessor.bufferView];
+                    bufferNormals = reinterpret_cast<const ionFloat *>(&(_model.buffers[normView.buffer].data[normAccessor.byteOffset + normView.byteOffset]));
+                }
 
-				if (primitive.attributes.find("TANGENT") != primitive.attributes.end())
-				{
-					const tinygltf::Accessor &tangentAccessor = _model.accessors[primitive.attributes.find("TANGENT")->second];
-					const tinygltf::BufferView &tangentView = _model.bufferViews[tangentAccessor.bufferView];
-					bufferTangent = reinterpret_cast<const ionFloat *>(&(_model.buffers[tangentView.buffer].data[tangentAccessor.byteOffset + tangentView.byteOffset]));
-				}
+                if (primitive.attributes.find("TANGENT") != primitive.attributes.end())
+                {
+                    const tinygltf::Accessor &tangentAccessor = _model.accessors[primitive.attributes.find("TANGENT")->second];
+                    const tinygltf::BufferView &tangentView = _model.bufferViews[tangentAccessor.bufferView];
+                    bufferTangent = reinterpret_cast<const ionFloat *>(&(_model.buffers[tangentView.buffer].data[tangentAccessor.byteOffset + tangentView.byteOffset]));
+                }
 
-				if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end()) 
-				{
-					const tinygltf::Accessor &uvAccessor = _model.accessors[primitive.attributes.find("TEXCOORD_0")->second];
-					const tinygltf::BufferView &uvView = _model.bufferViews[uvAccessor.bufferView];
-					bufferTexCoords = reinterpret_cast<const ionFloat *>(&(_model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
-				}
+                if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end()) 
+                {
+                    const tinygltf::Accessor &uvAccessor = _model.accessors[primitive.attributes.find("TEXCOORD_0")->second];
+                    const tinygltf::BufferView &uvView = _model.bufferViews[uvAccessor.bufferView];
+                    bufferTexCoords = reinterpret_cast<const ionFloat *>(&(_model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
+                }
 
-				if (primitive.attributes.find("COLOR_0") != primitive.attributes.end())
-				{
-					const tinygltf::Accessor &color0Accessor = _model.accessors[primitive.attributes.find("COLOR_0")->second];
-					const tinygltf::BufferView &color0View = _model.bufferViews[color0Accessor.bufferView];
-					bufferColor0 = reinterpret_cast<const ionFloat *>(&(_model.buffers[color0View.buffer].data[color0Accessor.byteOffset + color0View.byteOffset]));
-				}
+                if (primitive.attributes.find("COLOR_0") != primitive.attributes.end())
+                {
+                    const tinygltf::Accessor &color0Accessor = _model.accessors[primitive.attributes.find("COLOR_0")->second];
+                    const tinygltf::BufferView &color0View = _model.bufferViews[color0Accessor.bufferView];
+                    bufferColor0 = reinterpret_cast<const ionFloat *>(&(_model.buffers[color0View.buffer].data[color0Accessor.byteOffset + color0View.byteOffset]));
+                }
 
-				if (primitive.attributes.find("COLOR_1") != primitive.attributes.end())
-				{
-					const tinygltf::Accessor &color1Accessor = _model.accessors[primitive.attributes.find("COLOR_1")->second];
-					const tinygltf::BufferView &color1View = _model.bufferViews[color1Accessor.bufferView];
-					bufferColor1 = reinterpret_cast<const ionFloat *>(&(_model.buffers[color1View.buffer].data[color1Accessor.byteOffset + color1View.byteOffset]));
-				}
+                if (primitive.attributes.find("COLOR_1") != primitive.attributes.end())
+                {
+                    const tinygltf::Accessor &color1Accessor = _model.accessors[primitive.attributes.find("COLOR_1")->second];
+                    const tinygltf::BufferView &color1View = _model.bufferViews[color1Accessor.bufferView];
+                    bufferColor1 = reinterpret_cast<const ionFloat *>(&(_model.buffers[color1View.buffer].data[color1Accessor.byteOffset + color1View.byteOffset]));
+                }
 
-				for (ionSize v = 0; v < posAccessor.count; v++) 
-				{
-					// the Y value of all vectors is inverted due Vulkan coordinate system
+                for (ionSize v = 0; v < posAccessor.count; v++) 
+                {
+                    // the Y value of all vectors is inverted due Vulkan coordinate system
 
-					Vertex vert;
+                    Vertex vert;
 
                     Vector pos((&bufferPos[v * 3])[0], -((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2], 1.0f);
                     pos = localNodeMatrix * pos;
-					vert.SetPosition(pos);
+                    vert.SetPosition(pos);
 
                     _entity.GetBoundingBox().Expande(vert.GetPosition(), vert.GetPosition());
                     
                     Vector normal;
-					if (bufferNormals != nullptr)
-					{
+                    if (bufferNormals != nullptr)
+                    {
                         normal = VectorHelper::Set((&bufferNormals[v * 3])[0], -((&bufferNormals[v * 3])[1]), (&bufferNormals[v * 3])[2], 1.0f);
-					}
+                    }
                     else
                     {
                         normal = VectorHelper::Set(0.0f, 0.0f, 0.0f, 1.0f);
@@ -179,10 +179,10 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     vert.SetNormal(normal);
 
                     Vector tangent;
-					if (bufferTangent != nullptr)
-					{
+                    if (bufferTangent != nullptr)
+                    {
                         tangent = VectorHelper::Set((&bufferTangent[v * 3])[0], -((&bufferTangent[v * 3])[1]), (&bufferTangent[v * 3])[2], 1.0f);
-					}
+                    }
                     else
                     {
                         tangent = VectorHelper::Set(0.0f, 0.0f, 0.0f, 1.0f);
@@ -190,36 +190,36 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     tangent = localNodeMatrix * tangent;
                     vert.SetTangent(tangent);
 
-					if (bufferTexCoords != nullptr)
-					{
-						vert.SetTexCoordUV((&bufferTexCoords[v * 2])[0], (&bufferTexCoords[v * 2])[1]);
+                    if (bufferTexCoords != nullptr)
+                    {
+                        vert.SetTexCoordUV((&bufferTexCoords[v * 2])[0], (&bufferTexCoords[v * 2])[1]);
                     }
                     else
                     {
                         vert.SetTexCoordUV(0.0f, 0.0f);
                     }
 
-					if (bufferColor0 != nullptr)
-					{
-						vert.SetColor1((&bufferColor0[v * 4])[0], (&bufferColor0[v * 4])[1], (&bufferColor0[v * 4])[2], (&bufferColor0[v * 4])[3]);
-					}
+                    if (bufferColor0 != nullptr)
+                    {
+                        vert.SetColor1((&bufferColor0[v * 4])[0], (&bufferColor0[v * 4])[1], (&bufferColor0[v * 4])[2], (&bufferColor0[v * 4])[3]);
+                    }
                     else
                     {
                         vert.SetColor1(1.0f, 1.0f, 1.0f, 1.0f);
                     }
 
-					if (bufferColor1 != nullptr)
-					{
-						vert.SetColor2((&bufferColor1[v * 4])[0], (&bufferColor1[v * 4])[1], (&bufferColor1[v * 4])[2], (&bufferColor1[v * 4])[3]);
-					}
+                    if (bufferColor1 != nullptr)
+                    {
+                        vert.SetColor2((&bufferColor1[v * 4])[0], (&bufferColor1[v * 4])[1], (&bufferColor1[v * 4])[2], (&bufferColor1[v * 4])[3]);
+                    }
                     else
                     {
                         vert.SetColor2(1.0f, 1.0f, 1.0f, 1.0f);
                     }
 
                     ionMesh->PushBackVertex(vert);
-				}
-			}
+                }
+            }
 
 
             // Indices

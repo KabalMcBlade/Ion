@@ -29,7 +29,7 @@ public:
 
     ionBool Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
     void    Shutdown();
-	void	Recreate();
+    void    Recreate();
     void    Clear();
 
     ionBool StartFrame();
@@ -107,57 +107,57 @@ private:
     VkDevice                    m_vkDevice;
     VkSurfaceKHR                m_vkSurface;
     VkInstance                  m_vkInstance;
-    VkQueue			            m_vkGraphicsQueue;
-    VkQueue			            m_vkPresentQueue;
-    VkCommandPool			    m_vkCommandPool;
-    VkSwapchainKHR				m_vkSwapchain;
-    VkFormat					m_vkSwapchainFormat;
-    VkExtent2D					m_vkSwapchainExtent;
-    VkPresentModeKHR			m_vkPresentMode;
-    VkSampleCountFlagBits		m_vkSampleCount;
-    VkFormat					m_vkDepthFormat;
-    VkRenderPass				m_vkRenderPass;
-    VkPipelineCache				m_vkPipelineCache;
+    VkQueue                        m_vkGraphicsQueue;
+    VkQueue                        m_vkPresentQueue;
+    VkCommandPool                m_vkCommandPool;
+    VkSwapchainKHR                m_vkSwapchain;
+    VkFormat                    m_vkSwapchainFormat;
+    VkExtent2D                    m_vkSwapchainExtent;
+    VkPresentModeKHR            m_vkPresentMode;
+    VkSampleCountFlagBits        m_vkSampleCount;
+    VkFormat                    m_vkDepthFormat;
+    VkRenderPass                m_vkRenderPass;
+    VkPipelineCache                m_vkPipelineCache;
     VkDebugReportCallbackEXT    m_vkDebugCallback;
-    VkSemaphore	                m_vkAcquiringSemaphore;
-    VkSemaphore	                m_vkCompletedSemaphore;
+    VkSemaphore                    m_vkAcquiringSemaphore;
+    VkSemaphore                    m_vkCompletedSemaphore;
 
     vkGpuMemoryAllocation       m_vkMSAAAllocation;
-    VkImage						m_vkMSAAImage;
-    VkImageView					m_vkMSAAImageView;
+    VkImage                        m_vkMSAAImage;
+    VkImageView                    m_vkMSAAImageView;
 
     vkGpuMemoryAllocation       m_vkDepthAllocation;
-    VkImage						m_vkDepthImage;
-    VkImageView					m_vkDepthImageView;
+    VkImage                        m_vkDepthImage;
+    VkImageView                    m_vkDepthImageView;
 
     vkGpuMemoryAllocation       m_vkDepthStencilAllocation;
-    VkImage						m_vkDepthStencilImage;
-    VkImageView					m_vkDepthStencilImageView;
+    VkImage                        m_vkDepthStencilImage;
+    VkImageView                    m_vkDepthStencilImageView;
 
-    eosVector(VkCommandBuffer)	m_vkCommandBuffers;
-    eosVector(VkFramebuffer)	m_vkFrameBuffers;
-    eosVector(VkFence)			m_vkCommandBufferFences;
-    eosVector(VkImage)			m_vkSwapchainImages;
-    eosVector(VkImageView)		m_vkSwapchainViews;
+    eosVector(VkCommandBuffer)    m_vkCommandBuffers;
+    eosVector(VkFramebuffer)    m_vkFrameBuffers;
+    eosVector(VkFence)            m_vkCommandBufferFences;
+    eosVector(VkImage)            m_vkSwapchainImages;
+    eosVector(VkImageView)        m_vkSwapchainViews;
 
     VertexCacheHandler          m_jointCacheHandler;
 
-    ionU64				        m_stateBits;
+    ionU64                        m_stateBits;
     ionU64                      m_microSeconds;
 
-    ionU64						m_counter;
+    ionU64                        m_counter;
     ionU32                      m_swapChainImageCount;
-    ionU32						m_currentSwapIndex;
+    ionU32                        m_currentSwapIndex;
 
     ionU32                      m_width;
     ionU32                      m_height;
 
-    ionS32			            m_vkGraphicsFamilyIndex;
-    ionS32			            m_vkPresentFamilyIndex;
+    ionS32                        m_vkGraphicsFamilyIndex;
+    ionS32                        m_vkPresentFamilyIndex;
 
     ionU32                      m_vkCurrentSwapIndex;
     
-    ionBool						m_vkSupersampling;
+    ionBool                        m_vkSupersampling;
     ionBool                     m_vkFullScreen;
     ionBool                     m_vkValidationEnabled;
 };

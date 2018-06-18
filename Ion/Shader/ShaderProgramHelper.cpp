@@ -391,38 +391,38 @@ VkStencilOpState ShaderProgramHelper::GetStencilOpState(ionU64 _stencilStateBits
 
     switch (_stencilStateBits & EStencilFrontOperator_Fail_Bits)
     {
-    case EStencilFrontOperator_Fail_Keep:		    state.failOp = VK_STENCIL_OP_KEEP; break;
-    case EStencilFrontOperator_Fail_Zero:		    state.failOp = VK_STENCIL_OP_ZERO; break;
-    case EStencilFrontOperator_Fail_Replace:	    state.failOp = VK_STENCIL_OP_REPLACE; break;
-    case EStencilFrontOperator_Fail_Increment:	    state.failOp = VK_STENCIL_OP_INCREMENT_AND_CLAMP; break;
-    case EStencilFrontOperator_Fail_Decrement:	    state.failOp = VK_STENCIL_OP_DECREMENT_AND_CLAMP; break;
-    case EStencilFrontOperator_Fail_Invert:	        state.failOp = VK_STENCIL_OP_INVERT; break;
+    case EStencilFrontOperator_Fail_Keep:            state.failOp = VK_STENCIL_OP_KEEP; break;
+    case EStencilFrontOperator_Fail_Zero:            state.failOp = VK_STENCIL_OP_ZERO; break;
+    case EStencilFrontOperator_Fail_Replace:        state.failOp = VK_STENCIL_OP_REPLACE; break;
+    case EStencilFrontOperator_Fail_Increment:        state.failOp = VK_STENCIL_OP_INCREMENT_AND_CLAMP; break;
+    case EStencilFrontOperator_Fail_Decrement:        state.failOp = VK_STENCIL_OP_DECREMENT_AND_CLAMP; break;
+    case EStencilFrontOperator_Fail_Invert:            state.failOp = VK_STENCIL_OP_INVERT; break;
     case EStencilFrontOperator_Fail_Increment_Wrap: state.failOp = VK_STENCIL_OP_INCREMENT_AND_WRAP; break;
     case EStencilFrontOperator_Fail_Decrement_Wrap: state.failOp = VK_STENCIL_OP_DECREMENT_AND_WRAP; break;
     }
 
     switch (_stencilStateBits & EStencilFrontOperator_ZFail_Bits)
     {
-    case EStencilFrontOperator_ZFail_Keep:		        state.depthFailOp = VK_STENCIL_OP_KEEP; break;
-    case EStencilFrontOperator_ZFail_Zero:		        state.depthFailOp = VK_STENCIL_OP_ZERO; break;
-    case EStencilFrontOperator_ZFail_Replace:	        state.depthFailOp = VK_STENCIL_OP_REPLACE; break;
-    case EStencilFrontOperator_ZFail_Increment:		    state.depthFailOp = VK_STENCIL_OP_INCREMENT_AND_CLAMP; break;
-    case EStencilFrontOperator_ZFail_Decrement:		    state.depthFailOp = VK_STENCIL_OP_DECREMENT_AND_CLAMP; break;
-    case EStencilFrontOperator_ZFail_Invert:	        state.depthFailOp = VK_STENCIL_OP_INVERT; break;
+    case EStencilFrontOperator_ZFail_Keep:                state.depthFailOp = VK_STENCIL_OP_KEEP; break;
+    case EStencilFrontOperator_ZFail_Zero:                state.depthFailOp = VK_STENCIL_OP_ZERO; break;
+    case EStencilFrontOperator_ZFail_Replace:            state.depthFailOp = VK_STENCIL_OP_REPLACE; break;
+    case EStencilFrontOperator_ZFail_Increment:            state.depthFailOp = VK_STENCIL_OP_INCREMENT_AND_CLAMP; break;
+    case EStencilFrontOperator_ZFail_Decrement:            state.depthFailOp = VK_STENCIL_OP_DECREMENT_AND_CLAMP; break;
+    case EStencilFrontOperator_ZFail_Invert:            state.depthFailOp = VK_STENCIL_OP_INVERT; break;
     case EStencilFrontOperator_ZFail_Increment_Wrap:    state.depthFailOp = VK_STENCIL_OP_INCREMENT_AND_WRAP; break;
     case EStencilFrontOperator_ZFail_Decrement_Wrap:    state.depthFailOp = VK_STENCIL_OP_DECREMENT_AND_WRAP; break;
     }
 
     switch (_stencilStateBits & EStencilFrontOperator_Pass_Bits)
     {
-    case EStencilFrontOperator_Pass_Keep:		    state.passOp = VK_STENCIL_OP_KEEP; break;
-    case EStencilFrontOperator_Pass_Zero:		    state.passOp = VK_STENCIL_OP_ZERO; break;
-    case EStencilFrontOperator_Pass_Replace:	    state.passOp = VK_STENCIL_OP_REPLACE; break;
-    case EStencilFrontOperator_Pass_Increment:		state.passOp = VK_STENCIL_OP_INCREMENT_AND_CLAMP; break;
-    case EStencilFrontOperator_Pass_Decrement:		state.passOp = VK_STENCIL_OP_DECREMENT_AND_CLAMP; break;
-    case EStencilFrontOperator_Pass_Invert:	        state.passOp = VK_STENCIL_OP_INVERT; break;
-    case EStencilFrontOperator_Pass_Increment_Wrap:	state.passOp = VK_STENCIL_OP_INCREMENT_AND_WRAP; break;
-    case EStencilFrontOperator_Pass_Decrement_Wrap:	state.passOp = VK_STENCIL_OP_DECREMENT_AND_WRAP; break;
+    case EStencilFrontOperator_Pass_Keep:            state.passOp = VK_STENCIL_OP_KEEP; break;
+    case EStencilFrontOperator_Pass_Zero:            state.passOp = VK_STENCIL_OP_ZERO; break;
+    case EStencilFrontOperator_Pass_Replace:        state.passOp = VK_STENCIL_OP_REPLACE; break;
+    case EStencilFrontOperator_Pass_Increment:        state.passOp = VK_STENCIL_OP_INCREMENT_AND_CLAMP; break;
+    case EStencilFrontOperator_Pass_Decrement:        state.passOp = VK_STENCIL_OP_DECREMENT_AND_CLAMP; break;
+    case EStencilFrontOperator_Pass_Invert:            state.passOp = VK_STENCIL_OP_INVERT; break;
+    case EStencilFrontOperator_Pass_Increment_Wrap:    state.passOp = VK_STENCIL_OP_INCREMENT_AND_WRAP; break;
+    case EStencilFrontOperator_Pass_Decrement_Wrap:    state.passOp = VK_STENCIL_OP_DECREMENT_AND_WRAP; break;
     }
 
     return state;
@@ -489,27 +489,27 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
         VkBlendFactor srcFactor = VK_BLEND_FACTOR_ONE;
         switch (_stateBits & EBlendState_Source_Bits)
         {
-        case EBlendState_Source_Zero:					srcFactor = VK_BLEND_FACTOR_ZERO; break;
-        case EBlendState_Source_One:					srcFactor = VK_BLEND_FACTOR_ONE; break;
-        case EBlendState_Source_Dest_Color:			    srcFactor = VK_BLEND_FACTOR_DST_COLOR; break;
-        case EBlendState_Source_One_Minus_Dest_Color:	srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR; break;
-        case EBlendState_Source_Source_Alpha:			srcFactor = VK_BLEND_FACTOR_SRC_ALPHA; break;
-        case EBlendState_Source_One_Minus_Source_Alpha:	srcFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; break;
-        case EBlendState_Source_Dest_Alpha:			    srcFactor = VK_BLEND_FACTOR_DST_ALPHA; break;
-        case EBlendState_Source_One_Minus_Dest_Alpha:	srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; break;
+        case EBlendState_Source_Zero:                    srcFactor = VK_BLEND_FACTOR_ZERO; break;
+        case EBlendState_Source_One:                    srcFactor = VK_BLEND_FACTOR_ONE; break;
+        case EBlendState_Source_Dest_Color:                srcFactor = VK_BLEND_FACTOR_DST_COLOR; break;
+        case EBlendState_Source_One_Minus_Dest_Color:    srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR; break;
+        case EBlendState_Source_Source_Alpha:            srcFactor = VK_BLEND_FACTOR_SRC_ALPHA; break;
+        case EBlendState_Source_One_Minus_Source_Alpha:    srcFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; break;
+        case EBlendState_Source_Dest_Alpha:                srcFactor = VK_BLEND_FACTOR_DST_ALPHA; break;
+        case EBlendState_Source_One_Minus_Dest_Alpha:    srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; break;
         }
 
         VkBlendFactor dstFactor = VK_BLEND_FACTOR_ZERO;
         switch (_stateBits & EBlendState_Dest_Bits)
         {
-        case EBlendState_Dest_Zero:					    dstFactor = VK_BLEND_FACTOR_ZERO; break;
-        case EBlendState_Dest_One:					    dstFactor = VK_BLEND_FACTOR_ONE; break;
-        case EBlendState_Dest_Source_Color:			    dstFactor = VK_BLEND_FACTOR_SRC_COLOR; break;
-        case EBlendState_Dest_One_Minus_Source_Color:	dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR; break;
-        case EBlendState_Dest_Source_Alpha:			    dstFactor = VK_BLEND_FACTOR_SRC_ALPHA; break;
-        case EBlendState_Dest_One_Minus_Source_Alpha:	dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; break;
-        case EBlendState_Dest_Dest_Alpha:			    dstFactor = VK_BLEND_FACTOR_DST_ALPHA; break;
-        case EBlendState_Dest_One_Minus_Dest_Alpha:	    dstFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; break;
+        case EBlendState_Dest_Zero:                        dstFactor = VK_BLEND_FACTOR_ZERO; break;
+        case EBlendState_Dest_One:                        dstFactor = VK_BLEND_FACTOR_ONE; break;
+        case EBlendState_Dest_Source_Color:                dstFactor = VK_BLEND_FACTOR_SRC_COLOR; break;
+        case EBlendState_Dest_One_Minus_Source_Color:    dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR; break;
+        case EBlendState_Dest_Source_Alpha:                dstFactor = VK_BLEND_FACTOR_SRC_ALPHA; break;
+        case EBlendState_Dest_One_Minus_Source_Alpha:    dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; break;
+        case EBlendState_Dest_Dest_Alpha:                dstFactor = VK_BLEND_FACTOR_DST_ALPHA; break;
+        case EBlendState_Dest_One_Minus_Dest_Alpha:        dstFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; break;
         }
 
         VkBlendOp blendOp = VK_BLEND_OP_ADD;
@@ -546,23 +546,23 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
         VkCompareOp depthCompareOp = VK_COMPARE_OP_ALWAYS;
         switch (_stateBits & EDepthFunction_Bits)
         {
-        case EDepthFunction_Equal:		depthCompareOp = VK_COMPARE_OP_EQUAL; break;
-        case EDepthFunction_Always:		depthCompareOp = VK_COMPARE_OP_ALWAYS; break;
-        case EDepthFunction_Less:		depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL; break;
-        case EDepthFunction_Greater:	depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL; break;
+        case EDepthFunction_Equal:        depthCompareOp = VK_COMPARE_OP_EQUAL; break;
+        case EDepthFunction_Always:        depthCompareOp = VK_COMPARE_OP_ALWAYS; break;
+        case EDepthFunction_Less:        depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL; break;
+        case EDepthFunction_Greater:    depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL; break;
         }
 
         VkCompareOp stencilCompareOp = VK_COMPARE_OP_ALWAYS;
         switch (_stateBits & EStencilFrontFunction_Bits)
         {
-        case EStencilFrontFunction_Never:	        stencilCompareOp = VK_COMPARE_OP_NEVER; break;
-        case EStencilFrontFunction_Lesser:		    stencilCompareOp = VK_COMPARE_OP_LESS; break;
-        case EStencilFrontFunction_Equal:	        stencilCompareOp = VK_COMPARE_OP_EQUAL; break;
-        case EStencilFrontFunction_LesserOrEqual:	stencilCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL; break;
-        case EStencilFrontFunction_Greater:	        stencilCompareOp = VK_COMPARE_OP_GREATER; break;
+        case EStencilFrontFunction_Never:            stencilCompareOp = VK_COMPARE_OP_NEVER; break;
+        case EStencilFrontFunction_Lesser:            stencilCompareOp = VK_COMPARE_OP_LESS; break;
+        case EStencilFrontFunction_Equal:            stencilCompareOp = VK_COMPARE_OP_EQUAL; break;
+        case EStencilFrontFunction_LesserOrEqual:    stencilCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL; break;
+        case EStencilFrontFunction_Greater:            stencilCompareOp = VK_COMPARE_OP_GREATER; break;
         case EStencilFrontFunction_NotEqual:        stencilCompareOp = VK_COMPARE_OP_NOT_EQUAL; break;
-        case EStencilFrontFunction_GreaterOrEqual:	stencilCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL; break;
-        case EStencilFrontFunction_Always:	        stencilCompareOp = VK_COMPARE_OP_ALWAYS; break;
+        case EStencilFrontFunction_GreaterOrEqual:    stencilCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL; break;
+        case EStencilFrontFunction_Always:            stencilCompareOp = VK_COMPARE_OP_ALWAYS; break;
         }
 
         depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
@@ -608,7 +608,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
     VkPipelineMultisampleStateCreateInfo multisampleState = {};
     multisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampleState.rasterizationSamples = _render.GetSampleCount();
-	/*		// cause a pipeline compilation bug on some GPU
+    /*        // cause a pipeline compilation bug on some GPU
     if (_render.GetUsesSuperSampling())
     {
         multisampleState.sampleShadingEnable = VK_TRUE;

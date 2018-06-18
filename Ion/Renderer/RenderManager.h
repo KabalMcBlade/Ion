@@ -53,7 +53,7 @@ public:
     void    AddScene(NodeHandle& _root);
     void    AddScene(Node& _root);
 
-	void	Resize();
+    void    Resize();
     void    Prepare();
     void    CoreLoop();
 

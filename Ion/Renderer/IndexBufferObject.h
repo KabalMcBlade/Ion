@@ -19,20 +19,20 @@ public:
     IndexBuffer();
     ~IndexBuffer();
 
-    ionBool				Alloc(const VkDevice& _device, const void* _data, ionSize _allocSize, EBufferUsage _usage);
-    void				Free();
+    ionBool                Alloc(const VkDevice& _device, const void* _data, ionSize _allocSize, EBufferUsage _usage);
+    void                Free();
 
-    void				ReferenceTo(const IndexBuffer& _other);
-    void				ReferenceTo(const IndexBuffer& _other, ionSize _refOffset, ionSize _refSize);
+    void                ReferenceTo(const IndexBuffer& _other);
+    void                ReferenceTo(const IndexBuffer& _other, ionSize _refOffset, ionSize _refSize);
 
-    void				Update(const void* _data, ionSize _size, ionSize _offset = 0) const;
+    void                Update(const void* _data, ionSize _size, ionSize _offset = 0) const;
 
-    void*				MapBuffer(EBufferMappingType _mapType);
+    void*                MapBuffer(EBufferMappingType _mapType);
     ION_INLINE  Index*  MapIndexBuffer(EBufferMappingType _mapType) { return static_cast<Index*>(MapBuffer(_mapType)); }
-    void				UnmapBuffer();
+    void                UnmapBuffer();
 
 private:
-    void				ClearWithoutFreeing();
+    void                ClearWithoutFreeing();
 };
 
 

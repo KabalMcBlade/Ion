@@ -17,8 +17,8 @@
 #define ION_NORMALIZED_VERTEX_DIV_WEIGHT    0.0039215686274509803921568627450980392156862745098039215686f // 1.0f / 255.0f
 
 #define ION_VERTEX_DIV_RANGE                0.0078431372549019607843137254901960784313725490196078431372f // 2.0f / 255.0f
-#define ION_VERTEX_BYTE_TO_FLOAT(x)		    ( (x) * ( ION_VERTEX_DIV_RANGE ) - 1.0f )
-#define ION_VERTEX_FLOAT_TO_BYTE(x)		    eos::MathHelper::FloatToByte( ( (x) + 1.0f ) * ( ION_VERTEX_DIV_RANGE ) + 0.5f )
+#define ION_VERTEX_BYTE_TO_FLOAT(x)            ( (x) * ( ION_VERTEX_DIV_RANGE ) - 1.0f )
+#define ION_VERTEX_FLOAT_TO_BYTE(x)            eos::MathHelper::FloatToByte( ( (x) + 1.0f ) * ( ION_VERTEX_DIV_RANGE ) + 0.5f )
 
 
 // REMEMBER TO ADD THE ONE WITH THE HASH!
@@ -86,12 +86,12 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct ShaderVertexLayout
 
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 {
-    Vector				m_position;
+    Vector                m_position;
     ionFloat            m_textureCoordUV[2]; 
-    ionU8				m_normal[4];
-    ionU8				m_tangent[4];
-    ionU8				m_color1[4];
-    ionU8				m_color2[4];
+    ionU8                m_normal[4];
+    ionU8                m_tangent[4];
+    ionU8                m_color1[4];
+    ionU8                m_color2[4];
 
     Vertex()
     {
@@ -106,8 +106,8 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         m_position = VectorHelper::GetZero();
         this->m_textureCoordUV[0] = 0.0f;
         this->m_textureCoordUV[1] = 0.0f;
-        *reinterpret_cast<ionU64*>(this->m_normal) = 0x00FF8080;	// x=0, y=0, z=1
-        *reinterpret_cast<ionU64*>(this->m_tangent) = 0xFF8080FF;	// x=1, y=0, z=0
+        *reinterpret_cast<ionU64*>(this->m_normal) = 0x00FF8080;    // x=0, y=0, z=1
+        *reinterpret_cast<ionU64*>(this->m_tangent) = 0xFF8080FF;    // x=1, y=0, z=0
         *reinterpret_cast<ionU64*>(this->m_color1) = 0;
         *reinterpret_cast<ionU64*>(this->m_color2) = 0;
     }
@@ -423,9 +423,9 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
 {
-    Vector				m_position;	
+    Vector                m_position;    
     ionFloat            m_textureCoordUV[2];
-    ionU8				m_normal[4];
+    ionU8                m_normal[4];
  
     VertexSimple()
     {
@@ -440,7 +440,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
         m_position = VectorHelper::GetZero();
         this->m_textureCoordUV[0] = 0.0f;
         this->m_textureCoordUV[1] = 0.0f;
-        *reinterpret_cast<ionU64*>(this->m_normal) = 0x00FF8080;	// x=0, y=0, z=1
+        *reinterpret_cast<ionU64*>(this->m_normal) = 0x00FF8080;    // x=0, y=0, z=1
     }
 
 
@@ -549,8 +549,8 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
 
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
 {
-    Vector				m_position;
-    ionU8				m_color[4];	
+    Vector                m_position;
+    ionU8                m_color[4];    
 
     VertexColored()
     {
@@ -617,7 +617,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
 
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
 {
-    Vector				m_position;
+    Vector                m_position;
     ionFloat            m_textureCoordUV[2];
 
     VertexUV()
@@ -706,7 +706,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
 
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexPlain
 {
-    Vector				m_position;	
+    Vector                m_position;    
 
     VertexPlain()
     {
@@ -760,16 +760,16 @@ typedef ionU64 VertexCacheHandler;
 class Material;
 struct DrawSurface final
 {
-    ionFloat			m_modelMatrix[16];
-    ionFloat			m_viewMatrix[16];
-    ionFloat			m_projectionMatrix[16];
+    ionFloat            m_modelMatrix[16];
+    ionFloat            m_viewMatrix[16];
+    ionFloat            m_projectionMatrix[16];
     ionU32              m_indexStart;
     ionU32              m_indexCount;
     VkIndexType         m_indexType;
     VertexCacheHandler  m_vertexCache;
     VertexCacheHandler  m_indexCache;
     VertexCacheHandler  m_jointCache;
-    ionU64				m_extraGLState;
+    ionU64                m_extraGLState;
     const Material*     m_material;
 
     DrawSurface()

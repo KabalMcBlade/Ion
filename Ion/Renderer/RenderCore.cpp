@@ -79,8 +79,8 @@ VkExtent2D RenderCore::SelectSurfaceExtent(VkSurfaceCapabilitiesKHR& _vkCaps, io
         extent.height = std::max(_vkCaps.minImageExtent.height, std::min(_vkCaps.maxImageExtent.height, _height));
     }
 
-	_width = extent.width;
-	_height = extent.height;
+    _width = extent.width;
+    _height = extent.height;
 
     return extent;
 }
@@ -1261,7 +1261,7 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
 
 void RenderCore::Shutdown()
 {
-	vkDeviceWaitIdle(m_vkDevice);
+    vkDeviceWaitIdle(m_vkDevice);
 
     ionTextureManger().Shutdown();
 
@@ -1293,7 +1293,7 @@ void RenderCore::Shutdown()
         }
     }
 
-	vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
+    vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
 
     if (m_vkCommandPool != VK_NULL_HANDLE)
     {
@@ -1311,7 +1311,7 @@ void RenderCore::Shutdown()
     }
     
     ionStagingBufferManager().Shutdown();
-	ionGPUMemoryManager().Shutdown();
+    ionGPUMemoryManager().Shutdown();
 
     // Create physical device has not destruction because is more as "selected" 
 
@@ -1320,12 +1320,12 @@ void RenderCore::Shutdown()
         vkDestroySurfaceKHR(m_vkInstance, m_vkSurface, vkMemory);
     }
 
-	if (m_vkDevice != VK_NULL_HANDLE)
-	{
-		vkDestroyDevice(m_vkDevice, vkMemory);
-	}
+    if (m_vkDevice != VK_NULL_HANDLE)
+    {
+        vkDestroyDevice(m_vkDevice, vkMemory);
+    }
 
-	DestroyDebugReport();
+    DestroyDebugReport();
 
     if (m_vkInstance != VK_NULL_HANDLE)
     {
@@ -1335,49 +1335,49 @@ void RenderCore::Shutdown()
 
 void RenderCore::Recreate()
 {
-	vkDeviceWaitIdle(m_vkDevice);
+    vkDeviceWaitIdle(m_vkDevice);
 
-	for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
-	{
-		vkDestroyFramebuffer(m_vkDevice, m_vkFrameBuffers[i], vkMemory);
-	}
+    for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
+    {
+        vkDestroyFramebuffer(m_vkDevice, m_vkFrameBuffers[i], vkMemory);
+    }
 
     vkDestroyPipelineCache(m_vkDevice, m_vkPipelineCache, vkMemory);
 
-	if (m_vkRenderPass != VK_NULL_HANDLE)
-	{
-		vkDestroyRenderPass(m_vkDevice, m_vkRenderPass, vkMemory);
-	}
+    if (m_vkRenderPass != VK_NULL_HANDLE)
+    {
+        vkDestroyRenderPass(m_vkDevice, m_vkRenderPass, vkMemory);
+    }
 
-	DestroyRenderTargets();
+    DestroyRenderTargets();
 
-	VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_vkGPU.m_vkPhysicalDevice, m_vkSurface, &m_vkGPU.m_vkSurfaceCaps);
-	ionAssertReturnVoid(result == VK_SUCCESS, "Device capabilities changed and not supported!");
+    VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_vkGPU.m_vkPhysicalDevice, m_vkSurface, &m_vkGPU.m_vkSurfaceCaps);
+    ionAssertReturnVoid(result == VK_SUCCESS, "Device capabilities changed and not supported!");
 
-	VkBool32 supportsPresent = VK_FALSE;
-	result = vkGetPhysicalDeviceSurfaceSupportKHR(m_vkGPU.m_vkPhysicalDevice, m_vkPresentFamilyIndex, m_vkSurface, &supportsPresent);
-	ionAssertReturnVoid(result == VK_SUCCESS, "Device surface changed and not supported!");
-	ionAssertReturnVoid(supportsPresent == VK_TRUE, "New surface does not support present");
+    VkBool32 supportsPresent = VK_FALSE;
+    result = vkGetPhysicalDeviceSurfaceSupportKHR(m_vkGPU.m_vkPhysicalDevice, m_vkPresentFamilyIndex, m_vkSurface, &supportsPresent);
+    ionAssertReturnVoid(result == VK_SUCCESS, "Device surface changed and not supported!");
+    ionAssertReturnVoid(supportsPresent == VK_TRUE, "New surface does not support present");
 
-	for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
-	{
-		if (m_vkCommandBufferFences[i] != VK_NULL_HANDLE)
-		{
-			vkDestroyFence(m_vkDevice, m_vkCommandBufferFences[i], vkMemory);
-		}
-	}
+    for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
+    {
+        if (m_vkCommandBufferFences[i] != VK_NULL_HANDLE)
+        {
+            vkDestroyFence(m_vkDevice, m_vkCommandBufferFences[i], vkMemory);
+        }
+    }
 
-	vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
+    vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
 
-	CreateSwapChain();
-	CreateCommandBuffer();
-	CreateRenderTargets();
-	CreateRenderPass();
-	CreatePipelineCache();
-	CreateFrameBuffers();
+    CreateSwapChain();
+    CreateCommandBuffer();
+    CreateRenderTargets();
+    CreateRenderPass();
+    CreatePipelineCache();
+    CreateFrameBuffers();
 
 
-	ionShaderProgramManager().Restart();
+    ionShaderProgramManager().Restart();
 }
 
 
@@ -1399,7 +1399,7 @@ ionBool RenderCore::StartFrame()
 
     ionStagingBufferManager().Submit();
     ionShaderProgramManager().StartFrame();
-	
+    
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
 
     VkCommandBufferBeginInfo commandBufferBeginInfo = {};

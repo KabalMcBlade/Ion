@@ -14,9 +14,9 @@
 
 #include "../Geometry/PrimitiveFactory.h"
 
-//#define SHADOW_MAP_SIZE					1024
+//#define SHADOW_MAP_SIZE                    1024
 
-#define ION_CACHE_LINE_SIZE	    128
+#define ION_CACHE_LINE_SIZE        128
 #define ION_MAX_FRAME_MEMORY    67305472    //64 * 1024 * 1024
 
 
@@ -91,10 +91,10 @@ void RenderManager::LoadPrimitive(EVertexLayout _layout, EPrimitiveType _type, E
         PrimitiveFactory::GenerateQuad(_layout, _entity);
         break;
     case EPrimitiveType_Cube:
-		PrimitiveFactory::GenerateCube(_layout, _entity);
+        PrimitiveFactory::GenerateCube(_layout, _entity);
         break;
     case EPrimitiveType_Sphere:
-		PrimitiveFactory::GenerateSphere(_layout, _entity);
+        PrimitiveFactory::GenerateSphere(_layout, _entity);
         break;
     }
 }
@@ -136,7 +136,7 @@ void RenderManager::AddScene(Node& _root)
 
 void RenderManager::Resize()
 {
-	m_renderCore.Recreate();
+    m_renderCore.Recreate();
     m_mainCamera->UpdateAspectRatio((ionFloat)m_renderCore.GetWidth() / (ionFloat)m_renderCore.GetHeight());
 }
 

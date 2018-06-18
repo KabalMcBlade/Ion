@@ -93,7 +93,7 @@ void ShaderProgramManager::Shutdown()
         }
         shaderProgram.m_pipelines.clear();
 
-		vkDestroyPipelineLayout(m_vkDevice, shaderProgram.m_pipelineLayout, vkMemory);
+        vkDestroyPipelineLayout(m_vkDevice, shaderProgram.m_pipelineLayout, vkMemory);
         vkDestroyDescriptorSetLayout(m_vkDevice, shaderProgram.m_descriptorSetLayout, vkMemory);
     }
     m_shaderPrograms.clear();
@@ -134,25 +134,25 @@ const Vector& ShaderProgramManager::GetRenderParmVector(ionSize _paramHash)
 
 const Matrix& ShaderProgramManager::GetRenderParmMatrix(const eosString& _param)
 {
-	const ionSize hash = std::hash<eosString>{}(_param);
-	return GetRenderParmMatrix(hash);
+    const ionSize hash = std::hash<eosString>{}(_param);
+    return GetRenderParmMatrix(hash);
 }
 
 const Matrix& ShaderProgramManager::GetRenderParmMatrix(ionSize _paramHash)
 {
-	return m_uniformsMatrix[_paramHash];
+    return m_uniformsMatrix[_paramHash];
 }
 
 void ShaderProgramManager::SetRenderParmVector(const eosString& _param, const ionFloat* _value)
 {
     const ionSize hash = std::hash<eosString>{}(_param);
-	SetRenderParmVector(hash, _value);
+    SetRenderParmVector(hash, _value);
 }
 
 void ShaderProgramManager::SetRenderParmVector(ionSize _paramHash, const ionFloat* _value)
 {
     Vector v(_value[0], _value[1], _value[2], _value[3]);
-	m_uniformsVector[_paramHash] = v;
+    m_uniformsVector[_paramHash] = v;
 }
 
 void ShaderProgramManager::SetRenderParmsVector(const eosString& _param, const ionFloat* _values, ionU32 _numValues)
@@ -176,33 +176,33 @@ void ShaderProgramManager::SetRenderParmsVector(ionSize _paramHash, const ionFlo
 
 void ShaderProgramManager::SetRenderParmMatrix(const eosString& _param, const ionFloat* _value)
 {
-	const ionSize hash = std::hash<eosString>{}(_param);
-	SetRenderParmMatrix(hash, _value);
+    const ionSize hash = std::hash<eosString>{}(_param);
+    SetRenderParmMatrix(hash, _value);
 }
 
 void ShaderProgramManager::SetRenderParmMatrix(ionSize _paramHash, const ionFloat* _value)
 {
-	Matrix m(_value[0], _value[1], _value[2], _value[3], _value[4], _value[5], _value[6], _value[7], _value[8], _value[9], _value[10], _value[11], _value[12], _value[13], _value[14], _value[15]);
-	m_uniformsMatrix[_paramHash] = m;
+    Matrix m(_value[0], _value[1], _value[2], _value[3], _value[4], _value[5], _value[6], _value[7], _value[8], _value[9], _value[10], _value[11], _value[12], _value[13], _value[14], _value[15]);
+    m_uniformsMatrix[_paramHash] = m;
 }
 
 void ShaderProgramManager::SetRenderParmsMatrix(const eosString& _param, const ionFloat* _values, ionU32 _numValues)
 {
-	for (ionU32 i = 0; i < _numValues; ++i)
-	{
-		const eosString indexParam(std::to_string(i).c_str());
-		const eosString fullParam = _param + indexParam;
-		const ionSize hash = std::hash<eosString>{}(fullParam);
-		SetRenderParmMatrix(hash, _values + (i * 16));
-	}
+    for (ionU32 i = 0; i < _numValues; ++i)
+    {
+        const eosString indexParam(std::to_string(i).c_str());
+        const eosString fullParam = _param + indexParam;
+        const ionSize hash = std::hash<eosString>{}(fullParam);
+        SetRenderParmMatrix(hash, _values + (i * 16));
+    }
 }
 
 void ShaderProgramManager::SetRenderParmsMatrix(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues)
 {
-	for (ionU32 i = 0; i < _numValues; ++i)
-	{
-		SetRenderParmMatrix(_paramHash, _values + (i * 16));
-	}
+    for (ionU32 i = 0; i < _numValues; ++i)
+    {
+        SetRenderParmMatrix(_paramHash, _values + (i * 16));
+    }
 }
 
 
@@ -684,20 +684,20 @@ ionS32 ShaderProgramManager::FindProgram(const eosString& _name, EVertexLayout _
 
 void ShaderProgramManager::Restart()
 {
-	for (ionSize i = 0; i < m_shaderPrograms.size(); ++i)
-	{
-		ShaderProgram& shaderProgram = m_shaderPrograms[i];
+    for (ionSize i = 0; i < m_shaderPrograms.size(); ++i)
+    {
+        ShaderProgram& shaderProgram = m_shaderPrograms[i];
 
-		for (ionSize j = 0; j < shaderProgram.m_pipelines.size(); ++j)
-		{
-			vkDestroyPipeline(m_vkDevice, shaderProgram.m_pipelines[j].m_pipeline, vkMemory);
-		}
-		shaderProgram.m_pipelines.clear();
+        for (ionSize j = 0; j < shaderProgram.m_pipelines.size(); ++j)
+        {
+            vkDestroyPipeline(m_vkDevice, shaderProgram.m_pipelines[j].m_pipeline, vkMemory);
+        }
+        shaderProgram.m_pipelines.clear();
 
-		vkDestroyPipelineLayout(m_vkDevice, shaderProgram.m_pipelineLayout, vkMemory);
-		vkDestroyDescriptorSetLayout(m_vkDevice, shaderProgram.m_descriptorSetLayout, vkMemory);
-	}
-	m_shaderPrograms.clear();
+        vkDestroyPipelineLayout(m_vkDevice, shaderProgram.m_pipelineLayout, vkMemory);
+        vkDestroyDescriptorSetLayout(m_vkDevice, shaderProgram.m_descriptorSetLayout, vkMemory);
+    }
+    m_shaderPrograms.clear();
 }
 
 

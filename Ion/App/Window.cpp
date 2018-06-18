@@ -136,7 +136,7 @@ ionBool Window::Loop()
     // Main message loop
     MSG message;
     ionBool loop = true;
-	ionBool resize = false;
+    ionBool resize = false;
     ionBool result = true;
 
     ionRenderManager().Prepare();
@@ -148,10 +148,10 @@ ionBool Window::Loop()
             // Process events
             switch (message.message)
             {
-			// resize
-			case WM_USER + 1:
-				resize = true;
-				break;
+            // resize
+            case WM_USER + 1:
+                resize = true;
+                break;
             // Close
             case WM_USER + 2:
                 loop = false;
@@ -162,19 +162,19 @@ ionBool Window::Loop()
         }
         else
         {
-			// Resize
-			if (resize)
-			{
-				resize = false;
-				ionRenderManager().Resize();
+            // Resize
+            if (resize)
+            {
+                resize = false;
+                ionRenderManager().Resize();
 
-				Sleep(100);
-			}
-			else
-			{
-				// Draw
-				ionRenderManager().CoreLoop();
-			}
+                Sleep(100);
+            }
+            else
+            {
+                // Draw
+                ionRenderManager().CoreLoop();
+            }
         }
     }
 

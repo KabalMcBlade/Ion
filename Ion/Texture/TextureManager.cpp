@@ -44,7 +44,7 @@ TextureManager& TextureManager::Instance()
 
 void TextureManager::Init(VkDevice _vkDevice, ETextureSamplesPerBit _textureSample)
 {
-	m_vkDevice = _vkDevice;
+    m_vkDevice = _vkDevice;
     m_mainSamplesPerBit = _textureSample;
 }
 
@@ -151,8 +151,8 @@ Texture* TextureManager::GetTexture(const eosString& _name) const
 
 void TextureManager::DestroyTexture(const eosString& _name)
 {
-	ionSize hash = std::hash<eosString>{}(_name);   // from the original with extension
-	DestroyTexture(hash);
+    ionSize hash = std::hash<eosString>{}(_name);   // from the original with extension
+    DestroyTexture(hash);
 }
 
 Texture* TextureManager::CreateTexture(VkDevice _vkDevice, const eosString& _name)
@@ -182,7 +182,7 @@ void TextureManager::DestroyTexture(ionSize _hash)
     {
         DestroyTexture(search->second);
 
-		m_hashTexture.erase(_hash);
+        m_hashTexture.erase(_hash);
     }
 }
 

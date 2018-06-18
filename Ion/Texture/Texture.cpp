@@ -403,14 +403,14 @@ ionU32 Texture::BitsPerFormat(ETextureFormat _format)
 {
     switch (_format) 
     {
-    case ETextureFormat_None:		        return 0;
-    case ETextureFormat_RGBA8:		        return 32;
-    case ETextureFormat_XRGB8:		        return 32;
-    case ETextureFormat_RGB565:	            return 16;
-    case ETextureFormat_Luminance8Alpha8:	return 16;
-    case ETextureFormat_Alpha:		        return 8;
-    case ETextureFormat_Luminance8:		    return 8;
-    case ETextureFormat_Intensity8:		    return 8;
+    case ETextureFormat_None:                return 0;
+    case ETextureFormat_RGBA8:                return 32;
+    case ETextureFormat_XRGB8:                return 32;
+    case ETextureFormat_RGB565:                return 16;
+    case ETextureFormat_Luminance8Alpha8:    return 16;
+    case ETextureFormat_Alpha:                return 8;
+    case ETextureFormat_Luminance8:            return 8;
+    case ETextureFormat_Intensity8:            return 8;
     default:
         ionAssertReturnValue(false, "Invalid format!", 0);
         return 0;

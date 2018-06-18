@@ -33,10 +33,10 @@ void Test_ColoredTriangle(ion::Entity& _entity)
 
     _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-	_entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_TwoSide);
-	_entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
-	_entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-	_entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
+    _entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_TwoSide);
+    _entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
+    _entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    _entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 void Test_ColoredQuad(ion::Entity& _entity)
@@ -70,10 +70,10 @@ void Test_ColoredQuad(ion::Entity& _entity)
 
     _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-	_entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_TwoSide);
-	_entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
-	_entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-	_entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
+    _entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_TwoSide);
+    _entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
+    _entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    _entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 void Test_TexturedQuad(ion::Entity& _entity)
@@ -120,91 +120,91 @@ void Test_TexturedQuad(ion::Entity& _entity)
 
     _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-	_entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_TwoSide);
-	_entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
-	_entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-	_entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
+    _entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_TwoSide);
+    _entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
+    _entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    _entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 void Test_ColoredCube(ion::Entity& _entity)
 {
-	ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_Color, ion::EPrimitiveType_Cube, _entity);
+    ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_Color, ion::EPrimitiveType_Cube, _entity);
 
-	ion::Material* material = ionMaterialManger().CreateMaterial("EmptyCube", 0u);
-	_entity.GetMesh(0)->SetMaterial(material);
+    ion::Material* material = ionMaterialManger().CreateMaterial("EmptyCube", 0u);
+    _entity.GetMesh(0)->SetMaterial(material);
 
-	// one uniform structure bound in the index 0 in the shader stage
-	ion::UniformBinding uniform;
-	uniform.m_bindingIndex = 0;
-	uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
-	uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
-	uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
-	uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
-	uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
-	uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    // one uniform structure bound in the index 0 in the shader stage
+    ion::UniformBinding uniform;
+    uniform.m_bindingIndex = 0;
+    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
 
-	// set the shaders layout
-	ion::ShaderLayoutDef vertexLayout;
-	vertexLayout.m_uniforms.push_back(uniform);
+    // set the shaders layout
+    ion::ShaderLayoutDef vertexLayout;
+    vertexLayout.m_uniforms.push_back(uniform);
 
-	ion::ShaderLayoutDef fragmentLayout;
+    ion::ShaderLayoutDef fragmentLayout;
 
-	ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
-	ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
 
-	static const Vector position(-0.5f, -0.5f, -0.5f, 1.0f);
-	_entity.GetTransformHandle()->SetPosition(position);
+    static const Vector position(-0.5f, -0.5f, -0.5f, 1.0f);
+    _entity.GetTransformHandle()->SetPosition(position);
 
-	_entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
-	_entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
+    _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
+    _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
 
-	_entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+    _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-	_entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_Back);
-	_entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
-	_entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-	_entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
+    _entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_Back);
+    _entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
+    _entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    _entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 
 void Test_ColoredSphere(ion::Entity& _entity)
 {
-	ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_Color, ion::EPrimitiveType_Sphere, _entity);
+    ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_Color, ion::EPrimitiveType_Sphere, _entity);
 
-	ion::Material* material = ionMaterialManger().CreateMaterial("EmptySphere", 0u);
-	_entity.GetMesh(0)->SetMaterial(material);
+    ion::Material* material = ionMaterialManger().CreateMaterial("EmptySphere", 0u);
+    _entity.GetMesh(0)->SetMaterial(material);
 
-	// one uniform structure bound in the index 0 in the shader stage
-	ion::UniformBinding uniform;
-	uniform.m_bindingIndex = 0;
-	uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
-	uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
-	uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
-	uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
-	uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
-	uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    // one uniform structure bound in the index 0 in the shader stage
+    ion::UniformBinding uniform;
+    uniform.m_bindingIndex = 0;
+    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
 
-	// set the shaders layout
-	ion::ShaderLayoutDef vertexLayout;
-	vertexLayout.m_uniforms.push_back(uniform);
+    // set the shaders layout
+    ion::ShaderLayoutDef vertexLayout;
+    vertexLayout.m_uniforms.push_back(uniform);
 
-	ion::ShaderLayoutDef fragmentLayout;
+    ion::ShaderLayoutDef fragmentLayout;
 
-	ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
-	ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
 
-	//static const Vector position(-0.5f, -0.5f, -0.5f, 1.0f);
-	//_entity.GetTransformHandle()->SetPosition(position);
+    //static const Vector position(-0.5f, -0.5f, -0.5f, 1.0f);
+    //_entity.GetTransformHandle()->SetPosition(position);
 
-	_entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
-	_entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
+    _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
+    _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
 
-	_entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+    _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-	_entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_Back);
-	_entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
-	_entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-	_entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
+    _entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_Back);
+    _entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
+    _entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    _entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 void Test_Model_Ambient(ion::Entity& _entity)

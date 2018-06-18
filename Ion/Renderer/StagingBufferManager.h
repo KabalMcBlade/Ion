@@ -25,12 +25,12 @@ struct StagingBuffer
         m_vkOffset(0),
         m_data(nullptr) {}
 
-    ionBool				m_submitted;
-    VkCommandBuffer		m_vkCommandBuffer;
-    VkBuffer			m_vkBuffer;
-    VkFence				m_vkFence;
-    VkDeviceSize		m_vkOffset;
-    ionU8*				m_data;
+    ionBool                m_submitted;
+    VkCommandBuffer        m_vkCommandBuffer;
+    VkBuffer            m_vkBuffer;
+    VkFence                m_vkFence;
+    VkDeviceSize        m_vkOffset;
+    ionU8*                m_data;
 };
 
 
@@ -49,7 +49,7 @@ public:
     ~StagingBufferManager();
 
     ionU8*  Stage(ionSize _size, ionSize _alignment, VkCommandBuffer& _outVkCommandBuffer, VkBuffer& _outVkBuffer, ionSize& _outVkBufferOffset);
-    void	Submit();
+    void    Submit();
 
 private:
     StagingBufferManager(const StagingBufferManager& _Orig) = delete;
@@ -59,10 +59,10 @@ private:
     VkDevice        m_vkDevice;
     VkQueue         m_vkGraphicsQueue;
     ionS32          m_vkGraphicsFamilyIndex;
-    ionSize			m_maxBufferSize;
-    ionU8*			m_mappedData;
-    VkDeviceMemory	m_vkMemory;
-    VkCommandPool	m_vkCommandPool;
+    ionSize            m_maxBufferSize;
+    ionU8*            m_mappedData;
+    VkDeviceMemory    m_vkMemory;
+    VkCommandPool    m_vkCommandPool;
     StagingBuffer   m_buffer;
 
     static StagingBufferManager *s_instance;

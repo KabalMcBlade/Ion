@@ -59,26 +59,26 @@ private:
 private:
     eosString               m_name;
     VkDevice                m_vkDevice;
-    vkGpuMemoryAllocation	m_allocation;
+    vkGpuMemoryAllocation    m_allocation;
 
     VkFormat                m_format;
-    VkImageView		        m_view;
-    VkImage			        m_image;
-    VkImageLayout	        m_layout;
-    VkSampler		        m_sampler;
-    VkSampleCountFlagBits	m_sampleCount;
+    VkImageView                m_view;
+    VkImage                    m_image;
+    VkImageLayout            m_layout;
+    VkSampler                m_sampler;
+    VkSampleCountFlagBits    m_sampleCount;
 
-    ETextureUsage	        m_optUsage;
-    ETextureFilter	        m_optFilter;
-    ETextureRepeat	        m_optRepeat;
-    ETextureType		    m_optTextureType;
-    ETextureFormat		    m_optFormat;
+    ETextureUsage            m_optUsage;
+    ETextureFilter            m_optFilter;
+    ETextureRepeat            m_optRepeat;
+    ETextureType            m_optTextureType;
+    ETextureFormat            m_optFormat;
 
-    ionU32					m_width;
-    ionU32					m_height;			// not needed for cube maps, actually.. it is a cube and so.. all same width :)
-    ionU32					m_numLevels;		// if this is set to 0, during generation it will be 1 for ETextureFilter_Nearest or ETextureFilter_Linear filters, otherwise will be based on the size
+    ionU32                    m_width;
+    ionU32                    m_height;            // not needed for cube maps, actually.. it is a cube and so.. all same width :)
+    ionU32                    m_numLevels;        // if this is set to 0, during generation it will be 1 for ETextureFilter_Nearest or ETextureFilter_Linear filters, otherwise will be based on the size
 
-    ionU32					m_maxAnisotropy;    // 1 means DISABLED anisotropy
+    ionU32                    m_maxAnisotropy;    // 1 means DISABLED anisotropy
 };
 
 

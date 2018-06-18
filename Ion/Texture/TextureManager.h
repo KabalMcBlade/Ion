@@ -32,7 +32,7 @@ public:
     
     Texture*    GetTexture(const eosString& _name) const;
 
-	void        DestroyTexture(const eosString& _name);
+    void        DestroyTexture(const eosString& _name);
 
     const ETextureSamplesPerBit& GetMainSamplePerBits() const { return m_mainSamplesPerBit; }
 
@@ -44,7 +44,7 @@ private:
     void        DestroyTexture(ionSize _hash);
 
 private:
-	VkDevice	m_vkDevice;
+    VkDevice    m_vkDevice;
     eosMap(ionSize, Texture*) m_hashTexture;
 
     VkSampleCountFlagBits m_sampleCount;
