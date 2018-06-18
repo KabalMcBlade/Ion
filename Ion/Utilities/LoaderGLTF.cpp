@@ -30,41 +30,94 @@ LoaderGLTF::~LoaderGLTF()
 void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const Matrix& _parentMatrix, Entity& _entity, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName)
 {
     Vector position(0.0f, 0.0f, 0.0f, 1.0f);
-    if (_node.translation.size() == 3)
-    {
-        position = Vector((ionFloat)_node.translation[0], (ionFloat)_node.translation[1], (ionFloat)_node.translation[2], 1.0f);
-    }
-
     Quaternion rotation;
-    if (_node.rotation.size() == 4)
-    {
-        rotation = Quaternion((ionFloat)_node.rotation[0], (ionFloat)_node.rotation[1], (ionFloat)_node.rotation[2], (ionFloat)_node.rotation[3]);
-    }
-
     Vector scale(1.0f);
-    if (_node.rotation.size() == 3)
-    {
-        scale = Vector((ionFloat)_node.scale[0], (ionFloat)_node.scale[1], (ionFloat)_node.scale[2]);
-    }
 
-    /*
-    Matrix localNodeMatrix;
     if (_node.matrix.size() == 16)
     {
-        localNodeMatrix = Matrix(
-            _node.matrix.data()[0], _node.matrix.data()[1], _node.matrix.data()[2], _node.matrix.data()[3], 
-            _node.matrix.data()[4], _node.matrix.data()[5], _node.matrix.data()[6], _node.matrix.data()[7], 
-            _node.matrix.data()[8], _node.matrix.data()[9], _node.matrix.data()[10], _node.matrix.data()[11], 
-            _node.matrix.data()[12], _node.matrix.data()[13], _node.matrix.data()[14], _node.matrix.data()[15]);
+        // SCALE
+        ionFloat scaleFactor = std::sqrtf((ionFloat)_node.matrix.data()[0] * (ionFloat)_node.matrix.data()[0] + (ionFloat)_node.matrix.data()[1] * (ionFloat)_node.matrix.data()[1] + (ionFloat)_node.matrix.data()[2] * (ionFloat)_node.matrix.data()[2]);
+        scale = VectorHelper::Set(scaleFactor, scaleFactor, scaleFactor, 1.0f);
+
+
+        // ROTATION
+        Matrix rotationMatrix;
+        rotationMatrix = Matrix(
+            (ionFloat)_node.matrix.data()[0], (ionFloat)_node.matrix.data()[1], (ionFloat)_node.matrix.data()[2],   0.0f,
+            (ionFloat)_node.matrix.data()[4], (ionFloat)_node.matrix.data()[5], (ionFloat)_node.matrix.data()[6],   0.0f,
+            (ionFloat)_node.matrix.data()[8], (ionFloat)_node.matrix.data()[9], (ionFloat)_node.matrix.data()[10],  0.0f,
+            0.0f,                             0.0f,                             0.0f,                               1.0f);
+
+        rotationMatrix = (1.0f / scaleFactor) * rotationMatrix;
+
+
+        ionFloat trace = (ionFloat)_node.matrix.data()[0] + (ionFloat)_node.matrix.data()[5] + (ionFloat)_node.matrix.data()[10];
+        if (trace > 0)
+        {
+            ionFloat s = 0.5f / std::sqrtf(trace + 1.0f);
+            rotation = VectorHelper::Set(
+                ((ionFloat)_node.matrix.data()[6] - (ionFloat)_node.matrix.data()[9]) * s, 
+                ((ionFloat)_node.matrix.data()[8] - (ionFloat)_node.matrix.data()[2]) * s,
+                ((ionFloat)_node.matrix.data()[1] - (ionFloat)_node.matrix.data()[4]) * s,
+                0.25f / s);
+        }
+        else 
+        {
+            if ((ionFloat)_node.matrix.data()[0] > (ionFloat)_node.matrix.data()[5] && (ionFloat)_node.matrix.data()[0] > (ionFloat)_node.matrix.data()[10])
+            {
+                ionFloat s = 2.0f * std::sqrtf(1.0f + (ionFloat)_node.matrix.data()[0] - (ionFloat)_node.matrix.data()[5] - (ionFloat)_node.matrix.data()[10]);
+                rotation = VectorHelper::Set(
+                    0.25f * s,
+                    ((ionFloat)_node.matrix.data()[4] + (ionFloat)_node.matrix.data()[1]) / s,
+                    ((ionFloat)_node.matrix.data()[8] + (ionFloat)_node.matrix.data()[2]) / s,
+                    ((ionFloat)_node.matrix.data()[6] - (ionFloat)_node.matrix.data()[9]) / s);
+            }
+            else if ((ionFloat)_node.matrix.data()[5] > (ionFloat)_node.matrix.data()[10])
+            {
+                ionFloat s = 2.0f * std::sqrtf(1.0f + (ionFloat)_node.matrix.data()[5] - (ionFloat)_node.matrix.data()[0] - (ionFloat)_node.matrix.data()[10]);
+                rotation = VectorHelper::Set(
+                    ((ionFloat)_node.matrix.data()[4] + (ionFloat)_node.matrix.data()[1]) / s,
+                    0.25f * s,
+                    ((ionFloat)_node.matrix.data()[9] + (ionFloat)_node.matrix.data()[6]) / s,
+                    ((ionFloat)_node.matrix.data()[8] - (ionFloat)_node.matrix.data()[2]) / s);
+            }
+            else
+            {
+                ionFloat s = 2.0f * std::sqrtf(1.0f + (ionFloat)_node.matrix.data()[10] - (ionFloat)_node.matrix.data()[0] - (ionFloat)_node.matrix.data()[5]);
+                rotation = VectorHelper::Set(
+                    ((ionFloat)_node.matrix.data()[8] + (ionFloat)_node.matrix.data()[2]) / s,
+                    ((ionFloat)_node.matrix.data()[9] + (ionFloat)_node.matrix.data()[6]) / s,
+                    0.25f * s,
+                    ((ionFloat)_node.matrix.data()[1] - (ionFloat)_node.matrix.data()[4]) / s);
+            }
+        }
+
+        // TRANSLATION
+        position = VectorHelper::Set((ionFloat)_node.matrix.data()[12], (ionFloat)_node.matrix.data()[13], (ionFloat)_node.matrix.data()[14], 1.0f);
     }
     else 
-    {
-        localNodeMatrix = localNodeMatrix.Translate(position);
-        localNodeMatrix = localNodeMatrix * rotation.ToMatrix();
-        localNodeMatrix = localNodeMatrix.Scale(scale);
+    {   
+        if (_node.translation.size() == 3)
+        {
+            position = Vector((ionFloat)_node.translation[0], (ionFloat)_node.translation[1], (ionFloat)_node.translation[2], 1.0f);
+        }
+
+        Quaternion rotation;
+        if (_node.rotation.size() == 4)
+        {
+            rotation = Quaternion((ionFloat)_node.rotation[0], (ionFloat)_node.rotation[1], (ionFloat)_node.rotation[2], (ionFloat)_node.rotation[3]);
+        }
+
+        
+        if (_node.rotation.size() == 3)
+        {
+            scale = Vector((ionFloat)_node.scale[0], (ionFloat)_node.scale[1], (ionFloat)_node.scale[2]);
+        }
+
+        //localNodeMatrix = localNodeMatrix.Translate(position);
+        //localNodeMatrix = localNodeMatrix * rotation.ToMatrix();
+        //localNodeMatrix = localNodeMatrix.Scale(scale);
     }
-    localNodeMatrix = _parentMatrix * localNodeMatrix;
-    */
 
     _entity.GetTransformHandle()->SetPosition(position);
     _entity.GetTransformHandle()->SetRotation(rotation);
@@ -72,6 +125,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 
     _entity.GetTransformHandle()->UpdateTransform(_parentMatrix);
     Matrix localNodeMatrix =_entity.GetTransformHandle()->GetMatrix();
+
 
     // calculate matrix for all children if any
     if (_node.children.size() > 0)
@@ -86,9 +140,9 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 
     ionU32 prevIndexSize = 0;
     ionU32 prevVertexSize = 0;
-    for (ionSize i = 0; i < (_node.mesh + 1); ++i)
+    if (_node.mesh > -1) 
     {
-        const tinygltf::Mesh mesh = _model.meshes[i];
+        const tinygltf::Mesh mesh = _model.meshes[_node.mesh];
 
         for (ionSize j = 0; j < mesh.primitives.size(); ++j)
         {
