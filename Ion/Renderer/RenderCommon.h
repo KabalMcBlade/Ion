@@ -86,12 +86,12 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct ShaderVertexLayout
 
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 {
-    Vector                m_position;
+    Vector              m_position;
     ionFloat            m_textureCoordUV[2]; 
-    ionU8                m_normal[4];
-    ionU8                m_tangent[4];
-    ionU8                m_color1[4];
-    ionU8                m_color2[4];
+    ionU8               m_normal[4];
+    ionU8               m_tangent[4];
+    ionU8               m_color1[4];
+    ionU8               m_color2[4];
 
     Vertex()
     {
@@ -423,9 +423,9 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
 {
-    Vector                m_position;    
+    Vector              m_position;    
     ionFloat            m_textureCoordUV[2];
-    ionU8                m_normal[4];
+    ionU8               m_normal[4];
  
     VertexSimple()
     {
@@ -549,8 +549,8 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
 
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
 {
-    Vector                m_position;
-    ionU8                m_color[4];    
+    Vector              m_position;
+    ionU8               m_color[4];    
 
     VertexColored()
     {
@@ -617,7 +617,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
 
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
 {
-    Vector                m_position;
+    Vector              m_position;
     ionFloat            m_textureCoordUV[2];
 
     VertexUV()
@@ -718,7 +718,6 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexPlain
         m_position = VectorHelper::GetZero();
     }
 
-
     ION_INLINE Vector GetPosition() const
     {
         return m_position;
@@ -727,6 +726,11 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexPlain
     ION_INLINE void SetPosition(const Vector& _position)
     {
         m_position = _position;
+    }
+
+    ION_INLINE void SetPosition(ionFloat _x, ionFloat _y, ionFloat _z)
+    {
+        m_position = Vector(_x, _y, _z, 1.0f);
     }
 
     ION_INLINE void Lerp(const Vertex& _a, const Vertex& _b, const ionFloat _t)

@@ -330,7 +330,15 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
             }
 
             // add material and add all to primitive
-            ionMesh->SetMaterial(ionMaterialManger().GetMaterial(_materialIndexToMaterialName[primitive.material]));
+            if (_model.materials.size() > 0)
+            {
+                ionMesh->SetMaterial(ionMaterialManger().GetMaterial(_materialIndexToMaterialName[primitive.material]));
+            }
+            else
+            {
+                ionMesh->SetMaterial(ionMaterialManger().GetMaterial("Default"));
+            }
+            
 
             prevIndexSize = static_cast<ionU32>(ionMesh->GetIndexSize());
             prevVertexSize = static_cast<ionU32>(ionMesh->GetVertexSize());
@@ -445,86 +453,98 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity)
     // NOTE: this part MUST be re-factored when I finish the demo. Because should be handleable from different materials
     //
     // 2. Load all materials inside the material manager
-    for (ionSize i = 0; i < _model.materials.size(); ++i)
+    if (_model.materials.size() > 0)
     {
-        const tinygltf::Material& mat = _model.materials[i];
-
-
-        m_materialIndexToMaterialName.insert(std::pair<ionS32, eosString>((ionS32)i, mat.name.c_str()));
-
-        Material* material = ionMaterialManger().CreateMaterial(mat.name.c_str(), 0u);
-
-        for (auto const& x : mat.values)
+        for (ionSize i = 0; i < _model.materials.size(); ++i)
         {
-            const std::string& key = (x.first);
-            const tinygltf::Parameter& param = (x.second);
+            const tinygltf::Material& mat = _model.materials[i];
 
-            if (key == "baseColorTexture")
-            {
-                material->SetMetalnessMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
-            }
 
-            if (key == "metallicRoughnessTexture")
-            {
-                material->SetRoughnessMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
-            }
+            m_materialIndexToMaterialName.insert(std::pair<ionS32, eosString>((ionS32)i, mat.name.c_str()));
 
-            if (key == "roughnessFactor")
-            {
-                material->SetRoughnessFactor((ionFloat)param.Factor());
-            }
+            Material* material = ionMaterialManger().CreateMaterial(mat.name.c_str(), 0u);
 
-            if (key == "metallicFactor")
+            for (auto const& x : mat.values)
             {
-                material->SetMetallicFactor((ionFloat)param.Factor());
-            }
-        }
+                const std::string& key = (x.first);
+                const tinygltf::Parameter& param = (x.second);
 
-        for (auto const& x : mat.additionalValues)
-        {
-            const std::string& key = (x.first);
-            const tinygltf::Parameter& param = (x.second);
-
-            if (key == "emissiveTexture")
-            {
-                material->SetEmissiveMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
-            }
-            if (key == "emissiveFactor")
-            {
-                material->SetEmissiveColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2], (ionFloat)param.ColorFactor()[3]);
-            }
-
-            if (key == "normalTexture")
-            {
-                material->SetNormalMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
-            }
-            if (key == "occlusionTexture")
-            {
-                material->SetOcclusionMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
-            }
-
-            if (key == "alphaMode")
-            {
-                if (param.string_value == "BLEND") 
+                if (key == "baseColorTexture")
                 {
-                    material->SetColorMaskMode(EColorMask_Depth);
-                    material->SetCullingMode(ECullingMode_TwoSide);
+                    material->SetMetalnessMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
                 }
-                if (param.string_value == "MASK") 
+
+                if (key == "metallicRoughnessTexture")
                 {
-                    material->SetColorMaskMode(EColorMask_Color);
-                    material->SetBlendStateMode(EBlendState_Source_Source_Alpha);
-                    material->SetBlendStateMode(EBlendState_Dest_One_Minus_Source_Alpha);
+                    material->SetRoughnessMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                }
+
+                if (key == "roughnessFactor")
+                {
+                    material->SetRoughnessFactor((ionFloat)param.Factor());
+                }
+
+                if (key == "metallicFactor")
+                {
+                    material->SetMetallicFactor((ionFloat)param.Factor());
                 }
             }
 
-            if (key == "alphaCutoff")
+            for (auto const& x : mat.additionalValues)
             {
-                material->SetAlphaCutoff((ionFloat)param.Factor());
+                const std::string& key = (x.first);
+                const tinygltf::Parameter& param = (x.second);
+
+                if (key == "emissiveTexture")
+                {
+                    material->SetEmissiveMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                }
+                if (key == "emissiveFactor")
+                {
+                    material->SetEmissiveColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2], (ionFloat)param.ColorFactor()[3]);
+                }
+
+                if (key == "normalTexture")
+                {
+                    material->SetNormalMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                }
+                if (key == "occlusionTexture")
+                {
+                    material->SetOcclusionMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                }
+
+                if (key == "alphaMode")
+                {
+                    if (param.string_value == "BLEND")
+                    {
+                        material->SetColorMaskMode(EColorMask_Depth);
+                        material->SetCullingMode(ECullingMode_TwoSide);
+                    }
+                    if (param.string_value == "MASK")
+                    {
+                        material->SetColorMaskMode(EColorMask_Color);
+                        material->SetBlendStateMode(EBlendState_Source_Source_Alpha);
+                        material->SetBlendStateMode(EBlendState_Dest_One_Minus_Source_Alpha);
+                    }
+                }
+
+                if (key == "alphaCutoff")
+                {
+                    material->SetAlphaCutoff((ionFloat)param.Factor());
+                }
             }
         }
     }
-
+    else
+    {
+        // DEFAULT MATERIAL
+        // First time is created here, next time, just get and set again
+        Material* material = ionMaterialManger().CreateMaterial("Default", 0u);
+        material->SetAlphaCutoff(0.5f);
+        material->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+        material->SetEmissiveColor(0.0f, 0.0f, 0.0f, 1.0f);
+    }
+    
     //
     // 3. Load all meshes..
     Matrix parent;
