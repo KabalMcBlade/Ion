@@ -58,12 +58,19 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(Vertex::m_position);
 
-        // TexCoord
+        // TexCoord0
         attribute.format = VK_FORMAT_R32G32_SFLOAT;         //VK_FORMAT_R16G16_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
-        locationOffset += sizeof(Vertex::m_textureCoordUV);
+        locationOffset += sizeof(Vertex::m_textureCoordUV0);
+
+        // TexCoord1
+        attribute.format = VK_FORMAT_R32G32_SFLOAT;         //VK_FORMAT_R16G16_SFLOAT;
+        attribute.location = locationIndex++;
+        attribute.offset = locationOffset;
+        vertexLayout.m_attributegDescription.push_back(attribute);
+        locationOffset += sizeof(Vertex::m_textureCoordUV1);
 
         // Normal
         attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
@@ -79,14 +86,14 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(Vertex::m_tangent);
 
-        // Color1
+        // Color
         attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
-        locationOffset += sizeof(Vertex::m_color1);
+        locationOffset += sizeof(Vertex::m_color);
 
-        // Color2
+        // Weights
         attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
@@ -112,7 +119,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(VertexSimple::m_position);
 
-        // TexCoord
+        // TexCoord0
         attribute.format = VK_FORMAT_R32G32_SFLOAT;         //VK_FORMAT_R16G16_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;

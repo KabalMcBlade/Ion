@@ -87,11 +87,12 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct ShaderVertexLayout
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 {
     Vector              m_position;
-    ionFloat            m_textureCoordUV[2]; 
+    ionFloat            m_textureCoordUV0[2]; 
+    ionFloat            m_textureCoordUV1[2];
     ionU8               m_normal[4];
     ionU8               m_tangent[4];
-    ionU8               m_color1[4];
-    ionU8               m_color2[4];
+    ionU8               m_color[4];
+    ionU8               m_weights[4];
 
     Vertex()
     {
@@ -104,12 +105,14 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
     ION_INLINE void Clear() 
     {
         m_position = VectorHelper::GetZero();
-        this->m_textureCoordUV[0] = 0.0f;
-        this->m_textureCoordUV[1] = 0.0f;
-        *reinterpret_cast<ionU64*>(this->m_normal) = 0x00FF8080;    // x=0, y=0, z=1
-        *reinterpret_cast<ionU64*>(this->m_tangent) = 0xFF8080FF;    // x=1, y=0, z=0
-        *reinterpret_cast<ionU64*>(this->m_color1) = 0;
-        *reinterpret_cast<ionU64*>(this->m_color2) = 0;
+        this->m_textureCoordUV0[0] = 0.0f;
+        this->m_textureCoordUV0[1] = 0.0f;
+        this->m_textureCoordUV1[0] = 0.0f;
+        this->m_textureCoordUV1[1] = 0.0f;
+        memset(m_normal, 0, sizeof(m_normal));
+        memset(m_tangent, 0, sizeof(m_tangent));
+        memset(m_color, 0, sizeof(m_color));
+        memset(m_weights, 0, sizeof(m_weights));
     }
 
 
@@ -153,53 +156,78 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         return b;
     }
 
-    ION_INLINE Vector GetColor1V() const
+    ION_INLINE Vector GetColorV() const
     {
-        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_color1[0]), ION_VERTEX_BYTE_TO_FLOAT(m_color1[1]), ION_VERTEX_BYTE_TO_FLOAT(m_color1[2]), ION_VERTEX_BYTE_TO_FLOAT(m_color1[3]));
+        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_color[0]), ION_VERTEX_BYTE_TO_FLOAT(m_color[1]), ION_VERTEX_BYTE_TO_FLOAT(m_color[2]), ION_VERTEX_BYTE_TO_FLOAT(m_color[3]));
         v.Normalize();
         return v;
     }
 
-    ION_INLINE ionU64 GetColor1() const
+    ION_INLINE ionU64 GetColor() const
     {
-        *reinterpret_cast<const ionU64*>(this->m_color1);
+        *reinterpret_cast<const ionU64*>(this->m_color);
     }
 
-    ION_INLINE Vector GetColor2V() const
+    ION_INLINE Vector GetWeightsV() const
     {
-        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_color2[0]), ION_VERTEX_BYTE_TO_FLOAT(m_color2[1]), ION_VERTEX_BYTE_TO_FLOAT(m_color2[2]), ION_VERTEX_BYTE_TO_FLOAT(m_color2[3]));
+        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_weights[0]), ION_VERTEX_BYTE_TO_FLOAT(m_weights[1]), ION_VERTEX_BYTE_TO_FLOAT(m_weights[2]), ION_VERTEX_BYTE_TO_FLOAT(m_weights[3]));
         v.Normalize();
         return v;
     }
 
-    ION_INLINE ionU64 GetColor2() const
+    ION_INLINE ionU64 GetWeights() const
     {
-        *reinterpret_cast<const ionU64*>(this->m_color2);
+        *reinterpret_cast<const ionU64*>(this->m_weights);
     }
 
-    ION_INLINE Vector GetTexCoordUVUV() const
+    ION_INLINE Vector GetTexCoordUVUV0() const
     {
-        return Vector(m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[0], m_textureCoordUV[1]);
+        return Vector(m_textureCoordUV0[0], m_textureCoordUV0[1], m_textureCoordUV0[0], m_textureCoordUV0[1]);
     }
 
-    ION_INLINE Vector GetTexCoordUUVV() const
+    ION_INLINE Vector GetTexCoordUUVV0() const
     {
-        return Vector(m_textureCoordUV[0], m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[1]);
+        return Vector(m_textureCoordUV0[0], m_textureCoordUV0[0], m_textureCoordUV0[1], m_textureCoordUV0[1]);
     }
 
-    ION_INLINE Vector GetTexCoordVUVU() const
+    ION_INLINE Vector GetTexCoordVUVU0() const
     {
-        return Vector(m_textureCoordUV[1], m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[0]);
+        return Vector(m_textureCoordUV0[1], m_textureCoordUV0[0], m_textureCoordUV0[1], m_textureCoordUV0[0]);
     }
 
-    ION_INLINE ionFloat GetTexCoordU() const
+    ION_INLINE ionFloat GetTexCoordU0() const
     {
-        return m_textureCoordUV[0];
+        return m_textureCoordUV0[0];
     }
 
-    ION_INLINE ionFloat GetTexCoordV() const
+    ION_INLINE ionFloat GetTexCoordV0() const
     {
-        return m_textureCoordUV[1];
+        return m_textureCoordUV0[1];
+    }
+
+    ION_INLINE Vector GetTexCoordUVUV1() const
+    {
+        return Vector(m_textureCoordUV1[0], m_textureCoordUV1[1], m_textureCoordUV1[0], m_textureCoordUV1[1]);
+    }
+
+    ION_INLINE Vector GetTexCoordUUVV1() const
+    {
+        return Vector(m_textureCoordUV1[0], m_textureCoordUV1[0], m_textureCoordUV1[1], m_textureCoordUV1[1]);
+    }
+
+    ION_INLINE Vector GetTexCoordVUVU1() const
+    {
+        return Vector(m_textureCoordUV1[1], m_textureCoordUV1[0], m_textureCoordUV1[1], m_textureCoordUV1[0]);
+    }
+
+    ION_INLINE ionFloat GetTexCoordU1() const
+    {
+        return m_textureCoordUV1[0];
+    }
+
+    ION_INLINE ionFloat GetTexCoordV1() const
+    {
+        return m_textureCoordUV1[1];
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -258,56 +286,78 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         SetBiTangent(v);
     }
 
-    ION_INLINE void SetColor1(ionU64 _color)
+    ION_INLINE void SetColor(ionU64 _color)
     {
-        *reinterpret_cast<ionU64*>(this->m_color1) = _color;
+        *reinterpret_cast<ionU64*>(this->m_color) = _color;
     }
 
-    ION_INLINE void SetColor1(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
+    ION_INLINE void SetColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
     {
-        MathHelper::VectorToByte(_r, _g, _b, _a, m_color1);
+        MathHelper::VectorToByte(_r, _g, _b, _a, m_color);
     }
 
-    ION_INLINE void SetColor1(const Vector& _color)
+    ION_INLINE void SetColor(const Vector& _color)
     {
-        MathHelper::VectorToByte(_color, m_color1);
+        MathHelper::VectorToByte(_color, m_color);
     }
 
-    ION_INLINE void SetColor2(ionU64 _color)
+    ION_INLINE void SetWeights(ionU64 _weights)
     {
-        *reinterpret_cast<ionU64*>(this->m_color2) = _color;
+        *reinterpret_cast<ionU64*>(this->m_weights) = _weights;
     }
 
-    ION_INLINE void SetColor2(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
+    ION_INLINE void SetWeights(ionFloat _x, ionFloat _y, ionFloat _z, ionFloat _w)
     {
-        MathHelper::VectorToByte(_r, _g, _b, _a, m_color2);
+        MathHelper::VectorToByte(_x, _y, _z, _w, m_weights);
     }
 
-    ION_INLINE void SetColor2(const Vector& _color)
+    ION_INLINE void SetWeights(const Vector& _weights)
     {
-        MathHelper::VectorToByte(_color, m_color2);
+        MathHelper::VectorToByte(_weights, m_weights);
     }
 
-    ION_INLINE void SetTexCoordU(ionFloat _u)
+    ION_INLINE void SetTexCoordU0(ionFloat _u)
     {
-        m_textureCoordUV[0] = _u;
+        m_textureCoordUV0[0] = _u;
     }
 
-    ION_INLINE void SetTexCoordV(ionFloat _v)
+    ION_INLINE void SetTexCoordV0(ionFloat _v)
     {
-        m_textureCoordUV[1] = _v;
+        m_textureCoordUV0[1] = _v;
     }
 
-    ION_INLINE void SetTexCoordUV(ionFloat _u, ionFloat _v)
+    ION_INLINE void SetTexCoordUV0(ionFloat _u, ionFloat _v)
     {
-        SetTexCoordU(_u);
-        SetTexCoordV(_v);
+        SetTexCoordU0(_u);
+        SetTexCoordV0(_v);
     }
 
-    ION_INLINE void SetTexCoordUV(const Vector& _uvuv)
+    ION_INLINE void SetTexCoordUV0(const Vector& _uvuv)
     {
-        SetTexCoordU(VectorHelper::ExtractElement_0(_uvuv));
-        SetTexCoordV(VectorHelper::ExtractElement_1(_uvuv));
+        SetTexCoordU0(VectorHelper::ExtractElement_0(_uvuv));
+        SetTexCoordV0(VectorHelper::ExtractElement_1(_uvuv));
+    }
+
+    ION_INLINE void SetTexCoordU1(ionFloat _u)
+    {
+        m_textureCoordUV1[0] = _u;
+    }
+
+    ION_INLINE void SetTexCoordV1(ionFloat _v)
+    {
+        m_textureCoordUV1[1] = _v;
+    }
+
+    ION_INLINE void SetTexCoordUV1(ionFloat _u, ionFloat _v)
+    {
+        SetTexCoordU1(_u);
+        SetTexCoordV1(_v);
+    }
+
+    ION_INLINE void SetTexCoordUV1(const Vector& _uvuv)
+    {
+        SetTexCoordU1(VectorHelper::ExtractElement_0(_uvuv));
+        SetTexCoordV1(VectorHelper::ExtractElement_1(_uvuv));
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -319,10 +369,15 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
         m_position = VectorHelper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
 
-        const Vector aUVUV = _a.GetTexCoordUVUV();
-        const Vector bUVUV = _b.GetTexCoordUVUV();
-        const Vector lerpUV = VectorHelper::Lerp(aUVUV, bUVUV, t);
-        SetTexCoordUV(VectorHelper::ExtractElement_0(lerpUV), VectorHelper::ExtractElement_1(lerpUV));
+        const Vector aUVUV0 = _a.GetTexCoordUVUV0();
+        const Vector bUVUV0 = _b.GetTexCoordUVUV0();
+        const Vector lerpUV0 = VectorHelper::Lerp(aUVUV0, bUVUV0, t);
+        SetTexCoordUV0(VectorHelper::ExtractElement_0(lerpUV0), VectorHelper::ExtractElement_1(lerpUV0));
+
+        const Vector aUVUV1 = _a.GetTexCoordUVUV1();
+        const Vector bUVUV1 = _b.GetTexCoordUVUV1();
+        const Vector lerpUV1 = VectorHelper::Lerp(aUVUV1, bUVUV1, t);
+        SetTexCoordUV0(VectorHelper::ExtractElement_0(lerpUV1), VectorHelper::ExtractElement_1(lerpUV1));
     }
 
 
@@ -342,15 +397,15 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         SetTangent(tangent);
         SetBiTangent(bitangent);
 
-        m_color1[0] = (ionU8)(_a.m_color1[0] + _t * (_b.m_color1[0] - _a.m_color1[0]));
-        m_color1[1] = (ionU8)(_a.m_color1[1] + _t * (_b.m_color1[1] - _a.m_color1[1]));
-        m_color1[2] = (ionU8)(_a.m_color1[2] + _t * (_b.m_color1[2] - _a.m_color1[2]));
-        m_color1[3] = (ionU8)(_a.m_color1[3] + _t * (_b.m_color1[3] - _a.m_color1[3]));
+        m_color[0] = (ionU8)(_a.m_color[0] + _t * (_b.m_color[0] - _a.m_color[0]));
+        m_color[1] = (ionU8)(_a.m_color[1] + _t * (_b.m_color[1] - _a.m_color[1]));
+        m_color[2] = (ionU8)(_a.m_color[2] + _t * (_b.m_color[2] - _a.m_color[2]));
+        m_color[3] = (ionU8)(_a.m_color[3] + _t * (_b.m_color[3] - _a.m_color[3]));
 
-        m_color2[0] = (ionU8)(_a.m_color2[0] + _t * (_b.m_color2[0] - _a.m_color2[0]));
-        m_color2[1] = (ionU8)(_a.m_color2[1] + _t * (_b.m_color2[1] - _a.m_color2[1]));
-        m_color2[2] = (ionU8)(_a.m_color2[2] + _t * (_b.m_color2[2] - _a.m_color2[2]));
-        m_color2[3] = (ionU8)(_a.m_color2[3] + _t * (_b.m_color2[3] - _a.m_color2[3]));
+        m_weights[0] = (ionU8)(_a.m_weights[0] + _t * (_b.m_weights[0] - _a.m_weights[0]));
+        m_weights[1] = (ionU8)(_a.m_weights[1] + _t * (_b.m_weights[1] - _a.m_weights[1]));
+        m_weights[2] = (ionU8)(_a.m_weights[2] + _t * (_b.m_weights[2] - _a.m_weights[2]));
+        m_weights[3] = (ionU8)(_a.m_weights[3] + _t * (_b.m_weights[3] - _a.m_weights[3]));
     }
 
 
@@ -362,15 +417,15 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
             return *this;
         }
 
-        const Matrix& j0 = _joints[m_color1[0]];
-        const Matrix& j1 = _joints[m_color1[1]];
-        const Matrix& j2 = _joints[m_color1[2]];
-        const Matrix& j3 = _joints[m_color1[3]];
+        const Matrix& j0 = _joints[m_color[0]];
+        const Matrix& j1 = _joints[m_color[1]];
+        const Matrix& j2 = _joints[m_color[2]];
+        const Matrix& j3 = _joints[m_color[3]];
 
-        const ionFloat w0 = m_color2[0] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
-        const ionFloat w1 = m_color2[1] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
-        const ionFloat w2 = m_color2[2] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
-        const ionFloat w3 = m_color2[3] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
+        const ionFloat w0 = m_weights[0] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
+        const ionFloat w1 = m_weights[1] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
+        const ionFloat w2 = m_weights[2] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
+        const ionFloat w3 = m_weights[3] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
 
 
         Matrix accum = j0 * w0;
@@ -380,14 +435,15 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
         Vertex result;
         result.m_position = accum * m_position;
-        result.SetTexCoordUV(GetTexCoordU(), GetTexCoordV());
+        result.SetTexCoordUV0(GetTexCoordU0(), GetTexCoordV0());
+        result.SetTexCoordUV1(GetTexCoordU1(), GetTexCoordV1());
         result.SetNormal(accum * GetNormal());
         result.SetTangent(accum * GetTangent());
         result.m_tangent[3] = m_tangent[3];
         for (ionU32 i = 0; i < 4; ++i)
         {
-            result.m_color1[i] = m_color1[i];
-            result.m_color2[i] = m_color2[i];
+            result.m_color[i] = m_color[i];
+            result.m_weights[i] = m_weights[i];
         }
         return result;
     }
@@ -400,15 +456,15 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
             return m_position;
         }
 
-        const Matrix& j0 = _joints[m_color1[0]];
-        const Matrix& j1 = _joints[m_color1[1]];
-        const Matrix& j2 = _joints[m_color1[2]];
-        const Matrix& j3 = _joints[m_color1[3]];
+        const Matrix& j0 = _joints[m_color[0]];
+        const Matrix& j1 = _joints[m_color[1]];
+        const Matrix& j2 = _joints[m_color[2]];
+        const Matrix& j3 = _joints[m_color[3]];
 
-        const ionFloat w0 = m_color2[0] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
-        const ionFloat w1 = m_color2[1] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
-        const ionFloat w2 = m_color2[2] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
-        const ionFloat w3 = m_color2[3] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
+        const ionFloat w0 = m_weights[0] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
+        const ionFloat w1 = m_weights[1] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
+        const ionFloat w2 = m_weights[2] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
+        const ionFloat w3 = m_weights[3] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
 
         Matrix accum = j0 * w0;
         accum += j1 * w1;
@@ -440,7 +496,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
         m_position = VectorHelper::GetZero();
         this->m_textureCoordUV[0] = 0.0f;
         this->m_textureCoordUV[1] = 0.0f;
-        *reinterpret_cast<ionU64*>(this->m_normal) = 0x00FF8080;    // x=0, y=0, z=1
+        memset(m_normal, 0, sizeof(m_normal));
     }
 
 
@@ -560,7 +616,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
     ION_INLINE void Clear()
     {
         m_position = VectorHelper::GetZero();
-        *reinterpret_cast<ionU64*>(this->m_color) = 0;
+        memset(m_color, 0, sizeof(m_color));
     }
 
     ION_INLINE Vector GetPosition() const

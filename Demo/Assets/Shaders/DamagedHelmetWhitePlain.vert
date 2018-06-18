@@ -8,11 +8,12 @@ layout(binding = 0) uniform UniformBufferObject {
 } ubo;
 
 layout(location = 0) in vec4 inPosition;
-layout(location = 1) in vec2 inTexCoord;
-layout(location = 2) in vec4 inNormal;
-layout(location = 3) in vec4 inTangent;
-layout(location = 4) in vec4 inColor1;
-layout(location = 5) in vec4 inColor2;
+layout(location = 1) in vec2 inTexCoord0;
+layout(location = 2) in vec2 inTexCoord1;
+layout(location = 3) in vec4 inNormal;
+layout(location = 4) in vec4 inTangent;
+layout(location = 5) in vec4 inColor;
+layout(location = 6) in vec4 inWeights;
 
 
 layout(location = 0) out vec4 outPosition;

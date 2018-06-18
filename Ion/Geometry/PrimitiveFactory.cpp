@@ -184,9 +184,9 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 
         Vector uvuv[3] = { Vector(0.0f, 0.0f, 0.0f, 0.0f),  Vector(1.0f, 0.0f, 1.0f, 0.0f),  Vector(0.0f, 1.0f, 0.0f, 1.0f) };
 
-        vertices[0].SetTexCoordUV(uvuv[0]);
-        vertices[1].SetTexCoordUV(uvuv[1]);
-        vertices[2].SetTexCoordUV(uvuv[2]);
+        vertices[0].SetTexCoordUV0(uvuv[0]);
+        vertices[1].SetTexCoordUV0(uvuv[1]);
+        vertices[2].SetTexCoordUV0(uvuv[2]);
 
         Vector normals[3] =
         {
@@ -199,13 +199,9 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         vertices[1].SetNormal(normals[1]);
         vertices[2].SetNormal(normals[2]);
 
-        vertices[0].SetColor1(1.0f, 0.0f, 0.0f, 1.0f);
-        vertices[1].SetColor1(0.0f, 1.0f, 0.0f, 1.0f);
-        vertices[2].SetColor1(0.0f, 0.0f, 1.0f, 1.0f);
-
-        vertices[0].SetColor2(0.5f, 0.5f, 0.5f, 1.0f);
-        vertices[1].SetColor2(0.5f, 0.5f, 0.5f, 1.0f);
-        vertices[2].SetColor2(0.5f, 0.5f, 0.5f, 1.0f);
+        vertices[0].SetColor(1.0f, 0.0f, 0.0f, 1.0f);
+        vertices[1].SetColor(0.0f, 1.0f, 0.0f, 1.0f);
+        vertices[2].SetColor(0.0f, 0.0f, 1.0f, 1.0f);
 
         Vector tangents[3];
         GeometryHelper::CalculateTangent(positions, normals, uvuv, 3, indices.data(), 3, tangents);
@@ -433,10 +429,10 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         vertices[2].SetPosition(positions[2]);
         vertices[3].SetPosition(positions[3]);
 
-        vertices[0].SetTexCoordUV(1.0f, 0.0f);
-        vertices[1].SetTexCoordUV(0.0f, 0.0f);
-        vertices[2].SetTexCoordUV(0.0f, 1.0f);
-        vertices[3].SetTexCoordUV(1.0f, 1.0f);
+        vertices[0].SetTexCoordUV0(1.0f, 0.0f);
+        vertices[1].SetTexCoordUV0(0.0f, 0.0f);
+        vertices[2].SetTexCoordUV0(0.0f, 1.0f);
+        vertices[3].SetTexCoordUV0(1.0f, 1.0f);
 
         Vector normals[4];
         GeometryHelper::CalculateNormalPerVertex(positions, indices.data(), 6, normals);
@@ -448,20 +444,15 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 
         Vector uvuv[4] = { Vector(0.0f, 0.0f, 0.0f, 0.0f),  Vector(1.0f, 0.0f, 1.0f, 0.0f),  Vector(0.0f, 1.0f, 0.0f, 1.0f), Vector(1.0f, 1.0f, 0.0f, 1.0f) };
 
-        vertices[0].SetTexCoordUV(uvuv[0]);
-        vertices[1].SetTexCoordUV(uvuv[1]);
-        vertices[2].SetTexCoordUV(uvuv[2]);
-        vertices[3].SetTexCoordUV(uvuv[3]);
+        vertices[0].SetTexCoordUV0(uvuv[0]);
+        vertices[1].SetTexCoordUV0(uvuv[1]);
+        vertices[2].SetTexCoordUV0(uvuv[2]);
+        vertices[3].SetTexCoordUV0(uvuv[3]);
 
-        vertices[0].SetColor1(1.0f, 0.0f, 0.0f, 1.0f);
-        vertices[1].SetColor1(0.0f, 1.0f, 0.0f, 1.0f);
-        vertices[2].SetColor1(0.0f, 0.0f, 1.0f, 1.0f);
-        vertices[3].SetColor1(1.0f, 1.0f, 1.0f, 1.0f);
-
-        vertices[0].SetColor2(0.5f, 0.5f, 0.5f, 1.0f);
-        vertices[1].SetColor2(0.5f, 0.5f, 0.5f, 1.0f);
-        vertices[2].SetColor2(0.5f, 0.5f, 0.5f, 1.0f);
-        vertices[3].SetColor2(0.5f, 0.5f, 0.5f, 1.0f);
+        vertices[0].SetColor(1.0f, 0.0f, 0.0f, 1.0f);
+        vertices[1].SetColor(0.0f, 1.0f, 0.0f, 1.0f);
+        vertices[2].SetColor(0.0f, 0.0f, 1.0f, 1.0f);
+        vertices[3].SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 
         Vector tangents[4];
         GeometryHelper::CalculateTangent(positions, normals, uvuv, 4, indices.data(), 6, tangents);
@@ -1066,10 +1057,9 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
         for (ionU32 i = 0; i < 24; ++i)
         {
             vertices[i].SetPosition(positions[i]);
-            vertices[i].SetTexCoordUV(uvuv[i]);
+            vertices[i].SetTexCoordUV0(uvuv[i]);
             vertices[i].SetNormal(normals[i]);
-            vertices[i].SetColor1(colors[i]);
-            vertices[i].SetColor2(colors[i]);
+            vertices[i].SetColor(colors[i]);
             vertices[i].SetTangent(tangents[i]);
         }
         for (ionU32 i = 0; i < 24; ++i)
@@ -1476,10 +1466,9 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
             vertices[i].SetPosition(positions[i]);
-            vertices[i].SetTexCoordUV(uvuv[i]);
+            vertices[i].SetTexCoordUV0(uvuv[i]);
             vertices[i].SetNormal(normals[i]);
-            vertices[i].SetColor1(colors[i]);
-            vertices[i].SetColor2(colors[i]);
+            vertices[i].SetColor(colors[i]);
             vertices[i].SetTangent(tangents[i]);
         }
         for (ionU32 i = 0; i < verticesSize; ++i)
