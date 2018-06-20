@@ -119,10 +119,10 @@ enum EStencilFrontOperator : ionU64
 enum EStencilFunctionReference : ionU64
 {
     EStencilFunctionReference_RefShift = 20,
-    EStencilFunctionReference_RefBits = 0xFF << EStencilFunctionReference_RefShift,
+    EStencilFunctionReference_RefBits = 0xFFLL << EStencilFunctionReference_RefShift,
 
     EStencilFunctionReference_MaskShift = 28,
-    EStencilFunctionReference_MaskBits = 0xFF << EStencilFunctionReference_MaskShift
+    EStencilFunctionReference_MaskBits = 0xFFLL << EStencilFunctionReference_MaskShift
 
 };
 

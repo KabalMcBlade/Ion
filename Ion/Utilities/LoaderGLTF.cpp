@@ -162,10 +162,25 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                 const ionFloat *bufferPos = nullptr;
                 const ionFloat *bufferNormals = nullptr;
                 const ionFloat *bufferTangent = nullptr;
-                const ionFloat *bufferTexCoords0 = nullptr;
-                const ionFloat *bufferTexCoords1 = nullptr;
-                const ionFloat *bufferColor = nullptr;
-                const ionFloat *bufferWeights = nullptr;
+
+                const ionFloat *bufferTexCoordsFloat0 = nullptr;
+                const ionU16 *bufferTexCoordsU160 = nullptr;
+                const ionU8 *bufferTexCoordsU80 = nullptr;
+    
+                const ionFloat *bufferTexCoordsFloat1 = nullptr;
+                const ionU16 *bufferTexCoordsU161 = nullptr;
+                const ionU8 *bufferTexCoordsU81 = nullptr;
+
+                const ionFloat *bufferColorFloat = nullptr;
+                const ionU16 *bufferColorU16 = nullptr;
+                const ionU8 *bufferColorU8 = nullptr;
+
+                const ionFloat *bufferWeightsFloat = nullptr;
+                const ionU16 *bufferWeightsU16 = nullptr;
+                const ionU8 *bufferWeightsU8 = nullptr;
+
+                const ionU16 *bufferJointsU16 = nullptr;
+                const ionU8 *bufferJointsU8 = nullptr;
 
                 // Position attribute is required
                 ionAssertReturnVoid(primitive.attributes.find("POSITION") != primitive.attributes.end(), "POSITION ATTRIBUTE MISSING!");
@@ -192,28 +207,144 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                 {
                     const tinygltf::Accessor &uvAccessor = _model.accessors[primitive.attributes.find("TEXCOORD_0")->second];
                     const tinygltf::BufferView &uvView = _model.bufferViews[uvAccessor.bufferView];
-                    bufferTexCoords0 = reinterpret_cast<const ionFloat *>(&(_model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
+
+                    switch (uvAccessor.componentType)
+                    {
+                    case TINYGLTF_PARAMETER_TYPE_FLOAT:
+                    {
+                        bufferTexCoordsFloat0 = reinterpret_cast<const ionFloat *>(&(_model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
+                        break;
+                    }
+
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
+                    {
+                        bufferTexCoordsU160 = reinterpret_cast<const ionU16 *>(&(_model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
+                        break;
+                    }
+
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
+                    {
+                        bufferTexCoordsU80 = reinterpret_cast<const ionU8 *>(&(_model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
+                        break;
+                    }
+
+                    default:
+                        ionAssertReturnVoid(false, "Component type is not supported!");
+                    }
                 }
 
                 if (primitive.attributes.find("TEXCOORD_1") != primitive.attributes.end())
                 {
                     const tinygltf::Accessor &uvAccessor = _model.accessors[primitive.attributes.find("TEXCOORD_1")->second];
                     const tinygltf::BufferView &uvView = _model.bufferViews[uvAccessor.bufferView];
-                    bufferTexCoords1 = reinterpret_cast<const ionFloat *>(&(_model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
+
+                    switch (uvAccessor.componentType)
+                    {
+                    case TINYGLTF_PARAMETER_TYPE_FLOAT:
+                    {
+                        bufferTexCoordsFloat1 = reinterpret_cast<const ionFloat *>(&(_model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
+                        break;
+                    }
+
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
+                    {
+                        bufferTexCoordsU161 = reinterpret_cast<const ionU16 *>(&(_model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
+                        break;
+                    }
+
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
+                    {
+                        bufferTexCoordsU81 = reinterpret_cast<const ionU8 *>(&(_model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
+                        break;
+                    }
+
+                    default:
+                        ionAssertReturnVoid(false, "Component type is not supported!");
+                    }
                 }
 
                 if (primitive.attributes.find("COLOR_0") != primitive.attributes.end())
                 {
                     const tinygltf::Accessor &colorAccessor = _model.accessors[primitive.attributes.find("COLOR_0")->second];
                     const tinygltf::BufferView &colorView = _model.bufferViews[colorAccessor.bufferView];
-                    bufferColor = reinterpret_cast<const ionFloat *>(&(_model.buffers[colorView.buffer].data[colorAccessor.byteOffset + colorView.byteOffset]));
+
+                    switch (colorAccessor.componentType)
+                    {
+                    case TINYGLTF_PARAMETER_TYPE_FLOAT:
+                    {
+                        bufferColorFloat = reinterpret_cast<const ionFloat *>(&(_model.buffers[colorView.buffer].data[colorAccessor.byteOffset + colorView.byteOffset]));
+                        break;
+                    }
+
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
+                    {
+                        bufferColorU16 = reinterpret_cast<const ionU16 *>(&(_model.buffers[colorView.buffer].data[colorAccessor.byteOffset + colorView.byteOffset]));
+                        break;
+                    }
+
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
+                    {
+                        bufferColorU8 = reinterpret_cast<const ionU8 *>(&(_model.buffers[colorView.buffer].data[colorAccessor.byteOffset + colorView.byteOffset]));
+                        break;
+                    }
+
+                    default:
+                        ionAssertReturnVoid(false, "Component type is not supported!");
+                    }
                 }
 
                 if (primitive.attributes.find("WEIGHTS_0") != primitive.attributes.end())
                 {
                     const tinygltf::Accessor &weightsAccessor = _model.accessors[primitive.attributes.find("WEIGHTS_0")->second];
                     const tinygltf::BufferView &weightsView = _model.bufferViews[weightsAccessor.bufferView];
-                    bufferWeights = reinterpret_cast<const ionFloat *>(&(_model.buffers[weightsView.buffer].data[weightsAccessor.byteOffset + weightsView.byteOffset]));
+
+                    switch (weightsAccessor.componentType)
+                    {
+                    case TINYGLTF_PARAMETER_TYPE_FLOAT:
+                    {
+                        bufferWeightsFloat = reinterpret_cast<const ionFloat *>(&(_model.buffers[weightsView.buffer].data[weightsAccessor.byteOffset + weightsView.byteOffset]));
+                        break;
+                    }
+
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
+                    {
+                        bufferWeightsU16 = reinterpret_cast<const ionU16 *>(&(_model.buffers[weightsView.buffer].data[weightsAccessor.byteOffset + weightsView.byteOffset]));
+                        break;
+                    }
+
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
+                    {
+                        bufferWeightsU8 = reinterpret_cast<const ionU8 *>(&(_model.buffers[weightsView.buffer].data[weightsAccessor.byteOffset + weightsView.byteOffset]));
+                        break;
+                    }
+
+                    default:
+                        ionAssertReturnVoid(false, "Component type is not supported!");
+                    }
+                }
+
+                if (primitive.attributes.find("JOINTS_0") != primitive.attributes.end())
+                {
+                    const tinygltf::Accessor &jointsAccessor = _model.accessors[primitive.attributes.find("JOINTS_0")->second];
+                    const tinygltf::BufferView &jointsView = _model.bufferViews[jointsAccessor.bufferView];
+
+                    switch (jointsAccessor.componentType)
+                    {
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
+                    {
+                        bufferJointsU16 = reinterpret_cast<const ionU16 *>(&(_model.buffers[jointsView.buffer].data[jointsAccessor.byteOffset + jointsView.byteOffset]));
+                        break;
+                    }
+
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
+                    {
+                        bufferJointsU8 = reinterpret_cast<const ionU8 *>(&(_model.buffers[jointsView.buffer].data[jointsAccessor.byteOffset + jointsView.byteOffset]));
+                        break;
+                    }
+
+                    default:
+                        ionAssertReturnVoid(false, "Component type is not supported!");
+                    } 
                 }
 
                 for (ionSize v = 0; v < posAccessor.count; v++) 
@@ -252,40 +383,112 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     tangent = localNodeMatrix * tangent;
                     vert.SetTangent(tangent);
 
-                    if (bufferTexCoords0 != nullptr)
+                    if (bufferTexCoordsFloat0 != nullptr)
                     {
-                        vert.SetTexCoordUV0((&bufferTexCoords0[v * 2])[0], (&bufferTexCoords0[v * 2])[1]);
+                        vert.SetTexCoordUV0((&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1]);
                     }
                     else
                     {
-                        vert.SetTexCoordUV0(0.0f, 0.0f);
+                        if (bufferTexCoordsU160 != nullptr)
+                        {
+                            vert.SetTexCoordUV0(ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f);
+                        }
+                        else
+                        {
+                            if(bufferTexCoordsU80 != nullptr)
+                            {
+                                vert.SetTexCoordUV0(ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f);
+                            }
+                            else
+                            {
+                                vert.SetTexCoordUV0(0.0f, 0.0f);
+                            }
+                        }
+                    }
+        
+                    if (bufferTexCoordsFloat1 != nullptr)
+                    {
+                        vert.SetTexCoordUV1((&bufferTexCoordsFloat1[v * 2])[0], (&bufferTexCoordsFloat1[v * 2])[1]);
+                    }
+                    else
+                    {
+                        if (bufferTexCoordsU161 != nullptr)
+                        {
+                            vert.SetTexCoordUV1(ionFloat((&bufferTexCoordsU161[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU161[v * 2])[1]) / 65535.0f);
+                        }
+                        else
+                        {
+                            if (bufferTexCoordsU81 != nullptr)
+                            {
+                                vert.SetTexCoordUV1(ionFloat((&bufferTexCoordsU81[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU81[v * 2])[1]) / 255.0f);
+                            }
+                            else
+                            {
+                                vert.SetTexCoordUV1(0.0f, 0.0f);
+                            }
+                        }
                     }
                     
-                    if (bufferTexCoords1 != nullptr)
+                    if (bufferColorFloat != nullptr)
                     {
-                        vert.SetTexCoordUV1((&bufferTexCoords1[v * 2])[0], (&bufferTexCoords1[v * 2])[1]);
+                        vert.SetColor((&bufferColorFloat[v * 4])[0], (&bufferColorFloat[v * 4])[1], (&bufferColorFloat[v * 4])[2], (&bufferColorFloat[v * 4])[3]);
                     }
                     else
                     {
-                        vert.SetTexCoordUV1(0.0f, 0.0f);
-                    }
-                    
-                    if (bufferColor != nullptr)
-                    {
-                        vert.SetColor((&bufferColor[v * 4])[0], (&bufferColor[v * 4])[1], (&bufferColor[v * 4])[2], (&bufferColor[v * 4])[3]);
-                    }
-                    else
-                    {
-                        vert.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+                        if (bufferColorU16 != nullptr)
+                        {
+                            vert.SetColor(ionFloat((&bufferColorU16[v * 4])[0]) / 65535.0f, ionFloat((&bufferColorU16[v * 4])[1]) / 65535.0f, ionFloat((&bufferColorU16[v * 4])[2]) / 65535.0f, ionFloat((&bufferColorU16[v * 4])[3]) / 65535.0f);
+                        }
+                        else
+                        {
+                            if (bufferColorU8 != nullptr)
+                            {
+                                vert.SetColor(ionFloat((&bufferColorU8[v * 4])[0]) / 255.0f, ionFloat((&bufferColorU8[v * 4])[1]) / 255.0f, ionFloat((&bufferColorU8[v * 4])[2]) / 255.0f, ionFloat((&bufferColorU8[v * 4])[3]) / 255.0f);
+                            }
+                            else
+                            {
+                                vert.SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+                            }
+                        }
                     }
 
-                    if (bufferWeights != nullptr)
+                    if (bufferWeightsFloat != nullptr)
                     {
-                        vert.SetWeights((&bufferWeights[v * 4])[0], (&bufferWeights[v * 4])[1], (&bufferWeights[v * 4])[2], (&bufferWeights[v * 4])[3]);
+                        vert.SetWeights((&bufferWeightsFloat[v * 4])[0], (&bufferWeightsFloat[v * 4])[1], (&bufferWeightsFloat[v * 4])[2], (&bufferWeightsFloat[v * 4])[3]);
                     }
                     else
                     {
-                        vert.SetWeights(1.0f, 1.0f, 1.0f, 1.0f);
+                        if (bufferWeightsU16 != nullptr)
+                        {
+                            vert.SetWeights(ionFloat((&bufferWeightsU16[v * 4])[0]) / 65535.0f, ionFloat((&bufferWeightsU16[v * 4])[1]) / 65535.0f, ionFloat((&bufferWeightsU16[v * 4])[2]) / 65535.0f, ionFloat((&bufferWeightsU16[v * 4])[3]) / 65535.0f);
+                        }
+                        else
+                        {
+                            if (bufferWeightsU8 != nullptr)
+                            {
+                                vert.SetWeights(ionFloat((&bufferWeightsU8[v * 4])[0]) / 255.0f, ionFloat((&bufferWeightsU8[v * 4])[1]) / 255.0f, ionFloat((&bufferWeightsU8[v * 4])[2]) / 255.0f, ionFloat((&bufferWeightsU8[v * 4])[3]) / 255.0f);
+                            }
+                            else
+                            {
+                                vert.SetWeights(1.0f, 1.0f, 1.0f, 1.0f);
+                            }
+                        }
+                    }
+
+                    if (bufferJointsU16 != nullptr)
+                    {
+                        vert.SetJoint((&bufferJointsU16[v * 4])[0], (&bufferJointsU16[v * 4])[1], (&bufferJointsU16[v * 4])[2], (&bufferJointsU16[v * 4])[3]);
+                    }
+                    else
+                    {
+                        if (bufferJointsU8 != nullptr)
+                        {
+                            vert.SetJoint((&bufferJointsU8[v * 4])[0], (&bufferJointsU8[v * 4])[1], (&bufferJointsU8[v * 4])[2], (&bufferJointsU8[v * 4])[3]);
+                        }
+                        else
+                        {
+                            vert.SetJoint(0, 0, 0, 0);
+                        }
                     }
 
                     ionMesh->PushBackVertex(vert);
@@ -316,7 +519,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     break;
                 }
 
-                // just this is valid
                 case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
                 {
                     ionMesh->SetIndexType(VK_INDEX_TYPE_UINT16);

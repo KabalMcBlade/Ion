@@ -154,9 +154,17 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
 {
     for (ionSize i = 0; i < _nodeCount; ++i)
     {
+        // JUST FOR ROTATE AND HAVE A BETTER VIEW
+        static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
+        static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
+        static ionFloat radRotated = 0.0f;
+
+        radRotated += radPerFrame;
+        while (radRotated > 6.283185307f) radRotated -= 6.283185307f;   // 360 deg
+
+        m_entityNodes[i]->GetTransformHandle()->SetRotation(radRotated, axis);
         //
-        //static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
-        //m_entityNodes[i]->GetTransformHandle()->SetRotation(m_time * NIX_DEG_TO_RAD(90.0f), axis);
+
 
         m_entityNodes[i]->GetTransformHandle()->UpdateTransform();
         const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrix();

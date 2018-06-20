@@ -50,8 +50,8 @@ public:
     void SetStencilFrontOperatorMode(EStencilFrontOperator _state) { m_stateBits |= _state; }
     void UnsetStencilFrontOperatorMode(EStencilFrontOperator _state) { m_stateBits &= ~_state; }
 
-    void SetStencilBackFunctionMode(EStencilFrontFunction _state) { m_stateBits |= _state; }
-    void UnsetStencilBackFunctionMode(EStencilFrontFunction _state) { m_stateBits &= ~_state; }
+    void SetStencilBackFunctionMode(EStencilBackFunction _state) { m_stateBits |= _state; }
+    void UnsetStencilBackFunctionMode(EStencilBackFunction _state) { m_stateBits &= ~_state; }
 
     void SetStencilBackOperatorMode(EStencilBackOperator _state) { m_stateBits |= _state; }
     void UnsetStencilBackOperatorMode(EStencilBackOperator _state) { m_stateBits &= ~_state; }

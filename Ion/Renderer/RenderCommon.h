@@ -80,19 +80,19 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct ShaderVertexLayout
 //////////////////////////////////////////////////////////////////////////
 
 
-
-
 //////////////////////////////////////////////////////////////////////////
 
+// 56 -> 64
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 {
-    Vector              m_position;
-    ionFloat            m_textureCoordUV0[2]; 
-    ionFloat            m_textureCoordUV1[2];
-    ionU8               m_normal[4];
-    ionU8               m_tangent[4];
-    ionU8               m_color[4];
-    ionU8               m_weights[4];
+    Vector              m_position;             // 16 byte
+    ionFloat            m_textureCoordUV0[2];   // 8 byte
+    ionFloat            m_textureCoordUV1[2];   // 8 byte
+    ionU16              m_joints[4];            // 8 byte
+    ionU8               m_normal[4];            // 4 byte
+    ionU8               m_tangent[4];           // 4 byte
+    ionU8               m_color[4];             // 4 byte
+    ionU8               m_weights[4];           // 4 byte
 
     Vertex()
     {
@@ -109,6 +109,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         this->m_textureCoordUV0[1] = 0.0f;
         this->m_textureCoordUV1[0] = 0.0f;
         this->m_textureCoordUV1[1] = 0.0f;
+        memset(m_joints, 0, sizeof(m_joints));
         memset(m_normal, 0, sizeof(m_normal));
         memset(m_tangent, 0, sizeof(m_tangent));
         memset(m_color, 0, sizeof(m_color));
@@ -228,6 +229,26 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
     ION_INLINE ionFloat GetTexCoordV1() const
     {
         return m_textureCoordUV1[1];
+    }
+
+    ION_INLINE ionU16 GetJoint0()
+    {
+        return m_joints[0];
+    }
+
+    ION_INLINE ionU16 GetJoint1()
+    {
+        return m_joints[1];
+    }
+
+    ION_INLINE ionU16 GetJoint2()
+    {
+        return m_joints[2];
+    }
+
+    ION_INLINE ionU16 GetJoint3()
+    {
+        return m_joints[3];
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -360,6 +381,34 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         SetTexCoordV1(VectorHelper::ExtractElement_1(_uvuv));
     }
 
+    ION_INLINE void SetJoint0(ionU16 _joint)
+    {
+        m_joints[0] = _joint;
+    }
+
+    ION_INLINE void SetJoint1(ionU16 _joint)
+    {
+        m_joints[1] = _joint;
+    }
+
+    ION_INLINE void SetJoint2(ionU16 _joint)
+    {
+        m_joints[2] = _joint;
+    }
+
+    ION_INLINE void SetJoint3(ionU16 _joint)
+    {
+        m_joints[3] = _joint;
+    }
+
+    ION_INLINE void SetJoint(ionU16 _joint0, ionU16 _joint1, ionU16 _joint2, ionU16 _joint3)
+    {
+        SetJoint0(_joint0);
+        SetJoint1(_joint1);
+        SetJoint2(_joint2);
+        SetJoint3(_joint3);
+    }
+
     //////////////////////////////////////////////////////////////////////////
     // FUNCTIONS
 
@@ -377,7 +426,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         const Vector aUVUV1 = _a.GetTexCoordUVUV1();
         const Vector bUVUV1 = _b.GetTexCoordUVUV1();
         const Vector lerpUV1 = VectorHelper::Lerp(aUVUV1, bUVUV1, t);
-        SetTexCoordUV0(VectorHelper::ExtractElement_0(lerpUV1), VectorHelper::ExtractElement_1(lerpUV1));
+        SetTexCoordUV1(VectorHelper::ExtractElement_0(lerpUV1), VectorHelper::ExtractElement_1(lerpUV1));
     }
 
 
@@ -406,6 +455,11 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         m_weights[1] = (ionU8)(_a.m_weights[1] + _t * (_b.m_weights[1] - _a.m_weights[1]));
         m_weights[2] = (ionU8)(_a.m_weights[2] + _t * (_b.m_weights[2] - _a.m_weights[2]));
         m_weights[3] = (ionU8)(_a.m_weights[3] + _t * (_b.m_weights[3] - _a.m_weights[3]));
+
+        m_joints[0] = (ionU16)(_a.m_joints[0] + _t * (_b.m_joints[0] - _a.m_joints[0]));
+        m_joints[1] = (ionU16)(_a.m_joints[1] + _t * (_b.m_joints[1] - _a.m_joints[1]));
+        m_joints[2] = (ionU16)(_a.m_joints[2] + _t * (_b.m_joints[2] - _a.m_joints[2]));
+        m_joints[3] = (ionU16)(_a.m_joints[3] + _t * (_b.m_joints[3] - _a.m_joints[3]));
     }
 
 
@@ -417,10 +471,10 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
             return *this;
         }
 
-        const Matrix& j0 = _joints[m_color[0]];
-        const Matrix& j1 = _joints[m_color[1]];
-        const Matrix& j2 = _joints[m_color[2]];
-        const Matrix& j3 = _joints[m_color[3]];
+        const Matrix& j0 = _joints[m_joints[0]];
+        const Matrix& j1 = _joints[m_joints[1]];
+        const Matrix& j2 = _joints[m_joints[2]];
+        const Matrix& j3 = _joints[m_joints[3]];
 
         const ionFloat w0 = m_weights[0] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
         const ionFloat w1 = m_weights[1] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
@@ -442,7 +496,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         result.m_tangent[3] = m_tangent[3];
         for (ionU32 i = 0; i < 4; ++i)
         {
-            result.m_color[i] = m_color[i];
+            result.m_joints[i] = m_joints[i];
             result.m_weights[i] = m_weights[i];
         }
         return result;
@@ -456,10 +510,10 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
             return m_position;
         }
 
-        const Matrix& j0 = _joints[m_color[0]];
-        const Matrix& j1 = _joints[m_color[1]];
-        const Matrix& j2 = _joints[m_color[2]];
-        const Matrix& j3 = _joints[m_color[3]];
+        const Matrix& j0 = _joints[m_joints[0]];
+        const Matrix& j1 = _joints[m_joints[1]];
+        const Matrix& j2 = _joints[m_joints[2]];
+        const Matrix& j3 = _joints[m_joints[3]];
 
         const ionFloat w0 = m_weights[0] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
         const ionFloat w1 = m_weights[1] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
@@ -477,11 +531,12 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
 //////////////////////////////////////////////////////////////////////////
 
+// 28 -> 32
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
 {
-    Vector              m_position;    
-    ionFloat            m_textureCoordUV[2];
-    ionU8               m_normal[4];
+    Vector              m_position;             // 16 byte
+    ionFloat            m_textureCoordUV[2];    // 8 byte
+    ionU8               m_normal[4];            // 4 byte
  
     VertexSimple()
     {
@@ -603,10 +658,11 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
 
 //////////////////////////////////////////////////////////////////////////
 
+// 20 -> 32
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
 {
-    Vector              m_position;
-    ionU8               m_color[4];    
+    Vector              m_position; // 16 byte
+    ionU8               m_color[4]; // 4 byte  
 
     VertexColored()
     {
@@ -671,10 +727,11 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
 
 //////////////////////////////////////////////////////////////////////////
 
+// 24 -> 32
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
 {
-    Vector              m_position;
-    ionFloat            m_textureCoordUV[2];
+    Vector              m_position;             // 16 byte
+    ionFloat            m_textureCoordUV[2];    // 8 byte
 
     VertexUV()
     {
@@ -760,9 +817,10 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
 
 //////////////////////////////////////////////////////////////////////////
 
+// 16 -> 16
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexPlain
 {
-    Vector                m_position;    
+    Vector                m_position;   // 16 byte
 
     VertexPlain()
     {
