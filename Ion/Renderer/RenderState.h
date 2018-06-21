@@ -142,7 +142,7 @@ enum ECullingMode : ionU64
     ECullingMode_Front = 0 << 15,
     ECullingMode_Back = 1 << 15,
     ECullingMode_TwoSide = 2 << 15,
-    ECullingMode_Bits = 2 << 15,
+    ECullingMode_Bits = 7 << 15,
     ECullingMode_Mask = ECullingMode_Front | ECullingMode_Back | ECullingMode_TwoSide,
 };
 
