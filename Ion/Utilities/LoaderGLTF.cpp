@@ -754,10 +754,23 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _
         {
             eosString val = _model.images[i].uri.c_str();
             eosString path = m_dir + backslash + val;
+            eosString filename;
 
-            m_textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, m_filename.c_str()));
+            if (path.rfind('\\', path.length()) != std::string::npos)
+            {
+                filename = path.substr(path.rfind('\\', path.length()) + 1, path.length() - path.rfind('\\', path.length()));
+            }
+            if (filename.empty())
+            {
+                if (path.rfind('/', path.length()) != std::string::npos)
+                {
+                    filename = path.substr(path.rfind('/', path.length()) + 1, path.length() - path.rfind('/', path.length()));
+                }
+            }
 
-            ionTextureManger().CreateTextureFromFile(m_filename, path);
+            m_textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, filename.c_str()));
+
+            ionTextureManger().CreateTextureFromFile(filename, path);
         }
     }
 
