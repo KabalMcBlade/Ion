@@ -56,14 +56,14 @@ typedef bool            ionBool;
 typedef float           ionFloat;
 typedef double          ionDouble;
 
-typedef uint_fast8_t    ionU8;
-typedef uint_fast16_t   ionU16;
-typedef uint_fast32_t   ionU32;
-typedef uint_fast64_t   ionU64;
-typedef int_fast8_t     ionS8;
-typedef int_fast16_t    ionS16;
-typedef int_fast32_t    ionS32;
-typedef int_fast64_t    ionS64;
+typedef uint8_t         ionU8;
+typedef uint16_t        ionU16;
+typedef uint32_t        ionU32;
+typedef uint64_t        ionU64;
+typedef int8_t          ionS8;
+typedef int16_t         ionS16;
+typedef int32_t         ionS32;
+typedef int64_t         ionS64;
 typedef std::size_t     ionSize;
 
 
