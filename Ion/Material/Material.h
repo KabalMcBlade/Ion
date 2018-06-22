@@ -6,6 +6,9 @@
 
 #include "../Core/CoreDefs.h"
 
+
+#include "MaterialState.h"
+
 #include "../Renderer/RenderCommon.h"
 #include "../Renderer/RenderState.h"
 
@@ -14,96 +17,112 @@ ION_NAMESPACE_BEGIN
 
 class Texture;
 
+//////////////////////////////////////////////////////////////////////////
+
+class ION_DLL BasePBR
+{
+public:
+    BasePBR();
+    ~BasePBR();
+
+    const Texture* GetBaseColorTexture() const { return m_baseColorTexture; }
+    const Texture* GetMetalRoughnessTexture() const { return m_metalRoughness; }
+
+    void SetBaseColorTexture(Texture* _texture) { m_baseColorTexture = _texture; }
+    void SetMetalRoughnessTexture(Texture* _texture) { m_metalRoughness = _texture; }
+
+    void GetColor(ionFloat& _r, ionFloat& _g, ionFloat& _b, ionFloat& _a) const 
+    {
+        _r = m_baseColor[0];
+        _g = m_baseColor[1];
+        _b = m_baseColor[2];
+        _a = m_baseColor[3];
+    }
+    const ionFloat* GetColor() const { return &m_baseColor[0]; }
+    const ionFloat GetMetallicFactor() const { return m_metallicFactor; }
+    const ionFloat GetRoughnessFactor() const { return m_roughnessFactor; }
+
+    void SetBaseColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a) 
+    {
+        m_baseColor[0] = _r;
+        m_baseColor[1] = _g;
+        m_baseColor[2] = _b;
+        m_baseColor[3] = _a;
+    }
+    void SetMetallicFactor(ionFloat _value) { m_metallicFactor = _value; }
+    void SetRoughnessFactor(ionFloat _value) { m_roughnessFactor = _value; }
+
+private:
+    Texture*    m_baseColorTexture;
+    Texture*    m_metalRoughness;
+
+    ionFloat    m_baseColor[4];
+    ionFloat    m_metallicFactor;
+    ionFloat    m_roughnessFactor;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ION_DLL AdvancePBR
+{
+public:
+    AdvancePBR();
+    ~AdvancePBR();
+
+    const Texture* GetNormalTexture() const { return m_normalTexture; }
+    const Texture* GetOcclusionTexture() const { return m_occlusionTexture; }
+    const Texture* GetEmissiveTexture() const { return m_emissiveTexture; }
+
+    void SetNormalTexture(Texture* _texture) { m_normalTexture = _texture; }
+    void SetOcclusionTexture(Texture* _texture) { m_occlusionTexture = _texture; }
+    void SetEmissiveTexture(Texture* _texture) { m_emissiveTexture = _texture; }
+
+    const ionFloat GetAlphaCutoff() const { return m_alphaCutoff; }
+    void GetEmissiveColor(ionFloat& _r, ionFloat& _g, ionFloat& _b) const
+    {
+        _r = m_emissiveColor[0];
+        _g = m_emissiveColor[1];
+        _b = m_emissiveColor[2];
+    }
+    const ionFloat* GetEmissiveColor() const { return &m_emissiveColor[0]; }
+
+    void SetAlphaCutoff(ionFloat _value) { m_alphaCutoff = _value; }
+    void SetEmissiveColor(ionFloat _r, ionFloat _g, ionFloat _b)
+    {
+        m_emissiveColor[0] = _r;
+        m_emissiveColor[1] = _g;
+        m_emissiveColor[2] = _b;
+    }
+
+
+private:
+    Texture*    m_normalTexture;
+    Texture*    m_occlusionTexture;
+    Texture*    m_emissiveTexture;
+
+    ionFloat    m_emissiveColor[3];
+    ionFloat    m_alphaCutoff;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class ION_DLL Material
 {
 public:
     Material(const eosString& _name);
     ~Material();
 
-    ionU64 GetStateBits() const { return m_stateBits; }
-    void SetStateBits(ionU64 _stateBits) { m_stateBits = _stateBits; }
-
-    void SetCustomBits(ionU64 _stateBits) { m_stateBits |= _stateBits; }
-    void UnsetCustomBits(ionU64 _stateBits) { m_stateBits &= ~_stateBits; }
-
-    void SetRasterizationMode(ERasterization _state) { m_stateBits |= _state; }
-    void UnsetRasterizationMode(ERasterization _state) { m_stateBits &= ~_state; }
-
-    void SetCullingMode(ECullingMode _state) { m_stateBits |= _state; }
-    void UnsetCullingMode(ECullingMode _state) { m_stateBits &= ~_state; }
-
-    void SetBlendStateMode(EBlendState _state) { m_stateBits |= _state; }
-    void UnsetBlendStateMode(EBlendState _state) { m_stateBits &= ~_state; }
-
-    void SetBlendOperatorMode(EBlendOperator _state) { m_stateBits |= _state; }
-    void UnsetBlendOperatorMode(EBlendOperator _state) { m_stateBits &= ~_state; }
-
-    void SetColorMaskMode(EColorMask _state) { m_stateBits |= _state; }
-    void UnsetColorMaskMode(EColorMask _state) { m_stateBits &= ~_state; }
-  
-    void SetDepthFunctionMode(EDepthFunction _state) { m_stateBits |= _state; }
-    void UnsetDepthFunctionMode(EDepthFunction _state) { m_stateBits &= ~_state; }
-
-    void SetStencilFrontFunctionMode(EStencilFrontFunction _state) { m_stateBits |= _state; }
-    void UnsetStencilFrontFunctionMode(EStencilFrontFunction _state) { m_stateBits &= ~_state; }
-
-    void SetStencilFrontOperatorMode(EStencilFrontOperator _state) { m_stateBits |= _state; }
-    void UnsetStencilFrontOperatorMode(EStencilFrontOperator _state) { m_stateBits &= ~_state; }
-
-    void SetStencilBackFunctionMode(EStencilBackFunction _state) { m_stateBits |= _state; }
-    void UnsetStencilBackFunctionMode(EStencilBackFunction _state) { m_stateBits &= ~_state; }
-
-    void SetStencilBackOperatorMode(EStencilBackOperator _state) { m_stateBits |= _state; }
-    void UnsetStencilBackOperatorMode(EStencilBackOperator _state) { m_stateBits &= ~_state; }
-
-    void SetStencilFunctionReferenceMode(EStencilFunctionReference _state) { m_stateBits |= _state; }
-    void UnsetStencilFunctionReferenceMode(EStencilFunctionReference _state) { m_stateBits &= ~_state; }
-
-    // actually do nothing... just to be conform with the texture manager
     ionBool Create();
     void Destroy();
 
-    const ionFloat* GetColor() const { return &m_color[0]; }
-    const ionFloat* GetEmissiveColor() const { return &m_emissiveColor[0]; }
+    MaterialState& GetState() { return m_state; }
+    const MaterialState& GetState() const { return m_state; }
 
-    void SetColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a) {
-        m_color[0] = _r; 
-        m_color[1] = _g;
-        m_color[2] = _b;
-        m_color[3] = _a;
-    }
-    void SetEmissiveColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a) {
-        m_emissiveColor[0] = _r;
-        m_emissiveColor[1] = _g;
-        m_emissiveColor[2] = _b;
-        m_emissiveColor[3] = _a;
-    }
+    BasePBR& GetBasePBR() { return m_basePBR; }
+    const BasePBR& GetBasePBR() const { return m_basePBR; }
 
-    ionFloat GetAlphaCutoff() const { return m_alphaCutoff; }
-    ionFloat GetMetallicFactor() const { return m_metallicFactor; }
-    ionFloat GetRoughnessFactor() const { return m_roughnessFactor; }
-    ionFloat GetNormalFactor() const { return m_normalFactor; }
-    ionFloat GetOcclusionFactor() const { return m_occlusionFactor; }
-
-    void SetAlphaCutoff(ionFloat _value) { m_alphaCutoff = _value; }
-    void SetMetallicFactor(ionFloat _value) { m_metallicFactor = _value; }
-    void SetRoughnessFactor(ionFloat _value) { m_roughnessFactor = _value; }
-    void SetNormalFactor(ionFloat _value) { m_normalFactor = _value; }
-    void SetOcclusionFactor(ionFloat _value) { m_occlusionFactor = _value; }
-
-    const Texture* GetAlbedoMap() const { return m_albedoMap; }
-    const Texture* GetNormalMap() const { return m_normalMap; }
-    const Texture* GetRoughnessMap() const { return m_roughnessMap; }
-    const Texture* GetMetalnessMap() const { return m_metalnessMap; }
-    const Texture* GetOcclusionMap() const { return m_occlusionMap; }
-    const Texture* GetEmissiveMap() const { return m_emissiveMap; }
-
-    void SetAlbedoMap(Texture* _texture) { m_albedoMap = _texture; }
-    void SetNormalMap(Texture* _texture) { m_normalMap = _texture; }
-    void SetRoughnessMap(Texture* _texture) { m_roughnessMap = _texture; }
-    void SetMetalnessMap(Texture* _texture) { m_metalnessMap = _texture; }
-    void SetOcclusionMap(Texture* _texture) { m_occlusionMap = _texture; }
-    void SetEmissiveMap(Texture* _texture) { m_emissiveMap = _texture; }
+    AdvancePBR& GetAdvancePBR() { return m_advancePBR; }
+    const AdvancePBR& GetAdvancePBR() const { return m_advancePBR; }
 
     void SetShaders(const ionS32 _vertexIndex, const ionS32 _fragmentIndex = -1, const ionS32 _tessellationControlIndex = -1, const ionS32 _tessellationEvaluationIndex = -1, const ionS32 _geometryIndex = -1, const ionBool _useJoint = false, const ionBool _useSkinning = false);
     void GetShaders(ionS32& _vertexIndex, ionS32& _fragmentIndex, ionS32& _tessellationControlIndex, ionS32& _tessellationEvaluationIndex, ionS32& _geometryIndex, ionBool& _useJoint, ionBool& _useSkinning) const;
@@ -118,31 +137,18 @@ private:
     eosString       m_name;
     eosString       m_shaderProgramName;
 
-    ionU64          m_stateBits;
+    BasePBR         m_basePBR;
+    AdvancePBR      m_advancePBR;
+
+    EVertexLayout   m_vertexLayout;
+
+    MaterialState   m_state;
 
     ionS32          m_vertexShaderIndex;
     ionS32          m_fragmentShaderIndex;
     ionS32          m_tessellationControlIndex;
     ionS32          m_tessellationEvaluationIndex;
     ionS32          m_geometryIndex;
-
-    EVertexLayout   m_vertexLayout;
-
-    ionFloat        m_alphaCutoff;
-    ionFloat        m_metallicFactor;
-    ionFloat        m_roughnessFactor;
-    ionFloat        m_normalFactor;
-    ionFloat        m_occlusionFactor;
-
-    Texture*        m_albedoMap;
-    Texture*        m_normalMap;
-    Texture*        m_roughnessMap;
-    Texture*        m_metalnessMap;
-    Texture*        m_occlusionMap;
-    Texture*        m_emissiveMap;
-
-    ionFloat        m_color[4];
-    ionFloat        m_emissiveColor[4];
 
     ionBool         m_useJoint;
     ionBool         m_useSkinning;

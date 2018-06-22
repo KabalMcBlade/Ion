@@ -28,6 +28,7 @@
 #include "Texture/Texture.h"
 #include "Texture/TextureManager.h"
 
+#include "Material/MaterialState.h"
 #include "Material/Material.h"
 #include "Material/MaterialManager.h"
 

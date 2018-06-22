@@ -200,6 +200,7 @@
     <ClInclude Include="Geometry\PrimitiveFactory.h" />
     <ClInclude Include="Geometry\Ray.h" />
     <ClInclude Include="Material\MaterialManager.h" />
+    <ClInclude Include="Material\MaterialState.h" />
     <ClInclude Include="Renderer\BaseBufferObject.h" />
     <ClInclude Include="Renderer\GPUMemoryManager.h" />
     <ClInclude Include="Renderer\IndexBufferObject.h" />

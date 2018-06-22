@@ -74,7 +74,7 @@ Material* MaterialManager::CreateMaterial(const eosString& _name, ionU64 _stateB
         DestroyMaterial(material);
     }
 
-    material->SetStateBits(_stateBits);
+    material->GetState().SetStateBits(_stateBits);
     if (material->Create())
     {
         return material;

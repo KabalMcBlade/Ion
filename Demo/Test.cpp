@@ -33,10 +33,10 @@ void Test_ColoredTriangle(ion::Entity& _entity)
 
     _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-    _entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_TwoSide);
-    _entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
-    _entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-    _entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_TwoSide);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 void Test_ColoredQuad(ion::Entity& _entity)
@@ -70,10 +70,10 @@ void Test_ColoredQuad(ion::Entity& _entity)
 
     _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-    _entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_TwoSide);
-    _entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
-    _entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-    _entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_TwoSide);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 void Test_TexturedQuad(ion::Entity& _entity)
@@ -85,7 +85,7 @@ void Test_TexturedQuad(ion::Entity& _entity)
     ion::Texture* dvaTexture = ionTextureManger().CreateTextureFromFile("dva", dvaTextureFile, ion::ETextureFilter_Default, ion::ETextureRepeat_Clamp, ion::ETextureUsage_RGBA, ion::ETextureType_2D);
 
     ion::Material* material = ionMaterialManger().CreateMaterial("dva", 0u);
-    material->SetAlbedoMap(dvaTexture);
+    material->GetBasePBR().SetBaseColorTexture(dvaTexture);
 
     _entity.GetMesh(0)->SetMaterial(material);
 
@@ -103,7 +103,7 @@ void Test_TexturedQuad(ion::Entity& _entity)
     // one sampler bound in the index 1 in the shader stage
     ion::SamplerBinding sampler;
     sampler.m_bindingIndex = 1;
-    sampler.m_texture = _entity.GetMesh(0)->GetMaterial()->GetAlbedoMap();
+    sampler.m_texture = _entity.GetMesh(0)->GetMaterial()->GetBasePBR().GetBaseColorTexture();
 
     // set the shaders layout
     ion::ShaderLayoutDef vertexLayout;
@@ -120,10 +120,10 @@ void Test_TexturedQuad(ion::Entity& _entity)
 
     _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-    _entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_TwoSide);
-    _entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
-    _entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-    _entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_TwoSide);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 void Test_ColoredCube(ion::Entity& _entity)
@@ -160,10 +160,10 @@ void Test_ColoredCube(ion::Entity& _entity)
 
     _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-    _entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_Back);
-    _entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
-    _entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-    _entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_Back);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 
@@ -193,18 +193,15 @@ void Test_ColoredSphere(ion::Entity& _entity)
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
 
-    //static const Vector position(-0.5f, -0.5f, -0.5f, 1.0f);
-    //_entity.GetTransformHandle()->SetPosition(position);
-
     _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
     _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
 
     _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-    _entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_Back);
-    _entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
-    _entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-    _entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_Back);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 void Test_Model_Ambient(ion::Entity& _entity)
@@ -238,11 +235,10 @@ void Test_Model_Ambient(ion::Entity& _entity)
 
     _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-    _entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_Back);
-//     _entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
-//     _entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-//     _entity.GetMesh(0)->GetMaterial()->SetStencilBackFunctionMode(ion::EStencilBackFunction_GreaterOrEqual);
-//     _entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_Back);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 void Test_ModelPBR_WIP(ion::Entity& _entity)
@@ -265,7 +261,7 @@ void Test_ModelPBR_WIP(ion::Entity& _entity)
     // one sampler bound in the index 1 in the shader stage
     ion::SamplerBinding sampler;
     sampler.m_bindingIndex = 1;
-    sampler.m_texture = _entity.GetMesh(0)->GetMaterial()->GetRoughnessMap();
+    sampler.m_texture = _entity.GetMesh(0)->GetMaterial()->GetBasePBR().GetBaseColorTexture();
 
     // set the shaders layout
     ion::ShaderLayoutDef vertexLayout;
@@ -282,8 +278,8 @@ void Test_ModelPBR_WIP(ion::Entity& _entity)
 
     _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-    _entity.GetMesh(0)->GetMaterial()->SetCullingMode(ion::ECullingMode_Back);
-//     _entity.GetMesh(0)->GetMaterial()->SetDepthFunctionMode(ion::EDepthFunction_Less);
-//     _entity.GetMesh(0)->GetMaterial()->SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-//     _entity.GetMesh(0)->GetMaterial()->SetColorMaskMode(ion::EColorMask_Depth);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_Back);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(ion::EColorMask_Depth);
 }

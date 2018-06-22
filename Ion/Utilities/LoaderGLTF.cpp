@@ -776,29 +776,44 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _
 
             Material* material = ionMaterialManger().CreateMaterial(mat.name.c_str(), 0u);
 
+            // base PBR
             for (auto const& x : mat.values)
             {
                 const std::string& key = (x.first);
                 const tinygltf::Parameter& param = (x.second);
 
-                if (key == "baseColorTexture")
+                // TEXTURES
                 {
-                    material->SetMetalnessMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                    // this is the base texture
+                    if (key == "baseColorTexture")
+                    {
+                        material->GetBasePBR().SetBaseColorTexture(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                    }
+
+                    //the texture contain Metallic and Roughness in 2 different channel, red and green
+                    if (key == "metallicRoughnessTexture")
+                    {
+                        material->GetBasePBR().SetMetalRoughnessTexture(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                    }
                 }
 
-                if (key == "metallicRoughnessTexture")
+                // FACTORS
                 {
-                    material->SetRoughnessMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
-                }
+                    if (key == "baseColorFactor")   // this is a vector, because is the diffuse of the not metal
+                    {
+                        material->GetBasePBR().SetBaseColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2], (ionFloat)param.ColorFactor()[3]);
+                    }
 
-                if (key == "roughnessFactor")
-                {
-                    material->SetRoughnessFactor((ionFloat)param.Factor());
-                }
+                    // these 2 are metal factors, so is the color is the specific measured reflectance value at normal incidence (F0)
+                    if (key == "roughnessFactor")
+                    {
+                        material->GetBasePBR().SetRoughnessFactor((ionFloat)param.Factor());
+                    }
 
-                if (key == "metallicFactor")
-                {
-                    material->SetMetallicFactor((ionFloat)param.Factor());
+                    if (key == "metallicFactor")
+                    {
+                        material->GetBasePBR().SetMetallicFactor((ionFloat)param.Factor());
+                    }
                 }
             }
 
@@ -807,42 +822,65 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _
                 const std::string& key = (x.first);
                 const tinygltf::Parameter& param = (x.second);
 
-                if (key == "emissiveTexture")
+                // TEXTURES
                 {
-                    material->SetEmissiveMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
-                }
-                if (key == "emissiveFactor")
-                {
-                    material->SetEmissiveColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2], (ionFloat)param.ColorFactor()[3]);
+                    if (key == "normalTexture")
+                    {
+                        material->GetAdvancePBR().SetNormalTexture(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                    }
+
+                    if (key == "occlusionTexture")
+                    {
+                        material->GetAdvancePBR().SetOcclusionTexture(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                    }
+
+                    if (key == "emissiveTexture")
+                    {
+                        material->GetAdvancePBR().SetEmissiveTexture(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                    }
                 }
 
-                if (key == "normalTexture")
+                // FACTORS
                 {
-                    material->SetNormalMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
-                }
-                if (key == "occlusionTexture")
-                {
-                    material->SetOcclusionMap(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                    if (key == "emissiveFactor")
+                    {
+                        material->GetAdvancePBR().SetEmissiveColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2]);
+                    }
                 }
 
                 if (key == "alphaMode")
                 {
+                    // mesh sorting for blend
+                    // this could be anything, glass for instance
                     if (param.string_value == "BLEND")
                     {
-                        material->SetColorMaskMode(EColorMask_Depth);
-                        material->SetCullingMode(ECullingMode_TwoSide);
+                       // material->GetState().SetColorMaskMode(EColorMask_Depth);
+                        material->GetState().SetBlendStateMode(EBlendState_Source_One);
+                        material->GetState().SetBlendStateMode(EBlendState_Dest_One);
+                        material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
                     }
+
+                    // this would like leaves or grass
                     if (param.string_value == "MASK")
                     {
-                        material->SetColorMaskMode(EColorMask_Color);
-                        material->SetBlendStateMode(EBlendState_Source_Source_Alpha);
-                        material->SetBlendStateMode(EBlendState_Dest_One_Minus_Source_Alpha);
+                        //material->GetState().SetColorMaskMode(EColorMask_Color);
+                        material->GetState().SetBlendStateMode(EBlendState_Source_Source_Alpha);
+                        material->GetState().SetBlendStateMode(EBlendState_Dest_One_Minus_Source_Alpha);
+                        material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
                     }
+
+                    // is is set OPAQUE, do nothing, is the default value of rendering
                 }
 
+                // if "MASK" there is this other parameter which specifies the cutoff threshold. If the alpha value is greater than or equal to the alphaCutoff value then it is rendered as fully opaque, otherwise, it is rendered as fully transparent.
                 if (key == "alphaCutoff")
                 {
-                    material->SetAlphaCutoff((ionFloat)param.Factor());
+                    material->GetAdvancePBR().SetAlphaCutoff((ionFloat)param.Factor());
+                }
+
+                if (key == "doubleSided")
+                {
+                    material->GetState().SetCullingMode(ECullingMode_TwoSide);
                 }
             }
         }
@@ -850,11 +888,13 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _
     else
     {
         // DEFAULT MATERIAL
-        // First time is created here, next time, just get and set again
+        // For now is here, I need to more somewhere else!
         Material* material = ionMaterialManger().CreateMaterial("Default", 0u);
-        material->SetAlphaCutoff(0.5f);
-        material->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
-        material->SetEmissiveColor(0.0f, 0.0f, 0.0f, 1.0f);
+        material->GetBasePBR().SetBaseColor(1.0f, 1.0f, 1.0f, 1.0f);
+        material->GetBasePBR().SetMetallicFactor(1.0f);
+        material->GetBasePBR().SetRoughnessFactor(1.0f);
+        material->GetAdvancePBR().SetEmissiveColor(0.0f, 0.0f, 0.0f);
+        material->GetAdvancePBR().SetAlphaCutoff(0.5f);
     }
     
     //

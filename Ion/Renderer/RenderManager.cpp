@@ -239,7 +239,7 @@ void RenderManager::Frame()
 
         for (ionSize i = 0; i < m_nodeCount; ++i)
         {
-            m_renderCore.SetState(m_drawSurfaces[i].m_material->GetStateBits());
+            m_renderCore.SetState(m_drawSurfaces[i].m_material->GetState().GetStateBits());
             m_renderCore.Draw(m_drawSurfaces[i]);
         }
 

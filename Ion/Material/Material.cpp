@@ -6,18 +6,44 @@
 
 ION_NAMESPACE_BEGIN
 
+
+BasePBR::BasePBR() :
+    m_baseColorTexture(nullptr),
+    m_metalRoughness(nullptr),
+    m_metallicFactor(1.0f),
+    m_roughnessFactor(1.0f)
+{
+    memset(m_baseColor, 0, sizeof(m_baseColor));
+}
+
+BasePBR::~BasePBR()
+{
+    m_baseColorTexture = nullptr;
+    m_metalRoughness = nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+AdvancePBR::AdvancePBR() :
+    m_normalTexture(nullptr),
+    m_occlusionTexture(nullptr),
+    m_emissiveTexture(nullptr),
+    m_alphaCutoff(0.5f) // 0 means fully opaque, 1 full transparent
+{
+    memset(m_emissiveColor, 0, sizeof(m_emissiveColor));
+}
+
+AdvancePBR::~AdvancePBR()
+{
+    m_normalTexture = nullptr;
+    m_occlusionTexture = nullptr;
+    m_emissiveTexture = nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 Material::Material(const eosString& _name) :
     m_name(_name),
-    m_stateBits(0),
-    m_albedoMap(nullptr),
-    m_normalMap(nullptr),
-    m_roughnessMap(nullptr),
-    m_metalnessMap(nullptr),
-    m_occlusionMap(nullptr),
-    m_emissiveMap(nullptr),
-    m_alphaCutoff(1.0f),
-    m_metallicFactor(1.0f),
-    m_roughnessFactor(1.0f),
     m_vertexShaderIndex(-1),
     m_fragmentShaderIndex(-1),
     m_tessellationControlIndex(-1),
@@ -40,14 +66,7 @@ ionBool Material::Create()
 
 void Material::Destroy()
 {
-    //m_name.clear();
-    //m_stateBits = 0;
-    m_albedoMap = nullptr;
-    m_normalMap = nullptr;
-    m_roughnessMap = nullptr;
-    m_metalnessMap = nullptr;
-    m_occlusionMap = nullptr;
-    m_emissiveMap = nullptr;
+
 }
 
 void Material::SetShaders(const ionS32 _vertexIndex, const ionS32 _fragmentIndex /*= -1*/, const ionS32 _tessellationControlIndex /*= -1*/, const ionS32 _tessellationEvaluationIndex /*= -1*/, const ionS32 _geometryIndex /*= -1*/, const ionBool _useJoint /*= false*/, const ionBool _useSkinning /*= false*/)
