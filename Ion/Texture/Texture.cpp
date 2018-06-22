@@ -70,6 +70,7 @@ ionBool Texture::LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _co
         {
             ionSize newBufferSize = m_width * m_height * 4;
             ionU8* newBuffer = (ionU8*)eosNewRaw(sizeof(ionU8) * newBufferSize, EOS_MEMORY_ALIGNMENT_SIZE);
+            memset(newBuffer, 0, sizeof(ionU8) * newBufferSize);
             ConvertFrom3ChannelTo4Channel(m_width, m_height, _buffer, newBuffer);
             UploadTextureToMemory(m_numLevels, m_width, m_height, newBuffer, 0);
             eosDeleteRaw(newBuffer);
