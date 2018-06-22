@@ -1690,7 +1690,7 @@ void RenderCore::Draw(const DrawSurface& _surface)
         const VkBuffer buffer = indexBuffer.GetObject();
         const VkDeviceSize offset = indexBuffer.GetOffset();
         indexOffset = offset;
-        vkCmdBindIndexBuffer(commandBuffer, buffer, offset, _surface.m_indexType);
+        vkCmdBindIndexBuffer(commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT32);
     }
 
     VertexBuffer vertexBufer;

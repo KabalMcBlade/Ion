@@ -41,7 +41,7 @@ public:
 
     ION_NO_INLINE static RenderManager& Instance();
 
-    ionBool LoadModelFromFile(const eosString& _fileName, Entity& _entity);
+    ionBool LoadModelFromFile(const eosString& _fileName, Entity& _entity, ionBool _generateNormalWhenMissing = false, ionBool _generateTangentWhenMissing = false, ionBool _setBitangentSign = false);
     void LoadPrimitive(EVertexLayout _layout, EPrimitiveType _type, Entity& _entity);
 
     ionBool Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);

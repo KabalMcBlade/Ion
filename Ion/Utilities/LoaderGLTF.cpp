@@ -8,6 +8,7 @@
 #include "../Dependencies/Eos/Eos/Eos.h"
 #include "../Dependencies/Nix/Nix/Nix.h"
 
+#include "../Utilities/GeometryHelper.h"
 
 #define TINYGLTF_IMPLEMENTATION
 // #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
@@ -27,7 +28,7 @@ LoaderGLTF::~LoaderGLTF()
 }
 
 // for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
-void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const Matrix& _parentMatrix, Entity& _entity, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName)
+void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const Matrix& _parentMatrix, Entity& _entity, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign)
 {
     Vector position(0.0f, 0.0f, 0.0f, 1.0f);
     Quaternion rotation;
@@ -134,7 +135,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
         {
             Entity child;
             child.AttachToParent(_entity);
-            LoadNode(_model.nodes[_node.children[i]], _model, localNodeMatrix, child, _textureIndexToTextureName, _materialIndexToMaterialName);
+            LoadNode(_model.nodes[_node.children[i]], _model, localNodeMatrix, child, _textureIndexToTextureName, _materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
         }
     }
 
@@ -156,6 +157,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 
             ionMesh->SetIndexStart(prevIndexSize);
             ionU32 vertexStart = prevVertexSize;
+
+
+            eosVector(Vector) positionToBeNormalized;
+            eosVector(Vector) normalForTangent;
+            eosVector(Vector) uvuvForTangents;
 
             // Vertices
             {
@@ -194,6 +200,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     const tinygltf::Accessor &normAccessor = _model.accessors[primitive.attributes.find("NORMAL")->second];
                     const tinygltf::BufferView &normView = _model.bufferViews[normAccessor.bufferView];
                     bufferNormals = reinterpret_cast<const ionFloat *>(&(_model.buffers[normView.buffer].data[normAccessor.byteOffset + normView.byteOffset]));
+
+                    _generateNormalWhenMissing = false;
                 }
 
                 if (primitive.attributes.find("TANGENT") != primitive.attributes.end())
@@ -201,6 +209,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     const tinygltf::Accessor &tangentAccessor = _model.accessors[primitive.attributes.find("TANGENT")->second];
                     const tinygltf::BufferView &tangentView = _model.bufferViews[tangentAccessor.bufferView];
                     bufferTangent = reinterpret_cast<const ionFloat *>(&(_model.buffers[tangentView.buffer].data[tangentAccessor.byteOffset + tangentView.byteOffset]));
+
+                    _generateTangentWhenMissing = false;
                 }
 
                 if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end()) 
@@ -355,6 +365,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 
                     Vector pos((&bufferPos[v * 3])[0], -((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2], 1.0f);
                     pos = localNodeMatrix * pos;
+
+                    if (_generateNormalWhenMissing || _generateTangentWhenMissing)
+                    {
+                        positionToBeNormalized.push_back(pos);
+                    }
+
                     vert.SetPosition(pos);
 
                     _entity.GetBoundingBox().Expande(vert.GetPosition(), vert.GetPosition());
@@ -363,12 +379,21 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     if (bufferNormals != nullptr)
                     {
                         normal = VectorHelper::Set((&bufferNormals[v * 3])[0], -((&bufferNormals[v * 3])[1]), (&bufferNormals[v * 3])[2], 1.0f);
+
+                        if (_generateTangentWhenMissing)
+                        {
+                            normalForTangent.push_back(normal);
+                        }
                     }
                     else
                     {
                         normal = VectorHelper::Set(0.0f, 0.0f, 0.0f, 1.0f);
+
+                        // if no normal, after all iteration the normalToBeTangent will be empty, so we will know how to do
                     }
                     normal = localNodeMatrix * normal;
+
+
                     vert.SetNormal(normal);
 
                     Vector tangent;
@@ -385,18 +410,36 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 
                     if (bufferTexCoordsFloat0 != nullptr)
                     {
+                        if (_generateTangentWhenMissing)
+                        {
+                            Vector uvuv = VectorHelper::Set((&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1], (&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1]);
+                            uvuvForTangents.push_back(uvuv);
+                        }
+
                         vert.SetTexCoordUV0((&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1]);
                     }
                     else
                     {
                         if (bufferTexCoordsU160 != nullptr)
                         {
+                            if (_generateTangentWhenMissing)
+                            {
+                                Vector uvuv = VectorHelper::Set(ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f);
+                                uvuvForTangents.push_back(uvuv);
+                            }
+
                             vert.SetTexCoordUV0(ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f);
                         }
                         else
                         {
                             if(bufferTexCoordsU80 != nullptr)
                             {
+                                if (_generateTangentWhenMissing)
+                                {
+                                    Vector uvuv = VectorHelper::Set(ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f);
+                                    uvuvForTangents.push_back(uvuv);
+                                }
+
                                 vert.SetTexCoordUV0(ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f);
                             }
                             else
@@ -496,6 +539,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
             }
 
 
+            eosVector(Index) indexToBeUsedDuringNormalization;
+
             // Indices
             {
                 const tinygltf::Accessor &accessor = _model.accessors[primitive.indices];
@@ -508,11 +553,14 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                 {
                 case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT:
                 {
-                    ionMesh->SetIndexType(VK_INDEX_TYPE_UINT32);
                     ionU32 *buf = (ionU32 *)eosNewRaw(sizeof(ionU32) * accessor.count, ION_MEMORY_ALIGNMENT_SIZE);
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU32));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
+                        if (_generateNormalWhenMissing || _generateTangentWhenMissing)
+                        {
+                            indexToBeUsedDuringNormalization.push_back((Index)(buf[index] + vertexStart));
+                        }
                         ionMesh->PushBackIndex((Index)(buf[index] + vertexStart));
                     }
                     eosDeleteRaw(buf);
@@ -521,11 +569,14 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 
                 case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
                 {
-                    ionMesh->SetIndexType(VK_INDEX_TYPE_UINT16);
                     ionU16 *buf = (ionU16 *)eosNewRaw(sizeof(ionU16) * accessor.count, ION_MEMORY_ALIGNMENT_SIZE);
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU16));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
+                        if (_generateNormalWhenMissing || _generateTangentWhenMissing)
+                        {
+                            indexToBeUsedDuringNormalization.push_back((Index)(buf[index] + vertexStart));
+                        }
                         ionMesh->PushBackIndex(buf[index] + vertexStart);
                     }
                     eosDeleteRaw(buf);
@@ -533,11 +584,14 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                 }
                 case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: 
                 {
-                    ionMesh->SetIndexType(VK_INDEX_TYPE_UINT16);
                     ionU8 *buf = (ionU8 *)eosNewRaw(sizeof(ionU8) * accessor.count, ION_MEMORY_ALIGNMENT_SIZE);
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU8));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
+                        if (_generateNormalWhenMissing || _generateTangentWhenMissing)
+                        {
+                            indexToBeUsedDuringNormalization.push_back((Index)(buf[index] + vertexStart));
+                        }
                         ionMesh->PushBackIndex((Index)(buf[index] + vertexStart));
                     }
                     eosDeleteRaw(buf);
@@ -546,6 +600,48 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                 default:
                     ionAssertReturnVoid(false, "Index component type is not supported!");
                 }
+            }
+
+
+            // Write normal and tangent if they are missing
+            eosVector(Vector) normalsGenerated;
+            if (_generateNormalWhenMissing)
+            {
+                normalsGenerated.resize(positionToBeNormalized.size());
+                GeometryHelper::CalculateNormalPerVertex(positionToBeNormalized.data(), indexToBeUsedDuringNormalization.data(), static_cast<ionU32>(indexToBeUsedDuringNormalization.size()), normalsGenerated.data());
+
+                ionSize count = normalsGenerated.size();
+                for (ionSize k = 0; k < count; ++k)
+                {
+                    ionMesh->GetVertex(k).SetNormal(normalsGenerated[k]);
+                }
+            }
+
+            if (_generateTangentWhenMissing && !uvuvForTangents.empty())
+            {
+                eosVector(Vector) tangentsGenerated;
+
+                // means we have generated and not get from model!
+                if (normalForTangent.empty())
+                {
+                    tangentsGenerated.resize(positionToBeNormalized.size());
+                    GeometryHelper::CalculateTangent(positionToBeNormalized.data(), normalsGenerated.data(), uvuvForTangents.data(), static_cast<ionU32>(positionToBeNormalized.size()), indexToBeUsedDuringNormalization.data(), static_cast<ionU32>(indexToBeUsedDuringNormalization.size()), tangentsGenerated.data());
+                }
+                else
+                {
+                    tangentsGenerated.resize(positionToBeNormalized.size());
+                    GeometryHelper::CalculateTangent(positionToBeNormalized.data(), normalForTangent.data(), uvuvForTangents.data(), static_cast<ionU32>(positionToBeNormalized.size()), indexToBeUsedDuringNormalization.data(), static_cast<ionU32>(indexToBeUsedDuringNormalization.size()), tangentsGenerated.data());
+                }
+
+                ionSize count = tangentsGenerated.size();
+                for (ionSize k = 0; k < count; ++k)
+                {
+                    ionMesh->GetVertex(k).SetTangent(tangentsGenerated[k]);
+                    if (_setBitangentSign)
+                    {
+                        ionMesh->GetVertex(k).SetBiTangent(tangentsGenerated[k]);
+                    }
+                } 
             }
 
             // add material and add all to primitive
@@ -561,9 +657,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 
             prevIndexSize = static_cast<ionU32>(ionMesh->GetIndexSize());
             prevVertexSize = static_cast<ionU32>(ionMesh->GetVertexSize());
-
-            // add to mesh list
-            //_entity.GetMeshList().push_back(ionMesh);
         }
 
         // Bone weight for morph targets (NEXT: After the base renderer will works)
@@ -573,7 +666,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 }
 
 
-ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity)
+ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _generateNormalWhenMissing /*= false*/, ionBool _generateTangentWhenMissing /*= false*/, ionBool _setBitangentSign /*= false*/)
 {
     tinygltf::Model     _model;
     tinygltf::TinyGLTF  gltf;
@@ -772,7 +865,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity)
     {
         const tinygltf::Node node = _model.nodes[scene.nodes[i]];
 
-        LoadNode(node, _model, parent, _entity, m_textureIndexToTextureName, m_materialIndexToMaterialName);
+        LoadNode(node, _model, parent, _entity, m_textureIndexToTextureName, m_materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
     }
 
     return true;

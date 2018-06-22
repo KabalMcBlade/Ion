@@ -20,7 +20,7 @@ public:
     LoaderGLTF();
     ~LoaderGLTF();
 
-    ionBool Load(const eosString& _fileName, Entity& _entity);
+    ionBool Load(const eosString& _fileName, Entity& _entity, ionBool _generateNormalWhenMissing = false, ionBool _generateTangentWhenMissing = false, ionBool _setBitangentSign = false);
 
 private:
     VkDevice m_vkDevice;

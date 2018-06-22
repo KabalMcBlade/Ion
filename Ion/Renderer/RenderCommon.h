@@ -883,7 +883,6 @@ struct DrawSurface final
     ionFloat            m_projectionMatrix[16];
     ionU32              m_indexStart;
     ionU32              m_indexCount;
-    VkIndexType         m_indexType;
     VertexCacheHandler  m_vertexCache;
     VertexCacheHandler  m_indexCache;
     VertexCacheHandler  m_jointCache;
@@ -895,7 +894,6 @@ struct DrawSurface final
         memset(&m_modelMatrix, 0, sizeof(m_modelMatrix));
         memset(&m_viewMatrix, 0, sizeof(m_viewMatrix));
         memset(&m_projectionMatrix, 0, sizeof(m_projectionMatrix));
-        m_indexType = VK_INDEX_TYPE_UINT32;
         m_indexStart = 0;
         m_indexCount = 0;
         m_vertexCache = 0;

@@ -25,7 +25,6 @@ class ION_DLL BaseMesh
 public:
     BaseMesh()
     {
-        m_indexType = VK_INDEX_TYPE_UINT32;
         m_indexStart = 0;
         m_indexCount = 0;
         m_material = nullptr;
@@ -37,7 +36,6 @@ public:
         m_material = nullptr;
         m_indexStart = 0;
         m_indexCount = 0;
-        m_indexType = VK_INDEX_TYPE_UINT32;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -93,11 +91,6 @@ public:
         return m_indexCount;
     }
 
-    VkIndexType GetIndexType() const
-    {
-        return m_indexType;
-    }
-
     Material* GetMaterial() const
     {
         return m_material;
@@ -120,11 +113,6 @@ public:
         m_indexCount = _count;
     }
 
-    void SetIndexType(VkIndexType _type)
-    {
-        m_indexType = _type;
-    }
-
     void SetMaterial(Material* _material)
     {
         m_material = _material;
@@ -134,7 +122,6 @@ public:
 protected:
     // in the inherit class, declare the vertex type. 
     eosVector(Index)        m_indexes;
-    VkIndexType             m_indexType;
     ionU32                  m_indexStart;
     ionU32                  m_indexCount;
     Material*               m_material;
@@ -322,6 +309,18 @@ public:
     virtual ionSize GetVertexSize() const override
     {
         return m_vertexes.size();
+    }
+
+    // special accessor for model
+
+    Vertex& GetVertex(ionSize _index)
+    {
+        return m_vertexes[_index];
+    }
+
+    const Vertex& GetVertex(ionSize _index) const
+    {
+        return m_vertexes[_index];
     }
 
 private:

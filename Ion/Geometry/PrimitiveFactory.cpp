@@ -52,7 +52,6 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(3);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -86,7 +85,6 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(3);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -120,7 +118,6 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(3);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
     
@@ -162,7 +159,6 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(3);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -224,7 +220,6 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(3);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -279,7 +274,6 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(6);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
     
@@ -319,7 +313,6 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(6);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -359,7 +352,6 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(6);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -408,7 +400,6 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(6);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -481,7 +472,6 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(6);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -568,7 +558,6 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(36);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -668,7 +657,6 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(36);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -769,7 +757,6 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(36);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -903,7 +890,6 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(36);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -1073,7 +1059,6 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(36);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -1165,7 +1150,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(indicesSize);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -1243,7 +1227,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(indicesSize);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -1316,7 +1299,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(indicesSize);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -1395,7 +1377,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(indicesSize);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 
@@ -1482,7 +1463,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
 
         mesh->SetIndexCount(indicesSize);
         mesh->SetIndexStart(0);
-        mesh->SetIndexType(VK_INDEX_TYPE_UINT32);
     }
     break;
 

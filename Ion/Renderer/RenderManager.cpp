@@ -74,10 +74,10 @@ RenderManager& RenderManager::Instance()
     return *s_instance;
 }
 
-ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, Entity& _entity)
+ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, Entity& _entity, ionBool _generateNormalWhenMissing /*= false*/, ionBool _generateTangentWhenMissing /*= false*/, ionBool _setBitangentSign /*= false*/)
 {
     LoaderGLTF loader;
-    return loader.Load(_fileName, _entity);
+    return loader.Load(_fileName, _entity, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
 }
 
 void RenderManager::LoadPrimitive(EVertexLayout _layout, EPrimitiveType _type, Entity& _entity)
@@ -187,7 +187,6 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
 
         m_drawSurfaces[i].m_indexStart = m_entityNodes[i]->GetMesh(0)->GetIndexStart();
         m_drawSurfaces[i].m_indexCount = m_entityNodes[i]->GetMesh(0)->GetIndexCount();
-        m_drawSurfaces[i].m_indexType = m_entityNodes[i]->GetMesh(0)->GetIndexType();
         m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetMesh(0)->GetVertexData(), m_entityNodes[i]->GetMesh(0)->GetVertexSize());
         m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetMesh(0)->GetIndexData(), m_entityNodes[i]->GetMesh(0)->GetIndexSize());
         m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMesh(0)->GetMaterial();
@@ -234,7 +233,7 @@ void RenderManager::Frame()
 
     if (m_renderCore.StartFrame())
     {
-        m_mainCamera->StartRenderPass(m_renderCore, 1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
+        m_mainCamera->StartRenderPass(m_renderCore, 1.0f, 0/*ION_STENCIL_SHADOW_TEST_VALUE*/, 1.0f, 1.0f, 1.0f);
         m_mainCamera->SetViewport(m_renderCore, 0, 0, width, height, 1.0f, 0.0f, 0.0f);
         m_mainCamera->SetScissor(m_renderCore, 0, 0, width, height, 1.0f);
 
