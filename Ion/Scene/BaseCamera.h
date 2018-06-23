@@ -53,6 +53,7 @@ public:
 
 public:
     static Matrix PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar);
+    static Matrix OrthographicProjectionMatrix(ionFloat _left, ionFloat _right, ionFloat _bottom, ionFloat _top, ionFloat _zNear, ionFloat _zFar);
 
 protected:
     // to override if you do something like moving the camera (rotation/position)

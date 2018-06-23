@@ -36,7 +36,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         indices.resize(3);
         indices = { 0, 1, 2 };
 
-        Vector positions[3] = { Vector(0.0f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
+        Vector positions[3] = { Vector(0.0f, 0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -65,7 +65,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         indices.resize(3);
         indices = { 0, 1, 2 };
 
-        Vector positions[3] = { Vector(0.0f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
+        Vector positions[3] = { Vector(0.0f, 0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -98,7 +98,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         indices.resize(3);
         indices = { 0, 1, 2 };
 
-        Vector positions[3] = { Vector(0.0f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
+        Vector positions[3] = { Vector(0.0f, 0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -131,7 +131,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         indices.resize(3);
         indices = { 0, 1, 2 };
 
-        Vector positions[3] = { Vector(0.0f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
+        Vector positions[3] = { Vector(0.0f, 0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -172,7 +172,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         indices.resize(3);
         indices = { 0, 1, 2 };
 
-        Vector positions[3] = { Vector(0.0f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
+        Vector positions[3] = { Vector(0.0f, 0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -253,7 +253,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         indices.resize(6);
         indices = { 0, 1, 2, 2, 3, 0 };
 
-        Vector positions[4] = { Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
+        Vector positions[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -287,7 +287,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         indices.resize(6);
         indices = { 0, 1, 2, 2, 3, 0 };
 
-        Vector positions[4] = { Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
+        Vector positions[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -326,7 +326,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         indices.resize(6);
         indices = { 0, 1, 2, 2, 3, 0 };
 
-        Vector positions[4] = { Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
+        Vector positions[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -366,7 +366,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         indices.resize(6);
         indices = { 0, 1, 2, 2, 3, 0 };
 
-        Vector positions[4] = { Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
+        Vector positions[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -413,7 +413,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         indices.resize(6);
         indices = { 0, 1, 2, 2, 3, 0 };
 
-        Vector positions[4] = { Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f) };
+        Vector positions[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -433,7 +433,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         vertices[2].SetNormal(normals[2]);
         vertices[3].SetNormal(normals[3]);
 
-        Vector uvuv[4] = { Vector(0.0f, 0.0f, 0.0f, 0.0f),  Vector(1.0f, 0.0f, 1.0f, 0.0f),  Vector(0.0f, 1.0f, 0.0f, 1.0f), Vector(1.0f, 1.0f, 0.0f, 1.0f) };
+        Vector uvuv[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetTexCoordUV0(uvuv[0]);
         vertices[1].SetTexCoordUV0(uvuv[1]);

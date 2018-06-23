@@ -282,4 +282,8 @@ void Test_ModelPBR_WIP(ion::Entity& _entity)
     _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(ion::EColorMask_Depth);
+
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetBlendStateMode(ion::EBlendState_Source_One);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetBlendStateMode(ion::EBlendState_Dest_Zero);
+    _entity.GetMesh(0)->GetMaterial()->GetState().SetBlendOperatorMode(ion::EBlendOperator_Add);
 }

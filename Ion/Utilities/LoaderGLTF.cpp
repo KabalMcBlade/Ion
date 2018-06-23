@@ -363,7 +363,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 
                     Vertex vert;
 
-                    Vector pos((&bufferPos[v * 3])[0], -((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2], 1.0f);
+                    Vector pos((&bufferPos[v * 3])[0], ((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2], 1.0f);
                     pos = localNodeMatrix * pos;
 
                     if (_generateNormalWhenMissing || _generateTangentWhenMissing)
@@ -378,7 +378,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     Vector normal;
                     if (bufferNormals != nullptr)
                     {
-                        normal = VectorHelper::Set((&bufferNormals[v * 3])[0], -((&bufferNormals[v * 3])[1]), (&bufferNormals[v * 3])[2], 1.0f);
+                        normal = VectorHelper::Set((&bufferNormals[v * 3])[0], ((&bufferNormals[v * 3])[1]), (&bufferNormals[v * 3])[2], 1.0f);
 
                         if (_generateTangentWhenMissing)
                         {
@@ -399,7 +399,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     Vector tangent;
                     if (bufferTangent != nullptr)
                     {
-                        tangent = VectorHelper::Set((&bufferTangent[v * 3])[0], -((&bufferTangent[v * 3])[1]), (&bufferTangent[v * 3])[2], 1.0f);
+                        tangent = VectorHelper::Set((&bufferTangent[v * 3])[0], ((&bufferTangent[v * 3])[1]), (&bufferTangent[v * 3])[2], 1.0f);
                     }
                     else
                     {

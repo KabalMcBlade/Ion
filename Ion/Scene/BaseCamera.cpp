@@ -47,6 +47,7 @@ Matrix BaseCamera::PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, 
     );
     */
 
+    /*
     // This is the normalized device space for Vulkan
     // Right Hand
     // 0 to 1 depth
@@ -57,9 +58,31 @@ Matrix BaseCamera::PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, 
         0.0f,                   0.0f,           _zFar / (_zNear - _zFar),                   -1.0f,
         0.0f,                   0.0f,           -(_zFar * _zNear) / (_zFar - _zNear),       0.0f
     );
-    
+    */
+
+    // With this perspective projection, I don't need anymoire to swap Y in the GLTF.
+    // now Y are UP and -Y are DOWN
+    ionFloat field = 1.0f / tanf(0.5f * _fov);
+    Matrix perspective(
+        field / _aspect,    0.0f,        0.0f,                                       0.0f,
+        0.0f,               -field,      0.0f,                                       0.0f,
+        0.0f,               0.0f,        _zFar / (_zNear - _zFar),                   -1.0f,
+        0.0f,               0.0f,        (_zNear * _zFar) / (_zNear - _zFar),       0.0f
+    );
 
     return perspective;
+}
+
+Matrix BaseCamera::OrthographicProjectionMatrix(ionFloat _left, ionFloat _right, ionFloat _bottom, ionFloat _top, ionFloat _zNear, ionFloat _zFar)
+{
+    Matrix orthographic(
+        2.0f / (_right - _left),                0.0f,                                   0.0f,                       0.0f,
+        0.0f,                                   2.0f / (_bottom - _top),                0.0f,                       0.0f,
+        0.0f,                                   0.0f,                                   1.0f / (_zNear - _zFar),    0.0f,
+        -(_right + _left) / (_right - _left),   -(_bottom + _top) / (_bottom - _top),   _zNear / (_zNear - _zFar),  1.0f
+    );
+
+    return orthographic;
 }
 
 void BaseCamera::SetPerspectiveProjection(ionFloat _fovDeg, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar)
