@@ -234,7 +234,7 @@ void RenderManager::Frame()
     if (m_renderCore.StartFrame())
     {
         m_mainCamera->StartRenderPass(m_renderCore, 1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
-        m_mainCamera->SetViewport(m_renderCore, 0, 0, width, height, 1.0f, 0.0f, 0.0f);
+        m_mainCamera->SetViewport(m_renderCore, 0, 0, width, height, 1.0f, 0.0f, 1.0f);
         m_mainCamera->SetScissor(m_renderCore, 0, 0, width, height, 1.0f);
 
         for (ionSize i = 0; i < m_nodeCount; ++i)
