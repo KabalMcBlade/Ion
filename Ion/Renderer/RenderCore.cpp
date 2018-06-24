@@ -1652,7 +1652,7 @@ void RenderCore::SetColor(const eosString& _param, ionFloat _r, ionFloat _g, ion
     color[1] = _g;
     color[2] = _b;
     color[3] = _a;
-    ionShaderProgramManager().SetRenderParmVector(_param, color);
+    ionShaderProgramManager().SetRenderParamVector(_param, color);
 }
 
 void RenderCore::Draw(const DrawSurface& _surface)
@@ -1660,9 +1660,9 @@ void RenderCore::Draw(const DrawSurface& _surface)
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
     
     // USING THE HASH VERSION HERE!!!
-    ionShaderProgramManager().SetRenderParmMatrix(ION_MODEL_MATRIX_PARAM_TEXT, &_surface.m_modelMatrix[0]);
-    ionShaderProgramManager().SetRenderParmMatrix(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0]);
-    ionShaderProgramManager().SetRenderParmMatrix(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0]);
+    ionShaderProgramManager().SetRenderParamMatrix(ION_MODEL_MATRIX_PARAM_TEXT, &_surface.m_modelMatrix[0]);
+    ionShaderProgramManager().SetRenderParamMatrix(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0]);
+    ionShaderProgramManager().SetRenderParamMatrix(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0]);
   
 
     ionS32  vertexShaderIndex = -1;

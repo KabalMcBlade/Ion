@@ -22,6 +22,8 @@ enum EUniformParameterType
 {
     EUniformParameterType_Matrix = 0,
     EUniformParameterType_Vector,
+    EUniformParameterType_Float,
+    EUniformParameterType_Integer,
 
     EUniformParameterType_Count
 };

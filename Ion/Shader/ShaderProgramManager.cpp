@@ -62,11 +62,17 @@ ionBool ShaderProgramManager::Init(VkDevice _vkDevice)
 
     ShaderProgramHelper::CreateDescriptorPools(m_vkDevice, m_descriptorPool);
 
+    m_parmBufferMatrix = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
+    m_parmBufferMatrix->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS * sizeof(Matrix), EBufferUsage_Dynamic);
+
     m_parmBufferVector = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
     m_parmBufferVector->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS * sizeof(Vector), EBufferUsage_Dynamic);
 
-    m_parmBufferMatrix = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
-    m_parmBufferMatrix->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS * sizeof(Matrix), EBufferUsage_Dynamic);
+    m_parmBufferFloat = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
+    m_parmBufferFloat->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS * sizeof(ionFloat), EBufferUsage_Dynamic);
+
+    m_parmBufferInteger = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
+    m_parmBufferInteger->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS * sizeof(ionS32), EBufferUsage_Dynamic);
 
     m_skinningUniformBuffer = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
     m_skinningUniformBuffer->Alloc(m_vkDevice, nullptr, sizeof(Vector), EBufferUsage_Dynamic);
@@ -98,13 +104,21 @@ void ShaderProgramManager::Shutdown()
     }
     m_shaderPrograms.clear();
 
+    m_parmBufferMatrix->Free();
+    eosDelete(m_parmBufferMatrix);
+    m_parmBufferMatrix = nullptr;
+
     m_parmBufferVector->Free();
     eosDelete(m_parmBufferVector);
     m_parmBufferVector = nullptr;
 
-    m_parmBufferMatrix->Free();
-    eosDelete(m_parmBufferMatrix);
-    m_parmBufferMatrix = nullptr;
+    m_parmBufferFloat->Free();
+    eosDelete(m_parmBufferFloat);
+    m_parmBufferFloat = nullptr;
+
+    m_parmBufferInteger->Free();
+    eosDelete(m_parmBufferInteger);
+    m_parmBufferInteger = nullptr;
     
     m_skinningUniformBuffer->Free();
     eosDelete(m_skinningUniformBuffer);
@@ -120,91 +134,181 @@ void ShaderProgramManager::Shutdown()
     m_currentDescSet = 0;
 }
 
-const Vector& ShaderProgramManager::GetRenderParmVector(const eosString& _param)
+///
+///
+///
+
+const Vector& ShaderProgramManager::GetRenderParamVector(const eosString& _param)
 {
     const ionSize hash = std::hash<eosString>{}(_param);
-    return GetRenderParmVector(hash);
+    return GetRenderParamVector(hash);
 }
 
-// if parameter not found, return a vector 0 and create this new hash! BE CAREFUL!
-const Vector& ShaderProgramManager::GetRenderParmVector(ionSize _paramHash)
+const Vector& ShaderProgramManager::GetRenderParamVector(ionSize _paramHash)
 {
     return m_uniformsVector[_paramHash];
 }
 
-const Matrix& ShaderProgramManager::GetRenderParmMatrix(const eosString& _param)
+const Matrix& ShaderProgramManager::GetRenderParamMatrix(const eosString& _param)
 {
     const ionSize hash = std::hash<eosString>{}(_param);
-    return GetRenderParmMatrix(hash);
+    return GetRenderParamMatrix(hash);
 }
 
-const Matrix& ShaderProgramManager::GetRenderParmMatrix(ionSize _paramHash)
+const Matrix& ShaderProgramManager::GetRenderParamMatrix(ionSize _paramHash)
 {
     return m_uniformsMatrix[_paramHash];
 }
 
-void ShaderProgramManager::SetRenderParmVector(const eosString& _param, const ionFloat* _value)
+const ionFloat ShaderProgramManager::GetRenderParamFloat(const eosString& _param)
 {
     const ionSize hash = std::hash<eosString>{}(_param);
-    SetRenderParmVector(hash, _value);
+    return GetRenderParamFloat(hash);
 }
 
-void ShaderProgramManager::SetRenderParmVector(ionSize _paramHash, const ionFloat* _value)
+const ionFloat ShaderProgramManager::GetRenderParamFloat(ionSize _paramHash)
+{
+    return m_uniformsFloat[_paramHash];
+}
+
+const ionS32 ShaderProgramManager::GetRenderParamInteger(const eosString& _param)
+{
+    const ionSize hash = std::hash<eosString>{}(_param);
+    return GetRenderParamInteger(hash);
+}
+
+const ionS32 ShaderProgramManager::GetRenderParamInteger(ionSize _paramHash)
+{
+    return m_uniformsInteger[_paramHash];
+}
+
+///
+
+void ShaderProgramManager::SetRenderParamVector(const eosString& _param, const ionFloat* _value)
+{
+    const ionSize hash = std::hash<eosString>{}(_param);
+    SetRenderParamVector(hash, _value);
+}
+
+void ShaderProgramManager::SetRenderParamVector(ionSize _paramHash, const ionFloat* _value)
 {
     Vector v(_value[0], _value[1], _value[2], _value[3]);
     m_uniformsVector[_paramHash] = v;
 }
 
-void ShaderProgramManager::SetRenderParmsVector(const eosString& _param, const ionFloat* _values, ionU32 _numValues)
+void ShaderProgramManager::SetRenderParamsVector(const eosString& _param, const ionFloat* _values, ionU32 _numValues)
 {
     for (ionU32 i = 0; i < _numValues; ++i)
     {
         const eosString indexParam(std::to_string(i).c_str());
         const eosString fullParam = _param + indexParam;
         const ionSize hash = std::hash<eosString>{}(fullParam);
-        SetRenderParmVector(hash, _values + (i * 4));
+        SetRenderParamVector(hash, _values + (i * 4));
     }
 }
 
-void ShaderProgramManager::SetRenderParmsVector(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues)
+void ShaderProgramManager::SetRenderParamsVector(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues)
 {
     for (ionU32 i = 0; i < _numValues; ++i)
     {
-        SetRenderParmVector(_paramHash, _values + (i * 4));
+        SetRenderParamVector(_paramHash, _values + (i * 4));
     }
 }
 
-void ShaderProgramManager::SetRenderParmMatrix(const eosString& _param, const ionFloat* _value)
+void ShaderProgramManager::SetRenderParamMatrix(const eosString& _param, const ionFloat* _value)
 {
     const ionSize hash = std::hash<eosString>{}(_param);
-    SetRenderParmMatrix(hash, _value);
+    SetRenderParamMatrix(hash, _value);
 }
 
-void ShaderProgramManager::SetRenderParmMatrix(ionSize _paramHash, const ionFloat* _value)
+void ShaderProgramManager::SetRenderParamMatrix(ionSize _paramHash, const ionFloat* _value)
 {
     Matrix m(_value[0], _value[1], _value[2], _value[3], _value[4], _value[5], _value[6], _value[7], _value[8], _value[9], _value[10], _value[11], _value[12], _value[13], _value[14], _value[15]);
     m_uniformsMatrix[_paramHash] = m;
 }
 
-void ShaderProgramManager::SetRenderParmsMatrix(const eosString& _param, const ionFloat* _values, ionU32 _numValues)
+void ShaderProgramManager::SetRenderParamsMatrix(const eosString& _param, const ionFloat* _values, ionU32 _numValues)
 {
     for (ionU32 i = 0; i < _numValues; ++i)
     {
         const eosString indexParam(std::to_string(i).c_str());
         const eosString fullParam = _param + indexParam;
         const ionSize hash = std::hash<eosString>{}(fullParam);
-        SetRenderParmMatrix(hash, _values + (i * 16));
+        SetRenderParamMatrix(hash, _values + (i * 16));
     }
 }
 
-void ShaderProgramManager::SetRenderParmsMatrix(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues)
+void ShaderProgramManager::SetRenderParamsMatrix(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues)
 {
     for (ionU32 i = 0; i < _numValues; ++i)
     {
-        SetRenderParmMatrix(_paramHash, _values + (i * 16));
+        SetRenderParamMatrix(_paramHash, _values + (i * 16));
     }
 }
 
+void ShaderProgramManager::SetRenderParamFloat(const eosString& _param, const ionFloat _value)
+{
+    const ionSize hash = std::hash<eosString>{}(_param);
+    SetRenderParamFloat(hash, _value);
+}
+
+void ShaderProgramManager::SetRenderParamFloat(ionSize _paramHash, const ionFloat _value)
+{
+    m_uniformsFloat[_paramHash] = _value;
+}
+
+void ShaderProgramManager::SetRenderParamsFloat(const eosString& _param, const ionFloat* _values, ionU32 _numValues)
+{
+    for (ionU32 i = 0; i < _numValues; ++i)
+    {
+        const eosString indexParam(std::to_string(i).c_str());
+        const eosString fullParam = _param + indexParam;
+        const ionSize hash = std::hash<eosString>{}(fullParam);
+        SetRenderParamFloat(hash, *(_values + i));
+    }
+}
+
+void ShaderProgramManager::SetRenderParamsFloat(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues)
+{
+    for (ionU32 i = 0; i < _numValues; ++i)
+    {
+        SetRenderParamFloat(_paramHash, *(_values + i));
+    }
+}
+
+void ShaderProgramManager::SetRenderParamInteger(const eosString& _param, const ionS32 _value)
+{
+    const ionSize hash = std::hash<eosString>{}(_param);
+    SetRenderParamInteger(hash, _value);
+}
+
+void ShaderProgramManager::SetRenderParamInteger(ionSize _paramHash, const ionS32 _value)
+{
+    m_uniformsInteger[_paramHash] = _value;
+}
+
+void ShaderProgramManager::SetRenderParamsInteger(const eosString& _param, const ionS32* _values, ionU32 _numValues)
+{
+    for (ionU32 i = 0; i < _numValues; ++i)
+    {
+        const eosString indexParam(std::to_string(i).c_str());
+        const eosString fullParam = _param + indexParam;
+        const ionSize hash = std::hash<eosString>{}(fullParam);
+        SetRenderParamInteger(hash, *(_values + i));
+    }
+}
+
+void ShaderProgramManager::SetRenderParamsInteger(ionSize _paramHash, const ionS32* _values, ionU32 _numValues)
+{
+    for (ionU32 i = 0; i < _numValues; ++i)
+    {
+        SetRenderParamInteger(_paramHash, *(_values + i));
+    }
+}
+
+///
+///
+///
 
 void ShaderProgramManager::StartFrame()
 {
@@ -490,15 +594,26 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
     for (ionSize i = 0; i < numParmsType; ++i)
     {
         const EUniformParameterType type = _uniform.m_type[i];
-        if (type == EUniformParameterType_Vector)
+        switch (type)
         {
+        case EUniformParameterType_Vector:
             indexForType[EUniformParameterType_Vector][counterForType[EUniformParameterType_Vector]] = i;
             ++counterForType[EUniformParameterType_Vector];
-        }
-        else
-        {
+            break;
+        case EUniformParameterType_Matrix:
             indexForType[EUniformParameterType_Matrix][counterForType[EUniformParameterType_Matrix]] = i;
             ++counterForType[EUniformParameterType_Matrix];
+            break;
+        case EUniformParameterType_Float:
+            indexForType[EUniformParameterType_Float][counterForType[EUniformParameterType_Float]] = i;
+            ++counterForType[EUniformParameterType_Float];
+            break;
+        case EUniformParameterType_Integer:
+            indexForType[EUniformParameterType_Integer][counterForType[EUniformParameterType_Integer]] = i;
+            ++counterForType[EUniformParameterType_Integer];
+            break;
+        default:
+            break;
         }
     }
 
@@ -507,8 +622,8 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
     ORDER OF UNIFORM ELEMENTS
     Matrix
     Vector
-    Float   (next)
-    Integer (next)
+    Float
+    Integer
     */
 
     //////////////////////////////////////////////////////////////////////////
@@ -527,7 +642,7 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
 
         for (ionSize i = 0; i < numParms; ++i)
         {
-            uniforms[i] = GetRenderParmMatrix(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Matrix][i]]);
+            uniforms[i] = GetRenderParamMatrix(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Matrix][i]]);
         }
 
         _ubo.UnmapBuffer();
@@ -551,7 +666,57 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
 
         for (ionSize i = 0; i < numParms; ++i)
         {
-            uniforms[i] = GetRenderParmVector(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Vector][i]]);
+            uniforms[i] = GetRenderParamVector(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Vector][i]]);
+        }
+
+        _ubo.UnmapBuffer();
+
+        m_currentParmBufferOffset += alignedSize;
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////
+    // Float 
+    numParms = counterForType[EUniformParameterType_Float];
+
+    if (numParms > 0)
+    {
+        ionSize size = numParms * sizeof(ionFloat);
+        ionSize mask = _render.GetGPU().m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment - 1;
+        ionSize alignedSize = (size + mask) & ~mask;
+
+        _ubo.ReferenceTo(*m_parmBufferFloat, m_currentParmBufferOffset, alignedSize);
+
+        ionFloat* uniforms = (ionFloat*)_ubo.MapBuffer(EBufferMappingType_Write);
+
+        for (ionSize i = 0; i < numParms; ++i)
+        {
+            uniforms[i] = GetRenderParamFloat(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Float][i]]);
+        }
+
+        _ubo.UnmapBuffer();
+
+        m_currentParmBufferOffset += alignedSize;
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////
+    // Integer 
+    numParms = counterForType[EUniformParameterType_Integer];
+
+    if (numParms > 0)
+    {
+        ionSize size = numParms * sizeof(ionS32);
+        ionSize mask = _render.GetGPU().m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment - 1;
+        ionSize alignedSize = (size + mask) & ~mask;
+
+        _ubo.ReferenceTo(*m_parmBufferInteger, m_currentParmBufferOffset, alignedSize);
+
+        ionS32* uniforms = (ionS32*)_ubo.MapBuffer(EBufferMappingType_Write);
+
+        for (ionSize i = 0; i < numParms; ++i)
+        {
+            uniforms[i] = GetRenderParamInteger(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Integer][i]]);
         }
 
         _ubo.UnmapBuffer();
