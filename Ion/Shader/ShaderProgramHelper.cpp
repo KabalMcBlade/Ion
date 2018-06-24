@@ -460,7 +460,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
     VkPipelineInputAssemblyStateCreateInfo assemblyInputState = {};
     assemblyInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     assemblyInputState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-
+    
     VkPipelineRasterizationStateCreateInfo rasterizationState = {};
     rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizationState.rasterizerDiscardEnable = VK_FALSE;
@@ -583,6 +583,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
         depthStencilState.depthTestEnable = VK_TRUE;
         depthStencilState.depthWriteEnable = (_stateBits & EColorMask_Depth) == 0;
         depthStencilState.depthCompareOp = depthCompareOp;
+
         if (_render.GetGPU().m_vkPhysicalDevFeatures.depthBounds)
         {
             depthStencilState.depthBoundsTestEnable = (_stateBits & ERasterization_DepthTest_Mask) != 0;
@@ -617,17 +618,22 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
             depthStencilState.front.reference = ref;
             depthStencilState.back = depthStencilState.front;
         }
+       
     }
+    // IMPORTANT: These two lines worked for PBR opaque! Keep in mind!
+    //depthStencilState.front = depthStencilState.back;
+    //depthStencilState.back.compareOp = VK_COMPARE_OP_ALWAYS; 
 
+    
     VkPipelineMultisampleStateCreateInfo multisampleState = {};
     multisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampleState.rasterizationSamples = _render.GetSampleCount();
-    /*        // cause a pipeline compilation bug on some GPU
-    if (_render.GetUsesSuperSampling())
-    {
-        multisampleState.sampleShadingEnable = VK_TRUE;
-        multisampleState.minSampleShading = 1.0f;
-    }*/
+    // cause a pipeline compilation bug on some GPU
+    //if (_render.GetUsesSuperSampling())
+    //{
+    //    multisampleState.sampleShadingEnable = VK_TRUE;
+    //    multisampleState.minSampleShading = 1.0f;
+    //}
 
     eosVector(VkPipelineShaderStageCreateInfo) stages;
     VkPipelineShaderStageCreateInfo stage = {};
