@@ -62,10 +62,32 @@ struct ION_DLL SamplerBinding final
     }
 };
 
+// The push_constant in the shader and for now ONLY floats supported.
+// Anyway seems enough, you can pass matrix, vector, bool, float and integer as "float" representation
+struct ION_DLL ConstantBinding final
+{
+    eosVector(ionFloat) m_values;
+
+    const void* GetData() const { return m_values.data(); }
+    const ionSize GetSize() const { return m_values.size(); }
+    const ionSize GetSizeByte() const { return m_values.size() * sizeof(ionFloat); }
+
+    void Clear()
+    {
+        m_values.clear();
+    }
+
+    ~ConstantBinding()
+    {
+        Clear();
+    }
+};
+
 struct ION_DLL ShaderLayoutDef final
 {
-    eosVector(UniformBinding)    m_uniforms;
+    eosVector(UniformBinding)   m_uniforms;
     eosVector(SamplerBinding)   m_samplers;
+    ConstantBinding             m_constant;
 
     ~ShaderLayoutDef()
     {
