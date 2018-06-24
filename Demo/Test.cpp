@@ -25,8 +25,8 @@ void Test_ColoredTriangle(ion::Entity& _entity)
 
     ion::ShaderLayoutDef fragmentLayout;
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
 
     _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
     _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
@@ -61,8 +61,8 @@ void Test_ColoredQuad(ion::Entity& _entity)
 
     ion::ShaderLayoutDef fragmentLayout;
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
 
     _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
     _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
@@ -110,8 +110,8 @@ void Test_TexturedQuad(ion::Entity& _entity)
     ion::ShaderLayoutDef fragmentLayout;
     fragmentLayout.m_samplers.push_back(sampler);
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColorTextured", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColorTextured", ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColorTextured", ion::EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColorTextured", ion::EShaderStage_Fragment, fragmentLayout);
 
     _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColorTextured");
     _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
@@ -146,8 +146,8 @@ void Test_ColoredCube(ion::Entity& _entity)
 
     ion::ShaderLayoutDef fragmentLayout;
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
 
     _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
     _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
@@ -183,8 +183,8 @@ void Test_ColoredSphere(ion::Entity& _entity)
 
     ion::ShaderLayoutDef fragmentLayout;
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
 
     _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
     _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
@@ -219,8 +219,8 @@ void Test_Model_Ambient(ion::Entity& _entity)
 
     ion::ShaderLayoutDef fragmentLayout;
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("DamagedHelmetWhitePlain", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("DamagedHelmetWhitePlain", ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "DamagedHelmetWhitePlain", ion::EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "DamagedHelmetWhitePlain", ion::EShaderStage_Fragment, fragmentLayout);
 
     _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("DamagedHelmetWhitePlain");
     _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
@@ -264,8 +264,8 @@ void Test_ModelPBR_WIP(ion::Entity& _entity)
     ion::ShaderLayoutDef fragmentLayout;
     fragmentLayout.m_samplers.push_back(sampler);
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("DamagedHelmet", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("DamagedHelmet", ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "DamagedHelmet", ion::EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "DamagedHelmet", ion::EShaderStage_Fragment, fragmentLayout);
 
     _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("DamagedHelmet");
     _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());

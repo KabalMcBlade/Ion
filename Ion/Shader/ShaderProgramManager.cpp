@@ -560,7 +560,7 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
     }
 }
 
-ionS32 ShaderProgramManager::FindShader(const eosString& _name, EShaderStage _stage, const ShaderLayoutDef& _defines)
+ionS32 ShaderProgramManager::FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage, const ShaderLayoutDef& _defines)
 {
     for (ionS32 i = 0; i < m_shaders.size(); ++i)
     {
@@ -573,6 +573,7 @@ ionS32 ShaderProgramManager::FindShader(const eosString& _name, EShaderStage _st
     }
 
     Shader shader;
+    shader.m_path = _path;
     shader.m_name = _name;
     shader.m_stage = _stage;
     m_shaders.push_back(shader);
@@ -593,7 +594,7 @@ void ShaderProgramManager::LoadShader(ionS32 _index, const ShaderLayoutDef& _def
 
 void ShaderProgramManager::LoadShader(Shader& _shader, const ShaderLayoutDef& _defines)
 {
-    eosString shaderPath = ionFileSystemManager().GetShadersPath() + _shader.m_name;
+    eosString shaderPath = _shader.m_path + _shader.m_name;
 
     // just direct set, not binary
     switch(_shader.m_stage)

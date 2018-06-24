@@ -94,9 +94,10 @@ struct Shader
         return m_shaderModule != VK_NULL_HANDLE;
     }
 
-    eosString                        m_name;
+    eosString                       m_name;
+    eosString                       m_path;
     EShaderStage                    m_stage;
-    VkShaderModule                    m_shaderModule;
+    VkShaderModule                  m_shaderModule;
     ShaderLayoutDef                 m_shaderLayout;
 };
 
