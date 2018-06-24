@@ -24,6 +24,12 @@ ION_NAMESPACE_BEGIN
 ///
 void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 {
+    eosVector(Index) indices;
+    indices.resize(3);
+    indices = { 0, 1, 2 };
+
+    Vector positions[3] = { Vector(0.0f, 0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f) };
+
     switch(_layout)
     {
     case EVertexLayout_Pos:
@@ -31,12 +37,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         MeshPlain* mesh = _entity.AddMesh<MeshPlain>();
 
         eosVector(VertexPlain) vertices;
-        eosVector(Index) indices;
         vertices.resize(3);
-        indices.resize(3);
-        indices = { 0, 1, 2 };
-
-        Vector positions[3] = { Vector(0.0f, 0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -60,12 +61,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         MeshColored* mesh = _entity.AddMesh<MeshColored>();
 
         eosVector(VertexColored) vertices;
-        eosVector(Index) indices;
         vertices.resize(3);
-        indices.resize(3);
-        indices = { 0, 1, 2 };
-
-        Vector positions[3] = { Vector(0.0f, 0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -93,12 +89,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         MeshUV* mesh = _entity.AddMesh<MeshUV>();
 
         eosVector(VertexUV) vertices;
-        eosVector(Index) indices;
         vertices.resize(3);
-        indices.resize(3);
-        indices = { 0, 1, 2 };
-
-        Vector positions[3] = { Vector(0.0f, 0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -126,12 +117,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         MeshSimple* mesh = _entity.AddMesh<MeshSimple>();
 
         eosVector(VertexSimple) vertices;
-        eosVector(Index) indices;
         vertices.resize(3);
-        indices.resize(3);
-        indices = { 0, 1, 2 };
-
-        Vector positions[3] = { Vector(0.0f, 0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -167,12 +153,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         Mesh* mesh = _entity.AddMesh<Mesh>();
 
         eosVector(Vertex) vertices;
-        eosVector(Index) indices;
         vertices.resize(3);
-        indices.resize(3);
-        indices = { 0, 1, 2 };
-
-        Vector positions[3] = { Vector(0.0f, 0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -241,6 +222,13 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 ///
 void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 {
+    eosVector(Index) indices;
+    indices.resize(6);
+    indices = { 0, 1, 2, 2, 3, 0 };
+
+    Vector positions[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
+
+
     switch (_layout)
     {
     case EVertexLayout_Pos:
@@ -248,12 +236,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         MeshPlain* mesh = _entity.AddMesh<MeshPlain>();
 
         eosVector(VertexPlain) vertices;
-        eosVector(Index) indices;
         vertices.resize(4);
-        indices.resize(6);
-        indices = { 0, 1, 2, 2, 3, 0 };
-
-        Vector positions[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -282,12 +265,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         MeshColored* mesh = _entity.AddMesh<MeshColored>();
 
         eosVector(VertexColored) vertices;
-        eosVector(Index) indices;
         vertices.resize(4);
-        indices.resize(6);
-        indices = { 0, 1, 2, 2, 3, 0 };
-
-        Vector positions[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -321,12 +299,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         MeshUV* mesh = _entity.AddMesh<MeshUV>();
 
         eosVector(VertexUV) vertices;
-        eosVector(Index) indices;
         vertices.resize(4);
-        indices.resize(6);
-        indices = { 0, 1, 2, 2, 3, 0 };
-
-        Vector positions[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -355,18 +328,12 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
     }
     break;
 
-
     case EVertexLayout_Pos_UV_Normal:
     {
         MeshSimple* mesh = _entity.AddMesh<MeshSimple>();
 
         eosVector(VertexSimple) vertices;
-        eosVector(Index) indices;
         vertices.resize(4);
-        indices.resize(6);
-        indices = { 0, 1, 2, 2, 3, 0 };
-
-        Vector positions[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -408,12 +375,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         Mesh* mesh = _entity.AddMesh<Mesh>();
 
         eosVector(Vertex) vertices;
-        eosVector(Index) indices;
         vertices.resize(4);
-        indices.resize(6);
-        indices = { 0, 1, 2, 2, 3, 0 };
-
-        Vector positions[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
 
         vertices[0].SetPosition(positions[0]);
         vertices[1].SetPosition(positions[1]);
@@ -432,8 +394,8 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         vertices[1].SetNormal(normals[1]);
         vertices[2].SetNormal(normals[2]);
         vertices[3].SetNormal(normals[3]);
-
-        Vector uvuv[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
+        
+        Vector uvuv[4] = { Vector(0.0f, 0.0f, 1.0f, 1.0f), Vector(0.0f, 0.0f, 1.0f, 1.0f), Vector(0.0f, 0.0f, 1.0f, 1.0f), Vector(0.0f, 0.0f, 1.0f, 1.0f) };
 
         vertices[0].SetTexCoordUV0(uvuv[0]);
         vertices[1].SetTexCoordUV0(uvuv[1]);
@@ -493,6 +455,177 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 ///
 void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 {
+    eosVector(Index) indices;
+    indices.resize(36);
+    indices = {
+        0,1,2,0,2,3,
+        4,5,6,4,6,7,
+        8,9,10,8,10,11,
+        12,13,14,12,14,15,
+        16,17,18,16,18,19,
+        20,21,22,20,22,23 };
+
+    Vector positions[24] = {
+        Vector(-0.5f, 0.5f, 0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(0.5f, 0.5f, 0.5f, 1.0f),
+
+        Vector(0.5f, 0.5f, -0.5f, 1.0f),
+        Vector(0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, 0.5f, -0.5f, 1.0f),
+
+        Vector(0.5f, 0.5f, 0.5f, 1.0f),
+        Vector(0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(0.5f, 0.5f, -0.5f, 1.0f),
+
+        Vector(-0.5f, 0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, 0.5f, 0.5f, 1.0f),
+        Vector(0.5f, 0.5f, 0.5f, 1.0f),
+        Vector(0.5f, 0.5f, -0.5f, 1.0f),
+
+        Vector(-0.5f, 0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(-0.5f, 0.5f, 0.5f, 1.0f),
+
+        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(0.5f, -0.5f, 0.5f, 1.0f)
+    };
+
+    Vector colors[24] = {
+        Vector(0.0f, 0.0f, 1.0f, 1.0f),
+        Vector(0.0f, 1.0f, 1.0f, 1.0f),
+        Vector(1.0f, 0.0f, 1.0f, 1.0f),
+        Vector(1.0f, 1.0f, 1.0f, 1.0f),
+
+        Vector(1.0f, 1.0f, 1.0f, 1.0f),
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(0.0f, 1.0f, 0.0f, 1.0f),
+        Vector(0.0f, 0.0f, 1.0f, 1.0f),
+
+        Vector(0.0f, 0.0f, 1.0f, 1.0f),
+        Vector(0.0f, 1.0f, 0.0f, 1.0f),
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(0.0f, 0.0f, 0.0f, 1.0f),
+
+        Vector(0.0f, 0.0f, 0.0f, 1.0f),
+        Vector(0.0f, 1.0f, 1.0f, 1.0f),
+        Vector(1.0f, 1.0f, 0.0f, 1.0f),
+        Vector(0.0f, 1.0f, 0.0f, 1.0f),
+
+        Vector(0.0f, 1.0f, 0.0f, 1.0f),
+        Vector(0.0f, 1.0f, 1.0f, 1.0f),
+        Vector(1.0f, 1.0f, 0.0f, 1.0f),
+        Vector(1.0f, 0.0f, 1.0f, 1.0f),
+
+        Vector(1.0f, 0.0f, 1.0f, 1.0f),
+        Vector(0.0f, 1.0f, 0.0f, 1.0f),
+        Vector(1.0f, 1.0f, 0.0f, 1.0f),
+        Vector(0.0f, 0.0f, 1.0f, 1.0f)
+    };
+
+
+    ionFloat texCoords[] = {
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+        0.0f, 0.0f,
+
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+        0.0f, 0.0f,
+
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+        0.0f, 0.0f,
+
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+        0.0f, 0.0f,
+
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+        0.0f, 0.0f,
+
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+        0.0f, 0.0f,
+    };
+
+    Vector normals[24] = {
+        Vector(0.0f, 0.0f, 1.0f, 1.0f),
+        Vector(0.0f, 0.0f, 1.0f, 1.0f),
+        Vector(0.0f, 0.0f, 1.0f, 1.0f),
+        Vector(0.0f, 0.0f, 1.0f, 1.0f),
+
+        Vector(0.0f, 0.0f, -1.0f, 1.0f),
+        Vector(0.0f, 0.0f, -1.0f, 1.0f),
+        Vector(0.0f, 0.0f, -1.0f, 1.0f),
+        Vector(0.0f, 0.0f, -1.0f, 1.0f),
+
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+
+        Vector(0.0f, 1.0f, 0.0f, 1.0f),
+        Vector(0.0f, 1.0f, 0.0f, 1.0f),
+        Vector(0.0f, 1.0f, 0.0f, 1.0f),
+        Vector(0.0f, 1.0f, 0.0f, 1.0f),
+
+        Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+
+        Vector(0.0f, -1.0f, 0.0f, 1.0f),
+        Vector(0.0f, -1.0f, 0.0f, 1.0f),
+        Vector(0.0f, -1.0f, 0.0f, 1.0f),
+        Vector(0.0f, -1.0f, 0.0f, 1.0f)
+    };
+
+    Vector uvuv[24] = {
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 1.0f, 0.0f, 0.0f),
+        Vector(0.0f, 1.0f, 1.0f, 0.0f),
+        Vector(0.0f, 0.0f, 1.0f, 1.0f),
+
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 1.0f, 0.0f, 0.0f),
+        Vector(0.0f, 1.0f, 1.0f, 0.0f),
+        Vector(0.0f, 0.0f, 1.0f, 1.0f),
+
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 1.0f, 0.0f, 0.0f),
+        Vector(0.0f, 1.0f, 1.0f, 0.0f),
+        Vector(0.0f, 0.0f, 1.0f, 1.0f),
+
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 1.0f, 0.0f, 0.0f),
+        Vector(0.0f, 1.0f, 1.0f, 0.0f),
+        Vector(0.0f, 0.0f, 1.0f, 1.0f),
+
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 1.0f, 0.0f, 0.0f),
+        Vector(0.0f, 1.0f, 1.0f, 0.0f),
+        Vector(0.0f, 0.0f, 1.0f, 1.0f),
+
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 1.0f, 0.0f, 0.0f),
+        Vector(0.0f, 1.0f, 1.0f, 0.0f),
+        Vector(0.0f, 0.0f, 1.0f, 1.0f),
+    };
+
     switch (_layout)
     {
     case EVertexLayout_Pos:
@@ -500,48 +633,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
         MeshPlain* mesh = _entity.AddMesh<MeshPlain>();
 
         eosVector(VertexPlain) vertices;
-        eosVector(Index) indices;
         vertices.resize(24);
-        indices.resize(36);
-        indices = { 
-            0,1,2,0,2,3,
-            4,5,6,4,6,7,
-            8,9,10,8,10,11,
-            12,13,14,12,14,15,
-            16,17,18,16,18,19,
-            20,21,22,20,22,23 };
-
-        Vector positions[24] = { 
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f)
-        };
 
         for (ionU32 i = 0; i < 24; ++i)
         {
@@ -566,80 +658,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
         MeshColored* mesh = _entity.AddMesh<MeshColored>();
 
         eosVector(VertexColored) vertices;
-        eosVector(Index) indices;
-        vertices.resize(24);
-        indices.resize(36);
-        indices = {
-            0,1,2,0,2,3,
-            4,5,6,4,6,7,
-            8,9,10,8,10,11,
-            12,13,14,12,14,15,
-            16,17,18,16,18,19,
-            20,21,22,20,22,23 };
-
-        Vector positions[24] = {
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f)
-        };
-
-        Vector colors[24] = {
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f)
-        };
+        vertices.resize(24); 
 
         for (ionU32 i = 0; i < 24; ++i)
         {
@@ -665,81 +684,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
         MeshUV* mesh = _entity.AddMesh<MeshUV>();
 
         eosVector(VertexUV) vertices;
-        eosVector(Index) indices;
         vertices.resize(24);
-        indices.resize(36);
-        indices = {
-            0,1,2,0,2,3,
-            4,5,6,4,6,7,
-            8,9,10,8,10,11,
-            12,13,14,12,14,15,
-            16,17,18,16,18,19,
-            20,21,22,20,22,23 };
-
-        Vector positions[24] = {
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f)
-        };
-
-        ionFloat texCoords[] = {
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-        };
-
 
         for (ionU32 i = 0, j = 0; i < 24; ++i, j += 2)
         {
@@ -760,118 +705,12 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
     }
     break;
 
-
     case EVertexLayout_Pos_UV_Normal:
     {
         MeshSimple* mesh = _entity.AddMesh<MeshSimple>();
 
         eosVector(VertexSimple) vertices;
-        eosVector(Index) indices;
         vertices.resize(24);
-        indices.resize(36);
-        indices = {
-            0,1,2,0,2,3,
-            4,5,6,4,6,7,
-            8,9,10,8,10,11,
-            12,13,14,12,14,15,
-            16,17,18,16,18,19,
-            20,21,22,20,22,23 };
-
-        Vector positions[24] = {
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f)
-        };
-
-        ionFloat texCoords[] = {
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-        };
-
-        Vector normals[24] = {
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-
-            Vector(0.0f, 0.0f, -1.0f, 1.0f),
-            Vector(0.0f, 0.0f, -1.0f, 1.0f),
-            Vector(0.0f, 0.0f, -1.0f, 1.0f),
-            Vector(0.0f, 0.0f, -1.0f, 1.0f),
-
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, -1.0f, 0.0f, 1.0f),
-            Vector(0.0f, -1.0f, 0.0f, 1.0f),
-            Vector(0.0f, -1.0f, 0.0f, 1.0f),
-            Vector(0.0f, -1.0f, 0.0f, 1.0f)
-        };
 
         for (ionU32 i = 0, j = 0; i < 24; ++i, j += 2)
         {
@@ -898,144 +737,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
         Mesh* mesh = _entity.AddMesh<Mesh>();
 
         eosVector(Vertex) vertices;
-        eosVector(Index) indices;
         vertices.resize(24);
-        indices.resize(36);
-        indices = {
-            0,1,2,0,2,3,
-            4,5,6,4,6,7,
-            8,9,10,8,10,11,
-            12,13,14,12,14,15,
-            16,17,18,16,18,19,
-            20,21,22,20,22,23 };
-
-        Vector positions[24] = {
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f)
-        };
-
-        Vector uvuv[24] = {
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 0.0f),
-            Vector(1.0f, 0.0f, 1.0f, 0.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 0.0f),
-            Vector(1.0f, 0.0f, 1.0f, 0.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 0.0f),
-            Vector(1.0f, 0.0f, 1.0f, 0.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 0.0f),
-            Vector(1.0f, 0.0f, 1.0f, 0.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 0.0f),
-            Vector(1.0f, 0.0f, 1.0f, 0.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 0.0f),
-            Vector(1.0f, 0.0f, 1.0f, 0.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f)
-        };
-
-        Vector normals[24] = {
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-
-            Vector(0.0f, 0.0f, -1.0f, 1.0f),
-            Vector(0.0f, 0.0f, -1.0f, 1.0f),
-            Vector(0.0f, 0.0f, -1.0f, 1.0f),
-            Vector(0.0f, 0.0f, -1.0f, 1.0f),
-
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, -1.0f, 0.0f, 1.0f),
-            Vector(0.0f, -1.0f, 0.0f, 1.0f),
-            Vector(0.0f, -1.0f, 0.0f, 1.0f),
-            Vector(0.0f, -1.0f, 0.0f, 1.0f)
-        };
-
-        Vector colors[24] = {
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-
-            Vector(1.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 0.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 1.0f, 1.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-
-            Vector(1.0f, 0.0f, 1.0f, 1.0f),
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),
-            Vector(1.0f, 1.0f, 0.0f, 1.0f),
-            Vector(0.0f, 0.0f, 1.0f, 1.0f)
-        };
 
         Vector tangents[24];
         GeometryHelper::CalculateTangent(positions, normals, uvuv, 24, indices.data(), 36, tangents);
@@ -1265,7 +967,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
                 const ionFloat z = std::sin(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
 
                 *v++ = VectorHelper::Set(x * radius, y * radius, z * radius, 1.0f);
-                *t++ = VectorHelper::Set(s * S, r * R, s * S, r * R);
+                *t++ = VectorHelper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
             }
         }
 
@@ -1301,7 +1003,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
         mesh->SetIndexStart(0);
     }
     break;
-
 
     case EVertexLayout_Pos_UV_Normal:
     {
@@ -1342,7 +1043,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
 
                 *v++ = VectorHelper::Set(x * radius, y * radius, z * radius, 1.0f);
                 *n++ = VectorHelper::Set(x, y, z, 1.0f);
-                *t++ = VectorHelper::Set(s * S, r * R, s * S, r * R);
+                *t++ = VectorHelper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
             }
         }
 
@@ -1422,7 +1123,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
 
                 *v++ = VectorHelper::Set(x * radius, y * radius, z * radius, 1.0f);
                 *n++ = VectorHelper::Set(x, y, z, 1.0f);
-                *t++ = VectorHelper::Set(s * S, r * R, s * S, r * R);
+                *t++ = VectorHelper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
                 *c++ = VectorHelper::Set(x, y, z, 1.0f);
             }
         }

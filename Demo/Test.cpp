@@ -36,7 +36,6 @@ void Test_ColoredTriangle(ion::Entity& _entity)
     _entity.GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_TwoSide);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-    _entity.GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 void Test_ColoredQuad(ion::Entity& _entity)
@@ -73,7 +72,6 @@ void Test_ColoredQuad(ion::Entity& _entity)
     _entity.GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_TwoSide);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-    _entity.GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 void Test_TexturedQuad(ion::Entity& _entity)
@@ -123,7 +121,6 @@ void Test_TexturedQuad(ion::Entity& _entity)
     _entity.GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_TwoSide);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-    _entity.GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 void Test_ColoredCube(ion::Entity& _entity)
@@ -152,9 +149,6 @@ void Test_ColoredCube(ion::Entity& _entity)
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader("SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
 
-    static const Vector position(-0.5f, -0.5f, -0.5f, 1.0f);
-    _entity.GetTransformHandle()->SetPosition(position);
-
     _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
     _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
 
@@ -163,7 +157,6 @@ void Test_ColoredCube(ion::Entity& _entity)
     _entity.GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_Back);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-    _entity.GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 
@@ -201,7 +194,6 @@ void Test_ColoredSphere(ion::Entity& _entity)
     _entity.GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_Back);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-    _entity.GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(ion::EColorMask_Depth);
 }
 
 void Test_Model_Ambient(ion::Entity& _entity)
