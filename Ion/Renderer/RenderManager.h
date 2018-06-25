@@ -61,7 +61,7 @@ private:
     RenderManager(const RenderManager& _Orig) = delete;
     RenderManager& operator = (const RenderManager&) = delete;
 
-    void Update();
+    void Update(ionFloat _deltaTime);
     void Frame();
 
     void UpdateDrawSurface(const Matrix& _projection, const Matrix& _view, ionSize _nodeCount);
@@ -79,6 +79,8 @@ private:
     BoundingBox             m_sceneBoundingBox;
     BaseCameraHandle        m_mainCamera;   // for now only one supported
     eosVector(EntityHandle) m_entityNodes;
+
+    NodeHandle              m_root;
     //////////////////////////////////////////////////////////////////////////
 
 

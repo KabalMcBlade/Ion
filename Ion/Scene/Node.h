@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Core/CoreDefs.h"
+#include "../Core/StandardIncludes.h"
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
@@ -19,6 +20,9 @@ enum ENodeType
     ENodeType_Entity = 0,
     ENodeType_Camera
 };
+
+
+typedef std::function<void(ionFloat)> UpdateCallbackFunction;
 
 
 class Node;
@@ -43,6 +47,8 @@ public:
     void AttachToParent(NodeHandle& _parent);
     void DetachFromParent();
 
+    virtual void Update(ionFloat _deltaTime);
+
     const NodeHandle &GetParentHandle() const { return m_parent; }
     const TransformHandle &GetTransformHandle() const { return m_transform; }
 
@@ -50,6 +56,21 @@ public:
     TransformHandle &GetTransformHandle() { return m_transform; }
 
     eosVector(NodeHandle) &GetChildren() { return m_children; };
+
+    eosVector(NodeHandle)::const_iterator GetChildIteratorBegin() { return m_children.begin();}
+    eosVector(NodeHandle)::const_iterator GetChildIteratorEnd() { return m_children.end(); }
+    //////////////////////////////////////////////////////////////////////////
+
+    void ConnectUpdateCallback(UpdateCallbackFunction _cb)
+    {
+        m_updateFunction = _cb;
+    }
+
+    void DisonnectUpdateCallback()
+    {
+        m_updateFunction = nullptr;
+    }
+
 
 protected:
     ENodeType    m_nodeType;
@@ -63,14 +84,13 @@ private:
 
     NodeHandle m_parent;
     TransformHandle m_transform;
-    //Node* m_parent;
-    //Transform* m_transform;
 
     eosString m_nameInternal;
     eosString m_name;
     
     eosVector(NodeHandle) m_children;
-    //eosVector(Node*) m_children;
+
+    UpdateCallbackFunction  m_updateFunction;
 
     static ionU32 g_nextValidNodeIndex;
 };

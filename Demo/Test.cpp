@@ -6,6 +6,19 @@ void Test_ColoredTriangle(ion::Entity& _entity)
 {
     ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_Color, ion::EPrimitiveType_Triangle, _entity);
 
+    _entity.ConnectUpdateCallback([&_entity](ionFloat _deltaTime)
+    {
+        // JUST FOR ROTATE AND HAVE A BETTER VIEW
+        static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
+        static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
+        static ionFloat radRotated = 0.0f;
+
+        radRotated += radPerFrame;
+        while (radRotated > 6.283185307f) radRotated -= 6.283185307f;   // 360 deg
+
+        _entity.GetTransformHandle()->SetRotation(radRotated, axis);
+    });
+
     ion::Material* material = ionMaterialManger().CreateMaterial("EmptyTriangle", 0u);
     _entity.GetMesh(0)->SetMaterial(material);
 
@@ -42,6 +55,19 @@ void Test_ColoredQuad(ion::Entity& _entity)
 {
     ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_Color, ion::EPrimitiveType_Quad, _entity);
 
+    _entity.ConnectUpdateCallback([&_entity](ionFloat _deltaTime)
+    {
+        // JUST FOR ROTATE AND HAVE A BETTER VIEW
+        static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
+        static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
+        static ionFloat radRotated = 0.0f;
+
+        radRotated += radPerFrame;
+        while (radRotated > 6.283185307f) radRotated -= 6.283185307f;   // 360 deg
+
+        _entity.GetTransformHandle()->SetRotation(radRotated, axis);
+    });
+
     ion::Material* material = ionMaterialManger().CreateMaterial("EmptyQuad", 0u);
     _entity.GetMesh(0)->SetMaterial(material);
 
@@ -77,6 +103,19 @@ void Test_ColoredQuad(ion::Entity& _entity)
 void Test_TexturedQuad(ion::Entity& _entity)
 {
     ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_UV, ion::EPrimitiveType_Quad, _entity);
+
+    _entity.ConnectUpdateCallback([&_entity](ionFloat _deltaTime)
+    {
+        // JUST FOR ROTATE AND HAVE A BETTER VIEW
+        static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
+        static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
+        static ionFloat radRotated = 0.0f;
+
+        radRotated += radPerFrame;
+        while (radRotated > 6.283185307f) radRotated -= 6.283185307f;   // 360 deg
+
+        _entity.GetTransformHandle()->SetRotation(radRotated, axis);
+    });
 
     eosString dvaTextureFile = ionFileSystemManager().GetTexturesPath();
     dvaTextureFile.append("dva.png");
@@ -127,6 +166,19 @@ void Test_ColoredCube(ion::Entity& _entity)
 {
     ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_Color, ion::EPrimitiveType_Cube, _entity);
 
+    _entity.ConnectUpdateCallback([&_entity](ionFloat _deltaTime)
+    {
+        // JUST FOR ROTATE AND HAVE A BETTER VIEW
+        static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
+        static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
+        static ionFloat radRotated = 0.0f;
+
+        radRotated += radPerFrame;
+        while (radRotated > 6.283185307f) radRotated -= 6.283185307f;   // 360 deg
+
+        _entity.GetTransformHandle()->SetRotation(radRotated, axis);
+    });
+
     ion::Material* material = ionMaterialManger().CreateMaterial("EmptyCube", 0u);
     _entity.GetMesh(0)->SetMaterial(material);
 
@@ -163,6 +215,19 @@ void Test_ColoredCube(ion::Entity& _entity)
 void Test_ColoredSphere(ion::Entity& _entity)
 {
     ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_Color, ion::EPrimitiveType_Sphere, _entity);
+
+    _entity.ConnectUpdateCallback([&_entity](ionFloat _deltaTime)
+    {
+        // JUST FOR ROTATE AND HAVE A BETTER VIEW
+        static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
+        static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
+        static ionFloat radRotated = 0.0f;
+
+        radRotated += radPerFrame;
+        while (radRotated > 6.283185307f) radRotated -= 6.283185307f;   // 360 deg
+
+        _entity.GetTransformHandle()->SetRotation(radRotated, axis);
+    });
 
     ion::Material* material = ionMaterialManger().CreateMaterial("EmptySphere", 0u);
     _entity.GetMesh(0)->SetMaterial(material);
@@ -202,6 +267,19 @@ void Test_Model_Ambient(ion::Entity& _entity)
     damagedHelmetModelPath.append("DamagedHelmet.gltf");
     ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, _entity);
 
+    _entity.ConnectUpdateCallback([&_entity](ionFloat _deltaTime)
+    {
+        // JUST FOR ROTATE AND HAVE A BETTER VIEW
+        static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
+        static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
+        static ionFloat radRotated = 0.0f;
+
+        radRotated += radPerFrame;
+        while (radRotated > 6.283185307f) radRotated -= 6.283185307f;   // 360 deg
+
+        _entity.GetTransformHandle()->SetRotation(radRotated, axis);
+    });
+
     //
     // one uniform structure bound in the index 0 in the shader stage
     ion::UniformBinding uniform;
@@ -240,6 +318,19 @@ void Test_ModelPBR_WIP(ion::Entity& _entity)
     eosString damagedHelmetModelPath = ionFileSystemManager().GetModelsPath();
     damagedHelmetModelPath.append("DamagedHelmet.gltf");
     ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, _entity);
+
+    _entity.ConnectUpdateCallback([&_entity](ionFloat _deltaTime)
+    {
+        // JUST FOR ROTATE AND HAVE A BETTER VIEW
+        static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
+        static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
+        static ionFloat radRotated = 0.0f;
+
+        radRotated += radPerFrame;
+        while (radRotated > 6.283185307f) radRotated -= 6.283185307f;   // 360 deg
+        
+        _entity.GetTransformHandle()->SetRotation(radRotated, axis);
+    });
 
     //
     // one uniform structure bound in the index 0 in the shader stage

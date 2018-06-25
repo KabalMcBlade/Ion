@@ -101,8 +101,10 @@ void RenderManager::LoadPrimitive(EVertexLayout _layout, EPrimitiveType _type, E
 
 void RenderManager::AddScene(NodeHandle& _root)
 {
+    m_root = _root;
+
     // simplify version for now, just to have something to render soon
-    const eosVector(NodeHandle)& children = _root->GetChildren();
+    const eosVector(NodeHandle)& children = m_root->GetChildren();
 
     eosVector(NodeHandle)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
 
@@ -154,22 +156,8 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
 {
     for (ionSize i = 0; i < _nodeCount; ++i)
     {
-        // JUST FOR ROTATE AND HAVE A BETTER VIEW
-        static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
-        static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
-        static ionFloat radRotated = 0.0f;
-
-        radRotated += radPerFrame;
-        while (radRotated > 6.283185307f) radRotated -= 6.283185307f;   // 360 deg
-
-        m_entityNodes[i]->GetTransformHandle()->SetRotation(radRotated, axis);
-        //
-
-
-        m_entityNodes[i]->GetTransformHandle()->UpdateTransform();
         const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrix();
 
-        
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[8], model[2]);
@@ -205,15 +193,18 @@ void RenderManager::CoreLoop()
 
     while (m_time - m_lastTime > ION_FPS_LIMIT)
     {
-        Update();
+        Update(m_deltaTime);
         Frame();
 
         m_lastTime = m_time;
     }
 }
 
-void RenderManager::Update()
+void RenderManager::Update(ionFloat _deltaTime)
 {
+    //
+    m_root->Update(_deltaTime);
+
     //
     m_mainCamera->Update();
 

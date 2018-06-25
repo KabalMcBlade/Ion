@@ -1,9 +1,12 @@
 #include "Node.h"
 
 
+#include "../Dependencies/Nix/Nix/Nix.h"
+
 #define ION_BASE_NODE_NAME "Node"
 
 EOS_USING_NAMESPACE
+NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
@@ -65,6 +68,35 @@ void Node::DetachFromParent()
 {
     m_parent->GetChildren().erase(std::remove(m_parent->GetChildren().begin(), m_parent->GetChildren().end(), this), m_parent->GetChildren().end());
     m_parent = nullptr; // still need? 
+}
+
+void Node::Update(ionFloat _deltaTime)
+{
+    Matrix currentParentTransform;
+    if (m_parent.IsValid())
+    {
+        // I just get here, because if has a parent, means that in the prev iteration, someone called the UpdateTransform
+        // with the parent matrix
+        currentParentTransform = m_transform->GetMatrix();  
+    }
+    else
+    {
+        // update because is the root for sure and no other can update this object at this point!
+        m_transform->UpdateTransform(); 
+        currentParentTransform = m_transform->GetMatrix();
+    }
+
+    if (m_updateFunction != nullptr)
+    {
+        m_updateFunction(_deltaTime);
+    }
+
+    eosVector(NodeHandle)::const_iterator begin = GetChildIteratorBegin(), end = GetChildIteratorEnd(), it = begin;
+    for (; it != end; ++it)
+    {
+        (*it)->GetTransformHandle()->UpdateTransform(currentParentTransform);
+        (*it)->Update(_deltaTime);
+    }
 }
 
 ION_NAMESPACE_END
