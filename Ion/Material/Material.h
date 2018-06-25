@@ -12,6 +12,7 @@
 #include "../Renderer/RenderCommon.h"
 #include "../Renderer/RenderState.h"
 
+#include "../Shader/ShaderProgram.h"
 
 ION_NAMESPACE_BEGIN
 
@@ -133,12 +134,17 @@ public:
     void SetShaderProgramName(const eosString& _name) { m_shaderProgramName = _name; }
     const eosString& GetShaderProgramName() const { return m_shaderProgramName; }
 
+    void SetConstantsShaders(const ConstantsBindingDef& _constants) { m_constants = _constants; m_constants.m_runtimeStages = (VkShaderStageFlagBits)m_constants.m_shaderStages; }
+    const ConstantsBindingDef& GetConstantsShaders() const { return m_constants; }
+
 private:
     eosString       m_name;
     eosString       m_shaderProgramName;
 
     BasePBR         m_basePBR;
     AdvancePBR      m_advancePBR;
+
+    ConstantsBindingDef m_constants;
 
     EVertexLayout   m_vertexLayout;
 

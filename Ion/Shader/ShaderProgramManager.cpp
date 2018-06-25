@@ -578,6 +578,11 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, ionU64 _stat
 
     vkCmdBindDescriptorSets(_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shaderProgram.m_pipelineLayout, 0, 1, &descSet, 0, nullptr);
     vkCmdBindPipeline(_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+
+    if (shaderProgram.m_constantsDef.IsValid())
+    {
+        vkCmdPushConstants(_commandBuffer, shaderProgram.m_pipelineLayout, shaderProgram.m_constantsDef.m_runtimeStages, 0, static_cast<ionU32>(shaderProgram.m_constantsDef.GetSizeByte()), shaderProgram.m_constantsDef.GetData());
+    }
 }
 
 void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _render, const UniformBinding& _uniform, UniformBuffer& _ubo)
@@ -807,7 +812,7 @@ void ShaderProgramManager::LoadShader(Shader& _shader, const ShaderLayoutDef& _d
     ionAssertReturnVoid(result == VK_SUCCESS, "Cannot create shader!");
 }
 
-ionS32 ShaderProgramManager::FindProgram(const eosString& _name, EVertexLayout _vertexLayout, ionS32 _vertexIndex, ionS32 _fragmentIndex /*= -1*/, ionS32 _tessellationControlIndex /*= -1*/, ionS32 _tessellationEvaluationIndex /*= -1*/, ionS32 _geometryIndex /*= -1*/, ionBool _useJoint /*= false*/, ionBool _useSkinning /*= false*/)
+ionS32 ShaderProgramManager::FindProgram(const eosString& _name, EVertexLayout _vertexLayout, const ConstantsBindingDef& _constants, ionS32 _vertexIndex, ionS32 _fragmentIndex /*= -1*/, ionS32 _tessellationControlIndex /*= -1*/, ionS32 _tessellationEvaluationIndex /*= -1*/, ionS32 _geometryIndex /*= -1*/, ionBool _useJoint /*= false*/, ionBool _useSkinning /*= false*/)
 {
     for (ionSize i = 0; i < m_shaderPrograms.size(); ++i)
     {
@@ -838,7 +843,9 @@ ionS32 ShaderProgramManager::FindProgram(const eosString& _name, EVertexLayout _
     const Shader& tessEvalShader = _tessellationEvaluationIndex > -1 && _tessellationEvaluationIndex < shaderCount ? m_shaders[_tessellationEvaluationIndex] : Shader();
     const Shader& geometryShader = _geometryIndex > -1 && _geometryIndex < shaderCount ? m_shaders[_geometryIndex] : Shader();
 
-    ShaderProgramHelper::CreateDescriptorSetLayout(m_vkDevice, program, vertexShader, fragmentShader, tessControlShader, tessEvalShader, geometryShader);
+    ShaderProgramHelper::CreateDescriptorSetLayout(m_vkDevice, program, vertexShader, fragmentShader, tessControlShader, tessEvalShader, geometryShader, _constants);
+
+    program.m_constantsDef = _constants;    // add any
 
     // skinning here?
 

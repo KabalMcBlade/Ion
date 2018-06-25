@@ -28,6 +28,17 @@ enum EUniformParameterType
     EUniformParameterType_Count
 };
 
+
+enum EPushConstantStage : ionU32
+{
+    EPushConstantStage_Vertex = VK_SHADER_STAGE_VERTEX_BIT,
+    EPushConstantStage_TessellationControl = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT,
+    EPushConstantStage_TessellationEvaluation = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT,
+    EPushConstantStage_Geometryx = VK_SHADER_STAGE_GEOMETRY_BIT,
+    EPushConstantStage_Fragment = VK_SHADER_STAGE_FRAGMENT_BIT,
+    EPushConstantStage_All = VK_SHADER_STAGE_ALL_GRAPHICS
+};
+
 struct ION_DLL UniformBinding final
 {
     ionU32                              m_bindingIndex;
@@ -64,20 +75,26 @@ struct ION_DLL SamplerBinding final
 
 // The push_constant in the shader and for now ONLY floats supported.
 // Anyway seems enough, you can pass matrix, vector, bool, float and integer as "float" representation
-struct ION_DLL ConstantBinding final
+struct ION_DLL ConstantsBindingDef final
 {
     eosVector(ionFloat) m_values;
+    EPushConstantStage m_shaderStages;
 
     const void* GetData() const { return m_values.data(); }
     const ionSize GetSize() const { return m_values.size(); }
     const ionSize GetSizeByte() const { return m_values.size() * sizeof(ionFloat); }
+    const ionBool IsValid() const { return GetSize() > 0; }
+
+    // it is computed by the engine, do not set manually
+    VkShaderStageFlagBits   m_runtimeStages;
 
     void Clear()
     {
         m_values.clear();
+        m_shaderStages = (EPushConstantStage)0;
     }
 
-    ~ConstantBinding()
+    ~ConstantsBindingDef()
     {
         Clear();
     }
@@ -87,7 +104,6 @@ struct ION_DLL ShaderLayoutDef final
 {
     eosVector(UniformBinding)   m_uniforms;
     eosVector(SamplerBinding)   m_samplers;
-    ConstantBinding             m_constant;
 
     ~ShaderLayoutDef()
     {
@@ -139,19 +155,20 @@ struct ShaderProgram
 
     VkPipeline GetPipeline(const RenderCore& _render, ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationControlShader = VK_NULL_HANDLE, VkShaderModule _tessellationEvaluatorShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE);
 
-    eosString                    m_name;
-    ionBool                        m_usesJoints;
-    ionBool                        m_usesSkinning;
-    ionS32                        m_vertexShaderIndex;
-    ionS32                        m_fragmentShaderIndex;
-    ionS32                        m_tessellationControlShaderIndex;
-    ionS32                        m_tessellationEvaluatorShaderIndex;
-    ionS32                        m_geometryShaderIndex;
+    eosVector(EShaderBinding)   m_bindings;
+    eosVector(PipelineState)    m_pipelines;
+    eosString                   m_name;
     EVertexLayout               m_vertextLayoutType;
     VkPipelineLayout            m_pipelineLayout;
-    VkDescriptorSetLayout        m_descriptorSetLayout;
-    eosVector(EShaderBinding)    m_bindings;
-    eosVector(PipelineState)    m_pipelines;
+    VkDescriptorSetLayout       m_descriptorSetLayout;
+    ConstantsBindingDef         m_constantsDef;
+    ionS32                      m_vertexShaderIndex;
+    ionS32                      m_fragmentShaderIndex;
+    ionS32                      m_tessellationControlShaderIndex;
+    ionS32                      m_tessellationEvaluatorShaderIndex;
+    ionS32                      m_geometryShaderIndex;
+    ionBool                     m_usesJoints;
+    ionBool                     m_usesSkinning;
 };
 
 

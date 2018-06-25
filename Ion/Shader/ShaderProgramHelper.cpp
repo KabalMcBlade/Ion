@@ -245,7 +245,7 @@ VkDescriptorType ShaderProgramHelper::GetDescriptorType(EShaderBinding _type)
     }
 }
 
-void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, ShaderProgram& _shaderProgram, const Shader& _vertexShader, const Shader& _fragmentShader, const Shader& _tessellationControlShader, const Shader& _tessellationEvaluatorShader, const Shader& _geometryShader)
+void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, ShaderProgram& _shaderProgram, const Shader& _vertexShader, const Shader& _fragmentShader, const Shader& _tessellationControlShader, const Shader& _tessellationEvaluatorShader, const Shader& _geometryShader, const ConstantsBindingDef& _constants)
 {
     // Descriptor Set Layout
     {
@@ -393,6 +393,17 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
         createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         createInfo.setLayoutCount = 1;
         createInfo.pSetLayouts = &_shaderProgram.m_descriptorSetLayout;
+
+        if (_constants.IsValid())
+        {
+            VkPushConstantRange pushConstantRange{};
+            pushConstantRange.stageFlags = _constants.m_runtimeStages;
+            pushConstantRange.offset = 0;
+            pushConstantRange.size = static_cast<ionU32>(_constants.GetSizeByte());
+
+            createInfo.pushConstantRangeCount = 1;
+            createInfo.pPushConstantRanges = &pushConstantRange;
+        }
 
         vkCreatePipelineLayout(_device, &createInfo, vkMemory, &_shaderProgram.m_pipelineLayout);
     }
