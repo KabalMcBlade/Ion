@@ -124,8 +124,9 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
     _entity.GetTransformHandle()->SetRotation(rotation);
     _entity.GetTransformHandle()->SetScale(scale);
 
-    _entity.GetTransformHandle()->UpdateTransform(_parentMatrix);
-    Matrix localNodeMatrix =_entity.GetTransformHandle()->GetMatrix();
+    Matrix localNodeMatrix = _entity.GetTransformHandle()->GetMatrix();
+    _entity.GetTransformHandle()->SetMatrixWS(_parentMatrix * localNodeMatrix);
+    
 
 
     // calculate matrix for all children if any

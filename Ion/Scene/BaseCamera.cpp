@@ -74,37 +74,18 @@ void BaseCamera::SetCameraType(ECameraType _type)
     m_type = _type;
 }
 
-void BaseCamera::UpdateViewMatrix()
+void BaseCamera::UpdateView()
 {
-    Matrix parent;
-    if (GetParentHandle().IsValid())
-    {
-        parent = GetParentHandle()->GetTransformHandle()->GetMatrix();
-    }
-
     if (m_type == ECameraType::ECameraType_FirstPerson)
     {
-        GetTransformHandle()->UpdateTransformInverse(parent);
-        m_view = GetTransformHandle()->GetMatrixInverse();
+        m_view = GetTransformHandle()->GetMatrixInverseWS();
     }
     else
     {
-        GetTransformHandle()->UpdateTransform(parent);
-        m_view = GetTransformHandle()->GetMatrix();
+        m_view = GetTransformHandle()->GetMatrixWS();
     }
 
     m_frustum.Update(m_projection, m_view);
-}
-
-void BaseCamera::UpdateMovement()
-{
-
-}
-
-void BaseCamera::Update()
-{
-    UpdateMovement();
-    UpdateViewMatrix();
 }
 
 void BaseCamera::SetViewport(RenderCore& _renderCore, ionS32 _fromX, ionS32 _fromY, ionS32 _width, ionS32 _height, ionFloat _percentageOfWithHeight, ionFloat _minDepth, ionFloat _maxDepth)

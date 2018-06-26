@@ -6,6 +6,7 @@
 //#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 #include "../Ion/Ion.h"
 
+#include "Objects.h"
 #include "Test.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -182,7 +183,7 @@ int main()
 
 
     //
-    Entity *pTest = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+    RotatingEntity *pTest = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE);
     EntityHandle test(pTest);
     test->GetTransformHandle()->SetPosition(entityPos);
     test->GetTransformHandle()->SetRotation(entityRot);

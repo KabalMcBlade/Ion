@@ -156,7 +156,7 @@ void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _
 {
     for (ionSize i = 0; i < _nodeCount; ++i)
     {
-        const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrix();
+        const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrixWS();
 
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
         _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
@@ -206,7 +206,8 @@ void RenderManager::Update(ionFloat _deltaTime)
     m_root->Update(_deltaTime);
 
     //
-    m_mainCamera->Update();
+    // all camera need to update here at this point!
+    m_mainCamera->UpdateView();
 
     //
     const Matrix& projection = m_mainCamera->GetPerspectiveProjection();

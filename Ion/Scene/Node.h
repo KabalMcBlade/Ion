@@ -21,10 +21,6 @@ enum ENodeType
     ENodeType_Camera
 };
 
-
-typedef std::function<void(ionFloat)> UpdateCallbackFunction;
-
-
 class Node;
 typedef SmartPointer<Node> NodeHandle;
 
@@ -35,17 +31,34 @@ public:
     explicit Node(const eosString & _name);
     virtual ~Node();
 
+    //////////////////////////////////////////////////////////////////////////
 
-    ENodeType GetNodeType() const { return m_nodeType; }
+    //
+    // USER VIRTUAL CALLS
+    virtual void OnAttachToParent(NodeHandle& _parent) {}
+    virtual void OnDetachFromParent() {}
+
+    virtual void OnUpdate(ionFloat _deltaTime) {}
+    virtual void OnLateUpdate(ionFloat _deltaTime) {}
+
+    //
+    // USER CALLS
+
     void SetName(const eosString & _name);
-    const eosString &GetName() const  { return m_name; }
-    const eosString &GetNameInternal() const  { return m_nameInternal; }
-    ionU32 GetNodeIndex() const { return m_nodeIndex;  }
-    ionSize GetHash() const { return m_hash; }
+    void SetActive(ionBool _isActive) { m_active = _isActive; }
+    ionBool IsActive() { return m_active; }
 
     void AttachToParent(Node& _parent);
     void AttachToParent(NodeHandle& _parent);
     void DetachFromParent();
+
+    //////////////////////////////////////////////////////////////////////////
+
+    ENodeType GetNodeType() const { return m_nodeType; }
+    const eosString &GetName() const  { return m_name; }
+    const eosString &GetNameInternal() const  { return m_nameInternal; }
+    ionU32 GetNodeIndex() const { return m_nodeIndex;  }
+    ionSize GetHash() const { return m_hash; }
 
     virtual void Update(ionFloat _deltaTime);
 
@@ -59,19 +72,6 @@ public:
 
     eosVector(NodeHandle)::const_iterator GetChildIteratorBegin() { return m_children.begin();}
     eosVector(NodeHandle)::const_iterator GetChildIteratorEnd() { return m_children.end(); }
-    //////////////////////////////////////////////////////////////////////////
-
-    void ConnectUpdateCallback(UpdateCallbackFunction _cb)
-    {
-        m_updateFunction = _cb;
-    }
-
-    void DisonnectUpdateCallback()
-    {
-        m_updateFunction = nullptr;
-    }
-
-
 protected:
     ENodeType    m_nodeType;
 
@@ -90,7 +90,7 @@ private:
     
     eosVector(NodeHandle) m_children;
 
-    UpdateCallbackFunction  m_updateFunction;
+    ionBool m_active;
 
     static ionU32 g_nextValidNodeIndex;
 };

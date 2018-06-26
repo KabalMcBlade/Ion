@@ -42,7 +42,7 @@ public:
 
     void GetCorners(eosVector(Vector)& _corners) const;
 
-    BoundingBox GetTransformed(const Transform& _transform);
+    BoundingBox GetTransformed(const Matrix& _matrix);
 
 private:
     Vector m_min;

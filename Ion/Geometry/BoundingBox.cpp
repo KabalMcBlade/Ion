@@ -109,7 +109,7 @@ void BoundingBox::GetCorners(eosVector(Vector)& _corners) const
     _corners.push_back(_maxX_minY_maxZ_maxW);
 }
 
-BoundingBox BoundingBox::GetTransformed(const Transform& _transform)
+BoundingBox BoundingBox::GetTransformed(const Matrix& _matrix)
 {
     BoundingBox transformedBoundingBox;
 
@@ -118,7 +118,7 @@ BoundingBox BoundingBox::GetTransformed(const Transform& _transform)
 
     for (ionU32 i = 0; i < 8; ++i)
     {
-        Vector tv = _transform.GetMatrix() * corners[i];
+        Vector tv = _matrix * corners[i];
 
         transformedBoundingBox.MergePoint(tv);
     }

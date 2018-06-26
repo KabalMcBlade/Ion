@@ -12,7 +12,7 @@ ION_NAMESPACE_BEGIN
 
 ionU32 Node::g_nextValidNodeIndex = 0;
 
-Node::Node() : m_transform(eosNew(Transform, ION_MEMORY_ALIGNMENT_SIZE))
+Node::Node() : m_transform(eosNew(Transform, ION_MEMORY_ALIGNMENT_SIZE)), m_active(true)
 {
     m_nodeIndex = g_nextValidNodeIndex;
     ++g_nextValidNodeIndex;
@@ -21,7 +21,7 @@ Node::Node() : m_transform(eosNew(Transform, ION_MEMORY_ALIGNMENT_SIZE))
     m_nodeType = ENodeType_EmptyNode;
 }
 
-Node::Node(const eosString & _name) : m_transform(eosNew(Transform, ION_MEMORY_ALIGNMENT_SIZE))
+Node::Node(const eosString & _name) : m_transform(eosNew(Transform, ION_MEMORY_ALIGNMENT_SIZE)), m_active(true)
 {
     m_nodeIndex = g_nextValidNodeIndex;
     ++g_nextValidNodeIndex;
@@ -61,41 +61,50 @@ void Node::AttachToParent(NodeHandle& _parent)
     {
         SmartPointer<Node> thisHandle(this);
         m_parent->GetChildren().push_back(thisHandle);
+
+        OnAttachToParent(m_parent);
     }
 }
 
 void Node::DetachFromParent()
 {
+    OnDetachFromParent();
+
     m_parent->GetChildren().erase(std::remove(m_parent->GetChildren().begin(), m_parent->GetChildren().end(), this), m_parent->GetChildren().end());
     m_parent = nullptr; // still need? 
 }
 
 void Node::Update(ionFloat _deltaTime)
 {
-    Matrix currentParentTransform;
-    if (m_parent.IsValid())
+    if (m_active)
     {
-        // I just get here, because if has a parent, means that in the prev iteration, someone called the UpdateTransform
-        // with the parent matrix
-        currentParentTransform = m_transform->GetMatrix();  
-    }
-    else
-    {
-        // update because is the root for sure and no other can update this object at this point!
-        m_transform->UpdateTransform(); 
-        currentParentTransform = m_transform->GetMatrix();
-    }
+        Matrix worldTransform;
+        if (m_parent.IsValid())
+        {
+            m_transform->SetMatrixWS(m_parent->GetTransformHandle()->GetMatrixWS() * m_transform->GetMatrix());
+            if (GetNodeType() == ENodeType_Camera)
+            {
+                m_transform->SetMatrixInverseWS(m_parent->GetTransformHandle()->GetMatrixInverseWS() * m_transform->GetMatrixInverse());
+            }
+        }
+        else
+        {
+            m_transform->SetMatrixWS(m_transform->GetMatrix());
+            if (GetNodeType() == ENodeType_Camera)
+            {
+                m_transform->SetMatrixInverseWS(m_transform->GetMatrixInverse());
+            }
+        }
 
-    if (m_updateFunction != nullptr)
-    {
-        m_updateFunction(_deltaTime);
-    }
+        OnUpdate(_deltaTime);
 
-    eosVector(NodeHandle)::const_iterator begin = GetChildIteratorBegin(), end = GetChildIteratorEnd(), it = begin;
-    for (; it != end; ++it)
-    {
-        (*it)->GetTransformHandle()->UpdateTransform(currentParentTransform);
-        (*it)->Update(_deltaTime);
+        eosVector(NodeHandle)::const_iterator begin = GetChildIteratorBegin(), end = GetChildIteratorEnd(), it = begin;
+        for (; it != end; ++it)
+        {
+            (*it)->Update(_deltaTime);
+        }
+
+        OnLateUpdate(_deltaTime);
     }
 }
 

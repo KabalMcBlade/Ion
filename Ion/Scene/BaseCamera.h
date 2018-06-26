@@ -34,7 +34,7 @@ public:
     void SetPerspectiveProjection(ionFloat _fovDeg, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar);
     void UpdateAspectRatio(ionFloat _aspect);
 
-    void Update();
+    void UpdateView();
 
     ionFloat GetNear() const { return m_zNear; }
     ionFloat GetFar() const { return m_zFar; }
@@ -55,15 +55,9 @@ public:
     static Matrix PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar);
     static Matrix OrthographicProjectionMatrix(ionFloat _left, ionFloat _right, ionFloat _bottom, ionFloat _top, ionFloat _zNear, ionFloat _zFar);
 
-protected:
-    // to override if you do something like moving the camera (rotation/position)
-    virtual void UpdateMovement();
-
 private:
     BaseCamera(const BaseCamera& _Orig) = delete;
     BaseCamera& operator = (const BaseCamera&) = delete;
-
-    void UpdateViewMatrix();
 
 private:
     Matrix  m_projection;

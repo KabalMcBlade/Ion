@@ -43,33 +43,37 @@ Transform::~Transform()
 
 }
 
-void Transform::UpdateTransform(const Matrix& _parentMatrix /* = Matrix() */)
+const Matrix& Transform::GetMatrixWS() const
+{
+    return m_matrixWS;
+}
+
+const Matrix& Transform::GetMatrixInverseWS() const
+{
+    return m_matrixInverseWS;
+}
+
+const Matrix& Transform::GetMatrix()
 {
     if (m_dirty)
     {
-        m_matrix = _parentMatrix;
+        m_matrix = Matrix();
         m_matrix = m_matrix.Translate(m_position);
         m_matrix = m_matrix * m_rotation.ToMatrix();
         m_matrix = m_matrix.Scale(m_scale);
     }
+    return m_matrix;
 }
 
-void Transform::UpdateTransformInverse(const Matrix& _parentMatrix/* = Matrix() */)
+const Matrix& Transform::GetMatrixInverse()
 {
     if (m_dirty)
     {
-        m_matrixInverse = _parentMatrix.Scale(1.0f / m_scale);
+        m_matrixInverse = Matrix();
+        m_matrixInverse = m_matrixInverse.Scale(1.0f / m_scale);
         m_matrixInverse = m_rotation.ToMatrix().Transpose() * m_matrixInverse;
         m_matrixInverse = m_matrixInverse.Translate(m_position);
     }
-}
-
-const Matrix& Transform::GetMatrix() const
-{
-    return m_matrix;
-}
-const Matrix& Transform::GetMatrixInverse() const
-{
     return m_matrixInverse;
 }
 
