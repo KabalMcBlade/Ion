@@ -51,7 +51,7 @@ public:
     ~RenderManager();
 
     void    AddScene(NodeHandle& _root);
-    void    AddScene(Node& _root);
+    //void    AddScene(Node& _root);
 
     void    Resize();
     void    Prepare();

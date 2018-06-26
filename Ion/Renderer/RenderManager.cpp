@@ -129,13 +129,13 @@ void RenderManager::AddScene(NodeHandle& _root)
         }
     }
 }
-
+/*
 void RenderManager::AddScene(Node& _root)
 {
     SmartPointer<Node> rootHandle(&_root);
     AddScene(rootHandle);
 }
-
+*/
 void RenderManager::Resize()
 {
     m_renderCore.Recreate();

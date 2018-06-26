@@ -167,8 +167,8 @@ int main()
 
 
     //
-    Entity *pRoot = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
-    EntityHandle root(pRoot);
+    Node *pRoot = eosNew(Node, ION_MEMORY_ALIGNMENT_SIZE);
+    NodeHandle root(pRoot);
     root->GetTransformHandle()->SetPosition(rootPos);
     root->GetTransformHandle()->SetRotation(rootRot);
 
@@ -231,11 +231,11 @@ int main()
 
     //////////////////////////////////////////////////////////////////////////
     //
-    camera->AttachToParent(*root);
-    test->AttachToParent(*root);
+    camera->AttachToParent(root);
+    test->AttachToParent(root);
 
     //
-    ionRenderManager().AddScene(*root);
+    ionRenderManager().AddScene(root);
 
     if (rendererInitialized)
     {
