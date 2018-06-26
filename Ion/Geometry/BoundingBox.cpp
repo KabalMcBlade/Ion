@@ -30,6 +30,7 @@ void BoundingBox::Set(const Vector& _min, const Vector& _max)
     m_max = _max;
     m_halfExtent = (m_max - m_min) * 0.5f;
     m_center = (m_max + m_min) * 0.5f;
+    m_size = m_max - m_min;
 
     /*
     // was used to clear the result, maybe useless

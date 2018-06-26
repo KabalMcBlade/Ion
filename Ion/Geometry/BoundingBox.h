@@ -26,6 +26,7 @@ public:
     ION_INLINE const Vector& GetMax() const { return m_max; }
     ION_INLINE const Vector& GetHalfExtent() const { return m_halfExtent; }
     ION_INLINE const Vector& GetCenter() const { return m_center; }
+    ION_INLINE const Vector& GetSize() const { return m_size; }
 
     ION_INLINE ionBool IsInfinite() const { return m_min == VectorHelper::GetMinusInf() && m_max == VectorHelper::GetPlusInf(); }
     ION_INLINE ionBool IsZero() const { return m_min == VectorHelper::GetZero() && m_max == VectorHelper::GetZero(); }
@@ -49,6 +50,7 @@ private:
     Vector m_max;
     Vector m_halfExtent;
     Vector m_center;
+    Vector m_size;
 };
 
 ION_NAMESPACE_END

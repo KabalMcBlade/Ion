@@ -278,4 +278,53 @@ void Test_ModelPBR_WIP(ion::Entity& _entity)
     _entity.GetMesh(0)->GetMaterial()->GetState().SetBlendStateMode(ion::EBlendState_Source_One);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetBlendStateMode(ion::EBlendState_Dest_Zero);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetBlendOperatorMode(ion::EBlendOperator_Add);
+
+    //Test_DrawBoundingBox(_entity, _entity.GetTransformedBoundingBox());
+}
+
+
+void Test_DrawBoundingBox(ion::Entity& _entity, ion::BoundingBox& _bb)
+{
+    ion::Entity *pBoundingBox = eosNew(ion::Entity, ION_MEMORY_ALIGNMENT_SIZE);
+    ion::EntityHandle boundingBox(pBoundingBox);
+
+    pBoundingBox->GetTransformHandle()->SetPosition(_bb.GetCenter());
+    pBoundingBox->GetTransformHandle()->SetScale(_bb.GetSize());
+
+    ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_Color, ion::EPrimitiveType_Cube, *pBoundingBox);
+
+    ion::Material* material = ionMaterialManger().CreateMaterial("BoundingBox", 0u);
+    pBoundingBox->GetMesh(0)->SetMaterial(material);
+
+    // one uniform structure bound in the index 0 in the shader stage
+    ion::UniformBinding uniform;
+    uniform.m_bindingIndex = 0;
+    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+
+    // set the shaders layout
+    ion::ShaderLayoutDef vertexLayout;
+    vertexLayout.m_uniforms.push_back(uniform);
+
+    ion::ShaderLayoutDef fragmentLayout;
+
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
+
+    pBoundingBox->GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
+    pBoundingBox->GetMesh(0)->GetMaterial()->SetVertexLayout(pBoundingBox->GetMesh(0)->GetLayout());
+
+    pBoundingBox->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+
+    pBoundingBox->GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_TwoSide);
+    pBoundingBox->GetMesh(0)->GetMaterial()->GetState().SetRasterizationMode(ion::ERasterization_PolygonMode_Line);
+    pBoundingBox->GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
+    pBoundingBox->GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+
+
+    boundingBox->AttachToParent(_entity);
 }
