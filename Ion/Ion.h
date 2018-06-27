@@ -57,7 +57,7 @@
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"
-#include "Scene/BaseCamera.h"
+#include "Scene/Camera.h"
 #include "Scene/Entity.h"
 #include "Scene/SceneGraph.h"
 

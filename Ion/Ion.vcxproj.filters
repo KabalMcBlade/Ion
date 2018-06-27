@@ -120,9 +120,6 @@
     <ClInclude Include="Scene\Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Scene\BaseCamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\RenderDefs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -246,6 +243,9 @@
     <ClInclude Include="Scene\SceneGraph.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Scene\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -273,9 +273,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Scene\Node.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene\BaseCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\GPU.cpp">
@@ -360,6 +357,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Scene\SceneGraph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

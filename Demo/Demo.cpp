@@ -161,8 +161,8 @@ int main()
     Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
 
     //
-    BaseCameraHandle camera = eosNew(BaseCamera, ION_MEMORY_ALIGNMENT_SIZE);
-    camera->SetCameraType(BaseCamera::ECameraType::ECameraType_FirstPerson);
+    CameraHandle camera = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE);
+    camera->SetCameraType(Camera::ECameraType::ECameraType_FirstPerson);
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
     camera->GetTransformHandle()->SetPosition(cameraPos);
     camera->GetTransformHandle()->SetRotation(cameraRot);

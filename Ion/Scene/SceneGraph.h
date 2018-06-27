@@ -7,7 +7,7 @@
 
 #include "Node.h"
 #include "Entity.h"
-#include "BaseCamera.h"
+#include "Camera.h"
 
 #include "../Geometry/BoundingBox.h"
 
@@ -48,7 +48,7 @@ private:
 private:
     BoundingBox                                         m_sceneBoundingBox;
     NodeHandle                                          m_rootHandle;
-    eosMap(BaseCameraHandle, eosVector(EntityHandle))   m_treeNodes;
+    eosMap(CameraHandle, eosVector(EntityHandle))   m_treeNodes;
     eosMap(ionSize, eosVector(DrawSurface))             m_drawSurfaces;
     eosMap(ionSize, ionU32)                             m_nodeCountPerCamera;
 };

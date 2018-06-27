@@ -33,9 +33,9 @@ void SceneGraph::RemoveFromScene(NodeHandle& _node)
 
 void SceneGraph::UpdateAllCameraAspectRatio(const RenderCore& _renderCore)
 {
-    for (eosMap(BaseCameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    for (eosMap(CameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
     {
-        BaseCameraHandle cam = iter->first;
+        CameraHandle cam = iter->first;
 
         cam->UpdateAspectRatio((ionFloat)_renderCore.GetWidth() / (ionFloat)_renderCore.GetHeight());
     }
@@ -47,7 +47,7 @@ void SceneGraph::FillCameraMapTree(NodeHandle& _node)
     {
         if (m_treeNodes.find(_node) == m_treeNodes.end())
         {
-            m_treeNodes.insert(std::pair<BaseCameraHandle, eosVector(EntityHandle)>(_node, eosVector(EntityHandle)()));
+            m_treeNodes.insert(std::pair<CameraHandle, eosVector(EntityHandle)>(_node, eosVector(EntityHandle)()));
         }
     }
 
@@ -69,9 +69,9 @@ void SceneGraph::GenerateMapTree(NodeHandle& _node)
 {
     if (_node->GetNodeType() == ENodeType_Entity)
     {
-        for (eosMap(BaseCameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+        for (eosMap(CameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
         {
-            const BaseCameraHandle& cam = iter->first;
+            const CameraHandle& cam = iter->first;
 
             if (_node->IsInRenderLayer(cam->GetRenderLayer()))
             {
@@ -106,9 +106,9 @@ void SceneGraph::Prepare()
     GenerateMapTree(m_rootHandle);
 
     // Update entities
-    for (eosMap(BaseCameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    for (eosMap(CameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
     {
-        const BaseCameraHandle& cam = iter->first;
+        const CameraHandle& cam = iter->first;
         m_drawSurfaces[cam->GetHash()].resize(m_nodeCountPerCamera[cam->GetHash()]);
     }
 }
@@ -147,9 +147,9 @@ void SceneGraph::Update(ionFloat _deltaTime)
     // mapping
     ionVertexCacheManager().BeginMapping();
     ionU32 index = 0;
-    for (eosMap(BaseCameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    for (eosMap(CameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
     {
-        const BaseCameraHandle& cam = iter->first;
+        const CameraHandle& cam = iter->first;
 
         cam->UpdateView();
 
@@ -170,9 +170,9 @@ void SceneGraph::Update(ionFloat _deltaTime)
 
 void SceneGraph::Render(RenderCore& _renderCore, ionU32 _width, ionU32 _height)
 {
-    for (eosMap(BaseCameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    for (eosMap(CameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
     {
-        const BaseCameraHandle& cam = iter->first;
+        const CameraHandle& cam = iter->first;
 
         cam->StartRenderPass(_renderCore, 1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
         cam->SetViewport(_renderCore, 0, 0, _width, _height, 1.0f, 0.0f, 1.0f);

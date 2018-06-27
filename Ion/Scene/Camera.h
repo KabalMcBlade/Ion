@@ -13,11 +13,11 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-class BaseCamera;
-typedef SmartPointer<BaseCamera> BaseCameraHandle;
+class Camera;
+typedef SmartPointer<Camera> CameraHandle;
 
 class RenderCore;
-class ION_DLL BaseCamera : public Node
+class ION_DLL Camera : public Node
 {
 public:
     enum ECameraType 
@@ -26,9 +26,9 @@ public:
         ECameraType_FirstPerson
     };
     
-    explicit BaseCamera();
-    explicit BaseCamera(const eosString & _name);
-    virtual ~BaseCamera();
+    explicit Camera();
+    explicit Camera(const eosString & _name);
+    virtual ~Camera();
 
     void SetCameraType(ECameraType _type);
     void SetPerspectiveProjection(ionFloat _fovDeg, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar);
@@ -56,8 +56,8 @@ public:
     static Matrix OrthographicProjectionMatrix(ionFloat _left, ionFloat _right, ionFloat _bottom, ionFloat _top, ionFloat _zNear, ionFloat _zFar);
 
 private:
-    BaseCamera(const BaseCamera& _Orig) = delete;
-    BaseCamera& operator = (const BaseCamera&) = delete;
+    Camera(const Camera& _Orig) = delete;
+    Camera& operator = (const Camera&) = delete;
 
 private:
     Matrix  m_projection;

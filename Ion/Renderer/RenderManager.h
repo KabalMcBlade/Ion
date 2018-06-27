@@ -16,7 +16,7 @@
 
 #include "../Scene/Node.h"
 #include "../Scene/Entity.h"
-#include "../Scene/BaseCamera.h"
+#include "../Scene/Camera.h"
 #include "../Scene/SceneGraph.h"
 
 

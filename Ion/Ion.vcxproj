@@ -225,7 +225,7 @@
     <ClInclude Include="Renderer\RenderCommon.h" />
     <ClInclude Include="Renderer\RenderDefs.h" />
     <ClInclude Include="Renderer\RenderCore.h" />
-    <ClInclude Include="Scene\BaseCamera.h" />
+    <ClInclude Include="Scene\Camera.h" />
     <ClInclude Include="Scene\Node.h" />
     <ClInclude Include="Scene\Transform.h" />
     <ClInclude Include="stdafx.h" />
@@ -276,7 +276,7 @@
     <ClCompile Include="Renderer\UniformBufferObject.cpp" />
     <ClCompile Include="Renderer\VertexBufferObject.cpp" />
     <ClCompile Include="Renderer\VertexCacheManager.cpp" />
-    <ClCompile Include="Scene\BaseCamera.cpp" />
+    <ClCompile Include="Scene\Camera.cpp" />
     <ClCompile Include="Scene\Entity.cpp" />
     <ClCompile Include="Scene\Node.cpp" />
     <ClCompile Include="Scene\Transform.cpp" />
