@@ -59,6 +59,7 @@
 #include "Scene/Node.h"
 #include "Scene/BaseCamera.h"
 #include "Scene/Entity.h"
+#include "Scene/SceneGraph.h"
 
 #include "Utilities/LoaderGLTF.h"
 #include "Utilities/GeometryHelper.h"

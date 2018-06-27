@@ -17,6 +17,8 @@
 #include "../Scene/Node.h"
 #include "../Scene/Entity.h"
 #include "../Scene/BaseCamera.h"
+#include "../Scene/SceneGraph.h"
+
 
 EOS_USING_NAMESPACE
 
@@ -50,8 +52,7 @@ public:
     RenderManager();
     ~RenderManager();
 
-    void    AddScene(NodeHandle& _root);
-    //void    AddScene(Node& _root);
+    void    AddToSceneGraph(NodeHandle _node);
 
     void    Resize();
     void    Prepare();
@@ -61,30 +62,16 @@ private:
     RenderManager(const RenderManager& _Orig) = delete;
     RenderManager& operator = (const RenderManager&) = delete;
 
-    void FillCameraMapTree(NodeHandle& _node);
-    void GenerateMapTree(NodeHandle& _node);
-
     void Update(ionFloat _deltaTime);
     void Frame();
 
-    void UpdateDrawSurface(ionSize _cameraHash, const Matrix& _projection, const Matrix& _view, const EntityHandle& _entity, ionU32 _index);
-    void UpdateDrawSurface(const Matrix& _projection, const Matrix& _view, ionSize _nodeCount);
-
 private:
-    RenderCore              m_renderCore;
+    RenderCore  m_renderCore;
+    SceneGraph  m_sceneGraph;
 
-    ionFloat                m_time;
-    ionFloat                m_lastTime;
-    ionFloat                m_deltaTime;
-
-    //////////////////////////////////////////////////////////////////////////
-    // Should be inside a "scene graph" class or a "scene" class
-    BoundingBox                                         m_sceneBoundingBox;
-    NodeHandle                                          m_root;
-    eosMap(BaseCameraHandle, eosVector(EntityHandle))   m_treeNodes;
-    eosMap(ionSize, eosVector(DrawSurface))             m_drawSurfaces;
-    eosMap(ionSize, ionU32)                             m_nodeCountPerCamera;
-    //////////////////////////////////////////////////////////////////////////
+    ionFloat    m_time;
+    ionFloat    m_lastTime;
+    ionFloat    m_deltaTime;
 
 private:
     static RenderManager *s_instance;

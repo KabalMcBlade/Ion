@@ -153,8 +153,6 @@ int main()
     static const Vector right(1.0f, 0.0f, 0.0f, 1.0f);
     static const Vector forward(0.0f, 0.0f, 1.0f, 1.0f);
 
-    Vector rootPos(0.0f, 0.0f, 0.0f, 1.0f);
-    Quaternion rootRot(NIX_DEG_TO_RAD(0.0f), up);
 
     Vector cameraPos(0.0f, 0.0f, -3.0f, 1.0f);
     Quaternion cameraRot(NIX_DEG_TO_RAD(0.0f), up);
@@ -162,20 +160,12 @@ int main()
     Vector entityPos(0.0f, 0.0f, 0.0f, 1.0f);
     Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
 
-
-    //
-    NodeHandle root = eosNew(Node, ION_MEMORY_ALIGNMENT_SIZE);
-    root->GetTransformHandle()->SetPosition(rootPos);
-    root->GetTransformHandle()->SetRotation(rootRot);
-
     //
     BaseCameraHandle camera = eosNew(BaseCamera, ION_MEMORY_ALIGNMENT_SIZE);
     camera->SetCameraType(BaseCamera::ECameraType::ECameraType_FirstPerson);
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
     camera->GetTransformHandle()->SetPosition(cameraPos);
     camera->GetTransformHandle()->SetRotation(cameraRot);
-
-
 
     //
     EntityHandle test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE);
@@ -224,12 +214,9 @@ int main()
 
     //////////////////////////////////////////////////////////////////////////
     //
-    camera->AttachToParent(root);
 
-    test->AttachToParent(root);
-
-    //
-    ionRenderManager().AddScene(root);
+    ionRenderManager().AddToSceneGraph(camera);
+    ionRenderManager().AddToSceneGraph(test);
 
     if (rendererInitialized)
     {
