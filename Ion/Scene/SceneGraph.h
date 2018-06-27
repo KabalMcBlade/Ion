@@ -36,6 +36,8 @@ public:
     void Update(ionFloat _deltaTime);
     void Render(RenderCore& _renderCore, ionU32 _width, ionU32 _height);
 
+    void UpdateMouseActiveCamera(ionFloat _x, ionFloat _y);
+
 private:
     SceneGraph(const SceneGraph& _Orig) = delete;
     SceneGraph& operator = (const SceneGraph&) = delete;

@@ -6,6 +6,28 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+
+MouseState::MouseState() 
+{
+    m_buttons[0].IsPressed = false;
+    m_buttons[0].WasClicked = false;
+    m_buttons[0].WasRelease = false;
+    m_buttons[1].IsPressed = false;
+    m_buttons[1].WasClicked = false;
+    m_buttons[1].WasRelease = false;
+    m_position.m_x = 0;
+    m_position.m_y = 0;
+    m_position.m_delta.m_x = 0;
+    m_position.m_delta.m_y = 0;
+    m_wheel.m_wasMoved = false;
+    m_wheel.m_distance = 0.0f;
+}
+
+MouseState::~MouseState() 
+{
+}
+
+
 Window::Window() : m_instance(), m_handle()
 {
 
@@ -148,13 +170,18 @@ ionBool Window::Loop()
             // Process events
             switch (message.message)
             {
-            // resize
-            case WM_USER + 1:
+            case ION_WND_RESIZE:
                 resize = true;
                 break;
-            // Close
-            case WM_USER + 2:
+            case ION_KEY_ESCAPE:
+            case ION_WND_CLOSE:
                 loop = false;
+                break;
+            case ION_MOUSE_MOVE:
+                //MouseMove(static_cast<ionS32>(message.wParam), static_cast<ionS32>(message.lParam));
+                //LOWORD(message.lParam), HIWORD(message.lParam)
+                MouseMove(static_cast<ionS32>(LOWORD(message.lParam)), static_cast<ionS32>(HIWORD(message.lParam)));
+                
                 break;
             }
             TranslateMessage(&message);
@@ -162,7 +189,6 @@ ionBool Window::Loop()
         }
         else
         {
-            // Resize
             if (resize)
             {
                 resize = false;
@@ -172,13 +198,54 @@ ionBool Window::Loop()
             }
             else
             {
-                // Draw
                 ionRenderManager().CoreLoop();
             }
         }
     }
 
     return result;
+}
+
+void Window::MouseClick(ionSize _indexButton, ionBool _state) 
+{
+    if (2 > _indexButton)
+    {
+        m_mouse.m_buttons[_indexButton].IsPressed = _state;
+        m_mouse.m_buttons[_indexButton].WasClicked = _state;
+        m_mouse.m_buttons[_indexButton].WasRelease = !_state;
+        
+        //ionRenderManager().SetMousePos(LOWORD(message.lParam), HIWORD(message.lParam));
+    }
+}
+
+void Window::MouseMove(ionS32 _x, ionS32 _y)
+{
+    m_mouse.m_position.m_delta.m_x = _x - m_mouse.m_position.m_x;
+    m_mouse.m_position.m_delta.m_y = _y - m_mouse.m_position.m_y;
+    m_mouse.m_position.m_x = _x;
+    m_mouse.m_position.m_y = _y;
+
+    //ionRenderManager().SetMousePos(m_mouse.m_position.m_delta.m_x, m_mouse.m_position.m_delta.m_y);
+}
+
+void Window::MouseWheel(ionFloat _distance)
+{
+    m_mouse.m_wheel.m_wasMoved = true;
+    m_mouse.m_wheel.m_distance = _distance;
+    
+    //ionRenderManager().SetMousePos(LOWORD(message.lParam), HIWORD(message.lParam));
+}
+
+void Window::MouseReset() 
+{
+    m_mouse.m_position.m_delta.m_x = 0;
+    m_mouse.m_position.m_delta.m_y = 0;
+    m_mouse.m_buttons[0].WasClicked = false;
+    m_mouse.m_buttons[0].WasRelease = false;
+    m_mouse.m_buttons[1].WasClicked = false;
+    m_mouse.m_buttons[1].WasRelease = false;
+    m_mouse.m_wheel.m_wasMoved = false;
+    m_mouse.m_wheel.m_distance = 0.0f;
 }
 
 ION_NAMESPACE_END

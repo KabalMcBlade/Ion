@@ -58,6 +58,8 @@ public:
     void    Prepare();
     void    CoreLoop();
 
+    void    SetMousePos(ionS32 _x, ionS32 _y);
+
 private:
     RenderManager(const RenderManager& _Orig) = delete;
     RenderManager& operator = (const RenderManager&) = delete;

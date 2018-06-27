@@ -83,17 +83,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         switch (wParam)
         {
         case VK_ESCAPE:
-            //PostQuitMessage(0);
-            PostMessage(hWnd, WM_USER + 2, wParam, lParam);
+            PostMessage(hWnd, ION_KEY_ESCAPE, wParam, lParam);
             break;
         }
     case WM_CLOSE:
-        PostMessage(hWnd, WM_USER + 2, wParam, lParam);
+        PostMessage(hWnd, ION_WND_CLOSE, wParam, lParam);
         break;
     case WM_SIZE:
     case WM_EXITSIZEMOVE:
-        PostMessage(hWnd, WM_USER + 1, wParam, lParam);
+        PostMessage(hWnd, ION_WND_RESIZE, wParam, lParam);
         break;
+    case WM_MOUSEMOVE:
+        PostMessage(hWnd, ION_MOUSE_MOVE, wParam, lParam);
     default:
         return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
@@ -162,7 +163,7 @@ int main()
 
     //
     CameraHandle camera = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE);
-    camera->SetCameraType(Camera::ECameraType::ECameraType_FirstPerson);
+    camera->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
     camera->GetTransformHandle()->SetPosition(cameraPos);
     camera->GetTransformHandle()->SetRotation(cameraRot);

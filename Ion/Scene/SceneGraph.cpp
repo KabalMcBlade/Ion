@@ -193,5 +193,14 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _width, ionU32 _height)
     }
 }
 
+void SceneGraph::UpdateMouseActiveCamera(ionFloat _x, ionFloat _y)
+{
+    for (eosMap(CameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    {
+        const CameraHandle& cam = iter->first;
+
+        cam->ProcessMouseMovement(_x, _y);
+    }
+}
 
 ION_NAMESPACE_END
