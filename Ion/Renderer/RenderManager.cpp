@@ -32,7 +32,7 @@ ION_NAMESPACE_BEGIN
 RenderManager *RenderManager::s_instance = nullptr;
 
 
-RenderManager::RenderManager() : m_nodeCount(0), m_time(0.0f), m_deltaTime(0.0f), m_lastTime(0.0f)
+RenderManager::RenderManager() : m_time(0.0f), m_deltaTime(0.0f), m_lastTime(0.0f)
 {
 
 }
@@ -102,32 +102,6 @@ void RenderManager::LoadPrimitive(EVertexLayout _layout, EPrimitiveType _type, E
 void RenderManager::AddScene(NodeHandle& _root)
 {
     m_root = _root;
-
-    // simplify version for now, just to have something to render soon
-    const eosVector(NodeHandle)& children = m_root->GetChildren();
-
-    eosVector(NodeHandle)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
-
-    for (; it != end; ++it)
-    {
-        NodeHandle nh = (*it);
-
-        switch(nh->GetNodeType())
-        {
-        case ENodeType_Camera:
-            if (!m_mainCamera.IsValid())
-            {
-                m_mainCamera.SetFromOther<Node>(nh);
-            }
-            break;
-        case ENodeType_Entity:
-            EntityHandle handle;
-            handle.SetFromOther<Node>(nh);
-            m_sceneBoundingBox.Expande(handle->GetTransformedBoundingBox());
-            m_entityNodes.push_back(handle);
-            break;
-        }
-    }
 }
 /*
 void RenderManager::AddScene(Node& _root)
@@ -139,47 +113,109 @@ void RenderManager::AddScene(Node& _root)
 void RenderManager::Resize()
 {
     m_renderCore.Recreate();
-    m_mainCamera->UpdateAspectRatio((ionFloat)m_renderCore.GetWidth() / (ionFloat)m_renderCore.GetHeight());
-}
 
-
-void RenderManager::Prepare()
-{    
-    //
-    // Update entities
-    m_nodeCount = m_entityNodes.size();
-
-    m_drawSurfaces.resize(m_nodeCount);
-}
-
-void RenderManager::UpdateDrawSurface(const Matrix& _projection, const Matrix& _view, ionSize _nodeCount)
-{
-    for (ionSize i = 0; i < _nodeCount; ++i)
+    for (eosMap(BaseCameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
     {
-        const Matrix& model = m_entityNodes[i]->GetTransformHandle()->GetMatrixWS();
+        BaseCameraHandle cam = iter->first;
 
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[0], model[0]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[4], model[1]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[8], model[2]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_modelMatrix[12], model[3]);
+        cam->UpdateAspectRatio((ionFloat)m_renderCore.GetWidth() / (ionFloat)m_renderCore.GetHeight());
+    }
+}
 
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[0], _view[0]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[4], _view[1]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[8], _view[2]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_viewMatrix[12], _view[3]);
-
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[0], _projection[0]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[4], _projection[1]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[8], _projection[2]);
-        _mm_storeu_ps(&m_drawSurfaces[i].m_projectionMatrix[12], _projection[3]);
-
-        m_drawSurfaces[i].m_indexStart = m_entityNodes[i]->GetMesh(0)->GetIndexStart();
-        m_drawSurfaces[i].m_indexCount = m_entityNodes[i]->GetMesh(0)->GetIndexCount();
-        m_drawSurfaces[i].m_vertexCache = ionVertexCacheManager().AllocVertex(m_entityNodes[i]->GetMesh(0)->GetVertexData(), m_entityNodes[i]->GetMesh(0)->GetVertexSize());
-        m_drawSurfaces[i].m_indexCache = ionVertexCacheManager().AllocIndex(m_entityNodes[i]->GetMesh(0)->GetIndexData(), m_entityNodes[i]->GetMesh(0)->GetIndexSize());
-        m_drawSurfaces[i].m_material = m_entityNodes[i]->GetMesh(0)->GetMaterial();
+void RenderManager::FillCameraMapTree(NodeHandle& _node)
+{
+    if (_node->GetNodeType() == ENodeType_Camera)
+    {
+        if (m_treeNodes.find(_node) == m_treeNodes.end())
+        {
+            m_treeNodes.insert(std::pair<BaseCameraHandle, eosVector(EntityHandle)>(_node, eosVector(EntityHandle)()));
+        }
     }
 
+    if (_node->GetChildren().empty())
+    {
+        return;
+    }
+
+    const eosVector(NodeHandle)& children = _node->GetChildren();
+    eosVector(NodeHandle)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
+    for (; it != end; ++it)
+    {
+        NodeHandle nh = (*it);
+        FillCameraMapTree(nh);
+    }
+}
+
+void RenderManager::GenerateMapTree(NodeHandle& _node)
+{
+    if (_node->GetNodeType() == ENodeType_Entity)
+    {
+        for (eosMap(BaseCameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+        {
+            const BaseCameraHandle& cam = iter->first;
+
+            if (_node->IsInRenderLayer(cam->GetRenderLayer()))
+            {
+                m_nodeCountPerCamera[cam->GetHash()]++;
+                m_treeNodes[cam].push_back(_node);
+            }
+        }
+    }
+
+    if (_node->GetChildren().empty())
+    {
+        return;
+    }
+
+    const eosVector(NodeHandle)& children = _node->GetChildren();
+    eosVector(NodeHandle)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
+    for (; it != end; ++it)
+    {
+        NodeHandle nh = (*it);
+        GenerateMapTree(nh);
+    }
+}
+
+void RenderManager::Prepare()
+{
+    // Generate the plain map recursively
+    // I don't care about the speed here, is just once before start
+    FillCameraMapTree(m_root);
+    GenerateMapTree(m_root);
+
+    //
+    // Update entities
+    for (eosMap(BaseCameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    {
+        const BaseCameraHandle& cam = iter->first;
+        m_drawSurfaces[cam->GetHash()].resize(m_nodeCountPerCamera[cam->GetHash()]);
+    }
+}
+
+void RenderManager::UpdateDrawSurface(ionSize _cameraHash, const Matrix& _projection, const Matrix& _view, const EntityHandle& _entity, ionU32 _index)
+{
+    const Matrix& model = _entity->GetTransformHandle()->GetMatrixWS();
+
+    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_modelMatrix[0], model[0]);
+    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_modelMatrix[4], model[1]);
+    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_modelMatrix[8], model[2]);
+    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_modelMatrix[12], model[3]);
+
+    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_viewMatrix[0], _view[0]);
+    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_viewMatrix[4], _view[1]);
+    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_viewMatrix[8], _view[2]);
+    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_viewMatrix[12], _view[3]);
+
+    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_projectionMatrix[0], _projection[0]);
+    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_projectionMatrix[4], _projection[1]);
+    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_projectionMatrix[8], _projection[2]);
+    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_projectionMatrix[12], _projection[3]);
+
+    m_drawSurfaces[_cameraHash][_index].m_indexStart = _entity->GetMesh(0)->GetIndexStart();
+    m_drawSurfaces[_cameraHash][_index].m_indexCount = _entity->GetMesh(0)->GetIndexCount();
+    m_drawSurfaces[_cameraHash][_index].m_vertexCache = ionVertexCacheManager().AllocVertex(_entity->GetMesh(0)->GetVertexData(), _entity->GetMesh(0)->GetVertexSize());
+    m_drawSurfaces[_cameraHash][_index].m_indexCache = ionVertexCacheManager().AllocIndex(_entity->GetMesh(0)->GetIndexData(), _entity->GetMesh(0)->GetIndexSize());
+    m_drawSurfaces[_cameraHash][_index].m_material = _entity->GetMesh(0)->GetMaterial();
 }
 
 void RenderManager::CoreLoop()
@@ -205,16 +241,28 @@ void RenderManager::Update(ionFloat _deltaTime)
     //
     m_root->Update(_deltaTime);
 
-    //
-    // all camera need to update here at this point!
-    m_mainCamera->UpdateView();
-
-    //
-    const Matrix& projection = m_mainCamera->GetPerspectiveProjection();
-    const Matrix& view = m_mainCamera->GetView();
-     
     ionVertexCacheManager().BeginMapping();
-    UpdateDrawSurface(projection, view, m_nodeCount);
+
+    ionU32 index = 0;
+    for (eosMap(BaseCameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    {
+        const BaseCameraHandle& cam = iter->first;
+
+        cam->UpdateView();
+
+        const Matrix& projection = cam->GetPerspectiveProjection();
+        const Matrix& view = cam->GetView();
+
+        const eosVector(EntityHandle)& entities = iter->second;
+        eosVector(EntityHandle)::const_iterator begin = entities.cbegin(), end = entities.cend(), it = begin;
+        for (; it != end; ++it)
+        {
+            const EntityHandle& entity = (*it);
+            UpdateDrawSurface(cam->GetHash(), projection, view, entity, index);
+            ++index;
+        }
+    }
+
     ionVertexCacheManager().EndMapping();
 }
 
@@ -225,17 +273,27 @@ void RenderManager::Frame()
 
     if (m_renderCore.StartFrame())
     {
-        m_mainCamera->StartRenderPass(m_renderCore, 1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
-        m_mainCamera->SetViewport(m_renderCore, 0, 0, width, height, 1.0f, 0.0f, 1.0f);
-        m_mainCamera->SetScissor(m_renderCore, 0, 0, width, height, 1.0f);
-
-        for (ionSize i = 0; i < m_nodeCount; ++i)
+        for (eosMap(BaseCameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
         {
-            m_renderCore.SetState(m_drawSurfaces[i].m_material->GetState().GetStateBits());
-            m_renderCore.Draw(m_drawSurfaces[i]);
-        }
+            const BaseCameraHandle& cam = iter->first;
 
-        m_mainCamera->EndRenderPass(m_renderCore);
+            cam->StartRenderPass(m_renderCore, 1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
+            cam->SetViewport(m_renderCore, 0, 0, width, height, 1.0f, 0.0f, 1.0f);
+            cam->SetScissor(m_renderCore, 0, 0, width, height, 1.0f);
+
+            const eosVector(DrawSurface)& surfaces = m_drawSurfaces[cam->GetHash()];
+
+            eosVector(DrawSurface)::const_iterator begin = surfaces.cbegin(), end = surfaces.cend(), it = begin;
+            for (; it != end; ++it)
+            {
+                const DrawSurface& drawSuraface = (*it);
+                
+                m_renderCore.SetState(drawSuraface.m_material->GetState().GetStateBits());
+                m_renderCore.Draw(drawSuraface);
+            }
+
+            cam->EndRenderPass(m_renderCore);
+        }
 
         m_renderCore.EndFrame();
     }

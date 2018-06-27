@@ -100,14 +100,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-
 int main()
 {
     InitializeAllocators(ALL_HEAP_MEMORY, ALL_LINEAR_MEMORY, ALL_STACK_MEMORY, MAX_STACK_MEMORY_BLOCK);
     InitializeVulkanAllocators(VULKAN_COMMAND_MEMORY_MB, VULKAN_OBJECT_MEMORY_MB, VULKAN_CACHE_MEMORY_MB, VULKAN_DEVICE_MEMORY_MB, VULKAN_INSTANCE_MEMORY_MB, VULKAN_GPU_MEMORY_MB);
     InitializeManagers();
-
-
 
     //////////////////////////////////////////////////////////////////////////
     //
@@ -167,14 +164,12 @@ int main()
 
 
     //
-    Node *pRoot = eosNew(Node, ION_MEMORY_ALIGNMENT_SIZE);
-    NodeHandle root(pRoot);
+    NodeHandle root = eosNew(Node, ION_MEMORY_ALIGNMENT_SIZE);
     root->GetTransformHandle()->SetPosition(rootPos);
     root->GetTransformHandle()->SetRotation(rootRot);
 
     //
-    BaseCamera *pBaseCamera = eosNew(BaseCamera, ION_MEMORY_ALIGNMENT_SIZE);
-    BaseCameraHandle camera(pBaseCamera);
+    BaseCameraHandle camera = eosNew(BaseCamera, ION_MEMORY_ALIGNMENT_SIZE);
     camera->SetCameraType(BaseCamera::ECameraType::ECameraType_FirstPerson);
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
     camera->GetTransformHandle()->SetPosition(cameraPos);
@@ -183,11 +178,9 @@ int main()
 
 
     //
-    RotatingEntity *pTest = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE);
-    EntityHandle test(pTest);
+    EntityHandle test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE);
     test->GetTransformHandle()->SetPosition(entityPos);
     test->GetTransformHandle()->SetRotation(entityRot);
-
 
     //////////////////////////////////////////////////////////////////////////
     //
@@ -232,6 +225,7 @@ int main()
     //////////////////////////////////////////////////////////////////////////
     //
     camera->AttachToParent(root);
+
     test->AttachToParent(root);
 
     //
