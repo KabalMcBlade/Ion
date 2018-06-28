@@ -232,9 +232,6 @@ ionBool Window::Loop()
             {
                 ionRenderManager().CoreLoop();
                 MouseReset();
-                //ionS32 half_width = static_cast<ionS32>(static_cast<ionFloat>(m_width) * 0.5f);
-                //ionS32 half_height = static_cast<ionS32>(static_cast<ionFloat>(m_height) * 0.5f);
-                //SetCursorPos(half_width, half_height);
             }
         }
     }
@@ -257,7 +254,6 @@ void Window::MouseClick(ionSize _indexButton, ionBool _state)
 void Window::MouseMove(ionFloat _x, ionFloat _y)
 {
     m_mouse.m_position.m_delta.m_x = _x - m_mouse.m_position.m_x;
-    //m_mouse.m_position.m_delta.m_y = _y - m_mouse.m_position.m_y;
     m_mouse.m_position.m_delta.m_y = m_mouse.m_position.m_y - _y;
     m_mouse.m_position.m_x = _x;
     m_mouse.m_position.m_y = _y;
