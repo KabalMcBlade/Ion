@@ -145,10 +145,31 @@ ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width,
     UpdateWindow(m_handle);
     SetForegroundWindow(m_handle);
     SetFocus(m_handle);
-
+    /*
+    RECT clipRect;
+    GetClientRect(m_handle, &clipRect);
+    ClientToScreen(m_handle, (POINT*)&clipRect.left);
+    ClientToScreen(m_handle, (POINT*)&clipRect.right);
+    ClipCursor(&clipRect);
+    */
     return true;
 }
 
+void Window::GetMousePos(ionFloat& _xpos, ionFloat& _ypos)
+{
+    POINT pos;
+
+    if (GetCursorPos(&pos))
+    {
+        ScreenToClient(m_handle, &pos);
+
+        ionS32 midX = m_width >> 1;
+        ionS32 midY = m_height >> 1;
+
+        _xpos = static_cast<ionFloat>(pos.x - midX);
+        _ypos = static_cast<ionFloat>(pos.y - midY);
+    }
+}
 
 ionBool Window::Loop()
 {
@@ -160,6 +181,16 @@ ionBool Window::Loop()
     ionBool loop = true;
     ionBool resize = false;
     ionBool result = true;
+
+    ionS32 halfWidth = m_width >> 1;
+    ionS32 halfHeight = m_height >> 1;
+
+    ionFloat mousePosX = static_cast<ionFloat>(halfWidth);
+    ionFloat mousePosY = static_cast<ionFloat>(halfHeight);
+
+    POINT pos = { halfWidth, halfHeight };
+    ClientToScreen(m_handle, &pos);
+    SetCursorPos(halfWidth, halfHeight);
 
     ionRenderManager().Prepare();
 
@@ -178,10 +209,8 @@ ionBool Window::Loop()
                 loop = false;
                 break;
             case ION_MOUSE_MOVE:
-                //MouseMove(static_cast<ionS32>(message.wParam), static_cast<ionS32>(message.lParam));
-                //LOWORD(message.lParam), HIWORD(message.lParam)
-                MouseMove(static_cast<ionS32>(LOWORD(message.lParam)), static_cast<ionS32>(HIWORD(message.lParam)));
-                
+                GetMousePos(mousePosX, mousePosY);
+                MouseMove(mousePosX, mousePosY);
                 break;
             }
             TranslateMessage(&message);
@@ -192,13 +221,20 @@ ionBool Window::Loop()
             if (resize)
             {
                 resize = false;
-                ionRenderManager().Resize();
+                GetMousePos(mousePosX, mousePosY);
 
-                Sleep(100);
+                m_mouse.m_position.m_x = mousePosX;
+                m_mouse.m_position.m_y = mousePosY;
+
+                ionRenderManager().Resize();
             }
             else
             {
                 ionRenderManager().CoreLoop();
+                MouseReset();
+                //ionS32 half_width = static_cast<ionS32>(static_cast<ionFloat>(m_width) * 0.5f);
+                //ionS32 half_height = static_cast<ionS32>(static_cast<ionFloat>(m_height) * 0.5f);
+                //SetCursorPos(half_width, half_height);
             }
         }
     }
@@ -218,14 +254,16 @@ void Window::MouseClick(ionSize _indexButton, ionBool _state)
     }
 }
 
-void Window::MouseMove(ionS32 _x, ionS32 _y)
+void Window::MouseMove(ionFloat _x, ionFloat _y)
 {
     m_mouse.m_position.m_delta.m_x = _x - m_mouse.m_position.m_x;
-    m_mouse.m_position.m_delta.m_y = _y - m_mouse.m_position.m_y;
+    //m_mouse.m_position.m_delta.m_y = _y - m_mouse.m_position.m_y;
+    m_mouse.m_position.m_delta.m_y = m_mouse.m_position.m_y - _y;
     m_mouse.m_position.m_x = _x;
     m_mouse.m_position.m_y = _y;
 
-    //ionRenderManager().SetMousePos(m_mouse.m_position.m_delta.m_x, m_mouse.m_position.m_delta.m_y);
+    ionRenderManager().SetMousePos(m_mouse.m_position.m_delta.m_x, m_mouse.m_position.m_delta.m_y);
+    //ionRenderManager().SetMousePos(m_mouse.m_position.m_x, m_mouse.m_position.m_y);
 }
 
 void Window::MouseWheel(ionFloat _distance)

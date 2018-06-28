@@ -48,11 +48,12 @@ private:
     void UpdateDrawSurface(ionSize _cameraHash, const Matrix& _projection, const Matrix& _view, const EntityHandle& _entity, ionU32 _index);
 
 private:
-    BoundingBox                                         m_sceneBoundingBox;
-    NodeHandle                                          m_rootHandle;
+    BoundingBox                                     m_sceneBoundingBox;
+    NodeHandle                                      m_rootHandle;
     eosMap(CameraHandle, eosVector(EntityHandle))   m_treeNodes;
-    eosMap(ionSize, eosVector(DrawSurface))             m_drawSurfaces;
-    eosMap(ionSize, ionU32)                             m_nodeCountPerCamera;
+    eosMap(ionSize, eosVector(DrawSurface))         m_drawSurfaces;
+    eosMap(ionSize, ionU32)                         m_nodeCountPerCamera;
+    CameraHandle                                    m_activeCamera;     // for now the first found!
 };
 
 ION_NAMESPACE_END

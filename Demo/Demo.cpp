@@ -95,6 +95,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
     case WM_MOUSEMOVE:
         PostMessage(hWnd, ION_MOUSE_MOVE, wParam, lParam);
+        break;
     default:
         return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }

@@ -151,12 +151,9 @@ void RenderManager::Frame()
     }
 }
 
-void RenderManager::SetMousePos(ionS32 _deltaX, ionS32 _deltaY)
+void RenderManager::SetMousePos(ionFloat _deltaX, ionFloat _deltaY)
 {
-    ionFloat deltaX = static_cast<ionFloat>(_deltaX);
-    ionFloat deltaY = static_cast<ionFloat>(_deltaY);
-
-    m_sceneGraph.UpdateMouseActiveCamera(deltaX, deltaY);
+    m_sceneGraph.UpdateMouseActiveCamera(_deltaX, _deltaY);
 }
 
 

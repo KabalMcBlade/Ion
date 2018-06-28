@@ -58,7 +58,7 @@ public:
     void    Prepare();
     void    CoreLoop();
 
-    void    SetMousePos(ionS32 _x, ionS32 _y);
+    void    SetMousePos(ionFloat _x, ionFloat _y);
 
 private:
     RenderManager(const RenderManager& _Orig) = delete;

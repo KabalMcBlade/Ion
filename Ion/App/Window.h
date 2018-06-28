@@ -30,12 +30,12 @@ public:
 
     struct PositionState 
     {
-        ionS32 m_x;
-        ionS32 m_y;
+        ionFloat m_x;
+        ionFloat m_y;
         struct DeltaState
         {
-            ionS32 m_x;
-            ionS32 m_y;
+            ionFloat m_x;
+            ionFloat m_y;
         } m_delta;
     } m_position;
 
@@ -63,17 +63,19 @@ public:
 
 private:
     void MouseClick(ionSize _indexButton, ionBool _state);
-    void MouseMove(ionS32 _x, ionS32 _y);
+    void MouseMove(ionFloat _x, ionFloat _y);
     void MouseWheel(ionFloat _distance);
     void MouseReset();
+
+    void GetMousePos(ionFloat& _xpos, ionFloat& _ypos);
 
 private:
     eosTString      m_name;
     MouseState      m_mouse;
     HINSTANCE       m_instance;
     HWND            m_handle;
-    ionU32          m_width;
-    ionU32          m_height;
+    ionS32          m_width;
+    ionS32          m_height;
     ionBool         m_fullScreen;
 };
 

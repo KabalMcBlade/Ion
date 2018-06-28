@@ -47,6 +47,10 @@ void SceneGraph::FillCameraMapTree(NodeHandle& _node)
     {
         if (m_treeNodes.find(_node) == m_treeNodes.end())
         {
+            if (!m_activeCamera.IsValid())
+            {
+                m_activeCamera = _node;
+            }
             m_treeNodes.insert(std::pair<CameraHandle, eosVector(EntityHandle)>(_node, eosVector(EntityHandle)()));
         }
     }
@@ -195,12 +199,7 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _width, ionU32 _height)
 
 void SceneGraph::UpdateMouseActiveCamera(ionFloat _x, ionFloat _y)
 {
-    for (eosMap(CameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
-    {
-        const CameraHandle& cam = iter->first;
-
-        cam->ProcessMouseMovement(_x, _y);
-    }
+    m_activeCamera->ProcessMouseMovement(_x, _y);
 }
 
 ION_NAMESPACE_END

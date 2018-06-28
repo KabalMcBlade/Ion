@@ -12,14 +12,14 @@ NIX_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 
-Camera::Camera() : Node(ION_BASE_CAMERA_NAME), m_movementSpeed(1.0f), m_mouseSensitivity(0.25f), m_pitchDeg(0.0f), m_yawDeg(0.0f)
+Camera::Camera() : Node(ION_BASE_CAMERA_NAME), m_movementSpeed(1.0f), m_mouseSensitivity(0.05f), m_pitchDeg(0.0f), m_yawDeg(0.0f)
 {
     m_type = ECameraType::ECameraType_LookAt;
 
     m_nodeType = ENodeType_Camera;
 }
 
-Camera::Camera(const eosString & _name) : Node(_name), m_movementSpeed(1.0f), m_mouseSensitivity(0.25f), m_pitchDeg(0.0f), m_yawDeg(0.0f)
+Camera::Camera(const eosString & _name) : Node(_name), m_movementSpeed(1.0f), m_mouseSensitivity(0.05f), m_pitchDeg(0.0f), m_yawDeg(0.0f)
 {
     m_type = ECameraType::ECameraType_LookAt;
 
@@ -76,7 +76,7 @@ void Camera::SetCameraType(ECameraType _type)
 
 void Camera::UpdateView()
 {
-    if (m_type == ECameraType::ECameraType_FirstPerson)
+    if (m_type == ECameraType::ECameraType_LookAt)
     {
         m_view = GetTransformHandle()->GetMatrixInverseWS();
     }
@@ -93,8 +93,14 @@ void Camera::ProcessMouseMovement(ionFloat _xOffset, ionFloat _yOffset, ionBool 
     _xOffset *=  m_mouseSensitivity;
     _yOffset *=  m_mouseSensitivity;
 
-    m_yawDeg += 0.5f * _xOffset;
-    m_pitchDeg -= 0.5f * _yOffset;
+    //m_yawDeg += 0.5f * _xOffset;
+    //m_pitchDeg -= 0.5f * _yOffset;
+
+    //m_yawDeg += _xOffset;
+    //m_pitchDeg += _yOffset;
+
+    m_yawDeg += _xOffset;
+    m_pitchDeg -= _yOffset;
 
     if (_constrainPitch) 
     {
@@ -108,16 +114,12 @@ void Camera::ProcessMouseMovement(ionFloat _xOffset, ionFloat _yOffset, ionBool 
         }
     }
 
-    static const Vector up(0.0f, 1.0f, 0.0f, 1.0f);
-    static const Vector right(1.0f, 0.0f, 0.0f, 1.0f);
-    static const Vector forward(0.0f, 0.0f, 1.0f, 1.0f);
+    Matrix rotationMatrix;
+    rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(m_yawDeg), NIX_DEG_TO_RAD(m_pitchDeg), NIX_DEG_TO_RAD(0.0f));
 
-    const Quaternion cameraRotYaw(NIX_DEG_TO_RAD(m_yawDeg), up);
-    const Quaternion cameraRotPitch(NIX_DEG_TO_RAD(m_pitchDeg), right);
-    const Quaternion cameraRotRoll(NIX_DEG_TO_RAD(0.0f), forward);
+    Quaternion rotation;
+    rotation.SetFromMatrix(rotationMatrix);
 
-    const Quaternion rotation(cameraRotRoll * cameraRotPitch * cameraRotYaw);
-    
     GetTransformHandle()->SetRotation(rotation);
 }
 
