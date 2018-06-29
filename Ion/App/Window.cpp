@@ -28,7 +28,7 @@ MouseState::~MouseState()
 }
 
 
-Window::Window() : m_instance(), m_handle()
+Window::Window() : m_instance(), m_handle(), m_skipNextMouseMove(false)
 {
 
 }
@@ -46,7 +46,7 @@ Window::~Window()
     }
 }
 
-ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width, ionU32 _height, ionBool _fullScreen)
+ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _showCursor /*= true*/)
 {
     m_name = _name;
     m_width = _width;
@@ -141,18 +141,51 @@ ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width,
         return false;
     }
 
+    ShowCursor(_showCursor);
     ShowWindow(m_handle, SW_SHOW);  //SW_SHOWNORMAL
     UpdateWindow(m_handle);
     SetForegroundWindow(m_handle);
     SetFocus(m_handle);
-    /*
-    RECT clipRect;
-    GetClientRect(m_handle, &clipRect);
-    ClientToScreen(m_handle, (POINT*)&clipRect.left);
-    ClientToScreen(m_handle, (POINT*)&clipRect.right);
-    ClipCursor(&clipRect);
-    */
+
+    SetInputMode();
+
     return true;
+}
+
+void Window::SetInputMode(ionBool _clipToClient /*= false*/, ionBool _cursorDisabled /*= false*/, HCURSOR _cursor /*= nullptr*/)
+{
+    if (_cursorDisabled)
+    {
+        SetCursor(nullptr);
+    }
+    else
+    {
+        if (_cursor != nullptr)
+        {
+            SetCursor(_cursor);
+        }
+        else
+        {
+            SetCursor(LoadCursorW(NULL, IDC_ARROW));
+        }
+    }
+
+    if (_clipToClient)
+    {
+        RECT clipRect;
+        GetClientRect(m_handle, &clipRect);
+        ClientToScreen(m_handle, (POINT*)&clipRect.left);
+        ClientToScreen(m_handle, (POINT*)&clipRect.right);
+        ClipCursor(&clipRect);
+
+        m_cursorMode = ECursorMode_FPS_TPS;
+    }
+    else
+    {
+        m_cursorMode = ECursorMode_NormalWindows;
+
+        ClipCursor(nullptr);
+    }
 }
 
 void Window::GetMousePos(ionFloat& _xpos, ionFloat& _ypos)
@@ -171,6 +204,16 @@ void Window::GetMousePos(ionFloat& _xpos, ionFloat& _ypos)
     }
 }
 
+void Window::CenterCursor()
+{
+    ionS32 halfWidth = m_width >> 1;
+    ionS32 halfHeight = m_height >> 1;
+
+    POINT pos = { halfWidth, halfHeight };
+    ClientToScreen(m_handle, &pos);
+    SetCursorPos(halfWidth, halfHeight);
+}
+
 ionBool Window::Loop()
 {
     // Display window
@@ -182,15 +225,12 @@ ionBool Window::Loop()
     ionBool resize = false;
     ionBool result = true;
 
-    ionS32 halfWidth = m_width >> 1;
-    ionS32 halfHeight = m_height >> 1;
+    ionFloat mousePosX = 0;
+    ionFloat mousePosY = 0;
 
-    ionFloat mousePosX = static_cast<ionFloat>(halfWidth);
-    ionFloat mousePosY = static_cast<ionFloat>(halfHeight);
+    CenterCursor();
 
-    POINT pos = { halfWidth, halfHeight };
-    ClientToScreen(m_handle, &pos);
-    SetCursorPos(halfWidth, halfHeight);
+    m_skipNextMouseMove = false;
 
     ionRenderManager().Prepare();
 
@@ -210,7 +250,30 @@ ionBool Window::Loop()
                 break;
             case ION_MOUSE_MOVE:
                 GetMousePos(mousePosX, mousePosY);
-                MouseMove(mousePosX, mousePosY);
+                
+                if (m_cursorMode == ECursorMode_FPS_TPS)
+                {
+                    if (m_skipNextMouseMove == false)
+                    {
+                        MouseMove(mousePosX, mousePosY);
+                        CenterCursor();
+
+                        m_skipNextMouseMove = true;
+
+                        GetMousePos(mousePosX, mousePosY);
+                        m_mouse.m_position.m_x = mousePosX;
+                        m_mouse.m_position.m_y = mousePosY;
+                    }
+                    else
+                    {
+                        m_skipNextMouseMove = false;
+                    }
+                }
+                else
+                {
+                    MouseMove(mousePosX, mousePosY);
+                }
+           
                 break;
             }
             TranslateMessage(&message);
@@ -221,12 +284,7 @@ ionBool Window::Loop()
             if (resize)
             {
                 resize = false;
-                GetMousePos(mousePosX, mousePosY);
-
-                m_mouse.m_position.m_x = mousePosX;
-                m_mouse.m_position.m_y = mousePosY;
-
-                ionRenderManager().Resize();
+                ionRenderManager().Resize(m_width, m_height);
             }
             else
             {
@@ -241,7 +299,7 @@ ionBool Window::Loop()
 
 void Window::MouseClick(ionSize _indexButton, ionBool _state) 
 {
-    if (2 > _indexButton)
+    if (_indexButton < 2)
     {
         m_mouse.m_buttons[_indexButton].IsPressed = _state;
         m_mouse.m_buttons[_indexButton].WasClicked = _state;
@@ -259,6 +317,7 @@ void Window::MouseMove(ionFloat _x, ionFloat _y)
     m_mouse.m_position.m_y = _y;
 
     ionRenderManager().SetMousePos(m_mouse.m_position.m_delta.m_x, m_mouse.m_position.m_delta.m_y);
+
     //ionRenderManager().SetMousePos(m_mouse.m_position.m_x, m_mouse.m_position.m_y);
 }
 

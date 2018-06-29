@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="App\Mode.h" />
     <ClInclude Include="App\Window.h" />
     <ClInclude Include="Core\CoreDefs.h" />
     <ClInclude Include="Core\FileSystemManager.h" />

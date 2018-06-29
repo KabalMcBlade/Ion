@@ -246,6 +246,9 @@
     <ClInclude Include="Scene\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="App\Mode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

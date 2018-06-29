@@ -10,7 +10,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-SceneGraph::SceneGraph()
+SceneGraph::SceneGraph() : m_activeInputHashNode(0)
 {
     m_rootHandle = eosNew(Node, ION_MEMORY_ALIGNMENT_SIZE);
     m_rootHandle->GetTransformHandle()->SetPosition(VectorHelper::Get0001());
@@ -19,15 +19,37 @@ SceneGraph::SceneGraph()
 
 SceneGraph::~SceneGraph()
 {
+    for (eosMap(CameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    {
+        eosVector(EntityHandle)& entities = iter->second;
+        entities.clear();
+    }
+    m_treeNodes.clear();
+
+    for (eosMap(ionSize, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+    {
+        eosVector(DrawSurface)& drawSurfaces = iter->second;
+        drawSurfaces.clear();
+    }
+    m_drawSurfaces.clear();
+
+    m_nodeCountPerCamera.clear();
+    m_hashToNodeMap.clear();
 }
 
 void SceneGraph::AddToScene(NodeHandle& _node)
 {
+    m_hashToNodeMap.insert(std::pair<ionSize, NodeHandle>(_node->GetHash(), _node));
+
     _node->AttachToParent(m_rootHandle);
 }
 
 void SceneGraph::RemoveFromScene(NodeHandle& _node)
 {
+    //eosMap(ionSize, NodeHandle)::iterator itErase = m_hashToNodeMap.find(_node->GetHash()); 
+    //m_hashToNodeMap.erase(itErase);
+    m_hashToNodeMap.erase(_node->GetHash());
+
     _node->DetachFromParent();
 }
 
@@ -47,10 +69,6 @@ void SceneGraph::FillCameraMapTree(NodeHandle& _node)
     {
         if (m_treeNodes.find(_node) == m_treeNodes.end())
         {
-            if (!m_activeCamera.IsValid())
-            {
-                m_activeCamera = _node;
-            }
             m_treeNodes.insert(std::pair<CameraHandle, eosVector(EntityHandle)>(_node, eosVector(EntityHandle)()));
         }
     }
@@ -197,9 +215,25 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _width, ionU32 _height)
     }
 }
 
-void SceneGraph::UpdateMouseActiveCamera(ionFloat _x, ionFloat _y)
+void SceneGraph::SetActiveInputNode(const NodeHandle& _node)
 {
-    m_activeCamera->ProcessMouseMovement(_x, _y);
+    SetActiveInputNode(_node->GetHash());
+}
+
+void SceneGraph::SetActiveInputNode(ionSize _nodeHash)
+{
+    eosMap(ionSize, NodeHandle)::iterator itSelected = m_hashToNodeMap.find(_nodeHash);
+    if (itSelected != m_hashToNodeMap.end())
+    {
+        m_activeInputHashNode = _nodeHash;
+        return;
+    }
+}
+
+void SceneGraph::UpdateMouseInputActiveNode(ionFloat _x, ionFloat _y)
+{
+    ionAssertReturnVoid(m_activeInputHashNode != 0, "There is no active camera object");
+    m_hashToNodeMap[m_activeInputHashNode]->ProcessMouseMovement(_x, _y);
 }
 
 ION_NAMESPACE_END

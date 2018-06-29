@@ -59,6 +59,8 @@ public:
     virtual void OnUpdate(ionFloat _deltaTime) {}
     virtual void OnLateUpdate(ionFloat _deltaTime) {}
 
+    virtual void ProcessMouseMovement(ionFloat _xOffset, ionFloat _yOffset, ionBool _constrainPitch = true) {}
+
     //
     // USER CALLS
 
@@ -95,7 +97,8 @@ public:
     eosVector(NodeHandle) &GetChildren() { return m_children; };
 
     eosVector(NodeHandle)::const_iterator GetChildIteratorBegin() { return m_children.begin();}
-    eosVector(NodeHandle)::const_iterator GetChildIteratorEnd() { return m_children.end(); }
+    eosVector(NodeHandle)::const_iterator GetChildIteratorEnd() { return m_children.end(); }
+
 protected:
     ENodeType    m_nodeType;
 

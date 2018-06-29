@@ -6,6 +6,7 @@
 
 #include "../Core/CoreDefs.h"
 
+#include "Mode.h"
 
 #define ION_KEY_ESCAPE  WM_USER + 1
 
@@ -18,48 +19,19 @@
 EOS_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
-class MouseState 
-{
-public:
-    struct ButtonsState 
-    {
-        ionBool IsPressed;
-        ionBool WasClicked;
-        ionBool WasRelease;
-    } m_buttons[2];
-
-    struct PositionState 
-    {
-        ionFloat m_x;
-        ionFloat m_y;
-        struct DeltaState
-        {
-            ionFloat m_x;
-            ionFloat m_y;
-        } m_delta;
-    } m_position;
-
-    struct WheelState 
-    {
-        ionBool  m_wasMoved;
-        ionFloat m_distance;
-    } m_wheel;
-
-    MouseState();
-    ~MouseState();
-};
-
 class ION_DLL Window
 {
 public:
     Window();
     ~Window();
 
-    ionBool        Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width, ionU32 _height, ionBool _fullScreen);
+    ionBool        Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _showCursor /*= true*/);
     ionBool        Loop();
 
     const HINSTANCE& GetInstance() const { return m_instance; }
     const HWND& GetHandle() const { return m_handle; }
+
+    void SetInputMode(ionBool _clipToClient = false, ionBool _cursorDisabled = false, HCURSOR _cursor = nullptr);
 
 private:
     void MouseClick(ionSize _indexButton, ionBool _state);
@@ -69,6 +41,8 @@ private:
 
     void GetMousePos(ionFloat& _xpos, ionFloat& _ypos);
 
+    void CenterCursor();
+
 private:
     eosTString      m_name;
     MouseState      m_mouse;
@@ -76,7 +50,9 @@ private:
     HWND            m_handle;
     ionS32          m_width;
     ionS32          m_height;
+    ECursorMode     m_cursorMode;
     ionBool         m_fullScreen;
+    ionBool         m_skipNextMouseMove;
 };
 
 ION_NAMESPACE_END

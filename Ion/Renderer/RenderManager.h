@@ -54,11 +54,14 @@ public:
 
     void    AddToSceneGraph(NodeHandle _node);
 
-    void    Resize();
+    void    Resize(ionS32& _outNewWidth, ionS32 _outNewHeight);
     void    Prepare();
     void    CoreLoop();
 
     void    SetMousePos(ionFloat _x, ionFloat _y);
+
+    void    SetActiveInputNode(const NodeHandle& _node);
+    void    SetActiveInputNode(ionSize _nodeHash);
 
 private:
     RenderManager(const RenderManager& _Orig) = delete;

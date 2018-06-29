@@ -41,12 +41,13 @@ public:
     ionFloat GetFovDeg() const { return NIX_RAD_TO_DEG(m_fov); }
     ionFloat GetFovRad() const { return m_fov; }
 
-    void ProcessMouseMovement(ionFloat _xOffset, ionFloat _yOffset, ionBool _constrainPitch = true);
-
     const Matrix& GetPerspectiveProjection() const { return m_projection; }
     const Matrix& GetView() const { return m_view; }
 
     const Frustum& GetFrustum() const { return m_frustum; }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Render
 
     void SetViewport(RenderCore& _renderCore, ionS32 _fromX, ionS32 _fromY, ionS32 _width, ionS32 _height, ionFloat _percentageOfWithHeight, ionFloat _minDepth, ionFloat _maxDepth);
     void SetScissor(RenderCore& _renderCore, ionS32 _fromX, ionS32 _fromY, ionS32 _width, ionS32 _height, ionFloat _percentageOfWithHeight);
@@ -70,16 +71,6 @@ private:
     ionFloat m_fov;
     ionFloat m_zNear;
     ionFloat m_zFar;
-
-    //////////////////////////////////////////////////////////////////////////
-    // in an inherited camera?
-    //////////////////////////////////////////////////////////////////////////
-    ionFloat m_movementSpeed;
-    ionFloat m_mouseSensitivity;
-
-    ionFloat m_pitchDeg;
-    ionFloat m_yawDeg;
-    //////////////////////////////////////////////////////////////////////////
 
     ECameraType m_type;
 };

@@ -104,10 +104,14 @@ void RenderManager::AddToSceneGraph(NodeHandle _node)
     m_sceneGraph.AddToScene(_node);
 }
 
-void RenderManager::Resize()
+void RenderManager::Resize(ionS32& _outNewWidth, ionS32 _outNewHeight)
 {
     m_renderCore.Recreate();
     m_sceneGraph.UpdateAllCameraAspectRatio(m_renderCore);
+
+
+    _outNewWidth = m_renderCore.GetWidth();
+    _outNewHeight = m_renderCore.GetHeight();
 }
 
 void RenderManager::Prepare()
@@ -153,8 +157,17 @@ void RenderManager::Frame()
 
 void RenderManager::SetMousePos(ionFloat _deltaX, ionFloat _deltaY)
 {
-    m_sceneGraph.UpdateMouseActiveCamera(_deltaX, _deltaY);
+    m_sceneGraph.UpdateMouseInputActiveNode(_deltaX, _deltaY);
 }
 
+void RenderManager::SetActiveInputNode(const NodeHandle& _node)
+{
+    m_sceneGraph.SetActiveInputNode(_node);
+}
+
+void RenderManager::SetActiveInputNode(ionSize _nodeHash)
+{
+    m_sceneGraph.SetActiveInputNode(_nodeHash);
+}
 
 ION_NAMESPACE_END

@@ -145,8 +145,9 @@ int main()
     ionBool rendererInitialized = false;
     Window window;
 
-    if (window.Create(WndProc, L"Ion Demo", DEMO_WIDTH, DEMO_HEIGHT, false))
+    if (window.Create(WndProc, L"Ion Demo", DEMO_WIDTH, DEMO_HEIGHT, false, false))
     {
+        window.SetInputMode(true, true);
         rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
     }
 
@@ -163,7 +164,7 @@ int main()
     Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
 
     //
-    CameraHandle camera = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE);
+    CameraHandle camera = eosNew(FPSCamera, ION_MEMORY_ALIGNMENT_SIZE);
     camera->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
     camera->GetTransformHandle()->SetPosition(cameraPos);
@@ -217,8 +218,12 @@ int main()
     //////////////////////////////////////////////////////////////////////////
     //
 
+    // first full the scene graph
     ionRenderManager().AddToSceneGraph(camera);
     ionRenderManager().AddToSceneGraph(test);
+
+    // then set the active node will receive the input
+    ionRenderManager().SetActiveInputNode(camera);
 
     if (rendererInitialized)
     {

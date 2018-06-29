@@ -12,14 +12,14 @@ NIX_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 
-Camera::Camera() : Node(ION_BASE_CAMERA_NAME), m_movementSpeed(1.0f), m_mouseSensitivity(0.05f), m_pitchDeg(0.0f), m_yawDeg(0.0f)
+Camera::Camera() : Node(ION_BASE_CAMERA_NAME)
 {
     m_type = ECameraType::ECameraType_LookAt;
 
     m_nodeType = ENodeType_Camera;
 }
 
-Camera::Camera(const eosString & _name) : Node(_name), m_movementSpeed(1.0f), m_mouseSensitivity(0.05f), m_pitchDeg(0.0f), m_yawDeg(0.0f)
+Camera::Camera(const eosString & _name) : Node(_name)
 {
     m_type = ECameraType::ECameraType_LookAt;
 
@@ -86,41 +86,6 @@ void Camera::UpdateView()
     }
 
     m_frustum.Update(m_projection, m_view);
-}
-
-void Camera::ProcessMouseMovement(ionFloat _xOffset, ionFloat _yOffset, ionBool _constrainPitch /*= true*/)
-{
-    _xOffset *=  m_mouseSensitivity;
-    _yOffset *=  m_mouseSensitivity;
-
-    //m_yawDeg += 0.5f * _xOffset;
-    //m_pitchDeg -= 0.5f * _yOffset;
-
-    //m_yawDeg += _xOffset;
-    //m_pitchDeg += _yOffset;
-
-    m_yawDeg += _xOffset;
-    m_pitchDeg -= _yOffset;
-
-    if (_constrainPitch) 
-    {
-        if (m_pitchDeg > 89.0f) 
-        {
-            m_pitchDeg = 89.0f;
-        }
-        if (m_pitchDeg < -89.0f)
-        {
-            m_pitchDeg = -89.0f;
-        }
-    }
-
-    Matrix rotationMatrix;
-    rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(m_yawDeg), NIX_DEG_TO_RAD(m_pitchDeg), NIX_DEG_TO_RAD(0.0f));
-
-    Quaternion rotation;
-    rotation.SetFromMatrix(rotationMatrix);
-
-    GetTransformHandle()->SetRotation(rotation);
 }
 
 void Camera::SetViewport(RenderCore& _renderCore, ionS32 _fromX, ionS32 _fromY, ionS32 _width, ionS32 _height, ionFloat _percentageOfWithHeight, ionFloat _minDepth, ionFloat _maxDepth)

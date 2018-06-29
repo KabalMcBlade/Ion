@@ -902,6 +902,11 @@ struct DrawSurface final
         m_extraGLState = 0;
         m_material = nullptr;
     }
+
+    ~DrawSurface()
+    {
+        m_material = nullptr;
+    }
 };
 
 
