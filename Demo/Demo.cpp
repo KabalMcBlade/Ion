@@ -96,6 +96,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_MOUSEMOVE:
         PostMessage(hWnd, ION_MOUSE_MOVE, wParam, lParam);
         break;
+    case WM_MOUSEWHEEL:
+        PostMessage(hWnd, ION_MOUSE_WHEEL, wParam, lParam);
+        break;
+    case WM_LBUTTONDOWN:
+        PostMessage(hWnd, ION_MOUSE_CLICK, 0, 1);
+        break;
+    case WM_LBUTTONUP:
+        PostMessage(hWnd, ION_MOUSE_CLICK, 0, 0);
+        break;
+    case WM_RBUTTONDOWN:
+        PostMessage(hWnd, ION_MOUSE_CLICK, 1, 1);
+        break;
+    case WM_RBUTTONUP:
+        PostMessage(hWnd, ION_MOUSE_CLICK, 1, 0);
+        break;
     default:
         return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
@@ -169,7 +184,7 @@ int main()
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
     camera->GetTransformHandle()->SetPosition(cameraPos);
     camera->GetTransformHandle()->SetRotation(cameraRot);
-    //camera.operator->()->SetParameters(1.0f, 0.05f, true);
+    dynamic_cast<FPSCamera*>(camera.GetPtr())->SetParameters(1.0f, 0.05f, true);
 
     //
     EntityHandle test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE);

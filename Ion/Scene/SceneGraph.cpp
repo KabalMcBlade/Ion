@@ -230,10 +230,22 @@ void SceneGraph::SetActiveInputNode(ionSize _nodeHash)
     }
 }
 
-void SceneGraph::UpdateMouseInputActiveNode(ionFloat _xOffset, ionFloat _yOffset, ionFloat _xAbs, ionFloat _yAbs)
+void SceneGraph::UpdateMouseMoveOnActiveNode(ionFloat _xOffset, ionFloat _yOffset, ionFloat _xAbs, ionFloat _yAbs)
 {
     ionAssertReturnVoid(m_activeInputHashNode != 0, "There is no active camera object");
     m_hashToNodeMap[m_activeInputHashNode]->ProcessMouseMovement(_xOffset, _yOffset, _xAbs, _yAbs);
+}
+
+void SceneGraph::UpdateMouseWheelOnActiveNode(ionBool _wasMoved, ionFloat _distance)
+{
+    ionAssertReturnVoid(m_activeInputHashNode != 0, "There is no active camera object");
+    m_hashToNodeMap[m_activeInputHashNode]->ProcessMouseWheel(_wasMoved, _distance);
+}
+
+void SceneGraph::UpdateMouseClickOnActiveNode(ionU32 _index, ionBool _isPressed, ionBool _wasCicked, ionBool _wasReleased)
+{
+    ionAssertReturnVoid(m_activeInputHashNode != 0, "There is no active camera object");
+    m_hashToNodeMap[m_activeInputHashNode]->ProcessMouseClick(_index, _isPressed, _wasCicked, _wasReleased);
 }
 
 ION_NAMESPACE_END

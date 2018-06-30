@@ -59,6 +59,8 @@ public:
     void    CoreLoop();
 
     void    SetMousePos(ionFloat _deltaX, ionFloat _deltaY, ionFloat _xAbs, ionFloat _yAbs);
+    void    SetMouseWheel(ionBool _wasMoved, ionFloat _distance);
+    void    SetMouseClick(ionU32 _index, ionBool _isPressed, ionBool _wasCicked, ionBool _wasReleased);
 
     void    SetActiveInputNode(const NodeHandle& _node);
     void    SetActiveInputNode(ionSize _nodeHash);

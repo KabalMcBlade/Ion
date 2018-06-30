@@ -157,7 +157,17 @@ void RenderManager::Frame()
 
 void RenderManager::SetMousePos(ionFloat _deltaX, ionFloat _deltaY, ionFloat _xAbs, ionFloat _yAbs)
 {
-    m_sceneGraph.UpdateMouseInputActiveNode(_deltaX, _deltaY, _xAbs, _yAbs);
+    m_sceneGraph.UpdateMouseMoveOnActiveNode(_deltaX, _deltaY, _xAbs, _yAbs);
+}
+
+void RenderManager::SetMouseWheel(ionBool _wasMoved, ionFloat _distance)
+{
+    m_sceneGraph.UpdateMouseWheelOnActiveNode(_wasMoved, _distance);
+}
+
+void RenderManager::SetMouseClick(ionU32 _index, ionBool _isPressed, ionBool _wasCicked, ionBool _wasReleased)
+{
+    m_sceneGraph.UpdateMouseClickOnActiveNode(_index, _isPressed, _wasCicked, _wasReleased);
 }
 
 void RenderManager::SetActiveInputNode(const NodeHandle& _node)

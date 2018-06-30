@@ -10,7 +10,9 @@
 
 #define ION_KEY_ESCAPE  WM_USER + 1
 
-#define ION_MOUSE_MOVE  WM_USER + 100
+#define ION_MOUSE_MOVE      WM_USER + 100
+#define ION_MOUSE_WHEEL     WM_USER + 101
+#define ION_MOUSE_CLICK     WM_USER + 102
 
 #define ION_WND_CLOSE   WM_USER + 200
 #define ION_WND_RESIZE  WM_USER + 201
@@ -34,7 +36,7 @@ public:
     void SetInputMode(ionBool _clipToClient = false, ionBool _cursorDisabled = false, HCURSOR _cursor = nullptr);
 
 private:
-    void MouseClick(ionSize _indexButton, ionBool _state);
+    void MouseClick(ionU32 _indexButton, ionBool _state);
     void MouseMove(ionFloat _x, ionFloat _y);
     void MouseWheel(ionFloat _distance);
     void MouseReset();

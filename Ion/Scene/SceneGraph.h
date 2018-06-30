@@ -38,7 +38,9 @@ public:
 
     void SetActiveInputNode(const NodeHandle& _node);
     void SetActiveInputNode(ionSize _nodeHash);
-    void UpdateMouseInputActiveNode(ionFloat _xOffset, ionFloat _yOffset, ionFloat _xAbs, ionFloat _yAbs);
+    void UpdateMouseMoveOnActiveNode(ionFloat _xOffset, ionFloat _yOffset, ionFloat _xAbs, ionFloat _yAbs);
+    void UpdateMouseWheelOnActiveNode(ionBool _wasMoved, ionFloat _distance);
+    void UpdateMouseClickOnActiveNode(ionU32 _index, ionBool _isPressed, ionBool _wasCicked, ionBool _wasReleased);
 
 private:
     SceneGraph(const SceneGraph& _Orig) = delete;

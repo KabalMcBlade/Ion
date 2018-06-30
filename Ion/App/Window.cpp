@@ -250,7 +250,6 @@ ionBool Window::Loop()
                 break;
             case ION_MOUSE_MOVE:
                 GetMousePos(mousePosX, mousePosY);
-                
                 if (m_cursorMode == ECursorMode_FPS_TPS)
                 {
                     if (m_skipNextMouseMove == false)
@@ -273,7 +272,13 @@ ionBool Window::Loop()
                 {
                     MouseMove(mousePosX, mousePosY);
                 }
-           
+                break;
+            case ION_MOUSE_WHEEL:
+                // note on my mouse return always +- 120, so I multipluied by 0.001 to have something small (0.12)
+                MouseWheel(static_cast<ionFloat>(GET_WHEEL_DELTA_WPARAM(message.wParam)) * 0.001f);
+                break;
+            case ION_MOUSE_CLICK:
+                MouseClick(static_cast<ionU32>(message.wParam), message.lParam > 0);
                 break;
             }
             TranslateMessage(&message);
@@ -297,7 +302,7 @@ ionBool Window::Loop()
     return result;
 }
 
-void Window::MouseClick(ionSize _indexButton, ionBool _state) 
+void Window::MouseClick(ionU32 _indexButton, ionBool _state)
 {
     if (_indexButton < 2)
     {
@@ -305,7 +310,7 @@ void Window::MouseClick(ionSize _indexButton, ionBool _state)
         m_mouse.m_buttons[_indexButton].WasClicked = _state;
         m_mouse.m_buttons[_indexButton].WasRelease = !_state;
         
-        //ionRenderManager().SetMousePos(LOWORD(message.lParam), HIWORD(message.lParam));
+        ionRenderManager().SetMouseClick(_indexButton, m_mouse.m_buttons[_indexButton].IsPressed, m_mouse.m_buttons[_indexButton].WasClicked, m_mouse.m_buttons[_indexButton].WasRelease);
     }
 }
 
@@ -324,7 +329,7 @@ void Window::MouseWheel(ionFloat _distance)
     m_mouse.m_wheel.m_wasMoved = true;
     m_mouse.m_wheel.m_distance = _distance;
     
-    //ionRenderManager().SetMousePos(LOWORD(message.lParam), HIWORD(message.lParam));
+    ionRenderManager().SetMouseWheel(m_mouse.m_wheel.m_wasMoved, m_mouse.m_wheel.m_distance);
 }
 
 void Window::MouseReset() 

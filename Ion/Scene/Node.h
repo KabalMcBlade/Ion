@@ -60,6 +60,8 @@ public:
     virtual void OnLateUpdate(ionFloat _deltaTime) {}
 
     virtual void ProcessMouseMovement(ionFloat _xOffset, ionFloat _yOffset, ionFloat _xAbs, ionFloat _yAbs) {}
+    virtual void ProcessMouseWheel(ionBool _wasMoved, ionFloat _distance) {}
+    virtual void ProcessMouseClick(ionU32 _index, ionBool _isPressed, ionBool _wasCicked, ionBool _wasReleased) {}
 
     //
     // USER CALLS
