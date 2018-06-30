@@ -7,7 +7,3 @@
 [submodule "Ion/Dependencies/Nix"]
 	path = Ion/Dependencies/Nix
 	url = https://github.com/KabalMcBlade/Nix.git
-[submodule "IonDependenciesvkMemoryAllocator"]
-	branch = master
-[submodule "IonDependenciesNix"]
-	branch = master
