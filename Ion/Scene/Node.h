@@ -59,7 +59,7 @@ public:
     virtual void OnUpdate(ionFloat _deltaTime) {}
     virtual void OnLateUpdate(ionFloat _deltaTime) {}
 
-    virtual void ProcessMouseMovement(ionFloat _xOffset, ionFloat _yOffset, ionBool _constrainPitch = true) {}
+    virtual void ProcessMouseMovement(ionFloat _xOffset, ionFloat _yOffset, ionFloat _xAbs, ionFloat _yAbs) {}
 
     //
     // USER CALLS

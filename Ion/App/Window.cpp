@@ -316,9 +316,7 @@ void Window::MouseMove(ionFloat _x, ionFloat _y)
     m_mouse.m_position.m_x = _x;
     m_mouse.m_position.m_y = _y;
 
-    ionRenderManager().SetMousePos(m_mouse.m_position.m_delta.m_x, m_mouse.m_position.m_delta.m_y);
-
-    //ionRenderManager().SetMousePos(m_mouse.m_position.m_x, m_mouse.m_position.m_y);
+    ionRenderManager().SetMousePos(m_mouse.m_position.m_delta.m_x, m_mouse.m_position.m_delta.m_y, m_mouse.m_position.m_x, m_mouse.m_position.m_y);
 }
 
 void Window::MouseWheel(ionFloat _distance)

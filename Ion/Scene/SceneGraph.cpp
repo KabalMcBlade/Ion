@@ -230,10 +230,10 @@ void SceneGraph::SetActiveInputNode(ionSize _nodeHash)
     }
 }
 
-void SceneGraph::UpdateMouseInputActiveNode(ionFloat _x, ionFloat _y)
+void SceneGraph::UpdateMouseInputActiveNode(ionFloat _xOffset, ionFloat _yOffset, ionFloat _xAbs, ionFloat _yAbs)
 {
     ionAssertReturnVoid(m_activeInputHashNode != 0, "There is no active camera object");
-    m_hashToNodeMap[m_activeInputHashNode]->ProcessMouseMovement(_x, _y);
+    m_hashToNodeMap[m_activeInputHashNode]->ProcessMouseMovement(_xOffset, _yOffset, _xAbs, _yAbs);
 }
 
 ION_NAMESPACE_END

@@ -58,7 +58,7 @@ public:
     void    Prepare();
     void    CoreLoop();
 
-    void    SetMousePos(ionFloat _x, ionFloat _y);
+    void    SetMousePos(ionFloat _deltaX, ionFloat _deltaY, ionFloat _xAbs, ionFloat _yAbs);
 
     void    SetActiveInputNode(const NodeHandle& _node);
     void    SetActiveInputNode(ionSize _nodeHash);

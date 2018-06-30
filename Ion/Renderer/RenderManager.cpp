@@ -155,9 +155,9 @@ void RenderManager::Frame()
     }
 }
 
-void RenderManager::SetMousePos(ionFloat _deltaX, ionFloat _deltaY)
+void RenderManager::SetMousePos(ionFloat _deltaX, ionFloat _deltaY, ionFloat _xAbs, ionFloat _yAbs)
 {
-    m_sceneGraph.UpdateMouseInputActiveNode(_deltaX, _deltaY);
+    m_sceneGraph.UpdateMouseInputActiveNode(_deltaX, _deltaY, _xAbs, _yAbs);
 }
 
 void RenderManager::SetActiveInputNode(const NodeHandle& _node)
