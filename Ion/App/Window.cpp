@@ -313,14 +313,8 @@ ionBool Window::Loop()
             }
             else
             {
-                if (ionRenderManager().IsRunning())
-                {
-                    ionRenderManager().CoreLoop();
-                }
-                else
-                {
-                    loop = false;
-                }
+                ionRenderManager().CoreLoop();
+                loop = ionRenderManager().IsRunning();
                 
                 MouseReset();
                 KeyboardReset();
