@@ -80,12 +80,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     switch (uMsg)
     {
     case WM_KEYDOWN:
-        switch (wParam)
-        {
-        case VK_ESCAPE:
-            PostMessage(hWnd, ION_KEY_ESCAPE, wParam, lParam);
-            break;
-        }
+        PostMessage(hWnd, ION_KEY_DOWN, wParam, lParam);
+        break;
+    case WM_KEYUP:
+        PostMessage(hWnd, ION_KEY_UP, wParam, lParam);
+        break;
     case WM_CLOSE:
         PostMessage(hWnd, ION_WND_CLOSE, wParam, lParam);
         break;

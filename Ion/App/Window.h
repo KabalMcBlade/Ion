@@ -8,14 +8,17 @@
 
 #include "Mode.h"
 
-#define ION_KEY_ESCAPE  WM_USER + 1
+#define ION_KEY_ESCAPE      WM_USER + 1
 
-#define ION_MOUSE_MOVE      WM_USER + 100
-#define ION_MOUSE_WHEEL     WM_USER + 101
-#define ION_MOUSE_CLICK     WM_USER + 102
+#define ION_MOUSE_MOVE      WM_USER + 10
+#define ION_MOUSE_WHEEL     WM_USER + 11
+#define ION_MOUSE_CLICK     WM_USER + 12
 
-#define ION_WND_CLOSE   WM_USER + 200
-#define ION_WND_RESIZE  WM_USER + 201
+#define ION_KEY_DOWN        WM_USER + 20
+#define ION_KEY_UP          WM_USER + 21
+
+#define ION_WND_CLOSE       WM_USER + 30
+#define ION_WND_RESIZE      WM_USER + 31
 
 
 EOS_USING_NAMESPACE
@@ -40,14 +43,17 @@ private:
     void MouseMove(ionFloat _x, ionFloat _y);
     void MouseWheel(ionFloat _distance);
     void MouseReset();
-
     void GetMousePos(ionFloat& _xpos, ionFloat& _ypos);
-
     void CenterCursor();
+
+    void KeyDown(ionU8 _char);
+    void KeyUp(ionU8 _char);
+    void KeyboardReset();
 
 private:
     eosTString      m_name;
     MouseState      m_mouse;
+    KeyboardState   m_keyboard;
     HINSTANCE       m_instance;
     HWND            m_handle;
     ionS32          m_width;

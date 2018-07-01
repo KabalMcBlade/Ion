@@ -8,6 +8,8 @@
 
 #include "Transform.h"
 
+#include "../App/Mode.h"
+
 
 EOS_USING_NAMESPACE
 
@@ -59,9 +61,8 @@ public:
     virtual void OnUpdate(ionFloat _deltaTime) {}
     virtual void OnLateUpdate(ionFloat _deltaTime) {}
 
-    virtual void ProcessMouseMovement(ionFloat _xOffset, ionFloat _yOffset, ionFloat _xAbs, ionFloat _yAbs) {}
-    virtual void ProcessMouseWheel(ionBool _wasMoved, ionFloat _distance) {}
-    virtual void ProcessMouseClick(ionU32 _index, ionBool _isPressed, ionBool _wasCicked, ionBool _wasReleased) {}
+    virtual void OnMouseInput(const MouseState& _mouseState, ionFloat _deltaTime) {}
+    virtual void OnKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime) {}
 
     //
     // USER CALLS

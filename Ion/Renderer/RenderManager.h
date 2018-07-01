@@ -19,6 +19,7 @@
 #include "../Scene/Camera.h"
 #include "../Scene/SceneGraph.h"
 
+#include "../App/Mode.h"
 
 EOS_USING_NAMESPACE
 
@@ -58,12 +59,14 @@ public:
     void    Prepare();
     void    CoreLoop();
 
-    void    SetMousePos(ionFloat _deltaX, ionFloat _deltaY, ionFloat _xAbs, ionFloat _yAbs);
-    void    SetMouseWheel(ionBool _wasMoved, ionFloat _distance);
-    void    SetMouseClick(ionU32 _index, ionBool _isPressed, ionBool _wasCicked, ionBool _wasReleased);
+    void    SetMouseInput(const MouseState& _mouseState);
+    void    SetKeyboardInput(const KeyboardState& _keyboardState);
 
     void    SetActiveInputNode(const NodeHandle& _node);
     void    SetActiveInputNode(ionSize _nodeHash);
+
+    void    Quit();
+    ionBool IsRunning();
 
 private:
     RenderManager(const RenderManager& _Orig) = delete;
@@ -79,6 +82,8 @@ private:
     ionFloat    m_time;
     ionFloat    m_lastTime;
     ionFloat    m_deltaTime;
+
+    ionBool     m_running;
 
 private:
     static RenderManager *s_instance;

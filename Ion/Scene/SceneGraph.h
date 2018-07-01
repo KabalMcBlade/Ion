@@ -11,6 +11,7 @@
 
 #include "../Geometry/BoundingBox.h"
 
+#include "../App/Mode.h"
 
 NIX_USING_NAMESPACE
 EOS_USING_NAMESPACE
@@ -38,9 +39,9 @@ public:
 
     void SetActiveInputNode(const NodeHandle& _node);
     void SetActiveInputNode(ionSize _nodeHash);
-    void UpdateMouseMoveOnActiveNode(ionFloat _xOffset, ionFloat _yOffset, ionFloat _xAbs, ionFloat _yAbs);
-    void UpdateMouseWheelOnActiveNode(ionBool _wasMoved, ionFloat _distance);
-    void UpdateMouseClickOnActiveNode(ionU32 _index, ionBool _isPressed, ionBool _wasCicked, ionBool _wasReleased);
+
+    void UpdateMouseInput(const MouseState& _mouseState, ionFloat _deltaTime);
+    void UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime);
 
 private:
     SceneGraph(const SceneGraph& _Orig) = delete;

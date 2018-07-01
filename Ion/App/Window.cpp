@@ -6,6 +6,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+///
 
 MouseState::MouseState() 
 {
@@ -26,6 +27,20 @@ MouseState::MouseState()
 MouseState::~MouseState() 
 {
 }
+
+///
+
+KeyboardState::KeyboardState()
+{
+    m_state = EKeyboardState::EKeyboardState_Nothing;
+    m_key = EKeyboardKey::EKeyboardKey_None;
+}
+
+KeyboardState::~KeyboardState()
+{
+}
+
+///
 
 
 Window::Window() : m_instance(), m_handle(), m_skipNextMouseMove(false)
@@ -241,10 +256,15 @@ ionBool Window::Loop()
             // Process events
             switch (message.message)
             {
+            case ION_KEY_DOWN:
+                KeyDown(MapVirtualKey(LOWORD(message.wParam), MAPVK_VK_TO_CHAR));
+                break;
+            case ION_KEY_UP:
+                KeyUp(MapVirtualKey(LOWORD(message.wParam), MAPVK_VK_TO_CHAR));
+                break;
             case ION_WND_RESIZE:
                 resize = true;
                 break;
-            case ION_KEY_ESCAPE:
             case ION_WND_CLOSE:
                 loop = false;
                 break;
@@ -293,8 +313,17 @@ ionBool Window::Loop()
             }
             else
             {
-                ionRenderManager().CoreLoop();
+                if (ionRenderManager().IsRunning())
+                {
+                    ionRenderManager().CoreLoop();
+                }
+                else
+                {
+                    loop = false;
+                }
+                
                 MouseReset();
+                KeyboardReset();
             }
         }
     }
@@ -310,7 +339,7 @@ void Window::MouseClick(ionU32 _indexButton, ionBool _state)
         m_mouse.m_buttons[_indexButton].WasClicked = _state;
         m_mouse.m_buttons[_indexButton].WasRelease = !_state;
         
-        ionRenderManager().SetMouseClick(_indexButton, m_mouse.m_buttons[_indexButton].IsPressed, m_mouse.m_buttons[_indexButton].WasClicked, m_mouse.m_buttons[_indexButton].WasRelease);
+        ionRenderManager().SetMouseInput(m_mouse);
     }
 }
 
@@ -321,7 +350,7 @@ void Window::MouseMove(ionFloat _x, ionFloat _y)
     m_mouse.m_position.m_x = _x;
     m_mouse.m_position.m_y = _y;
 
-    ionRenderManager().SetMousePos(m_mouse.m_position.m_delta.m_x, m_mouse.m_position.m_delta.m_y, m_mouse.m_position.m_x, m_mouse.m_position.m_y);
+    ionRenderManager().SetMouseInput(m_mouse);
 }
 
 void Window::MouseWheel(ionFloat _distance)
@@ -329,7 +358,7 @@ void Window::MouseWheel(ionFloat _distance)
     m_mouse.m_wheel.m_wasMoved = true;
     m_mouse.m_wheel.m_distance = _distance;
     
-    ionRenderManager().SetMouseWheel(m_mouse.m_wheel.m_wasMoved, m_mouse.m_wheel.m_distance);
+    ionRenderManager().SetMouseInput(m_mouse);
 }
 
 void Window::MouseReset() 
@@ -343,5 +372,28 @@ void Window::MouseReset()
     m_mouse.m_wheel.m_wasMoved = false;
     m_mouse.m_wheel.m_distance = 0.0f;
 }
+
+void Window::KeyDown(ionU8 _char)
+{
+    m_keyboard.m_state = EKeyboardState::EKeyboardState_Down;
+    m_keyboard.m_key = static_cast<EKeyboardKey>(_char);
+
+    ionRenderManager().SetKeyboardInput(m_keyboard);
+}
+
+void Window::KeyUp(ionU8 _char)
+{
+    m_keyboard.m_state = EKeyboardState::EKeyboardState_Up;
+    m_keyboard.m_key = static_cast<EKeyboardKey>(_char);
+
+    ionRenderManager().SetKeyboardInput(m_keyboard);
+}
+
+void Window::KeyboardReset()
+{
+    m_keyboard.m_state = EKeyboardState::EKeyboardState_Nothing;
+    m_keyboard.m_key = EKeyboardKey::EKeyboardKey_None;
+}
+
 
 ION_NAMESPACE_END

@@ -32,7 +32,7 @@ ION_NAMESPACE_BEGIN
 RenderManager *RenderManager::s_instance = nullptr;
 
 
-RenderManager::RenderManager() : m_time(0.0f), m_deltaTime(0.0f), m_lastTime(0.0f)
+RenderManager::RenderManager() : m_time(0.0f), m_deltaTime(0.0f), m_lastTime(0.0f), m_running(false)
 {
 
 }
@@ -44,7 +44,15 @@ RenderManager::~RenderManager()
 
 ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
 {
-    return m_renderCore.Init(_instance, _handle, _width, _height, _fullScreen, _enableValidationLayer, _vkDeviceLocalSize, _vkHostVisibleSize, _vkStagingBufferSize);
+    if (m_renderCore.Init(_instance, _handle, _width, _height, _fullScreen, _enableValidationLayer, _vkDeviceLocalSize, _vkHostVisibleSize, _vkStagingBufferSize))
+    {
+        m_running = true;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void RenderManager::Shutdown()
@@ -121,19 +129,22 @@ void RenderManager::Prepare()
 
 void RenderManager::CoreLoop()
 {
-    static auto startTime = std::chrono::high_resolution_clock::now();
-
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    m_time = std::chrono::duration<ionFloat, std::chrono::seconds::period>(currentTime - startTime).count();
-
-    m_deltaTime = m_time - m_lastTime;
-
-    while (m_time - m_lastTime > ION_FPS_LIMIT)
+    if (m_running)
     {
-        Update(m_deltaTime);
-        Frame();
+        static auto startTime = std::chrono::high_resolution_clock::now();
 
-        m_lastTime = m_time;
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        m_time = std::chrono::duration<ionFloat, std::chrono::seconds::period>(currentTime - startTime).count();
+
+        m_deltaTime = m_time - m_lastTime;
+
+        while (m_time - m_lastTime > ION_FPS_LIMIT)
+        {
+            Update(m_deltaTime);
+            Frame();
+
+            m_lastTime = m_time;
+        }
     }
 }
 
@@ -155,19 +166,14 @@ void RenderManager::Frame()
     }
 }
 
-void RenderManager::SetMousePos(ionFloat _deltaX, ionFloat _deltaY, ionFloat _xAbs, ionFloat _yAbs)
+void RenderManager::SetMouseInput(const MouseState& _mouseState)
 {
-    m_sceneGraph.UpdateMouseMoveOnActiveNode(_deltaX, _deltaY, _xAbs, _yAbs);
+    m_sceneGraph.UpdateMouseInput(_mouseState, m_deltaTime);
 }
 
-void RenderManager::SetMouseWheel(ionBool _wasMoved, ionFloat _distance)
+void RenderManager::SetKeyboardInput(const KeyboardState& _keyboardState)
 {
-    m_sceneGraph.UpdateMouseWheelOnActiveNode(_wasMoved, _distance);
-}
-
-void RenderManager::SetMouseClick(ionU32 _index, ionBool _isPressed, ionBool _wasCicked, ionBool _wasReleased)
-{
-    m_sceneGraph.UpdateMouseClickOnActiveNode(_index, _isPressed, _wasCicked, _wasReleased);
+    m_sceneGraph.UpdateKeyboardInput(_keyboardState, m_deltaTime);
 }
 
 void RenderManager::SetActiveInputNode(const NodeHandle& _node)
@@ -178,6 +184,16 @@ void RenderManager::SetActiveInputNode(const NodeHandle& _node)
 void RenderManager::SetActiveInputNode(ionSize _nodeHash)
 {
     m_sceneGraph.SetActiveInputNode(_nodeHash);
+}
+
+void RenderManager::Quit()
+{
+    m_running = false;
+}
+
+ionBool RenderManager::IsRunning()
+{
+    return m_running;
 }
 
 ION_NAMESPACE_END

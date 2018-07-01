@@ -37,16 +37,16 @@ void FPSCamera::SetParameters(ionFloat _movementSpeed, ionFloat _mouseSensitivit
     m_constrainPitch = _constrainPitch;
 }
 
-void FPSCamera::ProcessMouseMovement(ionFloat _xOffset, ionFloat _yOffset, ionFloat _xAbs, ionFloat _yAbs)
+void FPSCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime)
 {
-    ION_UNUSED(_xAbs);
-    ION_UNUSED(_yAbs);
+    ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
+    ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
 
-    _xOffset *= m_mouseSensitivity;
-    _yOffset *= m_mouseSensitivity;
+    xOffset *= m_mouseSensitivity;
+    yOffset *= m_mouseSensitivity;
 
-    m_yawDeg += _xOffset;
-    m_pitchDeg -= _yOffset;
+    m_yawDeg += xOffset;
+    m_pitchDeg -= yOffset;
 
     if (m_constrainPitch)
     {
@@ -67,5 +67,45 @@ void FPSCamera::ProcessMouseMovement(ionFloat _xOffset, ionFloat _yOffset, ionFl
     rotation.SetFromMatrix(rotationMatrix);
 
     GetTransformHandle()->SetRotation(rotation);
+}
+
+void FPSCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime)
+{
+    static const Vector right(1.0f, 0.0f, 0.0f, 1.0f);
+    static const Vector forward(0.0f, 0.0f, 1.0f, 1.0f);
+
+    ionFloat velocity = m_movementSpeed * _deltaTime;
+
+    if (_keyboardState.m_state == ion::EKeyboardState_Down)
+    {
+        Vector pos = GetTransformHandle()->GetPosition();
+
+        if (_keyboardState.m_key == ion::EKeyboardKey_W)
+        {
+            pos += forward * velocity;
+        }
+        else if (_keyboardState.m_key == ion::EKeyboardKey_S)
+        {
+            pos -= forward * velocity;
+        }
+        else if (_keyboardState.m_key == ion::EKeyboardKey_D)
+        {
+            pos -= right * velocity;
+        }
+        else if (_keyboardState.m_key == ion::EKeyboardKey_A)
+        {
+            pos += right * velocity;
+        }
+
+        GetTransformHandle()->SetPosition(pos);
+    }
+
+    if (_keyboardState.m_state == ion::EKeyboardState_Up)
+    {
+        if (_keyboardState.m_key == ion::EKeyboardKey_Escape)
+        {
+            ionRenderManager().Quit();
+        }
+    }
 }
 
