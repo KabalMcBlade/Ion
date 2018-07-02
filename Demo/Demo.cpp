@@ -79,9 +79,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
+    case WM_SYSKEYDOWN:
     case WM_KEYDOWN:
         PostMessage(hWnd, ION_KEY_DOWN, wParam, lParam);
         break;
+    case WM_SYSKEYUP:
     case WM_KEYUP:
         PostMessage(hWnd, ION_KEY_UP, wParam, lParam);
         break;
@@ -183,7 +185,7 @@ int main()
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
     camera->GetTransformHandle()->SetPosition(cameraPos);
     camera->GetTransformHandle()->SetRotation(cameraRot);
-    dynamic_cast<FPSCamera*>(camera.GetPtr())->SetParameters(1.0f, 0.05f, true);
+    dynamic_cast<FPSCamera*>(camera.GetPtr())->SetParameters(0.001f, 0.05f, true);
 
     //
     EntityHandle test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE);

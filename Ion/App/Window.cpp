@@ -294,7 +294,7 @@ ionBool Window::Loop()
                 }
                 break;
             case ION_MOUSE_WHEEL:
-                // note on my mouse return always +- 120, so I multipluied by 0.001 to have something small (0.12)
+                // note on my mouse return always +- 120, so I multiplied by 0.001 to have something small (0.12)
                 MouseWheel(static_cast<ionFloat>(GET_WHEEL_DELTA_WPARAM(message.wParam)) * 0.001f);
                 break;
             case ION_MOUSE_CLICK:
@@ -313,11 +313,13 @@ ionBool Window::Loop()
             }
             else
             {
+                // keyboard is different, I need to keep pressed until something is change, for instance
+                ionRenderManager().SetKeyboardInput(m_keyboard);
+
                 ionRenderManager().CoreLoop();
                 loop = ionRenderManager().IsRunning();
                 
                 MouseReset();
-                KeyboardReset();
             }
         }
     }
@@ -371,23 +373,12 @@ void Window::KeyDown(ionU8 _char)
 {
     m_keyboard.m_state = EKeyboardState::EKeyboardState_Down;
     m_keyboard.m_key = static_cast<EKeyboardKey>(_char);
-
-    ionRenderManager().SetKeyboardInput(m_keyboard);
 }
 
 void Window::KeyUp(ionU8 _char)
 {
     m_keyboard.m_state = EKeyboardState::EKeyboardState_Up;
     m_keyboard.m_key = static_cast<EKeyboardKey>(_char);
-
-    ionRenderManager().SetKeyboardInput(m_keyboard);
 }
-
-void Window::KeyboardReset()
-{
-    m_keyboard.m_state = EKeyboardState::EKeyboardState_Nothing;
-    m_keyboard.m_key = EKeyboardKey::EKeyboardKey_None;
-}
-
 
 ION_NAMESPACE_END

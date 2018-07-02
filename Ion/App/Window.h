@@ -48,7 +48,6 @@ private:
 
     void KeyDown(ionU8 _char);
     void KeyUp(ionU8 _char);
-    void KeyboardReset();
 
 private:
     eosTString      m_name;

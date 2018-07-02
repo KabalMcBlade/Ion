@@ -1,4 +1,4 @@
-#include "RenderManager.h"
+﻿#include "RenderManager.h"
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
