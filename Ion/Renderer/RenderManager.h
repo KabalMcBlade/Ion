@@ -79,8 +79,6 @@ private:
     RenderCore  m_renderCore;
     SceneGraph  m_sceneGraph;
 
-    ionFloat    m_time;
-    ionFloat    m_lastTime;
     ionFloat    m_deltaTime;
 
     ionBool     m_running;

@@ -32,7 +32,7 @@ ION_NAMESPACE_BEGIN
 RenderManager *RenderManager::s_instance = nullptr;
 
 
-RenderManager::RenderManager() : m_time(0.0f), m_deltaTime(0.0f), m_lastTime(0.0f), m_running(false)
+RenderManager::RenderManager() : m_deltaTime(0.0f), m_running(false)
 {
 
 }
@@ -131,19 +131,20 @@ void RenderManager::CoreLoop()
 {
     if (m_running)
     {
-        static auto startTime = std::chrono::high_resolution_clock::now();
+        static auto lastTime = std::chrono::high_resolution_clock::now();
 
         auto currentTime = std::chrono::high_resolution_clock::now();
-        m_time = std::chrono::duration<ionFloat, std::chrono::seconds::period>(currentTime - startTime).count();
 
-        m_deltaTime = m_time - m_lastTime;
-
-        while (m_time - m_lastTime > ION_FPS_LIMIT)
+        while (std::chrono::duration<ionFloat, std::chrono::seconds::period>(currentTime - lastTime).count() > ION_FPS_LIMIT)
         {
+            currentTime = std::chrono::high_resolution_clock::now();
+
+            m_deltaTime = std::chrono::duration<ionFloat, std::chrono::seconds::period>(currentTime - lastTime).count();
+
             Update(m_deltaTime);
             Frame();
 
-            m_lastTime = m_time;
+            lastTime = currentTime;
         }
     }
 }

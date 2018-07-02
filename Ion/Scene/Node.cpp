@@ -78,6 +78,8 @@ void Node::Update(ionFloat _deltaTime)
 {
     if (m_active)
     {
+        OnUpdate(_deltaTime);
+
         Matrix worldTransform;
         if (m_parent.IsValid())
         {
@@ -95,8 +97,6 @@ void Node::Update(ionFloat _deltaTime)
                 m_transform->SetMatrixInverseWS(m_transform->GetMatrixInverse());
             }
         }
-
-        OnUpdate(_deltaTime);
 
         eosVector(NodeHandle)::const_iterator begin = GetChildIteratorBegin(), end = GetChildIteratorEnd(), it = begin;
         for (; it != end; ++it)
