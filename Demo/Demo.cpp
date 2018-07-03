@@ -185,7 +185,11 @@ int main()
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
     camera->GetTransformHandle()->SetPosition(cameraPos);
     camera->GetTransformHandle()->SetRotation(cameraRot);
+    camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
+    camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+    camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
     dynamic_cast<FPSCamera*>(camera.GetPtr())->SetParameters(0.001f, 0.05f, true);
+
 
     //
     EntityHandle test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE);

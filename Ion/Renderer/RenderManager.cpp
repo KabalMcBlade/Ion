@@ -161,7 +161,7 @@ void RenderManager::Frame()
 
     if (m_renderCore.StartFrame())
     {
-        m_sceneGraph.Render(m_renderCore, width, height);
+        m_sceneGraph.Render(m_renderCore, 0, 0, width, height);
 
         m_renderCore.EndFrame();
     }

@@ -35,7 +35,7 @@ public:
     void Prepare();
 
     void Update(ionFloat _deltaTime);
-    void Render(RenderCore& _renderCore, ionU32 _width, ionU32 _height);
+    void Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _width, ionU32 _height);
 
     // Input
     void RegisterToInput(const NodeHandle& _node);

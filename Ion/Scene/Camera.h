@@ -47,11 +47,20 @@ public:
     const Frustum& GetFrustum() const { return m_frustum; }
 
     //////////////////////////////////////////////////////////////////////////
+    // Setting
+
+    // The parameters are normalized depending from the screen
+    void SetViewportParameters(ionFloat _x = 0.0f, ionFloat _y = 0.0f, ionFloat _width = 1.0f, ionFloat _height = 1.0f, ionFloat _minDepth = 0.0f, ionFloat _maxDepth = 1.0f);
+    void SetScissorParameters(ionFloat _x = 0.0f, ionFloat _y = 0.0f, ionFloat _width = 1.0f, ionFloat _height = 1.0f);
+    void SetRenderPassParameters(ionFloat _clearDepthValue = 1.0f, ionU8 _clearStencilValue = 0, ionFloat _clearRed = 1.0f, ionFloat _clearGreen = 1.0f, ionFloat _clearBlue = 1.0f);
+
+
+    //////////////////////////////////////////////////////////////////////////
     // Render
 
-    void SetViewport(RenderCore& _renderCore, ionS32 _fromX, ionS32 _fromY, ionS32 _width, ionS32 _height, ionFloat _percentageOfWithHeight, ionFloat _minDepth, ionFloat _maxDepth);
-    void SetScissor(RenderCore& _renderCore, ionS32 _fromX, ionS32 _fromY, ionS32 _width, ionS32 _height, ionFloat _percentageOfWithHeight);
-    void StartRenderPass(RenderCore& _renderCore, ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue);
+    void SetViewport(RenderCore& _renderCore, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
+    void SetScissor(RenderCore& _renderCore, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
+    void StartRenderPass(RenderCore& _renderCore);
     void EndRenderPass(RenderCore& _renderCore);
 
 public:
@@ -68,11 +77,30 @@ private:
 
     Frustum m_frustum;
 
+    ECameraType m_type;
+
     ionFloat m_fov;
     ionFloat m_zNear;
     ionFloat m_zFar;
 
-    ECameraType m_type;
+    ionFloat m_minDepth; 
+    ionFloat m_maxDepth;
+
+    ionFloat m_viewPortX;
+    ionFloat m_viewPortY;
+    ionFloat m_scissorX;
+    ionFloat m_scissorY;
+
+    ionFloat m_viewPortWidth;
+    ionFloat m_viewPortHeight;
+    ionFloat m_scissorWidth;
+    ionFloat m_scissorHeight;
+
+    ionFloat m_clearDepthValue;
+    ionFloat m_clearRed;
+    ionFloat m_clearGreen;
+    ionFloat m_clearBlue;
+    ionU8    m_clearStencilValue;
 };
 
 ION_NAMESPACE_END

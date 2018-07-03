@@ -185,15 +185,16 @@ void SceneGraph::Update(ionFloat _deltaTime)
     ionVertexCacheManager().EndMapping();
 }
 
-void SceneGraph::Render(RenderCore& _renderCore, ionU32 _width, ionU32 _height)
+void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _width, ionU32 _height)
 {
     for (eosMap(CameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
     {
         const CameraHandle& cam = iter->first;
 
-        cam->StartRenderPass(_renderCore, 1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
-        cam->SetViewport(_renderCore, 0, 0, _width, _height, 1.0f, 0.0f, 1.0f);
-        cam->SetScissor(_renderCore, 0, 0, _width, _height, 1.0f);
+        cam->StartRenderPass(_renderCore);
+
+        cam->SetViewport(_renderCore, _x, _y, _width, _height);
+        cam->SetScissor(_renderCore, _x, _y, _width, _height);
 
         const eosVector(DrawSurface)& surfaces = m_drawSurfaces[cam->GetHash()];
 
