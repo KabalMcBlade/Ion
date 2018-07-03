@@ -86,7 +86,7 @@ ionBool Texture::LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _co
     return result;
 }
 
-ionBool Texture::LoadTextureFromFile(const eosString& _path)
+ionBool Texture::LoadTextureFromFile(const eosString& _path, ionU32 _index /* = 0 // index of texture for cube-map, 0 by default */)
 {
     ionS32 w = 0, h = 0, c = 0;
     ionU8* buffer = stbi_load(_path.c_str(), &w, &h, &c, 0);
@@ -97,7 +97,7 @@ ionBool Texture::LoadTextureFromFile(const eosString& _path)
 
     GenerateOptions();
 
-    ionBool result = Create();
+    ionBool result = Create(_index);
     if (result)
     {
         if (c == 3)
@@ -105,12 +105,12 @@ ionBool Texture::LoadTextureFromFile(const eosString& _path)
             ionSize newBufferSize = m_width * m_height * 4;
             ionU8* newBuffer = (ionU8*)eosNewRaw(sizeof(ionU8) * newBufferSize, EOS_MEMORY_ALIGNMENT_SIZE);
             ConvertFrom3ChannelTo4Channel(m_width, m_height, buffer, newBuffer);
-            UploadTextureToMemory(m_numLevels, m_width, m_height, newBuffer, 0);
+            UploadTextureToMemory(m_numLevels, m_width, m_height, newBuffer, _index);
             eosDeleteRaw(newBuffer);
         }
         else
         {
-            UploadTextureToMemory(m_numLevels, m_width, m_height, buffer, 0);
+            UploadTextureToMemory(m_numLevels, m_width, m_height, buffer, _index);
         }
     }
 
@@ -138,14 +138,14 @@ ionBool Texture::LoadCubeTextureFromFile(const eosString& _path)
         return false;
     }
 
-    eosString suffix[6]{ "_left", "_top", "_front", "_bottom", "_right", "_back" };
+    eosString suffix[6]{ "_left.", "_top.", "_front.", "_bottom.", "_right.", "_back." };
 
     ionBool result = true;
 
-    for(ionU8 i = 0; i < 6; ++i)
+    for(ionU32 i = 0; i < 6; ++i)
     {
         eosString newPath = path + suffix[i] + ext;
-        if (!LoadTextureFromFile(newPath.c_str()))
+        if (!LoadTextureFromFile(newPath.c_str(), i))
         {
             result = false;
             break;
@@ -327,10 +327,13 @@ ionBool Texture::CreateFromBuffer(ionU32 _width, ionU32 _height, ionU32 _compone
     return true;
 }
 
-ionBool Texture::Create()
+ionBool Texture::Create(ionU32 _index /*= 0 // index of texture for cube-map, 0 by default */)
 {
     // clear before create
-    Destroy();
+    if (m_optTextureType == ETextureType_2D || (m_optTextureType == ETextureType_Cubic && _index == 0))
+    {
+        Destroy();
+    }
 
     if (CreateSampler())
     {

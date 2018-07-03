@@ -33,7 +33,7 @@ private:
 
     ionBool CreateFromFile(const eosString& _path);
     ionBool CreateFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer, VkDeviceSize _bufferSize);
-    ionBool Create();
+    ionBool Create(ionU32 _index = 0 /* index of texture for cube-map, 0 by default */);
 
     // this needed because Vulkan limitation
     void ConvertFrom3ChannelTo4Channel(ionU32 _width, ionU32 _height, const ionU8* _inBuffer, ionU8* _outBuffer);
@@ -44,7 +44,7 @@ private:
     VkFormat GetVulkanFormatFromTextureFormat(ETextureFormat _format);
     VkComponentMapping GetVulkanComponentMappingFromTextureFormat(ETextureFormat _format);
 
-    ionBool LoadTextureFromFile(const eosString& _path);
+    ionBool LoadTextureFromFile(const eosString& _path, ionU32 _index = 0 /* index of texture for cube-map, 0 by default */);
     ionBool LoadCubeTextureFromFile(const eosString& _path);
 
     ionBool LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer);
@@ -52,7 +52,7 @@ private:
     ionU32 BitsPerFormat(ETextureFormat _format);
     void GenerateOptions();
 
-    void UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _height, const ionU8* _buffer, ionU32 _index /* = 0 // index of texture for cube-map, 0 by default */);
+    void UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _height, const ionU8* _buffer, ionU32 _index = 0 /* index of texture for cube-map, 0 by default */);
 
     void GenerateMipMaps();
 
