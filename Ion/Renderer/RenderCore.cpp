@@ -1659,11 +1659,9 @@ void RenderCore::Draw(const DrawSurface& _surface)
 {
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
     
-    // USING THE HASH VERSION HERE!!!
-    ionShaderProgramManager().SetRenderParamMatrix(ION_MODEL_MATRIX_PARAM_TEXT, &_surface.m_modelMatrix[0]);
-    ionShaderProgramManager().SetRenderParamMatrix(ION_VIEW_MATRIX_PARAM_TEXT, &_surface.m_viewMatrix[0]);
-    ionShaderProgramManager().SetRenderParamMatrix(ION_PROJ_MATRIX_PARAM_TEXT, &_surface.m_projectionMatrix[0]);
-  
+    ionShaderProgramManager().SetRenderParamMatrix(ION_MODEL_MATRIX_PARAM_HASH, &_surface.m_modelMatrix[0]);
+    ionShaderProgramManager().SetRenderParamMatrix(ION_VIEW_MATRIX_PARAM_HASH, &_surface.m_viewMatrix[0]);
+    ionShaderProgramManager().SetRenderParamMatrix(ION_PROJ_MATRIX_PARAM_HASH, &_surface.m_projectionMatrix[0]);
 
     ionS32  vertexShaderIndex = -1;
     ionS32  fragmentShaderIndex = -1;

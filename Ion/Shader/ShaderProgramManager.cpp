@@ -192,8 +192,11 @@ void ShaderProgramManager::SetRenderParamVector(const eosString& _param, const i
 
 void ShaderProgramManager::SetRenderParamVector(ionSize _paramHash, const ionFloat* _value)
 {
-    Vector v(_value[0], _value[1], _value[2], _value[3]);
-    m_uniformsVector[_paramHash] = v;
+    if (m_uniformsVector.count(_paramHash) > 0)
+    {
+        Vector v(_value[0], _value[1], _value[2], _value[3]);
+        m_uniformsVector[_paramHash] = v;
+    }
 }
 
 void ShaderProgramManager::SetRenderParamsVector(const eosString& _param, const ionFloat* _values, ionU32 _numValues)
@@ -223,8 +226,11 @@ void ShaderProgramManager::SetRenderParamMatrix(const eosString& _param, const i
 
 void ShaderProgramManager::SetRenderParamMatrix(ionSize _paramHash, const ionFloat* _value)
 {
-    Matrix m(_value[0], _value[1], _value[2], _value[3], _value[4], _value[5], _value[6], _value[7], _value[8], _value[9], _value[10], _value[11], _value[12], _value[13], _value[14], _value[15]);
-    m_uniformsMatrix[_paramHash] = m;
+    if (m_uniformsMatrix.count(_paramHash) > 0)
+    {
+        Matrix m(_value[0], _value[1], _value[2], _value[3], _value[4], _value[5], _value[6], _value[7], _value[8], _value[9], _value[10], _value[11], _value[12], _value[13], _value[14], _value[15]);
+        m_uniformsMatrix[_paramHash] = m;
+    }
 }
 
 void ShaderProgramManager::SetRenderParamsMatrix(const eosString& _param, const ionFloat* _values, ionU32 _numValues)
@@ -254,7 +260,10 @@ void ShaderProgramManager::SetRenderParamFloat(const eosString& _param, const io
 
 void ShaderProgramManager::SetRenderParamFloat(ionSize _paramHash, const ionFloat _value)
 {
-    m_uniformsFloat[_paramHash] = _value;
+    if (m_uniformsFloat.count(_paramHash) > 0)
+    {
+        m_uniformsFloat[_paramHash] = _value;
+    }
 }
 
 void ShaderProgramManager::SetRenderParamsFloat(const eosString& _param, const ionFloat* _values, ionU32 _numValues)
@@ -284,7 +293,10 @@ void ShaderProgramManager::SetRenderParamInteger(const eosString& _param, const 
 
 void ShaderProgramManager::SetRenderParamInteger(ionSize _paramHash, const ionS32 _value)
 {
-    m_uniformsInteger[_paramHash] = _value;
+    if (m_uniformsInteger.count(_paramHash) > 0)
+    {
+        m_uniformsInteger[_paramHash] = _value;
+    }
 }
 
 void ShaderProgramManager::SetRenderParamsInteger(const eosString& _param, const ionS32* _values, ionU32 _numValues)
