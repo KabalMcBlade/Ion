@@ -890,8 +890,9 @@ struct DrawSurface final
     VertexCacheHandler  m_vertexCache;
     VertexCacheHandler  m_indexCache;
     VertexCacheHandler  m_jointCache;
-    ionU64                m_extraGLState;
+    ionU64              m_extraGLState;
     const Material*     m_material;
+    ionBool             m_visible;
 
     DrawSurface()
     {
@@ -905,6 +906,7 @@ struct DrawSurface final
         m_jointCache = 0;
         m_extraGLState = 0;
         m_material = nullptr;
+        m_visible = true;
     }
 
     ~DrawSurface()

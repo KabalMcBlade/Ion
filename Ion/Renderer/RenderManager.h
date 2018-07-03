@@ -59,11 +59,11 @@ public:
     void    Prepare();
     void    CoreLoop();
 
-    void    SetMouseInput(const MouseState& _mouseState);
-    void    SetKeyboardInput(const KeyboardState& _keyboardState);
+    void    SendMouseInput(const MouseState& _mouseState);
+    void    SendKeyboardInput(const KeyboardState& _keyboardState);
 
-    void    SetActiveInputNode(const NodeHandle& _node);
-    void    SetActiveInputNode(ionSize _nodeHash);
+    void    RegisterToInput(const NodeHandle& _node);
+    void    UnregisterFromInput(const NodeHandle& _node);
 
     void    Quit();
     ionBool IsRunning();

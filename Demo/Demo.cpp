@@ -227,6 +227,14 @@ int main()
         break;
     }
 
+    EntityHandle boundingBox = eosNew(BoundingBoxEntity, ION_MEMORY_ALIGNMENT_SIZE);
+    boundingBox->GetTransformHandle()->SetPosition(test->GetTransformedBoundingBox().GetCenter());
+    boundingBox->GetTransformHandle()->SetScale(test->GetTransformedBoundingBox().GetSize());
+
+    Test_DrawBoundingBox(*boundingBox);
+
+    boundingBox->AttachToParent(*test);
+
     //////////////////////////////////////////////////////////////////////////
     //
     //////////////////////////////////////////////////////////////////////////
@@ -240,7 +248,8 @@ int main()
     ionRenderManager().AddToSceneGraph(test);
 
     // then set the active node will receive the input
-    ionRenderManager().SetActiveInputNode(camera);
+    ionRenderManager().RegisterToInput(camera);
+    ionRenderManager().RegisterToInput(boundingBox);
 
     if (rendererInitialized)
     {

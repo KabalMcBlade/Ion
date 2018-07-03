@@ -314,7 +314,7 @@ ionBool Window::Loop()
             else
             {
                 // keyboard is different, I need to keep pressed until something is change, for instance
-                ionRenderManager().SetKeyboardInput(m_keyboard);
+                ionRenderManager().SendKeyboardInput(m_keyboard);
 
                 ionRenderManager().CoreLoop();
                 loop = ionRenderManager().IsRunning();
@@ -335,7 +335,7 @@ void Window::MouseClick(ionU32 _indexButton, ionBool _state)
         m_mouse.m_buttons[_indexButton].WasClicked = _state;
         m_mouse.m_buttons[_indexButton].WasRelease = !_state;
         
-        ionRenderManager().SetMouseInput(m_mouse);
+        ionRenderManager().SendMouseInput(m_mouse);
     }
 }
 
@@ -346,7 +346,7 @@ void Window::MouseMove(ionFloat _x, ionFloat _y)
     m_mouse.m_position.m_x = _x;
     m_mouse.m_position.m_y = _y;
 
-    ionRenderManager().SetMouseInput(m_mouse);
+    ionRenderManager().SendMouseInput(m_mouse);
 }
 
 void Window::MouseWheel(ionFloat _distance)
@@ -354,7 +354,7 @@ void Window::MouseWheel(ionFloat _distance)
     m_mouse.m_wheel.m_wasMoved = true;
     m_mouse.m_wheel.m_distance = _distance;
     
-    ionRenderManager().SetMouseInput(m_mouse);
+    ionRenderManager().SendMouseInput(m_mouse);
 }
 
 void Window::MouseReset() 

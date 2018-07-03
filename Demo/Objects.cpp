@@ -17,6 +17,44 @@ void RotatingEntity::OnUpdate(ionFloat _deltaTime)
 }
 
 
+BoundingBoxEntity::BoundingBoxEntity() : m_waitForAction(false)
+{
+}
+
+BoundingBoxEntity::~BoundingBoxEntity()
+{
+}
+
+void BoundingBoxEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime)
+{
+    if (_keyboardState.m_state == ion::EKeyboardState_Down)
+    {
+        if (_keyboardState.m_key == ion::EKeyboardKey_B)
+        {
+            if (!m_waitForAction)
+            {
+                if (IsVisible())
+                {
+                    SetVisible(false);
+                }
+                else
+                {
+                    SetVisible(true);
+                }
+                m_waitForAction = true;
+            }
+        }
+    }
+    else if (_keyboardState.m_state == ion::EKeyboardState_Up)
+    {
+        if (_keyboardState.m_key == ion::EKeyboardKey_B)
+        {
+            m_waitForAction = false;
+        }
+    }
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 // CAMERA
 

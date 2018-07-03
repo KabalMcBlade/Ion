@@ -167,24 +167,24 @@ void RenderManager::Frame()
     }
 }
 
-void RenderManager::SetMouseInput(const MouseState& _mouseState)
+void RenderManager::SendMouseInput(const MouseState& _mouseState)
 {
     m_sceneGraph.UpdateMouseInput(_mouseState, m_deltaTime);
 }
 
-void RenderManager::SetKeyboardInput(const KeyboardState& _keyboardState)
+void RenderManager::SendKeyboardInput(const KeyboardState& _keyboardState)
 {
     m_sceneGraph.UpdateKeyboardInput(_keyboardState, m_deltaTime);
 }
 
-void RenderManager::SetActiveInputNode(const NodeHandle& _node)
+void RenderManager::RegisterToInput(const NodeHandle& _node)
 {
-    m_sceneGraph.SetActiveInputNode(_node);
+    m_sceneGraph.RegisterToInput(_node);
 }
 
-void RenderManager::SetActiveInputNode(ionSize _nodeHash)
+void RenderManager::UnregisterFromInput(const NodeHandle& _node)
 {
-    m_sceneGraph.SetActiveInputNode(_nodeHash);
+    m_sceneGraph.UnregisterFromInput(_node);
 }
 
 void RenderManager::Quit()

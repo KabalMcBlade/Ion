@@ -214,6 +214,9 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         ionAssertReturnVoid(false, "Layout not yet implemented");
         break;
     }
+
+    _entity.GetBoundingBox().Expande(positions[0], positions[1]);
+    _entity.GetBoundingBox().Expande(positions[0], positions[2]);
 }
 
 
@@ -447,6 +450,9 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         ionAssertReturnVoid(false, "Layout not yet implemented");
         break;
     }
+
+    _entity.GetBoundingBox().Expande(positions[0], positions[1]);
+    _entity.GetBoundingBox().Expande(positions[2], positions[3]);
 }
 
 
@@ -774,6 +780,11 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
         ionAssertReturnVoid(false, "Layout not yet implemented");
         break;
     }
+
+    for (ionU32 i = 1; i < 24; ++i)
+    {
+        _entity.GetBoundingBox().Expande(positions[i - 1], positions[i]);
+    }
 }
 
 
@@ -786,16 +797,19 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
     static const ionU32 rings = 24;
     static const ionU32 sectors = 48;
 
+    eosVector(Vector) positions;
+    eosVector(Vector) normals;
+    eosVector(Vector) colors;
+    eosVector(Vector) uvuv;
+    eosVector(Index) indices;
+
     switch (_layout)
     {
     case EVertexLayout_Pos:
     {
         MeshPlain* mesh = _entity.AddMesh<MeshPlain>();
 
-        eosVector(VertexPlain) vertices;
-        eosVector(Index) indices;
-
-        eosVector(Vector) positions;
+        eosVector(VertexPlain) vertices; 
 
         const ionU32 verticesSize = rings * sectors;
         const ionU32 indicesSize = rings * sectors * 6;
@@ -860,11 +874,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
         MeshColored* mesh = _entity.AddMesh<MeshColored>();
 
         eosVector(VertexColored) vertices;
-        eosVector(Index) indices;
-
-        eosVector(Vector) positions;
-        eosVector(Vector) normals;
-        eosVector(Vector) colors;
 
         const ionU32 verticesSize = rings * sectors;
         const ionU32 indicesSize = rings * sectors * 6;
@@ -937,10 +946,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
         MeshUV* mesh = _entity.AddMesh<MeshUV>();
 
         eosVector(VertexUV) vertices;
-        eosVector(Index) indices;
-
-        eosVector(Vector) positions;
-        eosVector(Vector) uvuv;
 
         const ionU32 verticesSize = rings * sectors;
         const ionU32 indicesSize = rings * sectors * 6;
@@ -1009,11 +1014,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
         MeshSimple* mesh = _entity.AddMesh<MeshSimple>();
 
         eosVector(VertexSimple) vertices;
-        eosVector(Index) indices;
-
-        eosVector(Vector) positions;
-        eosVector(Vector) normals;
-        eosVector(Vector) uvuv;
 
         const ionU32 verticesSize = rings * sectors;
         const ionU32 indicesSize = rings * sectors * 6;
@@ -1086,12 +1086,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
         Mesh* mesh = _entity.AddMesh<Mesh>();
 
         eosVector(Vertex) vertices;
-        eosVector(Index) indices;
-
-        eosVector(Vector) positions;
-        eosVector(Vector) normals;
-        eosVector(Vector) uvuv;
-        eosVector(Vector) colors;
 
         const ionU32 verticesSize = rings * sectors;
         const ionU32 indicesSize = rings * sectors * 6;
@@ -1176,6 +1170,12 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
     default:
         ionAssertReturnVoid(false, "Layout not yet implemented");
         break;
+    }
+
+    const ionSize count = positions.size();
+    for (ionU32 i = 1; i < count; ++i)
+    {
+        _entity.GetBoundingBox().Expande(positions[i - 1], positions[i]);
     }
 }
 

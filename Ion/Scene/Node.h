@@ -71,6 +71,9 @@ public:
     void SetActive(ionBool _isActive) { m_active = _isActive; }
     ionBool IsActive() { return m_active; }
 
+    void SetVisible(ionBool _isVisible) { m_visible = _isVisible; }
+    ionBool IsVisible() { return m_visible; }
+
     void AttachToParent(Node& _parent);
     void AttachToParent(NodeHandle& _parent);
     void DetachFromParent();
@@ -122,6 +125,7 @@ private:
     eosVector(NodeHandle) m_children;
 
     ionBool m_active;
+    ionBool m_visible;
 
     static ionU32 g_nextValidNodeIndex;
 };

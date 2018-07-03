@@ -10,7 +10,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-SceneGraph::SceneGraph() : m_activeInputHashNode(0)
+SceneGraph::SceneGraph()
 {
     m_rootHandle = eosNew(Node, ION_MEMORY_ALIGNMENT_SIZE);
     m_rootHandle->GetTransformHandle()->SetPosition(VectorHelper::Get0001());
@@ -34,22 +34,16 @@ SceneGraph::~SceneGraph()
     m_drawSurfaces.clear();
 
     m_nodeCountPerCamera.clear();
-    m_hashToNodeMap.clear();
+    m_registeredInput.clear();
 }
 
 void SceneGraph::AddToScene(NodeHandle& _node)
 {
-    m_hashToNodeMap.insert(std::pair<ionSize, NodeHandle>(_node->GetHash(), _node));
-
     _node->AttachToParent(m_rootHandle);
 }
 
 void SceneGraph::RemoveFromScene(NodeHandle& _node)
 {
-    //eosMap(ionSize, NodeHandle)::iterator itErase = m_hashToNodeMap.find(_node->GetHash()); 
-    //m_hashToNodeMap.erase(itErase);
-    m_hashToNodeMap.erase(_node->GetHash());
-
     _node->DetachFromParent();
 }
 
@@ -154,6 +148,7 @@ void SceneGraph::UpdateDrawSurface(ionSize _cameraHash, const Matrix& _projectio
     _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_projectionMatrix[8], _projection[2]);
     _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_projectionMatrix[12], _projection[3]);
 
+    m_drawSurfaces[_cameraHash][_index].m_visible = _entity->IsVisible();
     m_drawSurfaces[_cameraHash][_index].m_indexStart = _entity->GetMesh(0)->GetIndexStart();
     m_drawSurfaces[_cameraHash][_index].m_indexCount = _entity->GetMesh(0)->GetIndexCount();
     m_drawSurfaces[_cameraHash][_index].m_vertexCache = ionVertexCacheManager().AllocVertex(_entity->GetMesh(0)->GetVertexData(), _entity->GetMesh(0)->GetVertexSize());
@@ -207,39 +202,46 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _width, ionU32 _height)
         {
             const DrawSurface& drawSuraface = (*it);
 
-            _renderCore.SetState(drawSuraface.m_material->GetState().GetStateBits());
-            _renderCore.Draw(drawSuraface);
+            if (drawSuraface.m_visible)
+            {
+                _renderCore.SetState(drawSuraface.m_material->GetState().GetStateBits());
+                _renderCore.Draw(drawSuraface);
+            }
         }
 
         cam->EndRenderPass(_renderCore);
     }
 }
 
-void SceneGraph::SetActiveInputNode(const NodeHandle& _node)
+void SceneGraph::RegisterToInput(const NodeHandle& _node)
 {
-    SetActiveInputNode(_node->GetHash());
+    m_registeredInput.push_back(_node);
 }
 
-void SceneGraph::SetActiveInputNode(ionSize _nodeHash)
+void SceneGraph::UnregisterFromInput(const NodeHandle& _node)
 {
-    eosMap(ionSize, NodeHandle)::iterator itSelected = m_hashToNodeMap.find(_nodeHash);
-    if (itSelected != m_hashToNodeMap.end())
-    {
-        m_activeInputHashNode = _nodeHash;
-        return;
-    }
+    //m_registeredInput.erase(std::remove(m_registeredInput.begin(), m_registeredInput.end(), _node), m_registeredInput.end());
+    std::remove(m_registeredInput.begin(), m_registeredInput.end(), _node);
 }
 
 void SceneGraph::UpdateMouseInput(const MouseState& _mouseState, ionFloat _deltaTime)
 {
-    ionAssertReturnVoid(m_activeInputHashNode != 0, "There is no active camera object");
-    m_hashToNodeMap[m_activeInputHashNode]->OnMouseInput(_mouseState, _deltaTime);
+    eosVector(NodeHandle)::const_iterator begin = m_registeredInput.cbegin(), end = m_registeredInput.cend(), it = begin;
+    for (; it != end; ++it)
+    {
+        const NodeHandle& node = (*it);
+        node->OnMouseInput(_mouseState, _deltaTime);
+    }
 }
 
 void SceneGraph::UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime)
 {
-    ionAssertReturnVoid(m_activeInputHashNode != 0, "There is no active camera object");
-    m_hashToNodeMap[m_activeInputHashNode]->OnKeyboardInput(_keyboardState, _deltaTime);
+    eosVector(NodeHandle)::const_iterator begin = m_registeredInput.cbegin(), end = m_registeredInput.cend(), it = begin;
+    for (; it != end; ++it)
+    {
+        const NodeHandle& node = (*it);
+        node->OnKeyboardInput(_keyboardState, _deltaTime);
+    }
 }
 
 ION_NAMESPACE_END

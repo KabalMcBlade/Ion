@@ -11,6 +11,18 @@ class RotatingEntity : public ion::Entity
 };
 
 
+class BoundingBoxEntity : public ion::Entity
+{
+public:
+    BoundingBoxEntity();
+    virtual ~BoundingBoxEntity();
+
+    virtual void OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime) override;
+
+private:
+    ionBool m_waitForAction;
+};
+
 //////////////////////////////////////////////////////////////////////////
 // CAMERA
 class FPSCamera : public ion::Camera

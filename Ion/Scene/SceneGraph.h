@@ -37,8 +37,9 @@ public:
     void Update(ionFloat _deltaTime);
     void Render(RenderCore& _renderCore, ionU32 _width, ionU32 _height);
 
-    void SetActiveInputNode(const NodeHandle& _node);
-    void SetActiveInputNode(ionSize _nodeHash);
+    // Input
+    void RegisterToInput(const NodeHandle& _node);
+    void UnregisterFromInput(const NodeHandle& _node);
 
     void UpdateMouseInput(const MouseState& _mouseState, ionFloat _deltaTime);
     void UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime);
@@ -58,9 +59,7 @@ private:
     eosMap(CameraHandle, eosVector(EntityHandle))   m_treeNodes;
     eosMap(ionSize, eosVector(DrawSurface))         m_drawSurfaces;
     eosMap(ionSize, ionU32)                         m_nodeCountPerCamera;
-    eosMap(ionSize, NodeHandle)                     m_hashToNodeMap;        // This is needed in order to keep a fast reference and to avoid any odd conversion
-
-    ionSize                                         m_activeInputHashNode;
+    eosVector(NodeHandle)                           m_registeredInput;
 };
 
 ION_NAMESPACE_END
