@@ -20,7 +20,8 @@ enum ENodeType
 {
     ENodeType_EmptyNode = -1,
     ENodeType_Entity = 0,
-    ENodeType_Camera
+    ENodeType_Camera,
+    ENodeType_Skybox
 };
 
 
@@ -92,7 +93,7 @@ public:
     ionU32 GetNodeIndex() const { return m_nodeIndex;  }
     ionSize GetHash() const { return m_hash; }
 
-    virtual void Update(ionFloat _deltaTime);
+    void Update(ionFloat _deltaTime);
 
     const NodeHandle &GetParentHandle() const { return m_parent; }
     const TransformHandle &GetTransformHandle() const { return m_transform; }

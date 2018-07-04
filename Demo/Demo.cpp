@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 
-//#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 #include "../Ion/Ion.h"
 
 #include "Objects.h"
@@ -45,12 +44,12 @@
 #define VULKAN_DEVICE_MEMORY_MB     VULKAN_BASE_MEMORY_MB * 32
 #define VULKAN_INSTANCE_MEMORY_MB   VULKAN_BASE_MEMORY_MB * 32
 
-#define VULKAN_GPU_MEMORY_MB        VULKAN_BASE_MEMORY_MB * 8
+#define VULKAN_GPU_MEMORY_MB        VULKAN_BASE_MEMORY_MB * 32
 
-#define VULKAN_GPU_DEVICE_LOCAL_MB  VULKAN_BASE_MEMORY_MB * 128
-#define VULKAN_GPU_HOST_VISIBLE_MB  VULKAN_BASE_MEMORY_MB * 64
+#define VULKAN_GPU_DEVICE_LOCAL_MB  VULKAN_BASE_MEMORY_MB * 512
+#define VULKAN_GPU_HOST_VISIBLE_MB  VULKAN_BASE_MEMORY_MB * 256
 
-#define VULKAN_STAGING_BUFFER_MB    VULKAN_BASE_MEMORY_MB * 64
+#define VULKAN_STAGING_BUFFER_MB    VULKAN_BASE_MEMORY_MB * 128
 
 #ifdef _DEBUG
 #   define ION_VULKAN_VALIDATION_LAYER true
@@ -63,9 +62,6 @@
 
 #define DEMO_WIDTH 800
 #define DEMO_HEIGHT 600
-
-//#define DEMO_SHADER_MODEL   "DamagedHelmet"
-//#define DEMO_SHADER_PROG    "DamagedHelmet"
 
 EOS_USING_NAMESPACE
 VK_ALLOCATOR_USING_NAMESPACE
@@ -188,6 +184,7 @@ int main()
     camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
     camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
     camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
+    camera->CreateSkyBox(ionFileSystemManager().GetTexturesPath(), "ashcanyon.tga", EVertexLayout::EVertexLayout_Pos, ionFileSystemManager().GetShadersPath(), "SkyBoxV1", ionFileSystemManager().GetShadersPath(), "SkyBoxV1");
     dynamic_cast<FPSCamera*>(camera.GetPtr())->SetParameters(0.001f, 0.05f, true);
 
 
@@ -242,10 +239,6 @@ int main()
     //////////////////////////////////////////////////////////////////////////
     //
     //////////////////////////////////////////////////////////////////////////
-
-
-    //////////////////////////////////////////////////////////////////////////
-    //
 
     // first full the scene graph
     ionRenderManager().AddToSceneGraph(camera);

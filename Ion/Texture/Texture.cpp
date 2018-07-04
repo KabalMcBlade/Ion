@@ -12,6 +12,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../Dependencies/Miscellaneous/stb_image.h"
 
+#include "../Renderer/BaseBufferObject.h"
+
 
 EOS_USING_NAMESPACE
 VK_ALLOCATOR_USING_NAMESPACE
@@ -468,7 +470,7 @@ void Texture::UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _
     }
     else 
     {
-        memcpy(data, _buffer, size);
+        CopyBuffer(data, _buffer, size);
     }
 
     VkBufferImageCopy imgCopy = {};

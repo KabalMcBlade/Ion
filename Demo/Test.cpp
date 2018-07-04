@@ -78,12 +78,12 @@ void Test_TexturedQuad(ion::Entity& _entity)
 {
     ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_UV, ion::EPrimitiveType_Quad, _entity);
 
-    eosString dvaTextureFile = ionFileSystemManager().GetTexturesPath();
-    dvaTextureFile.append("dva.png");
-    ion::Texture* dvaTexture = ionTextureManger().CreateTextureFromFile("dva", dvaTextureFile, ion::ETextureFilter_Default, ion::ETextureRepeat_Clamp, ion::ETextureUsage_RGBA, ion::ETextureType_2D);
+    eosString textureFile = ionFileSystemManager().GetTexturesPath();
+    textureFile.append("ashcanyon_front.tga");
+    ion::Texture* texture = ionTextureManger().CreateTextureFromFile("ashcanyon_front", textureFile, ion::ETextureFilter_Default, ion::ETextureRepeat_Clamp, ion::ETextureUsage_RGBA, ion::ETextureType_2D);
 
-    ion::Material* material = ionMaterialManger().CreateMaterial("dva", 0u);
-    material->GetBasePBR().SetBaseColorTexture(dvaTexture);
+    ion::Material* material = ionMaterialManger().CreateMaterial("ashcanyon_front", 0u);
+    material->GetBasePBR().SetBaseColorTexture(texture);
 
     _entity.GetMesh(0)->SetMaterial(material);
 

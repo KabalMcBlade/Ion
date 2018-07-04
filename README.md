@@ -24,6 +24,21 @@ For many part of the initialization and setup of the Vulkan code I just merely c
 I'm not planning to do a x86 version
 
 
+## LICENSE
+
+- Sources:
+	- **ION**, the main project, is under GPL-3.0
+	- **Eos**, **Nix** and **vkMemoryAllocator** are under Apache-2.0
+	- **json.hpp** is under MIT License
+	- **stb_image.h** is under MIT License OR Public Domain
+	- **stb_image_write.h** is under MIT License OR Public Domain
+	- **tiny_gltf.h** is under MIT License
+
+- Assets:
+	- **Ash Canyon** is under GPL-2.0, downloaded from here: http://www.custommapmakers.org/skyboxes.php
+	- **Damaged Helmet** is under a Creative Commons Attribution-NonCommercial license: https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0/DamagedHelmet
+
+
 ## NOTE
 
 - **Using NVIDIA Drive before the 397.31 has an issue to upload large texture in memory (2048 x 2048 or more). This want mean that the DEMO attached CAN'T WORK! Please update your driver!**
@@ -41,7 +56,6 @@ Other dependencies are single file, like json and stb_image
 ### About dependencies
 
 About how to use the dependencies please take a look to their own owner. (also for the mine!)
-
 
 
 ## Example

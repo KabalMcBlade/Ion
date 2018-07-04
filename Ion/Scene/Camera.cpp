@@ -2,6 +2,7 @@
 
 #include "../Renderer/RenderCore.h"
 
+#include "Skybox.h"
 
 #define ION_BASE_CAMERA_NAME "BaseCamera"
 
@@ -32,7 +33,8 @@ Camera::Camera() :
     m_clearRed(1.0f),
     m_clearGreen(1.0f),
     m_clearBlue(1.0f),
-    m_clearStencilValue(0)
+    m_clearStencilValue(0),
+    m_skybox(nullptr)
 {
     m_nodeType = ENodeType_Camera;
 }
@@ -122,6 +124,16 @@ void Camera::UpdateView()
     }
 
     m_frustum.Update(m_projection, m_view);
+}
+
+void Camera::CreateSkyBox(const eosString& _filepath, const eosString& _filename, EVertexLayout _layout, const eosString& _vertexShaderPath, const eosString& _vertexShadername, const eosString& _fragmentShaderPath, const eosString& _fragmentShadername)
+{
+    if (!m_skybox.IsValid())
+    {
+        m_skybox = eosNew(Skybox, ION_MEMORY_ALIGNMENT_SIZE, _filepath, _filename, _layout, _vertexShaderPath, _vertexShadername, _fragmentShaderPath, _fragmentShadername);
+
+        m_skybox->AttachToParent(*this);
+    }
 }
 
 void Camera::SetViewportParameters(ionFloat _x /*= 0.0f*/, ionFloat _y /*= 0.0f*/, ionFloat _width /*= 1.0f*/, ionFloat _height /*= 1.0f*/, ionFloat _minDepth /*= 0.0f*/, ionFloat _maxDepth /*= 1.0f*/)

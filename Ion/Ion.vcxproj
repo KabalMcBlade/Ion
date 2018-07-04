@@ -210,6 +210,7 @@
     <ClInclude Include="Renderer\RenderManager.h" />
     <ClInclude Include="Renderer\RenderState.h" />
     <ClInclude Include="Scene\SceneGraph.h" />
+    <ClInclude Include="Scene\Skybox.h" />
     <ClInclude Include="Shader\ShaderProgram.h" />
     <ClInclude Include="Shader\ShaderProgramHelper.h" />
     <ClInclude Include="Shader\ShaderProgramManager.h" />
@@ -270,6 +271,7 @@
     <ClCompile Include="Renderer\RenderCore.cpp" />
     <ClCompile Include="Renderer\RenderManager.cpp" />
     <ClCompile Include="Scene\SceneGraph.cpp" />
+    <ClCompile Include="Scene\Skybox.cpp" />
     <ClCompile Include="Shader\ShaderProgram.cpp" />
     <ClCompile Include="Shader\ShaderProgramHelper.cpp" />
     <ClCompile Include="Shader\ShaderProgramManager.cpp" />
