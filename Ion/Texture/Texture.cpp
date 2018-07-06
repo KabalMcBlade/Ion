@@ -57,6 +57,23 @@ void Texture::ConvertFrom3ChannelTo4Channel(ionU32 _width, ionU32 _height, const
     }
 }
 
+void Texture::UploadTextureBuffer(const ionU8* _buffer, ionU32 _component, ionU32 _index /*= 0  index of texture for cube-map, 0 by default */)
+{
+    if (_component == 3)
+    {
+        ionSize newBufferSize = m_width * m_height * 4;
+        ionU8* newBuffer = (ionU8*)eosNewRaw(sizeof(ionU8) * newBufferSize, ION_MEMORY_ALIGNMENT_SIZE);
+        memset(newBuffer, 0, sizeof(ionU8) * newBufferSize);
+        ConvertFrom3ChannelTo4Channel(m_width, m_height, _buffer, newBuffer);
+        UploadTextureToMemory(m_numLevels, m_width, m_height, newBuffer, _index);
+        eosDeleteRaw(newBuffer);
+    }
+    else
+    {
+        UploadTextureToMemory(m_numLevels, m_width, m_height, _buffer, _index);
+    }
+}
+
 ionBool Texture::LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer)
 {
     m_width = _width;
@@ -68,19 +85,7 @@ ionBool Texture::LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _co
     ionBool result = Create();
     if (result)
     {
-        if (_component == 3)
-        {
-            ionSize newBufferSize = m_width * m_height * 4;
-            ionU8* newBuffer = (ionU8*)eosNewRaw(sizeof(ionU8) * newBufferSize, EOS_MEMORY_ALIGNMENT_SIZE);
-            memset(newBuffer, 0, sizeof(ionU8) * newBufferSize);
-            ConvertFrom3ChannelTo4Channel(m_width, m_height, _buffer, newBuffer);
-            UploadTextureToMemory(m_numLevels, m_width, m_height, newBuffer, 0);
-            eosDeleteRaw(newBuffer);
-        }
-        else
-        {
-            UploadTextureToMemory(m_numLevels, m_width, m_height, _buffer, 0);
-        }
+        UploadTextureBuffer(_buffer, _component);
     }
     
     GenerateMipMaps();
@@ -102,18 +107,7 @@ ionBool Texture::LoadTextureFromFile(const eosString& _path)
     ionBool result = Create();
     if (result)
     {
-        if (c == 3)
-        {
-            ionSize newBufferSize = m_width * m_height * 4;
-            ionU8* newBuffer = (ionU8*)eosNewRaw(sizeof(ionU8) * newBufferSize, EOS_MEMORY_ALIGNMENT_SIZE);
-            ConvertFrom3ChannelTo4Channel(m_width, m_height, buffer, newBuffer);
-            UploadTextureToMemory(m_numLevels, m_width, m_height, newBuffer, 0);
-            eosDeleteRaw(newBuffer);
-        }
-        else
-        {
-            UploadTextureToMemory(m_numLevels, m_width, m_height, buffer, 0);
-        }
+        UploadTextureBuffer(buffer, c);
     }
 
     stbi_image_free(buffer);
@@ -123,32 +117,168 @@ ionBool Texture::LoadTextureFromFile(const eosString& _path)
     return result;
 }
 
-// Adding the side name to the file with "_": for instance: "test.png" become "test_left.png", "test_top.png" etc etc
-ionBool Texture::LoadCubeTextureFromFile(const eosString& _path)
+void Texture::CopyBufferRegion(const ionU8* _source, ionU32 _sourceWidth, ionU32 _sourceHeight, ionU32 _sourceComponentCount, ionU8* _dest, ionU32 _destWidth, ionU32 _destHeight, ionU32 _x, ionU32 _y)
 {
-    eosString ext;
-    eosString path;
-    ionSize i = _path.rfind('.', _path.length());
-    if (i != std::string::npos) 
+    ION_UNUSED(_sourceHeight);
+    for (ionU32 i = 0; i < _destHeight; ++i)
     {
-        path = _path.substr(0, i);
-        ext = _path.substr(i + 1, _path.length() - i);
+        CopyBuffer(&_dest[i * _destWidth * _sourceComponentCount], &_source[(i + _y) * _sourceWidth * _sourceComponentCount + _x], _destWidth * _sourceComponentCount * sizeof(ionU8));
     }
+}
 
-    if (ext.empty())
+
+ionBool Texture::GenerateCubemapFromCross(const ionU8* _buffer, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _outBuffers[6])
+{
+    if (m_numLevels > 1)
     {
         return false;
     }
 
-    eosString suffix[6]{ "_right.", "_left.", "_top.", "_bottom.", "_front.", "_back." };
+    if ((_width / 3 == _height / 4) && (_width % 3 == 0) && (_height % 4 == 0))
+    {
+        GenerateCubemapFromCrossVertical(_buffer, _width, _height, _component, _outBuffers);
+    }
+    else if ((_width / 4 == _height / 3) && (_width % 4 == 0) && (_height % 3 == 0))
+    {
+        GenerateCubemapFromCrossHorizontal(_buffer, _width, _height, _component, _outBuffers);
+    }
+    else
+    {
+        return false;
+    }
 
-    // I create and destroy the first texture just to get the size (there are many other elegant way.. just do this for now)
-    eosString newPath = path + suffix[0] + ext;
+    return true;
+}
 
+void Texture::GenerateCubemapFromCrossVertical(const ionU8* _buffer, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _outBuffers[6])
+{
+    // { "_right.", "_left.", "_top.", "_bottom.", "_front.", "_back." };
+
+    m_width = _width / 3;
+    m_height = _height / 4;
+
+    // right
+    _outBuffers[0] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[0], m_width, m_height, m_width, m_height * 2);
+
+    // left
+    _outBuffers[1] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[1], m_width, m_height, m_height, 0);
+
+    // top
+    _outBuffers[2] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[2], m_width, m_height, m_width * 2, m_height);
+
+    // bottom
+    _outBuffers[3] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[3], m_width, m_height, 0, m_height);
+
+    // front
+    _outBuffers[4] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[4], m_width, m_height, m_width, m_height);
+
+    // back
+    _outBuffers[5] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[5], m_width, m_height, m_width, m_height * 3);
+}
+
+void Texture::GenerateCubemapFromCrossHorizontal(const ionU8* _buffer, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _outBuffers[6])
+{
+    m_width = _width / 4;
+    m_height = _height / 3;
+
+    // { "_right.", "_left.", "_top.", "_bottom.", "_front.", "_back." };
+
+    // right
+    _outBuffers[0] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[0], m_width, m_height, m_width * 2, m_height);
+
+    // left
+    _outBuffers[1] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[1], m_width, m_height, 0, m_height);
+
+    // top
+    _outBuffers[2] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[2], m_width, m_height, m_width, 0);
+
+    // bottom
+    _outBuffers[3] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[3], m_width, m_height, m_width, m_height * 2);
+
+    // front
+    _outBuffers[4] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[4], m_width, m_height, m_width, m_height);
+
+    // back
+    _outBuffers[5] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[5], m_width, m_height, m_width * 3, m_height);
+}
+
+ionBool Texture::LoadCubeTextureFromFile(const eosString& _path)
+{
+    ionS32 w = 0, h = 0, c = 0;
+    m_numLevels = 0;
+
+    ionU8* buffer = stbi_load(_path.c_str(), &w, &h, &c, 0);
+
+    // will be replaced
+    m_width = w;
+    m_height = h;
+
+    //first I need to change the component count for the image
+    ionU8* newBuffer = nullptr;
+    ionU8* finalBuffer = buffer;
+    if (c == 3)
+    {
+        ionSize newBufferSize = m_width * m_height * 4;
+        newBuffer = (ionU8*)eosNewRaw(sizeof(ionU8) * newBufferSize, ION_MEMORY_ALIGNMENT_SIZE);
+        memset(newBuffer, 0, sizeof(ionU8) * newBufferSize);
+        ConvertFrom3ChannelTo4Channel(m_width, m_height, buffer, newBuffer);
+
+        c = 4;
+        finalBuffer = newBuffer;
+    }
+
+
+    ionU8* buffers[6];
+    GenerateCubemapFromCross(finalBuffer, w, h, c, buffers);
+
+    if (newBuffer != nullptr)
+    {
+        eosDeleteRaw(newBuffer);    // this is pointed by finalBuffer, so final buffer is cleared too but just dirty
+        stbi_image_free(buffer);    // this is another allocation at this point
+    }
+    else
+    {
+        stbi_image_free(buffer);    // this is pointed by finalBuffer, so final buffer is cleared too but just dirty
+    }
+
+    GenerateOptions();
+
+    ionBool result = Create();
+    if (result)
+    {
+        for (ionU32 i = 0; i < 6; ++i)
+        {
+            UploadTextureBuffer(buffers[i], c, i);
+        }
+    }
+
+    for (ionU32 i = 0; i < 6; ++i)
+    {
+        eosDeleteRaw(buffers[i]);
+    }
+
+    GenerateMipMaps();
+
+    return result;
+}
+
+ionBool Texture::LoadCubeTextureFromFiles(const eosVector(eosString)& paths)
+{
     ionS32 w = 0, h = 0, c = 0;
 
-    ionU8* buffer = stbi_load(newPath.c_str(), &w, &h, &c, 0);
-
+    ionU8* buffer = stbi_load(paths[0].c_str(), &w, &h, &c, 0);
     stbi_image_free(buffer);
 
     m_width = w;
@@ -162,22 +292,9 @@ ionBool Texture::LoadCubeTextureFromFile(const eosString& _path)
     {
         for (ionU32 i = 0; i < 6; ++i)
         {
-            newPath = path + suffix[i] + ext;
+            ionU8* buffer = stbi_load(paths[i].c_str(), &w, &h, &c, 0);
 
-            ionU8* buffer = stbi_load(newPath.c_str(), &w, &h, &c, 0);
-
-            if (c == 3)
-            {
-                ionSize newBufferSize = m_width * m_height * 4;
-                ionU8* newBuffer = (ionU8*)eosNewRaw(sizeof(ionU8) * newBufferSize, EOS_MEMORY_ALIGNMENT_SIZE);
-                ConvertFrom3ChannelTo4Channel(m_width, m_height, buffer, newBuffer);
-                UploadTextureToMemory(m_numLevels, m_width, m_height, newBuffer, i);
-                eosDeleteRaw(newBuffer);
-            }
-            else
-            {
-                UploadTextureToMemory(m_numLevels, m_width, m_height, buffer, i);
-            }
+            UploadTextureBuffer(buffer, c);
 
             stbi_image_free(buffer);
         }
@@ -330,9 +447,55 @@ ionBool Texture::CreateFromFile(const eosString& _path)
     if (m_optTextureType == ETextureType_Cubic)
     {
         m_optRepeat = ETextureRepeat_Clamp;
-        if (!LoadCubeTextureFromFile(_path))
+
+        ionBool isSingleFile = true;
+        FILE *filecheck = nullptr;
+        if (fopen_s(&filecheck, _path.c_str(), "r") == 0)
         {
-            ionAssertReturnValue(false, "Cannot load 3d texture!", false);
+            fclose(filecheck);
+            isSingleFile = true;
+        }
+        else 
+        {
+            isSingleFile = false;
+        }
+
+        if (isSingleFile)
+        {
+            // "cross version" (both top vertical or horizontal)
+            if (!LoadCubeTextureFromFile(_path))
+            {
+                ionAssertReturnValue(false, "Cannot load 3d texture!", false);
+            }
+        }
+        else
+        {
+            // Adding the side name to the file with "_": for instance: "test.png" become "test_left.png", "test_top.png" etc etc
+            eosString ext;
+            eosString path;
+            ionSize i = _path.rfind('.', _path.length());
+            if (i != std::string::npos)
+            {
+                path = _path.substr(0, i);
+                ext = _path.substr(i + 1, _path.length() - i);
+            }
+
+            if (ext.empty())
+            {
+                ionAssertReturnValue(false, "Extension is not provided!", false);
+            }
+
+            eosString suffix[6] { "_right.", "_left.", "_top.", "_bottom.", "_front.", "_back." };
+            eosVector(eosString) paths; paths.resize(6);
+            for (ionU32 i = 0; i < 6; ++i)
+            {
+                paths[i] = path + suffix[i] + ext;
+            }
+
+            if (!LoadCubeTextureFromFiles(paths))
+            {
+                ionAssertReturnValue(false, "Cannot load 3d texture!", false);
+            }
         }
     }
     else if (m_optTextureType == ETextureType_2D)
