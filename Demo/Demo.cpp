@@ -247,6 +247,7 @@ int main()
     // then set the active node will receive the input
     ionRenderManager().RegisterToInput(camera);
     ionRenderManager().RegisterToInput(boundingBox);
+    ionRenderManager().RegisterToInput(test);
 
     if (rendererInitialized)
     {

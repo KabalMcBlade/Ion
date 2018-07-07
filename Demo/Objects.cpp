@@ -4,17 +4,42 @@
 //////////////////////////////////////////////////////////////////////////
 // ENTITIES
 
+RotatingEntity::RotatingEntity() : m_rotating(false)
+{
+
+}
+
+RotatingEntity::~RotatingEntity()
+{
+
+}
+
 void RotatingEntity::OnUpdate(ionFloat _deltaTime)
 {
     static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
     static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
     static ionFloat radRotated = 0.0f;
 
-    radRotated += radPerFrame;
-    while (radRotated > 6.283185307f) radRotated -= 6.283185307f;   // 360 deg
+    if (m_rotating)
+    {
+        radRotated += radPerFrame;
+        while (radRotated > 6.283185307f) radRotated -= 6.283185307f;   // 360 deg
 
-    GetTransformHandle()->SetRotation(radRotated, axis);
+        GetTransformHandle()->SetRotation(radRotated, axis);
+    }
 }
+
+void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime)
+{
+    if (_keyboardState.m_state == ion::EKeyboardState_Up)
+    {
+        if (_keyboardState.m_key == ion::EKeyboardKey_R)
+        {
+            m_rotating = !m_rotating;
+        }
+    }
+}
+
 
 
 BoundingBoxEntity::BoundingBoxEntity() : m_waitForAction(false)

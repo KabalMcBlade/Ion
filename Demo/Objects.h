@@ -7,7 +7,16 @@
 
 class RotatingEntity : public ion::Entity
 {
+public:
+    RotatingEntity();
+    virtual ~RotatingEntity();
+
     virtual void OnUpdate(ionFloat _deltaTime) override;
+
+    virtual void OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime) override;
+
+private:
+    ionBool m_rotating;
 };
 
 

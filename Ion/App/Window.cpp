@@ -313,13 +313,13 @@ ionBool Window::Loop()
             }
             else
             {
-                // keyboard is different, I need to keep pressed until something is change, for instance
                 ionRenderManager().SendKeyboardInput(m_keyboard);
 
                 ionRenderManager().CoreLoop();
                 loop = ionRenderManager().IsRunning();
                 
                 MouseReset();
+                KeyboardReset();
             }
         }
     }
@@ -379,6 +379,16 @@ void Window::KeyUp(ionU8 _char)
 {
     m_keyboard.m_state = EKeyboardState::EKeyboardState_Up;
     m_keyboard.m_key = static_cast<EKeyboardKey>(_char);
+}
+
+void Window::KeyboardReset()
+{
+    // reset only if was an "up" call
+    if (m_keyboard.m_state == EKeyboardState::EKeyboardState_Up)
+    {
+        m_keyboard.m_state = EKeyboardState::EKeyboardState_Nothing;
+        m_keyboard.m_key = EKeyboardKey::EKeyboardKey_None;
+    }
 }
 
 ION_NAMESPACE_END
