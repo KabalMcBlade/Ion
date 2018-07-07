@@ -122,10 +122,9 @@ void Texture::CopyBufferRegion(const ionU8* _source, ionU32 _sourceWidth, ionU32
     ION_UNUSED(_sourceHeight);
     for (ionU32 i = 0; i < _destHeight; ++i)
     {
-        CopyBuffer(&_dest[i * _destWidth * _sourceComponentCount], &_source[(i + _y) * _sourceWidth * _sourceComponentCount + _x], _destWidth * _sourceComponentCount * sizeof(ionU8));
+        CopyBuffer(&_dest[i * _destWidth * _sourceComponentCount], &_source[(i + _y) * _sourceWidth * _sourceComponentCount + (_x * _sourceComponentCount)], _destWidth * _sourceComponentCount * sizeof(ionU8));
     }
 }
-
 
 ionBool Texture::GenerateCubemapFromCross(const ionU8* _buffer, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _outBuffers[6])
 {
