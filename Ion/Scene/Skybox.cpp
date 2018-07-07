@@ -20,7 +20,7 @@ Skybox::Skybox(const eosString& _filepath, const eosString& _filename, EVertexLa
 
     eosString skyboxFilePatg = _filepath;
     skyboxFilePatg.append(_filename);
-    ion::Texture* skyBoxTexture = ionTextureManger().CreateTextureFromFile(_filename, skyboxFilePatg, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_RGBA, ETextureType_Cubic, 1);
+    ion::Texture* skyBoxTexture = ionTextureManger().CreateTextureFromFile(_filename, skyboxFilePatg, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_Skybox, ETextureType_Cubic, 1);
 
     ion::Material* material = ionMaterialManger().CreateMaterial(_filename, 0u);
     material->GetBasePBR().SetBaseColorTexture(skyBoxTexture);
@@ -41,6 +41,14 @@ Skybox::Skybox(const eosString& _filepath, const eosString& _filename, EVertexLa
     ion::SamplerBinding sampler;
     sampler.m_bindingIndex = 1;
     sampler.m_texture = GetMesh(0)->GetMaterial()->GetBasePBR().GetBaseColorTexture();
+
+    // coinstants
+    ConstantsBindingDef constants;
+    constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
+    constants.m_values.push_back(4.5f);
+    constants.m_values.push_back(2.2f);
+    GetMesh(0)->GetMaterial()->SetConstantsShaders(constants);
+
 
     // set the shaders layout
     ion::ShaderLayoutDef vertexLayout;

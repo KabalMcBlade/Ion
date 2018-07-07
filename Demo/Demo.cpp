@@ -184,7 +184,7 @@ int main()
     camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
     camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
     camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
-    camera->CreateSkyBox(ionFileSystemManager().GetTexturesPath(), "canyon.jpg", EVertexLayout::EVertexLayout_Pos, ionFileSystemManager().GetShadersPath(), "SkyBoxV1", ionFileSystemManager().GetShadersPath(), "SkyBoxV1");
+    camera->CreateSkyBox(ionFileSystemManager().GetTexturesPath(), "canyon.jpg", EVertexLayout::EVertexLayout_Pos, ionFileSystemManager().GetShadersPath(), "SkyBoxV1", ionFileSystemManager().GetShadersPath(), "SkyBoxV2");
     dynamic_cast<FPSCamera*>(camera.GetPtr())->SetParameters(0.001f, 0.05f, true);
 
 

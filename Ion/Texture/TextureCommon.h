@@ -29,7 +29,8 @@ enum ETextureFormat
 
     ETextureFormat_RGBA8,   // 32 bpp
     ETextureFormat_XRGB8,   // 32 bpp
-    ETextureFormat_RGB565,    // 16 bpp
+    ETextureFormat_RGB565,  // 16 bpp
+    ETextureFormat_HDR,     // RGBE, floating point, 48 bpp (3 x 16 bits)
 
     // alpha channel only
     ETextureFormat_Alpha,
@@ -49,6 +50,7 @@ enum ETextureFormat
     ETextureUsage_RGB1,                // RGB with Alpha to 1
     ETextureUsage_RGBA,                // RGBA
     ETextureUsage_RGB,                // RGB
+    ETextureUsage_Skybox                // skybox hdr
 };
 
  enum ETextureFilter

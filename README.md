@@ -5,15 +5,17 @@ I'm not a render or engine programmer and this work MUST NOT BE USED for any com
 
 > Ion in the Greek Mythology is the illegitimate child of Creüsa, daughter of Erechtheus and wife of Xuthus
 
-
+ 
 ## Important
 
 As I wrote before, this is made to learn something about this API.
 Most of the code has been studied and inspired by:
 - Dustin Land (https://www.fasterthan.life/) 
 	- GitHub: https://github.com/DustinHLand
-
-For many part of the initialization and setup of the Vulkan code I just merely copied and pasted, adding or removing what I had needed or not.
+	- From Dustin (and id software) I used the buffers, caches and the initialization and setup of Vulkan
+- Sascha Willems (https://www.saschawillems.de/)
+	- GitHub: https://github.com/SaschaWillems
+	- From Sascha some shaders
 
 
 

@@ -416,6 +416,9 @@ void Texture::GenerateOptions()
         case ETextureUsage_RGB:
             m_optFormat = ETextureFormat_XRGB8;
             break;
+        case ETextureUsage_Skybox:
+            m_optFormat = ETextureFormat_HDR;
+            break;
         default:
             ionAssertReturnVoid(false, "Cannot generate proper texture options!");
             m_optFormat = ETextureFormat_RGBA8;
@@ -599,14 +602,15 @@ ionU32 Texture::BitsPerFormat(ETextureFormat _format)
 {
     switch (_format) 
     {
-    case ETextureFormat_None:                return 0;
-    case ETextureFormat_RGBA8:                return 32;
-    case ETextureFormat_XRGB8:                return 32;
-    case ETextureFormat_RGB565:                return 16;
-    case ETextureFormat_Luminance8Alpha8:    return 16;
-    case ETextureFormat_Alpha:                return 8;
-    case ETextureFormat_Luminance8:            return 8;
-    case ETextureFormat_Intensity8:            return 8;
+    case ETextureFormat_None:               return 0;
+    case ETextureFormat_RGBA8:              return 32;
+    case ETextureFormat_XRGB8:              return 32;
+    case ETextureFormat_RGB565:             return 16;
+    case ETextureFormat_Luminance8Alpha8:   return 16;
+    case ETextureFormat_Alpha:              return 8;
+    case ETextureFormat_Luminance8:         return 8;
+    case ETextureFormat_Intensity8:         return 8;
+    case ETextureFormat_HDR:                return 48;
     default:
         ionAssertReturnValue(false, "Invalid format!", 0);
         return 0;
@@ -687,6 +691,7 @@ VkFormat Texture::GetVulkanFormatFromTextureFormat(ETextureFormat _format)
     case ETextureFormat_Luminance8Alpha8: return VK_FORMAT_R8G8_UNORM;
     case ETextureFormat_Luminance8: return VK_FORMAT_R8_UNORM;
     case ETextureFormat_Intensity8: return VK_FORMAT_R8_UNORM;
+    case ETextureFormat_HDR: return VK_FORMAT_R16G16B16A16_SFLOAT;
     default:
         return VK_FORMAT_UNDEFINED;
     }
