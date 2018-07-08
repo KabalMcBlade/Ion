@@ -46,6 +46,8 @@ private:
 
     ionBool LoadTextureFromFile(const eosString& _path);
     ionBool LoadCubeTextureFromFile(const eosString& _path);
+    ionBool LoadCubeTextureFromFileLDR(const eosString& _path);
+    ionBool LoadCubeTextureFromFileHDR(const eosString& _path);
     ionBool LoadCubeTextureFromFiles(const eosVector(eosString)& paths);
 
     ionBool LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer);

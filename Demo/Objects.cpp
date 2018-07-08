@@ -113,13 +113,13 @@ void FPSCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _delta
 
     if (m_constrainPitch)
     {
-        if (m_pitchDeg > 89.0f)
+        if (m_pitchDeg > 44.0f)
         {
-            m_pitchDeg = 89.0f;
+            m_pitchDeg = 44.0f;
         }
-        if (m_pitchDeg < -89.0f)
+        if (m_pitchDeg < -44.0f)
         {
-            m_pitchDeg = -89.0f;
+            m_pitchDeg = -44.0f;
         }
     }
 

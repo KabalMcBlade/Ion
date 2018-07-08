@@ -215,6 +215,19 @@ void Texture::GenerateCubemapFromCrossHorizontal(const ionU8* _buffer, ionU32 _w
 
 ionBool Texture::LoadCubeTextureFromFile(const eosString& _path)
 {
+    if (stbi_is_hdr(_path.c_str()))
+    {
+        return LoadCubeTextureFromFileHDR(_path);
+    }
+    else
+    {
+        return LoadCubeTextureFromFileLDR(_path);
+    }
+}
+
+ionBool Texture::LoadCubeTextureFromFileLDR(const eosString& _path)
+{
+
     ionS32 w = 0, h = 0, c = 0;
     m_numLevels = 0;
 
@@ -271,6 +284,11 @@ ionBool Texture::LoadCubeTextureFromFile(const eosString& _path)
     GenerateMipMaps();
 
     return result;
+}
+
+ionBool Texture::LoadCubeTextureFromFileHDR(const eosString& _path)
+{
+    return false;
 }
 
 ionBool Texture::LoadCubeTextureFromFiles(const eosVector(eosString)& paths)
