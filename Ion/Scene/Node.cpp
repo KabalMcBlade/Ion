@@ -84,18 +84,10 @@ void Node::Update(ionFloat _deltaTime)
         if (m_parent.IsValid())
         {
             m_transform->SetMatrixWS(m_parent->GetTransformHandle()->GetMatrixWS() * m_transform->GetMatrix());
-            if (GetNodeType() == ENodeType_Camera)
-            {
-                m_transform->SetMatrixInverseWS(m_parent->GetTransformHandle()->GetMatrixInverseWS() * m_transform->GetMatrixInverse());
-            }
         }
         else
         {
             m_transform->SetMatrixWS(m_transform->GetMatrix());
-            if (GetNodeType() == ENodeType_Camera)
-            {
-                m_transform->SetMatrixInverseWS(m_transform->GetMatrixInverse());
-            }
         }
 
         eosVector(NodeHandle)::const_iterator begin = GetChildIteratorBegin(), end = GetChildIteratorEnd(), it = begin;

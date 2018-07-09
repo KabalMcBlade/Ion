@@ -47,7 +47,7 @@ public:
     void SetRotation(const Quaternion& _rotation);
     void SetRotation(const nixFloat& _radians, const Vector& _axis);
 
-    void ForceDirty() { m_dirty = true; m_dirtyInv = true; }
+    void ForceDirty() { m_dirty = true; }
 
     // Add a "RotateTo" just to help which using this class to "view" (like the cameras or the lights)
 
@@ -65,7 +65,6 @@ private:
     Quaternion m_rotation;
 
     ionBool m_dirty;
-    ionBool m_dirtyInv;
 };
 
 ION_NAMESPACE_END

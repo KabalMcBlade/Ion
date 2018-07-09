@@ -114,13 +114,16 @@ void Camera::SetCameraType(ECameraType _type)
 
 void Camera::UpdateView()
 {
+    Matrix rotation = GetTransformHandle()->GetRotation().ToMatrix();
+    Matrix translate; translate = translate.Translate(GetTransformHandle()->GetPosition());
+
     if (m_type == ECameraType::ECameraType_LookAt)
     {
-        m_view = GetTransformHandle()->GetMatrixInverseWS();
+        m_view = translate * rotation;
     }
     else
     {
-        m_view = GetTransformHandle()->GetMatrixWS();
+        m_view = rotation * translate;
     }
 
     m_frustum.Update(m_projection, m_view);

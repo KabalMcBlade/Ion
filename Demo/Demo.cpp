@@ -164,15 +164,15 @@ int main()
     }
 
 
-    static const Vector up(0.0f, 1.0f, 0.0f, 1.0f);
-    static const Vector right(1.0f, 0.0f, 0.0f, 1.0f);
-    static const Vector forward(0.0f, 0.0f, 1.0f, 1.0f);
+    static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
+    static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
+    static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
 
 
-    Vector cameraPos(0.0f, 0.0f, -3.0f, 1.0f);
+    Vector cameraPos(0.0f, 0.0f, -3.0f, 0.0f);
     Quaternion cameraRot(NIX_DEG_TO_RAD(0.0f), up);
 
-    Vector entityPos(0.0f, 0.0f, 0.0f, 1.0f);
+    Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
     Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
 
     //

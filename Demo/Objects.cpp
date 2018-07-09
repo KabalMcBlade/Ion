@@ -17,7 +17,7 @@ RotatingEntity::~RotatingEntity()
 void RotatingEntity::OnUpdate(ionFloat _deltaTime)
 {
     static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
-    static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
+    static const Vector axis(0.0f, 1.0f, 0.0f, 0.0f);
     static ionFloat radRotated = 0.0f;
 
     if (m_rotating)
@@ -113,13 +113,13 @@ void FPSCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _delta
 
     if (m_constrainPitch)
     {
-        if (m_pitchDeg > 44.0f)
+        if (m_pitchDeg > 89.0f)
         {
-            m_pitchDeg = 44.0f;
+            m_pitchDeg = 89.0f;
         }
-        if (m_pitchDeg < -44.0f)
+        if (m_pitchDeg < -89.0f)
         {
-            m_pitchDeg = -44.0f;
+            m_pitchDeg = -89.0f;
         }
     }
 
@@ -134,8 +134,8 @@ void FPSCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _delta
 
 void FPSCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime)
 {
-    static const Vector right(1.0f, 0.0f, 0.0f, 1.0f);
-    static const Vector forward(0.0f, 0.0f, 1.0f, 1.0f);
+    static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
+    static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
 
     ionFloat velocity = m_movementSpeed * _deltaTime;
 
