@@ -5,7 +5,7 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-Transform::Transform() : m_rotation(0.0f, 0.0f, 0.0f, 0.0f), m_scale(1.0f, 1.0f, 1.0f, 1.0f), m_position(), m_dirty(true)
+Transform::Transform() : m_rotation(0.0f, 0.0f, 0.0f, 0.0f), m_scale(1.0f, 1.0f, 1.0f, 1.0f), m_position(), m_dirty(true), m_dirtyInv(true)
 {
 
 }
@@ -61,18 +61,22 @@ const Matrix& Transform::GetMatrix()
         m_matrix = m_matrix.Translate(m_position);
         m_matrix = m_matrix * m_rotation.ToMatrix();
         m_matrix = m_matrix.Scale(m_scale);
+
+        m_dirty = false;
     }
     return m_matrix;
 }
 
 const Matrix& Transform::GetMatrixInverse()
 {
-    if (m_dirty)
+    if (m_dirtyInv)
     {
         m_matrixInverse = Matrix();
         m_matrixInverse = m_matrixInverse.Scale(1.0f / m_scale);
         m_matrixInverse = m_rotation.ToMatrix().Transpose() * m_matrixInverse;
         m_matrixInverse = m_matrixInverse.Translate(m_position);
+
+        m_dirtyInv = false;
     }
     return m_matrixInverse;
 }
@@ -94,12 +98,14 @@ const Quaternion& Transform::GetRotation() const
 void Transform::SetPosition(const Vector& _position)
 {
     m_dirty = true;
+    m_dirtyInv = true;
     m_position = _position;
 }
 
 void Transform::SetScale(const nixFloat& _scale)
 {
     m_dirty = true;
+    m_dirtyInv = true;
 
 #   if NIX_ARCH & NIX_ARCH_AVX512_FLAG
 
@@ -119,18 +125,21 @@ void Transform::SetScale(const nixFloat& _scale)
 void Transform::SetScale(const Vector& _scale)
 {
     m_dirty = true;
+    m_dirtyInv = true;
     m_scale = _scale;
 }
 
 void Transform::SetRotation(const Quaternion& _rotation)
 {
     m_dirty = true;
+    m_dirtyInv = true;
     m_rotation = _rotation;
 }
 
 void Transform::SetRotation(const nixFloat& _radians, const Vector& _axis)
 {
     m_dirty = true;
+    m_dirtyInv = true;
     m_rotation = Quaternion(_radians, _axis);
 }
 
