@@ -69,7 +69,8 @@ const Matrix& Transform::GetMatrix()
 
 const Matrix& Transform::GetMatrixInverse()
 {
-    return m_matrix.Inverse();
+    m_matrixInverse = m_matrix.Inverse();
+    return m_matrixInverse;
 }
 
 const Vector& Transform::GetPosition() const
