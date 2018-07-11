@@ -151,26 +151,26 @@ ionBool Texture::GenerateCubemapFromCross(const ionU8* _buffer, ionU32 _width, i
 
 void Texture::GenerateCubemapFromCrossVertical(const ionU8* _buffer, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _outBuffers[6])
 {
-    // { "_right.", "_left.", "_top.", "_bottom.", "_front.", "_back." };
-
     m_width = _width / 3;
     m_height = _height / 4;
 
+    // { "_right.", "_left.", "_top.", "_bottom.", "_front.", "_back." };
+
     // right
     _outBuffers[0] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
-    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[0], m_width, m_height, m_width, m_height * 2);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[0], m_width, m_height, m_width * 2, m_height);
 
     // left
     _outBuffers[1] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
-    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[1], m_width, m_height, m_height, 0);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[1], m_width, m_height, 0, m_height);
 
     // top
     _outBuffers[2] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
-    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[2], m_width, m_height, m_width * 2, m_height);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[2], m_width, m_height, m_width, 0);
 
     // bottom
     _outBuffers[3] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
-    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[3], m_width, m_height, 0, m_height);
+    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[3], m_width, m_height, m_width, m_height * 2);
 
     // front
     _outBuffers[4] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
@@ -178,7 +178,26 @@ void Texture::GenerateCubemapFromCrossVertical(const ionU8* _buffer, ionU32 _wid
 
     // back
     _outBuffers[5] = (ionU8 *)eosNewRaw(m_height * m_width * _component * sizeof(ionU8), ION_MEMORY_ALIGNMENT_SIZE);
-    CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[5], m_width, m_height, m_width, m_height * 3);
+    //CopyBufferRegion(_buffer, _width, _height, _component, _outBuffers[5], m_width, m_height, m_width, m_height * 3);
+    // here I need to read from bottom to top and  right to left....
+    ionU32 _x = m_width, _y = m_height * 3;
+    for (ionS32 i = (m_height - 1), j = 0; i >= 0; --i, ++j)
+    {
+        CopyBuffer(&(_outBuffers[5])[j * m_width * _component], &_buffer[(i + _y) * _width * _component + (_x * _component)], m_width * _component * sizeof(ionU8));
+    }
+    for (ionU32 y = 0; y < m_height; ++y)
+    {
+        for (ionU32 x = 0; x < m_width / 2; ++x)
+        {
+            for (ionU32 c = 0; c < _component; ++c)
+            {
+                ionU8 swap = _outBuffers[5][(m_width * _component * y) + (x * _component) + c];
+                _outBuffers[5][(m_width * _component * y) + (x * _component) + c] = _outBuffers[5][(m_width * _component * y) + (((m_width - x) * _component) - _component) + c];
+                _outBuffers[5][(m_width * _component * y) + (((m_width - x) * _component) - _component) + c] = swap;
+
+            }
+        }
+    }
 }
 
 void Texture::GenerateCubemapFromCrossHorizontal(const ionU8* _buffer, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _outBuffers[6])
@@ -215,19 +234,6 @@ void Texture::GenerateCubemapFromCrossHorizontal(const ionU8* _buffer, ionU32 _w
 
 ionBool Texture::LoadCubeTextureFromFile(const eosString& _path)
 {
-    if (stbi_is_hdr(_path.c_str()))
-    {
-        return LoadCubeTextureFromFileHDR(_path);
-    }
-    else
-    {
-        return LoadCubeTextureFromFileLDR(_path);
-    }
-}
-
-ionBool Texture::LoadCubeTextureFromFileLDR(const eosString& _path)
-{
-
     ionS32 w = 0, h = 0, c = 0;
     m_numLevels = 0;
 
@@ -284,11 +290,6 @@ ionBool Texture::LoadCubeTextureFromFileLDR(const eosString& _path)
     GenerateMipMaps();
 
     return result;
-}
-
-ionBool Texture::LoadCubeTextureFromFileHDR(const eosString& _path)
-{
-    return false;
 }
 
 ionBool Texture::LoadCubeTextureFromFiles(const eosVector(eosString)& paths)

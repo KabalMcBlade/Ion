@@ -18,15 +18,16 @@
 #define MEMORY_32_MB                MEMORY_16_MB * 2
 #define MEMORY_64_MB                MEMORY_32_MB * 2
 #define MEMORY_128_MB               MEMORY_64_MB * 2
+#define MEMORY_256_MB               MEMORY_128_MB * 2
+#define MEMORY_512_MB               MEMORY_256_MB * 2
 
-
-#define STL_MAX_HEAP_MEMORY         MEMORY_32_MB
+#define STL_MAX_HEAP_MEMORY         MEMORY_64_MB
 #define STL_MAX_STACK_MEMORY_SIZE   MEMORY_8_MB
 #define STL_MAX_LINEAR_MEMORY       MEMORY_8_MB
 
 
 #define MAX_STACK_MEMORY_BLOCK      128
-#define ALL_HEAP_MEMORY             STL_MAX_HEAP_MEMORY + (MEMORY_128_MB)
+#define ALL_HEAP_MEMORY             STL_MAX_HEAP_MEMORY + (MEMORY_256_MB)
 #define ALL_LINEAR_MEMORY           STL_MAX_LINEAR_MEMORY + (MEMORY_32_MB)
 #define ALL_STACK_MEMORY            STL_MAX_STACK_MEMORY_SIZE
 
@@ -184,7 +185,7 @@ int main()
     camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
     camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
     camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
-    camera->CreateSkyBox(ionFileSystemManager().GetTexturesPath(), "canyon.jpg", EVertexLayout::EVertexLayout_Pos, ionFileSystemManager().GetShadersPath(), "SkyBoxV1", ionFileSystemManager().GetShadersPath(), "SkyBoxV2");
+    camera->CreateSkyBox(ionFileSystemManager().GetTexturesPath(), "grace_cross.hdr", EVertexLayout::EVertexLayout_Pos, ionFileSystemManager().GetShadersPath(), "SkyBoxV1", ionFileSystemManager().GetShadersPath(), "SkyBoxV2");
     dynamic_cast<FPSCamera*>(camera.GetPtr())->SetParameters(0.001f, 0.05f, true);
 
 

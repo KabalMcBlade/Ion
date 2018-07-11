@@ -141,7 +141,7 @@ public:
         m_vertexes.clear();
     }
 
-    void PushBackVertex(VertexPlain _vertex)
+    void PushBackVertex(const VertexPlain& _vertex)
     {
         m_vertexes.push_back(_vertex);
     }
@@ -179,7 +179,7 @@ public:
         m_vertexes.clear();
     }
 
-    void PushBackVertex(VertexColored _vertex)
+    void PushBackVertex(const VertexColored& _vertex)
     {
         m_vertexes.push_back(_vertex);
     }
@@ -216,7 +216,7 @@ public:
         m_vertexes.clear();
     }
 
-    void PushBackVertex(VertexUV _vertex)
+    void PushBackVertex(const VertexUV& _vertex)
     {
         m_vertexes.push_back(_vertex);
     }
@@ -254,7 +254,7 @@ public:
         m_vertexes.clear();
     }
 
-    void PushBackVertex(VertexSimple _vertex)
+    void PushBackVertex(const VertexSimple& _vertex)
     {
         m_vertexes.push_back(_vertex);
     }
@@ -291,7 +291,7 @@ public:
         m_vertexes.clear();
     }
 
-    void PushBackVertex(Vertex _vertex)
+    void PushBackVertex(const Vertex& _vertex)
     {
         m_vertexes.push_back(_vertex);
     }
