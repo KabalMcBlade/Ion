@@ -165,6 +165,23 @@ int main()
     }
 
 
+
+    //////////////////////////////////////////////////////////////////////////
+    // SONE TESTS
+    /*
+    eosString brdflut = ionFileSystemManager().GetTexturesPath();
+    brdflut = brdflut + "brdflut.tga";
+
+    ionRenderManager().GenerateBRDF();
+    ionRenderManager().SaveBRDF(brdflut);
+    */
+    //////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
     static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
     static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
     static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);

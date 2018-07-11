@@ -129,6 +129,33 @@ Texture* TextureManager::CreateTextureFromBuffer(const eosString& _name, ionU32 
     }
 }
 
+Texture* TextureManager::GenerateTexture(const eosString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureRepeat _repeat, ionU32 _numLevel /*= 1*/)
+{
+    if (_name.empty())
+    {
+        return nullptr;
+    }
+
+    Texture* texture = GetTexture(_name);
+    if (texture == nullptr)
+    {
+        texture = CreateTexture(m_vkDevice, _name);
+    }
+    else
+    {
+        DestroyTexture(texture);
+    }
+
+    if (texture->GenerateTexture(_width, _height, _format, _repeat, _numLevel))
+    {
+        return texture;
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
 Texture* TextureManager::GetTexture(const eosString& _name) const
 {
     if (_name.empty())
@@ -147,6 +174,16 @@ Texture* TextureManager::GetTexture(const eosString& _name) const
     {
         return nullptr;
     }
+}
+
+ionBool TextureManager::SaveTexture(const eosString& _path, const Texture* _texture) const
+{
+    if (_path.empty() || _texture == nullptr)
+    {
+        return false;
+    }
+
+    return _texture->Save(_path);
 }
 
 void TextureManager::DestroyTexture(const eosString& _name)

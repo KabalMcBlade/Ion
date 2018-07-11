@@ -23,7 +23,7 @@ enum ETextureSamplesPerBit
     ETextureSamplesPerBit_64 = 0b01000000
 };
 
-enum ETextureFormat 
+enum ETextureFormat
 {
     ETextureFormat_None = -1,
 
@@ -40,6 +40,8 @@ enum ETextureFormat
     ETextureFormat_Luminance8Alpha8,    // 16 bpp
     ETextureFormat_Luminance8,            //  8 bpp
     ETextureFormat_Intensity8,            //  8 bpp
+
+    ETextureFormat_BRDF             // 32 bpp, 16 red and 16 green, used for PBR
 };
 
  enum ETextureUsage

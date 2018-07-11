@@ -12,6 +12,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../Dependencies/Miscellaneous/stb_image.h"
 
+#define STBI_MSC_SECURE_CRT
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "../Dependencies/Miscellaneous/stb_image_write.h"
+
 #include "../Renderer/BaseBufferObject.h"
 
 
@@ -544,6 +548,17 @@ ionBool Texture::CreateFromBuffer(ionU32 _width, ionU32 _height, ionU32 _compone
     return true;
 }
 
+ionBool Texture::GenerateTexture(ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureRepeat _repeat, ionU32 _numLevel /*= 1*/)
+{
+    m_width = _width;
+    m_height = _height;
+    m_optFormat = _format;
+    m_optRepeat = _repeat;
+    m_numLevels = _numLevel;
+
+    return Create();
+}
+
 ionBool Texture::Create()
 {
     // clear before create
@@ -617,7 +632,7 @@ ionBool Texture::Create()
     }
 }
 
-ionU32 Texture::BitsPerFormat(ETextureFormat _format)
+ionU32 Texture::BitsPerFormat(ETextureFormat _format) const
 {
     switch (_format) 
     {
@@ -630,6 +645,7 @@ ionU32 Texture::BitsPerFormat(ETextureFormat _format)
     case ETextureFormat_Luminance8:         return 8;
     case ETextureFormat_Intensity8:         return 8;
     case ETextureFormat_HDR:                return 48;
+    case ETextureFormat_BRDF:               return 32;
     default:
         ionAssertReturnValue(false, "Invalid format!", 0);
         return 0;
@@ -711,6 +727,7 @@ VkFormat Texture::GetVulkanFormatFromTextureFormat(ETextureFormat _format)
     case ETextureFormat_Luminance8: return VK_FORMAT_R8_UNORM;
     case ETextureFormat_Intensity8: return VK_FORMAT_R8_UNORM;
     case ETextureFormat_HDR: return VK_FORMAT_R16G16B16A16_SFLOAT;
+    case ETextureFormat_BRDF: return VK_FORMAT_R16G16_SFLOAT;
     default:
         return VK_FORMAT_UNDEFINED;
     }
@@ -751,6 +768,18 @@ VkComponentMapping Texture::GetVulkanComponentMappingFromTextureFormat(ETextureF
         componentMapping.g = VK_COMPONENT_SWIZZLE_R;
         componentMapping.b = VK_COMPONENT_SWIZZLE_R;
         componentMapping.a = VK_COMPONENT_SWIZZLE_R;
+        break;
+    case ETextureFormat_HDR:
+        componentMapping.r = VK_COMPONENT_SWIZZLE_R;
+        componentMapping.g = VK_COMPONENT_SWIZZLE_G;
+        componentMapping.b = VK_COMPONENT_SWIZZLE_B;
+        componentMapping.a = VK_COMPONENT_SWIZZLE_ONE;
+        break;
+    case ETextureFormat_BRDF:
+        componentMapping.r = VK_COMPONENT_SWIZZLE_R;
+        componentMapping.g = VK_COMPONENT_SWIZZLE_R;
+        componentMapping.b = VK_COMPONENT_SWIZZLE_G;
+        componentMapping.a = VK_COMPONENT_SWIZZLE_G;
         break;
     default:
         componentMapping.r = VK_COMPONENT_SWIZZLE_R;
@@ -846,6 +875,65 @@ void Texture::Destroy()
 
         m_view = VK_NULL_HANDLE;
         m_image = VK_NULL_HANDLE;
+    }
+}
+
+ionBool Texture::Save(const eosString& _path) const
+{
+    eosString ext;
+    eosString path;
+    ionSize i = _path.rfind('.', _path.length());
+    if (i != std::string::npos)
+    {
+        path = _path.substr(0, i);
+        ext = _path.substr(i + 1, _path.length() - i);
+    }
+
+    if (ext.empty())
+    {
+        ionAssertReturnValue(false, "Extension is not provided!", false);
+    }
+
+    ionU32 component = BitsPerFormat(m_optFormat) / 8;
+    ionSize size = m_width * m_height * component;
+
+    VkBuffer buffer;
+    VkCommandBuffer commandBuffer;
+    ionSize offset = 0;
+    ionU8* data = ionStagingBufferManager().Stage(size, ION_MEMORY_ALIGNMENT_SIZE, commandBuffer, buffer, offset);
+
+    if (data == nullptr)
+    {
+        return false;
+    }
+
+    memcpy(data, &m_image, size);
+
+
+    if (ext.compare("png") == 0)
+    {
+        return stbi_write_png(_path.c_str(), m_width, m_height, component, data, m_width * m_height * sizeof(ionU8)) == 1;
+    }
+    else if(ext.compare("bmp") == 0)
+    {
+        return  stbi_write_bmp(_path.c_str(), m_width, m_height, component, data) == 1;
+    }
+    else if (ext.compare("tga") == 0)
+    {
+        return stbi_write_tga(_path.c_str(), m_width, m_height, component, data) == 1;
+    }
+    else if (ext.compare("png") == 0)
+    {
+        return stbi_write_jpg(_path.c_str(), m_width, m_height, component, data, 100) == 1;
+    }
+    else if (ext.compare("hdr") == 0)
+    {
+        //return stbi_write_hdr(_path.c_str(), m_width, m_height, component, data);
+        ionAssertReturnValue(false, "HDR file format is not supported!", false);
+    }
+    else 
+    {
+        ionAssertReturnValue(false, "Format not supported!", false);
     }
 }
 

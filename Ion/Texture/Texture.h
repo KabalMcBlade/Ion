@@ -35,6 +35,10 @@ private:
     ionBool CreateFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer, VkDeviceSize _bufferSize);
     ionBool Create();
 
+    ionBool Save(const eosString& _path) const;
+
+    ionBool GenerateTexture(ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureRepeat _repeat, ionU32 _numLevel = 1);
+
     // this needed because Vulkan limitation
     void ConvertFrom3ChannelTo4Channel(ionU32 _width, ionU32 _height, const ionU8* _inBuffer, ionU8* _outBuffer);
 
@@ -50,7 +54,7 @@ private:
 
     ionBool LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer);
 
-    ionU32 BitsPerFormat(ETextureFormat _format);
+    ionU32 BitsPerFormat(ETextureFormat _format) const;
     void GenerateOptions();
 
     void UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _height, const ionU8* _buffer, ionU32 _index = 0 /* index of texture for cube-map, 0 by default */);

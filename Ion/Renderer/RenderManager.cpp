@@ -14,6 +14,9 @@
 
 #include "../Geometry/PrimitiveFactory.h"
 
+
+#define ION_BRDFLUT_TEXTURENAME    "ionBRDFLUT"
+
 //#define SHADOW_MAP_SIZE                    1024
 
 #define ION_CACHE_LINE_SIZE        128
@@ -195,6 +198,18 @@ void RenderManager::Quit()
 ionBool RenderManager::IsRunning()
 {
     return m_running;
+}
+
+void RenderManager::GenerateBRDF()
+{
+    Texture* brdflut = ionTextureManger().GenerateTexture(ION_BRDFLUT_TEXTURENAME, 512, 512, ETextureFormat_BRDF, ETextureRepeat_Clamp, 1);
+    //m_renderCore.CopyFrameBuffer(brdflut, 0, 0, 512, 512);
+}
+
+void RenderManager::SaveBRDF(const eosString& _path)
+{
+    Texture* brdflut = ionTextureManger().GetTexture(ION_BRDFLUT_TEXTURENAME);
+    ionTextureManger().SaveTexture(_path, brdflut);
 }
 
 ION_NAMESPACE_END
