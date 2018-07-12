@@ -202,8 +202,12 @@ ionBool RenderManager::IsRunning()
 
 void RenderManager::GenerateBRDF()
 {
-    Texture* brdflut = ionTextureManger().GenerateTexture(ION_BRDFLUT_TEXTURENAME, 512, 512, ETextureFormat_BRDF, ETextureRepeat_Clamp, 1);
-    //m_renderCore.CopyFrameBuffer(brdflut, 0, 0, 512, 512);
+    ionTextureManger().GenerateTexture(ION_BRDFLUT_TEXTURENAME, 512, 512, ETextureFormat_BRDF, ETextureRepeat_Clamp, 2);
+}
+
+Texture* RenderManager::GetBRDF()
+{
+    return ionTextureManger().GetTexture(ION_BRDFLUT_TEXTURENAME);
 }
 
 void RenderManager::SaveBRDF(const eosString& _path)

@@ -69,8 +69,9 @@ public:
     ionBool IsRunning();
 
     // rendering PBR helper functions:
-    void    GenerateBRDF();
-    void    SaveBRDF(const eosString& _path);
+    void        GenerateBRDF();
+    Texture*    GetBRDF();
+    void        SaveBRDF(const eosString& _path);
 
 private:
     RenderManager(const RenderManager& _Orig) = delete;
