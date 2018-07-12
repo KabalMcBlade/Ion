@@ -922,7 +922,7 @@ ionBool Texture::Save(const eosString& _path) const
     {
         return stbi_write_tga(_path.c_str(), m_width, m_height, component, data) == 1;
     }
-    else if (ext.compare("png") == 0)
+    else if (ext.compare("jpg") == 0)
     {
         return stbi_write_jpg(_path.c_str(), m_width, m_height, component, data, 100) == 1;
     }

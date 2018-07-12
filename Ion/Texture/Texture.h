@@ -28,6 +28,9 @@ public:
     const VkSampler& GetSampler() const { return m_sampler; }
     const VkImage& GetImage() const { return m_image; }
 
+    ionS32 GetWidth() const { return static_cast<ionS32>(m_width); }
+    ionS32 GetHeight() const { return static_cast<ionS32>(m_height); }
+
 private:
     friend class TextureManager;
 
