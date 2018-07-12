@@ -1581,7 +1581,7 @@ void RenderCore::SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax)
     }
 }
 
-void RenderCore::CopyFrameBuffer(Texture* _texture, ionS32 _x, ionS32 _y, ionS32 _textureWidth, ionS32 _textureHeight)
+void RenderCore::CopyFrameBuffer(Texture* _texture, ionS32 _width, ionS32 _height)
 {
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
 
@@ -1615,13 +1615,13 @@ void RenderCore::CopyFrameBuffer(Texture* _texture, ionS32 _x, ionS32 _y, ionS32
         region.srcSubresource.baseArrayLayer = 0;
         region.srcSubresource.mipLevel = 0;
         region.srcSubresource.layerCount = 1;
-        region.srcOffsets[1] = { _textureWidth, _textureHeight, 1 };
+        region.srcOffsets[1] = { _width, _height, 1 };
 
         region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         region.dstSubresource.baseArrayLayer = 0;
         region.dstSubresource.mipLevel = 0;
         region.dstSubresource.layerCount = 1;
-        region.dstOffsets[1] = { _textureWidth, _textureHeight, 1 };
+        region.dstOffsets[1] = { _texture->GetWidth(), _texture->GetHeight(), 1 };
 
         vkCmdBlitImage(commandBuffer, m_vkSwapchainImages[m_currentSwapIndex], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region, VK_FILTER_NEAREST);
     }
@@ -1636,11 +1636,29 @@ void RenderCore::CopyFrameBuffer(Texture* _texture, ionS32 _x, ionS32 _y, ionS32
         vkCmdPipelineBarrier( commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &dstBarrier);
     }
 
+    const ionBool resolve = m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT;
+
+    VkClearValue clearValues[3];
+    if (resolve)
+    {
+        clearValues[0].color = { { 1.0f, 1.0f, 1.0f, 1.0f } };
+        clearValues[1].color = { { 1.0f, 1.0f, 1.0f, 1.0f } };
+        clearValues[2].depthStencil = { 1.0f, 0 };
+    }
+    else {
+        clearValues[0].color = { { 1.0f, 1.0f, 1.0f, 1.0f } };
+        clearValues[1].depthStencil = { 1.0f, 0 };
+    }
+
     VkRenderPassBeginInfo renderPassBeginInfo = {};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassBeginInfo.renderPass = m_vkRenderPass;
     renderPassBeginInfo.framebuffer = m_vkFrameBuffers[m_currentSwapIndex];
     renderPassBeginInfo.renderArea.extent = m_vkSwapchainExtent;
+    renderPassBeginInfo.renderArea.offset.x = 0;
+    renderPassBeginInfo.renderArea.offset.y = 0;
+    renderPassBeginInfo.clearValueCount = resolve ? 3 : 2;
+    renderPassBeginInfo.pClearValues = clearValues;
 
     vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }

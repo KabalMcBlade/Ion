@@ -42,7 +42,7 @@ public:
     void    SetViewport(ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth);
     void    SetPolygonOffset(ionFloat _scale, ionFloat _bias);
     void    SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax);
-    void    CopyFrameBuffer(Texture* _texture, ionS32 _x, ionS32 _y, ionS32 _textureWidth, ionS32 _textureHeight);
+    void    CopyFrameBuffer(Texture* _texture, ionS32 _width, ionS32 _height);
     void    SetColor(const eosString& _param, ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a);
     void    Draw(const DrawSurface& _surface);
 
