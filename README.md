@@ -12,10 +12,10 @@ As I wrote before, this is made to learn something about this API.
 Most of the code has been studied and inspired by:
 - Dustin Land (https://www.fasterthan.life/) 
 	- GitHub: https://github.com/DustinHLand
-	- From Dustin (and id software) I used the buffers, caches and the initialization and setup of Vulkan
+		- Buffers, caches and the initialization and setup of Vulkan and rendering backend core loop
 - Sascha Willems (https://www.saschawillems.de/)
 	- GitHub: https://github.com/SaschaWillems
-	- From Sascha some shaders
+		- Shaders and rendering tecnniques
 
 
 
