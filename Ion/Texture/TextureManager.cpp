@@ -129,7 +129,7 @@ Texture* TextureManager::CreateTextureFromBuffer(const eosString& _name, ionU32 
     }
 }
 
-Texture* TextureManager::GenerateTexture(const eosString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureRepeat _repeat, ionU32 _numLevel /*= 1*/, ionU32 _maxAnisotrpy /*= 1*/)
+Texture* TextureManager::GenerateTexture(const eosString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureFilter _filter, ETextureRepeat _repeat, ionU32 _numLevel /*= 1*/, ionU32 _maxAnisotrpy /*= 1*/)
 {
     if (_name.empty())
     {
@@ -147,6 +147,7 @@ Texture* TextureManager::GenerateTexture(const eosString& _name, ionU32 _width, 
     }
 
     texture->m_maxAnisotropy = _maxAnisotrpy;
+    texture->m_optFilter = _filter;
     if (texture->GenerateTexture(_width, _height, _format, _repeat, _numLevel))
     {
         return texture;

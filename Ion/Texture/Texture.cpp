@@ -582,6 +582,12 @@ ionBool Texture::Create()
             createInfo.samples = VK_SAMPLE_COUNT_1_BIT;//m_sampleCount;
             createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
             createInfo.usage = m_numLevels > 1 ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT : VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+            
+            if (m_optFormat == ETextureFormat_BRDF)
+            {
+                createInfo.usage = createInfo.usage | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+            }
+            
             createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -820,7 +826,7 @@ ionBool Texture::CreateSampler()
     default:
         ionAssertReturnValue(false, "Texture filter not supported", false);
     }
-
+    
     switch (m_optRepeat) 
     {
     case ETextureRepeat_Repeat:
@@ -849,6 +855,11 @@ ionBool Texture::CreateSampler()
         break;
     default:
         ionAssertReturnValue(false, "Texture repeat mode not supported", false);
+    }
+
+    if (m_optFormat == ETextureFormat_BRDF)
+    {
+        createInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
     }
 
     VkResult result = vkCreateSampler(m_vkDevice, &createInfo, vkMemory, &m_sampler);
