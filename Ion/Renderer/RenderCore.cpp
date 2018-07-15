@@ -627,11 +627,11 @@ ionBool RenderCore::CreateRenderTargets()
         m_vkSampleCount = VK_SAMPLE_COUNT_1_BIT;
     }
 
-    ionTextureManger().SetSampleCount(m_vkSampleCount);
-
     VkFormat formats[] = { VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D32_SFLOAT, VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM_S8_UINT, VK_FORMAT_D16_UNORM };
     m_vkDepthFormat = SelectSupportedFormat(m_vkGPU.m_vkPhysicalDevice, formats, 5, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
     
+    ionTextureManger().SetDepthFormat(m_vkDepthFormat);
+
     if (m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT) 
     {
         m_vkSupersampling = m_vkGPU.m_vkPhysicalDevFeatures.sampleRateShading == VK_TRUE;

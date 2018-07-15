@@ -32,6 +32,8 @@ enum ETextureFormat
     ETextureFormat_RGB565,  // 16 bpp
     ETextureFormat_HDR,     // RGBE, floating point, 48 bpp (3 x 16 bits)
 
+    ETextureFormat_Depth,   // 24 bpp
+
     // alpha channel only
     ETextureFormat_Alpha,
 
@@ -52,6 +54,7 @@ enum ETextureFormat
     ETextureUsage_RGB1,                // RGB with Alpha to 1
     ETextureUsage_RGBA,                // RGBA
     ETextureUsage_RGB,                // RGB
+    ETextureUsage_Depth,                // Depth
     ETextureUsage_Skybox                // skybox hdr
 };
 

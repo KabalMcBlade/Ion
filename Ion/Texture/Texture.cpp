@@ -432,6 +432,9 @@ void Texture::GenerateOptions()
         case ETextureUsage_Alpha:
             m_optFormat = ETextureFormat_Alpha;
             break;
+        case ETextureUsage_Depth:
+            m_optFormat = ETextureFormat_Depth;
+            break;
         case ETextureUsage_RGB1:
         case ETextureUsage_RGBA:
             m_optFormat = ETextureFormat_RGBA8;
@@ -579,7 +582,7 @@ ionBool Texture::Create()
             createInfo.extent.depth = 1;
             createInfo.mipLevels = m_numLevels;
             createInfo.arrayLayers = (m_optTextureType == ETextureType_Cubic) ? 6 : 1;
-            createInfo.samples = VK_SAMPLE_COUNT_1_BIT;//m_sampleCount;
+            createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
             createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
             createInfo.usage = m_numLevels > 1 ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT : VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
             
@@ -587,6 +590,11 @@ ionBool Texture::Create()
             {
                 createInfo.usage = createInfo.usage | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
             }
+            else if (m_optFormat == ETextureFormat_Depth)
+            {
+                createInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+            }
+
             
             createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -620,7 +628,7 @@ ionBool Texture::Create()
             createInfo.viewType = (m_optTextureType == ETextureType_Cubic) ? VK_IMAGE_VIEW_TYPE_CUBE : VK_IMAGE_VIEW_TYPE_2D;
             createInfo.format = m_format;
             createInfo.components = GetVulkanComponentMappingFromTextureFormat(m_optFormat);
-            createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            createInfo.subresourceRange.aspectMask = (m_optFormat == ETextureFormat_Depth) ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
             createInfo.subresourceRange.levelCount = m_numLevels;
             createInfo.subresourceRange.layerCount = (m_optTextureType == ETextureType_Cubic) ? 6 : 1;
             createInfo.subresourceRange.baseMipLevel = 0;
@@ -652,6 +660,7 @@ ionU32 Texture::BitsPerFormat(ETextureFormat _format) const
     case ETextureFormat_Intensity8:         return 8;
     case ETextureFormat_HDR:                return 48;
     case ETextureFormat_BRDF:               return 32;
+    case ETextureFormat_Depth:              return 24;  // 32? 
     default:
         ionAssertReturnValue(false, "Invalid format!", 0);
         return 0;
@@ -732,8 +741,10 @@ VkFormat Texture::GetVulkanFormatFromTextureFormat(ETextureFormat _format)
     case ETextureFormat_Luminance8Alpha8: return VK_FORMAT_R8G8_UNORM;
     case ETextureFormat_Luminance8: return VK_FORMAT_R8_UNORM;
     case ETextureFormat_Intensity8: return VK_FORMAT_R8_UNORM;
+    case ETextureFormat_RGB565: return VK_FORMAT_R8G8B8_UNORM;      // fall back on this format
     case ETextureFormat_HDR: return VK_FORMAT_R16G16B16A16_SFLOAT;
     case ETextureFormat_BRDF: return VK_FORMAT_R16G16_SFLOAT;
+    case ETextureFormat_Depth: return ionTextureManger().GetDepthFormat(); //VK_FORMAT_R8G8B8_UNORM;
     default:
         return VK_FORMAT_UNDEFINED;
     }
@@ -787,6 +798,12 @@ VkComponentMapping Texture::GetVulkanComponentMappingFromTextureFormat(ETextureF
         componentMapping.b = VK_COMPONENT_SWIZZLE_G;
         componentMapping.a = VK_COMPONENT_SWIZZLE_G;
         break;
+    case ETextureFormat_Depth:
+        componentMapping.r = VK_COMPONENT_SWIZZLE_R;
+        componentMapping.g = VK_COMPONENT_SWIZZLE_G;
+        componentMapping.b = VK_COMPONENT_SWIZZLE_B;
+        componentMapping.a = VK_COMPONENT_SWIZZLE_ONE;
+        break;
     default:
         componentMapping.r = VK_COMPONENT_SWIZZLE_R;
         componentMapping.g = VK_COMPONENT_SWIZZLE_G;
@@ -804,8 +821,8 @@ ionBool Texture::CreateSampler()
     createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     createInfo.maxAnisotropy = (ionFloat)m_maxAnisotropy;
     createInfo.anisotropyEnable = m_maxAnisotropy > 1 ? VK_TRUE : VK_FALSE;
-    createInfo.compareEnable = VK_FALSE;
-    createInfo.compareOp = VK_COMPARE_OP_NEVER; // : VK_COMPARE_OP_ALWAYS ?
+    createInfo.compareEnable = (m_optFormat == ETextureFormat_Depth);
+    createInfo.compareOp = (m_optFormat == ETextureFormat_Depth) ? VK_COMPARE_OP_LESS_OR_EQUAL : VK_COMPARE_OP_NEVER;
     createInfo.unnormalizedCoordinates = VK_FALSE;
     createInfo.minLod = 0;
     createInfo.maxLod = static_cast<ionFloat>(m_numLevels);

@@ -55,6 +55,10 @@ public:
     VkQueue& GetPresentQueue() { return m_vkPresentQueue; }
     const VkQueue& GetPresentQueue() const { return m_vkPresentQueue; }
 
+    const VkCommandPool& GetCommandPool() const { return m_vkCommandPool; }
+
+    VkFormat GetDepthFormat() const { return m_vkDepthFormat; }
+
     const ionS32& GetGraphicFamilyIndex() const { return m_vkGraphicsFamilyIndex; }
     const ionS32& GetPresentFamilyIndex() const { return m_vkPresentFamilyIndex; }
 

@@ -27,9 +27,12 @@ public:
     const VkImageLayout& GetLayout() const { return m_layout; }
     const VkSampler& GetSampler() const { return m_sampler; }
     const VkImage& GetImage() const { return m_image; }
+    const VkDevice& GetDevice() const { return m_vkDevice; }
+    const VkFormat& GetFormat() const { return m_format; }
 
     ionS32 GetWidth() const { return static_cast<ionS32>(m_width); }
     ionS32 GetHeight() const { return static_cast<ionS32>(m_height); }
+
 
 private:
     friend class TextureManager;
@@ -81,7 +84,6 @@ private:
     VkImage                    m_image;
     VkImageLayout            m_layout;
     VkSampler                m_sampler;
-    VkSampleCountFlagBits    m_sampleCount;
 
     ETextureUsage            m_optUsage;
     ETextureFilter            m_optFilter;

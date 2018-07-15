@@ -81,7 +81,6 @@ Texture* TextureManager::CreateTextureFromFile(const eosString& _name, const eos
     texture->m_optRepeat = _repeat;
     texture->m_optTextureType = _type;
 
-    texture->m_sampleCount = m_sampleCount;
     texture->m_maxAnisotropy = _maxAnisotrpy;
 
     if (texture->CreateFromFile(_path))
@@ -116,7 +115,6 @@ Texture* TextureManager::CreateTextureFromBuffer(const eosString& _name, ionU32 
     texture->m_optRepeat = _repeat;
     texture->m_optTextureType = _type;
 
-    texture->m_sampleCount = m_sampleCount;
     texture->m_maxAnisotropy = _maxAnisotrpy;
 
     if (texture->CreateFromBuffer(_width, _height, _component, _buffer, _bufferSize))
