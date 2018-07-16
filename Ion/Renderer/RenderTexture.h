@@ -20,6 +20,20 @@ public:
     void    Shutdown(const RenderCore& _renderCore);
     void    Recreate(const RenderCore& _renderCore);
 
+    ionBool StartFrame();
+    void    EndFrame(const RenderCore& _renderCore);
+    void    StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue);
+    void    EndRenderPass();
+    void    SetDefaultState();
+    void    SetState(ionU64 _stateBits);
+    void    SetScissor(ionS32 _leftX, ionS32 _bottomY, ionU32 _width, ionU32 _height);
+    void    SetViewport(ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth);
+    void    SetPolygonOffset(ionFloat _scale, ionFloat _bias);
+    void    SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax);
+    /*
+    void    CopyFrameBuffer(Texture* _texture, ionS32 _width, ionS32 _height);
+    void    Draw(const DrawSurface& _surface);
+    */
 private:
     RenderTexture(const RenderTexture& _Orig) = delete;
     RenderTexture& operator = (const RenderTexture&) = delete;
@@ -42,6 +56,12 @@ private:
 
     VkCommandBuffer m_commandBuffer;
     VkFence         m_commandBufferFence;
+
+    ionU64          m_stateBits;
+
+    ionU32          m_width;
+    ionU32          m_height;
+
 };
 
 ION_NAMESPACE_END

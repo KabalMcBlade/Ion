@@ -43,7 +43,6 @@ public:
     void    SetPolygonOffset(ionFloat _scale, ionFloat _bias);
     void    SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax);
     void    CopyFrameBuffer(Texture* _texture, ionS32 _width, ionS32 _height);
-    void    SetColor(const eosString& _param, ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a);
     void    Draw(const DrawSurface& _surface);
 
     VkDevice& GetDevice() { return m_vkDevice; }
