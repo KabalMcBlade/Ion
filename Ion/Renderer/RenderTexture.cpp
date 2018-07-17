@@ -2,31 +2,27 @@
 
 
 #include "../Dependencies/Eos/Eos/Eos.h"
-//#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
-/*
-#include "../Texture/TextureManager.h"
 
 #include "../Material/Material.h"
-
-#include "StagingBufferManager.h"
-#include "VertexCacheManager.h"
-*/
-
-
 
 #include "../Shader/ShaderProgramManager.h"
 
 #include "../Texture/Texture.h"
 
+#include "VertexCacheManager.h"
 #include "StagingBufferManager.h"
+#include "IndexBufferObject.h"
+#include "VertexBufferObject.h"
 
 #include "RenderDefs.h"
 #include "RenderCore.h"
 
 #include "RenderState.h"
 
-//VK_ALLOCATOR_USING_NAMESPACE
+#include "RenderCommon.h"
+
+
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
@@ -427,5 +423,130 @@ void RenderTexture::SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax)
     }
 }
 
+void RenderTexture::CopyFrameBuffer(Texture* _texture, ionS32 _width, ionS32 _height)
+{
+    vkCmdEndRenderPass(m_commandBuffer);
+
+    VkImageMemoryBarrier dstBarrier = {};
+    dstBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    dstBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    dstBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    dstBarrier.image = _texture->GetImage();
+    dstBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    dstBarrier.subresourceRange.baseMipLevel = 0;
+    dstBarrier.subresourceRange.levelCount = 1;
+    dstBarrier.subresourceRange.baseArrayLayer = 0;
+    dstBarrier.subresourceRange.layerCount = 1;
+
+    // Pre copy transitions
+    {
+        // Transition the color dest texture so we can transfer to it.
+        dstBarrier.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        dstBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        dstBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        dstBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        vkCmdPipelineBarrier(m_commandBuffer, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &dstBarrier);
+    }
+
+    // Perform the blit/copy
+    {
+        VkImageBlit region = {};
+        region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.srcSubresource.baseArrayLayer = 0;
+        region.srcSubresource.mipLevel = 0;
+        region.srcSubresource.layerCount = 1;
+        region.srcOffsets[1] = { _width, _height, 1 };
+
+        region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.dstSubresource.baseArrayLayer = 0;
+        region.dstSubresource.mipLevel = 0;
+        region.dstSubresource.layerCount = 1;
+        region.dstOffsets[1] = { _texture->GetWidth(), _texture->GetHeight(), 1 };
+
+        vkCmdBlitImage(m_commandBuffer, m_textureColor->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region, VK_FILTER_NEAREST);
+    }
+
+    // Post copy transitions
+    {
+        // Transition the color dest texture so we can transfer to it.
+        dstBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        dstBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        dstBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        dstBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        vkCmdPipelineBarrier(m_commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &dstBarrier);
+    }
+
+    eosVector(VkClearValue) clearValues;
+    if (m_textureDepth != nullptr)
+    {
+        clearValues.resize(2);
+        clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 0.0f } };
+        clearValues[1].depthStencil = { 1.0f, 0 };
+    }
+    else
+    {
+        clearValues.resize(1);
+        clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+    }
+
+    VkRenderPassBeginInfo renderPassBeginInfo = {};
+    renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassBeginInfo.renderPass = m_renderPass;
+    renderPassBeginInfo.framebuffer = m_frameBuffer;
+    renderPassBeginInfo.renderArea.extent.width = m_width;
+    renderPassBeginInfo.renderArea.extent.height = m_height;
+    renderPassBeginInfo.renderArea.offset.x = 0;
+    renderPassBeginInfo.renderArea.offset.y = 0;
+    renderPassBeginInfo.clearValueCount = static_cast<ionU32>(clearValues.size());
+    renderPassBeginInfo.pClearValues = clearValues.data();
+
+    vkCmdBeginRenderPass(m_commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+}
+
+void RenderTexture::Draw(const RenderCore& _renderCore, const DrawSurface& _surface)
+{
+    ionShaderProgramManager().SetRenderParamMatrix(ION_MODEL_MATRIX_PARAM_HASH, &_surface.m_modelMatrix[0]);
+    ionShaderProgramManager().SetRenderParamMatrix(ION_VIEW_MATRIX_PARAM_HASH, &_surface.m_viewMatrix[0]);
+    ionShaderProgramManager().SetRenderParamMatrix(ION_PROJ_MATRIX_PARAM_HASH, &_surface.m_projectionMatrix[0]);
+
+    ionS32  vertexShaderIndex = -1;
+    ionS32  fragmentShaderIndex = -1;
+    ionS32  tessellationControlIndex = -1;
+    ionS32  tessellationEvaluationIndex = -1;
+    ionS32  geometryIndex = -1;
+    ionBool useJoint = false;
+    ionBool useSkinning = false;
+
+    _surface.m_material->GetShaders(vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
+
+    const ionS32 shaderProgramIndex =
+        ionShaderProgramManager().FindProgram(_surface.m_material->GetShaderProgramName(), _surface.m_material->GetVertexLayout(), _surface.m_material->GetConstantsShaders(),
+            vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
+
+    ionShaderProgramManager().BindProgram(shaderProgramIndex);
+    ionShaderProgramManager().CommitCurrent(_renderCore, m_stateBits, m_commandBuffer);
+
+    ionSize indexOffset = 0;
+    ionSize vertexOffset = 0;
+    IndexBuffer indexBuffer;
+    if (ionVertexCacheManager().GetIndexBuffer(_surface.m_indexCache, &indexBuffer))
+    {
+        const VkBuffer buffer = indexBuffer.GetObject();
+        const VkDeviceSize offset = indexBuffer.GetOffset();
+        indexOffset = offset;
+        vkCmdBindIndexBuffer(m_commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT32);
+    }
+
+    VertexBuffer vertexBufer;
+    if (ionVertexCacheManager().GetVertexBuffer(_surface.m_vertexCache, &vertexBufer))
+    {
+        const VkBuffer buffer = vertexBufer.GetObject();
+        const VkDeviceSize offset = vertexBufer.GetOffset();
+        vertexOffset = offset;
+        vkCmdBindVertexBuffers(m_commandBuffer, 0, 1, &buffer, &offset);
+    }
+
+    vkCmdDrawIndexed(m_commandBuffer, _surface.m_indexCount, 1, _surface.m_indexStart /*(indexOffset >> 1)*/, 0 /*vertexOffset / sizeof(Vertex)*/, 0);
+}
 
 ION_NAMESPACE_END

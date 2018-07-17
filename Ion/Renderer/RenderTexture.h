@@ -8,6 +8,7 @@
 
 ION_NAMESPACE_BEGIN
 
+struct DrawSurface;
 class Texture;
 class RenderCore;
 class ION_DLL RenderTexture final
@@ -30,10 +31,9 @@ public:
     void    SetViewport(ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth);
     void    SetPolygonOffset(ionFloat _scale, ionFloat _bias);
     void    SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax);
-    /*
     void    CopyFrameBuffer(Texture* _texture, ionS32 _width, ionS32 _height);
-    void    Draw(const DrawSurface& _surface);
-    */
+    void    Draw(const RenderCore& _renderCore, const DrawSurface& _surface);
+    
 private:
     RenderTexture(const RenderTexture& _Orig) = delete;
     RenderTexture& operator = (const RenderTexture&) = delete;
