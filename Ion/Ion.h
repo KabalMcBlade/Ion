@@ -41,7 +41,6 @@
 #include "Renderer/IndexBufferObject.h"
 #include "Renderer/UniformBufferObject.h"
 #include "Renderer/RenderManager.h"
-#include "Renderer/RenderTexture.h"
 
 #include "Shader/ShaderProgramHelper.h"
 #include "Shader/ShaderProgram.h"

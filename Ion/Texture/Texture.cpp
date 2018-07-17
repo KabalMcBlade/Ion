@@ -588,7 +588,7 @@ ionBool Texture::Create()
             
             if (m_optFormat == ETextureFormat_BRDF)
             {
-                createInfo.usage = createInfo.usage | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+                createInfo.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
             }
             else if (m_optFormat == ETextureFormat_Depth)
             {
@@ -660,7 +660,7 @@ ionU32 Texture::BitsPerFormat(ETextureFormat _format) const
     case ETextureFormat_Intensity8:         return 8;
     case ETextureFormat_HDR:                return 48;
     case ETextureFormat_BRDF:               return 32;
-    case ETextureFormat_Depth:              return 24;  // 32? 
+    case ETextureFormat_Depth:              return 32;  // should be 24, but it works with 32
     default:
         ionAssertReturnValue(false, "Invalid format!", 0);
         return 0;
@@ -797,12 +797,6 @@ VkComponentMapping Texture::GetVulkanComponentMappingFromTextureFormat(ETextureF
         componentMapping.g = VK_COMPONENT_SWIZZLE_R;
         componentMapping.b = VK_COMPONENT_SWIZZLE_G;
         componentMapping.a = VK_COMPONENT_SWIZZLE_G;
-        break;
-    case ETextureFormat_Depth:
-        componentMapping.r = VK_COMPONENT_SWIZZLE_R;
-        componentMapping.g = VK_COMPONENT_SWIZZLE_G;
-        componentMapping.b = VK_COMPONENT_SWIZZLE_B;
-        componentMapping.a = VK_COMPONENT_SWIZZLE_ONE;
         break;
     default:
         componentMapping.r = VK_COMPONENT_SWIZZLE_R;

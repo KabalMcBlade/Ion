@@ -208,7 +208,6 @@
     <ClInclude Include="Material\Material.h" />
     <ClInclude Include="Geometry\Mesh.h" />
     <ClInclude Include="Renderer\RenderManager.h" />
-    <ClInclude Include="Renderer\RenderTexture.h" />
     <ClInclude Include="Renderer\RenderState.h" />
     <ClInclude Include="Scene\SceneGraph.h" />
     <ClInclude Include="Scene\Skybox.h" />
@@ -271,7 +270,6 @@
     <ClCompile Include="Material\Material.cpp" />
     <ClCompile Include="Renderer\RenderCore.cpp" />
     <ClCompile Include="Renderer\RenderManager.cpp" />
-    <ClCompile Include="Renderer\RenderTexture.cpp" />
     <ClCompile Include="Scene\SceneGraph.cpp" />
     <ClCompile Include="Scene\Skybox.cpp" />
     <ClCompile Include="Shader\ShaderProgram.cpp" />
