@@ -1147,6 +1147,7 @@ void RenderCore::Clear()
     m_height = 600;
     m_vkInstance = VK_NULL_HANDLE;
     m_vkFullScreen = false;
+    m_vkSupportBlit = false;
     m_vkSwapchain = VK_NULL_HANDLE;
     m_vkSwapchainFormat = VK_FORMAT_UNDEFINED;
     m_vkCurrentSwapIndex = 0;
@@ -1200,6 +1201,22 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
     {
         return false;
     }
+
+
+    m_vkSupportBlit = true;
+    VkFormatProperties formatProps;
+    vkGetPhysicalDeviceFormatProperties(m_vkGPU.m_vkPhysicalDevice, m_vkSwapchainFormat, &formatProps);
+    if (!(formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT))
+    {
+        m_vkSupportBlit = false;
+    }
+
+    vkGetPhysicalDeviceFormatProperties(m_vkGPU.m_vkPhysicalDevice, VK_FORMAT_R8G8B8A8_UNORM, &formatProps);
+    if (!(formatProps.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT))
+    {
+        m_vkSupportBlit = false;
+    }
+
 
     if (!CreateLogicalDeviceAndQueues())
     {
@@ -1581,6 +1598,137 @@ void RenderCore::SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax)
     }
 }
 
+void RenderCore::RenderToTexture(Texture* _texture)
+{
+    VkCommandBuffer commandBuffer = CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+    if (BeginCustomCommandBuffer(commandBuffer))
+    {
+        VkImage srcImage = m_vkSwapchainImages[m_currentSwapIndex];
+
+        VkImageMemoryBarrier dstBarrier = {};
+        {
+            dstBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            dstBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            dstBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+            dstBarrier.image = _texture->GetImage();
+
+            dstBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            dstBarrier.subresourceRange.baseMipLevel = 0;
+            dstBarrier.subresourceRange.levelCount = 1;
+            dstBarrier.subresourceRange.baseArrayLayer = 0;
+            dstBarrier.subresourceRange.layerCount = 1;
+
+            dstBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            dstBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            dstBarrier.srcAccessMask = 0;
+            dstBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &dstBarrier);
+        }
+
+        VkImageMemoryBarrier srcBarrier = {};
+        {
+            srcBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            srcBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            srcBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+            srcBarrier.image = srcImage;
+
+            srcBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            srcBarrier.subresourceRange.baseMipLevel = 0;
+            srcBarrier.subresourceRange.levelCount = 1;
+            srcBarrier.subresourceRange.baseArrayLayer = 0;
+            srcBarrier.subresourceRange.layerCount = 1;
+
+            srcBarrier.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+            srcBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            srcBarrier.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+            srcBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &srcBarrier);
+        }
+
+        if (m_vkSupportBlit)
+        {
+            VkOffset3D srcBlitSize;
+            srcBlitSize.x = m_vkSwapchainExtent.width;
+            srcBlitSize.y = m_vkSwapchainExtent.height;
+            srcBlitSize.z = 1;
+
+            VkOffset3D dstBlitSize;
+            dstBlitSize.x = _texture->GetWidth();
+            dstBlitSize.y = _texture->GetHeight();
+            dstBlitSize.z = 1;
+
+            VkImageBlit imageBlitRegion{};
+            imageBlitRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageBlitRegion.srcSubresource.layerCount = 1;
+            imageBlitRegion.srcOffsets[1] = srcBlitSize;
+
+            imageBlitRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageBlitRegion.dstSubresource.layerCount = 1;
+            imageBlitRegion.dstOffsets[1] = dstBlitSize;
+
+            vkCmdBlitImage(commandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageBlitRegion, VK_FILTER_NEAREST);
+        }
+        else
+        {
+            VkImageCopy imageCopyRegion{};
+            imageCopyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageCopyRegion.srcSubresource.layerCount = 1;
+            imageCopyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageCopyRegion.dstSubresource.layerCount = 1;
+            imageCopyRegion.extent.width = m_vkSwapchainExtent.width;
+            imageCopyRegion.extent.height = m_vkSwapchainExtent.height;
+            imageCopyRegion.extent.depth = 1;
+
+            vkCmdCopyImage(commandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1, &imageCopyRegion);
+        }
+
+        {
+            dstBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            dstBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            dstBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+            dstBarrier.image = _texture->GetImage();
+
+            dstBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            dstBarrier.subresourceRange.baseMipLevel = 0;
+            dstBarrier.subresourceRange.levelCount = 1;
+            dstBarrier.subresourceRange.baseArrayLayer = 0;
+            dstBarrier.subresourceRange.layerCount = 1;
+
+            dstBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            dstBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+            dstBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            dstBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &dstBarrier);
+        }
+
+        {
+            srcBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            srcBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            srcBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+            srcBarrier.image = srcImage;
+
+            srcBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            srcBarrier.subresourceRange.baseMipLevel = 0;
+            srcBarrier.subresourceRange.levelCount = 1;
+            srcBarrier.subresourceRange.baseArrayLayer = 0;
+            srcBarrier.subresourceRange.layerCount = 1;
+
+            srcBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            srcBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+            srcBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+            srcBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &srcBarrier);
+        }
+
+        EndCustomCommandBuffer(commandBuffer);
+        FlushCustomCommandBuffer(commandBuffer);
+    }
+}
+
 void RenderCore::CopyFrameBuffer(Texture* _texture, ionS32 _width, ionS32 _height)
 {
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
@@ -1710,5 +1858,61 @@ void RenderCore::Draw(const DrawSurface& _surface)
 
     vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, _surface.m_indexStart /*(indexOffset >> 1)*/, 0 /*vertexOffset / sizeof(Vertex)*/, 0);
 }
+
+VkCommandBuffer RenderCore::CreateCustomCommandBuffer(VkCommandBufferLevel _level)
+{
+    VkCommandBuffer cmdBuffer;
+
+    VkCommandBufferAllocateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    createInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    createInfo.commandPool = m_vkCommandPool;
+    createInfo.commandBufferCount = m_swapChainImageCount;
+    createInfo.level = _level;
+
+    VkResult result = vkAllocateCommandBuffers(m_vkDevice, &createInfo, &cmdBuffer);
+    ionAssertReturnValue(result == VK_SUCCESS, "Cannot create command buffer!", cmdBuffer);
+
+    return cmdBuffer;
+}
+
+ionBool RenderCore::BeginCustomCommandBuffer(VkCommandBuffer _commandBuffer)
+{
+    VkCommandBufferBeginInfo commandBufferBeginInfo = {};
+    commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    VkResult result = vkBeginCommandBuffer(_commandBuffer, &commandBufferBeginInfo);
+    ionAssertReturnValue(result == VK_SUCCESS, "vkBeginCommandBuffer failed!", false);
+
+    return true;
+}
+
+void RenderCore::EndCustomCommandBuffer(VkCommandBuffer _commandBuffer)
+{
+    if (_commandBuffer == VK_NULL_HANDLE)
+    {
+        return;
+    }
+
+    VkResult result = vkEndCommandBuffer(_commandBuffer);
+    ionAssertReturnVoid(result == VK_SUCCESS, "vkEndCommandBuffer failed!");
+}
+
+void RenderCore::FlushCustomCommandBuffer(VkCommandBuffer _commandBuffer)
+{
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &_commandBuffer;
+
+    VkResult result = vkQueueSubmit(m_vkGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    ionAssertReturnVoid(result == VK_SUCCESS, "vkQueueSubmit failed!");
+
+    result = vkQueueWaitIdle(m_vkGraphicsQueue);
+    ionAssertReturnVoid(result == VK_SUCCESS, "vkQueueWaitIdle failed!");
+
+    vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, 1, &_commandBuffer);
+}
+
 
 ION_NAMESPACE_END

@@ -43,6 +43,7 @@ public:
     void    SetPolygonOffset(ionFloat _scale, ionFloat _bias);
     void    SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax);
     void    CopyFrameBuffer(Texture* _texture, ionS32 _width, ionS32 _height);
+    void    RenderToTexture(Texture* _texture);
     void    Draw(const DrawSurface& _surface);
 
     VkDevice& GetDevice() { return m_vkDevice; }
@@ -102,6 +103,12 @@ private:
     void    DestroyFrameBuffers();
     void    CreateDebugReport();
     void    DestroyDebugReport();
+
+    // internal custom use function
+    VkCommandBuffer CreateCustomCommandBuffer(VkCommandBufferLevel _level);
+    ionBool BeginCustomCommandBuffer(VkCommandBuffer _commandBuffer);
+    void EndCustomCommandBuffer(VkCommandBuffer _commandBuffer);
+    void FlushCustomCommandBuffer(VkCommandBuffer _commandBuffer);
 
 private:
     HINSTANCE                   m_instance;
@@ -163,6 +170,7 @@ private:
     ionBool                     m_vkSupersampling;
     ionBool                     m_vkFullScreen;
     ionBool                     m_vkValidationEnabled;
+    ionBool                     m_vkSupportBlit;
 };
 
 ION_NAMESPACE_END
