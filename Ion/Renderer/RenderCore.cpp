@@ -1867,7 +1867,7 @@ VkCommandBuffer RenderCore::CreateCustomCommandBuffer(VkCommandBufferLevel _leve
     createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     createInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     createInfo.commandPool = m_vkCommandPool;
-    createInfo.commandBufferCount = m_swapChainImageCount;
+    createInfo.commandBufferCount = 1;
     createInfo.level = _level;
 
     VkResult result = vkAllocateCommandBuffers(m_vkDevice, &createInfo, &cmdBuffer);
