@@ -110,6 +110,16 @@ void RenderManager::LoadPrimitive(EVertexLayout _layout, EPrimitiveType _type, E
     }
 }
 
+void RenderManager::SetRenderToTexture(Texture* _texture)
+{
+    m_sceneGraph.SetRenderToTexture(_texture);
+}
+
+void RenderManager::UnsetRenderToTexture()
+{
+    m_sceneGraph.SetRenderToTexture(nullptr);
+}
+
 void RenderManager::AddToSceneGraph(NodeHandle _node)
 {
     m_sceneGraph.AddToScene(_node);
@@ -167,6 +177,12 @@ void RenderManager::Frame()
         m_sceneGraph.Render(m_renderCore, 0, 0, width, height);
 
         m_renderCore.EndFrame();
+
+        Texture* renderTexture = m_sceneGraph.GetRenderToTexture();
+        if (renderTexture != nullptr)
+        {
+            m_renderCore.RenderToTexture(renderTexture);
+        }
     }
 }
 

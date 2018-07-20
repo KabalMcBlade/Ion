@@ -10,7 +10,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-SceneGraph::SceneGraph()
+SceneGraph::SceneGraph() : m_renderTexture(nullptr)
 {
     m_rootHandle = eosNew(Node, ION_MEMORY_ALIGNMENT_SIZE);
     m_rootHandle->GetTransformHandle()->SetPosition(VectorHelper::Get0001());
@@ -35,6 +35,8 @@ SceneGraph::~SceneGraph()
 
     m_nodeCountPerCamera.clear();
     m_registeredInput.clear();
+
+    m_renderTexture = nullptr;
 }
 
 void SceneGraph::AddToScene(NodeHandle& _node)

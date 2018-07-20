@@ -18,6 +18,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+class Texture;
 class RenderCore;
 class ION_DLL SceneGraph final
 {
@@ -44,6 +45,9 @@ public:
     void UpdateMouseInput(const MouseState& _mouseState, ionFloat _deltaTime);
     void UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime);
 
+    void SetRenderToTexture(Texture* _renderTexture) { m_renderTexture = _renderTexture; }
+    Texture* GetRenderToTexture() { return m_renderTexture; }
+
 private:
     SceneGraph(const SceneGraph& _Orig) = delete;
     SceneGraph& operator = (const SceneGraph&) = delete;
@@ -55,6 +59,7 @@ private:
     void UpdateDrawSurface(ionSize _cameraHash, const Matrix& _projection, const Matrix& _view, const EntityHandle& _entity, ionU32 _index);
 
 private:
+    Texture*                                        m_renderTexture;
     BoundingBox                                     m_sceneBoundingBox;
     NodeHandle                                      m_rootHandle;
     eosMap(CameraHandle, eosVector(EntityHandle))   m_treeNodes;

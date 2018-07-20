@@ -60,6 +60,8 @@
 
 //////////////////////////////////////////////////////////////////////////
 
+//#define DEMO_USE_RENDER_TO_TEXTURE
+//#define DEMO_SAVE_RENDER_TO_TEXTURE
 
 #define DEMO_WIDTH 800
 #define DEMO_HEIGHT 600
@@ -258,6 +260,11 @@ int main()
     //
     //////////////////////////////////////////////////////////////////////////
 
+#ifdef DEMO_USE_RENDER_TO_TEXTURE
+    Texture* testSaveFrame = ionTextureManger().GenerateTexture("Test", DEMO_WIDTH, DEMO_HEIGHT, ion::ETextureFormat_RenderTexture);
+    ionRenderManager().SetRenderToTexture(testSaveFrame);
+#endif
+
     // first full the scene graph
     ionRenderManager().AddToSceneGraph(camera);
     ionRenderManager().AddToSceneGraph(test);
@@ -271,6 +278,14 @@ int main()
     {
         window.Loop();
     }
+
+#ifdef DEMO_USE_RENDER_TO_TEXTURE
+#ifdef DEMO_SAVE_RENDER_TO_TEXTURE
+    eosString texturePath = ionFileSystemManager().GetTexturesPath();
+    texturePath = texturePath + "testSaveFrame.tga";
+    ionTextureManger().SaveTexture(texturePath, testSaveFrame);
+#endif
+#endif
 
     ionRenderManager().Shutdown();
 

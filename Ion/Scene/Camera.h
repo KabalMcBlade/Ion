@@ -17,7 +17,6 @@ class Camera;
 typedef SmartPointer<Camera> CameraHandle;
 
 
-class Texture;
 class RenderCore;
 class Skybox;
 class ION_DLL Camera : public Node
@@ -53,9 +52,6 @@ public:
 
     void CreateSkyBox(const eosString& _filepath, const eosString& _filename, EVertexLayout _layout, const eosString& _vertexShaderPath, const eosString& _vertexShadername, const eosString& _fragmentShaderPath, const eosString& _fragmentShadername);
 
-    void SetRenderToTexture(Texture* _renderTexture) { m_renderTexture = _renderTexture; }
-    Texture* GetRenderToTexture() { return m_renderTexture; }
-
     //////////////////////////////////////////////////////////////////////////
     // Setting
 
@@ -84,8 +80,6 @@ private:
 private:
     Matrix  m_projection;
     Matrix  m_view;
-
-    Texture* m_renderTexture;
 
     EntityHandle m_skybox;
 
