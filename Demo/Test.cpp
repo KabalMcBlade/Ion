@@ -76,14 +76,19 @@ void Test_ColoredQuad(ion::Entity& _entity)
 
 void Test_TexturedQuad(ion::Entity& _entity)
 {
-    ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_UV, ion::EPrimitiveType_Quad, _entity);
-
     eosString textureFile = ionFileSystemManager().GetTexturesPath();
     textureFile.append("ashcanyon_front.tga");
     ion::Texture* texture = ionTextureManger().CreateTextureFromFile("ashcanyon_front", textureFile, ion::ETextureFilter_Default, ion::ETextureRepeat_Clamp, ion::ETextureUsage_RGBA, ion::ETextureType_2D);
 
+    Test_TexturedQuadEx(_entity, texture);
+}
+
+void Test_TexturedQuadEx(ion::Entity& _entity, ion::Texture* _texture)
+{
+    ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_UV, ion::EPrimitiveType_Quad, _entity);
+
     ion::Material* material = ionMaterialManger().CreateMaterial("ashcanyon_front", 0u);
-    material->GetBasePBR().SetBaseColorTexture(texture);
+    material->GetBasePBR().SetBaseColorTexture(_texture);
 
     _entity.GetMesh(0)->SetMaterial(material);
 
@@ -122,6 +127,7 @@ void Test_TexturedQuad(ion::Entity& _entity)
     _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
     _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
 }
+
 
 void Test_ColoredCube(ion::Entity& _entity)
 {
