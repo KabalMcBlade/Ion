@@ -2,6 +2,8 @@
 
 #include "../Renderer/RenderCore.h"
 
+#include "../Texture/Texture.h"
+
 #include "Skybox.h"
 
 #define ION_BASE_CAMERA_NAME "BaseCamera"
@@ -34,7 +36,8 @@ Camera::Camera() :
     m_clearGreen(1.0f),
     m_clearBlue(1.0f),
     m_clearStencilValue(0),
-    m_skybox(nullptr)
+    m_skybox(nullptr),
+    m_renderTexture(nullptr)
 {
     m_nodeType = ENodeType_Camera;
 }
@@ -59,7 +62,8 @@ Camera::Camera(const eosString & _name) :
     m_clearRed(1.0f),
     m_clearGreen(1.0f),
     m_clearBlue(1.0f),
-    m_clearStencilValue(0)
+    m_clearStencilValue(0),
+    m_renderTexture(nullptr)
 {
     m_nodeType = ENodeType_Camera;
 }

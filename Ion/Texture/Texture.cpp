@@ -559,6 +559,14 @@ ionBool Texture::GenerateTexture(ionU32 _width, ionU32 _height, ETextureFormat _
     m_optRepeat = _repeat;
     m_numLevels = _numLevel;
 
+    // override some input just for render to texture
+    if (m_optFormat == ETextureFormat_RenderTexture)
+    {
+        m_optFormat = ETextureFormat_RGBA8;
+        m_numLevels = 1;
+        m_maxAnisotropy = 1;
+    }
+
     return Create();
 }
 
@@ -584,18 +592,25 @@ ionBool Texture::Create()
             createInfo.arrayLayers = (m_optTextureType == ETextureType_Cubic) ? 6 : 1;
             createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
             createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-            createInfo.usage = m_numLevels > 1 ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT : VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-            
-            if (m_optFormat == ETextureFormat_BRDF)
+
+            if (m_optFormat == ETextureFormat_RenderTexture)
             {
-                createInfo.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+                createInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
             }
-            else if (m_optFormat == ETextureFormat_Depth)
+            else
             {
-                createInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+                createInfo.usage = m_numLevels > 1 ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT : VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+                if (m_optFormat == ETextureFormat_BRDF)
+                {
+                    createInfo.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+                }
+                else if (m_optFormat == ETextureFormat_Depth)
+                {
+                    createInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+                }
             }
 
-            
             createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -811,6 +826,12 @@ VkComponentMapping Texture::GetVulkanComponentMappingFromTextureFormat(ETextureF
 
 ionBool Texture::CreateSampler()
 {
+    // no sampler for render to texture
+    if (m_optFormat == ETextureFormat_RenderTexture)
+    {
+        return true;
+    }
+
     VkSamplerCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     createInfo.maxAnisotropy = (ionFloat)m_maxAnisotropy;

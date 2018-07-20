@@ -43,7 +43,8 @@ enum ETextureFormat
     ETextureFormat_Luminance8,            //  8 bpp
     ETextureFormat_Intensity8,            //  8 bpp
 
-    ETextureFormat_BRDF             // 32 bpp, 16 red and 16 green, used for PBR
+    ETextureFormat_BRDF,             // 32 bpp, 16 red and 16 green, used for PBR
+    ETextureFormat_RenderTexture    // 32 bpp ready to write
 };
 
  enum ETextureUsage
