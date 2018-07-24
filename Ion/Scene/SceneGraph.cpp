@@ -10,7 +10,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-SceneGraph::SceneGraph() : m_renderTexture(nullptr)
+SceneGraph::SceneGraph()
 {
     m_rootHandle = eosNew(Node, ION_MEMORY_ALIGNMENT_SIZE);
     m_rootHandle->GetTransformHandle()->SetPosition(VectorHelper::Get0001());
@@ -35,8 +35,6 @@ SceneGraph::~SceneGraph()
 
     m_nodeCountPerCamera.clear();
     m_registeredInput.clear();
-
-    m_renderTexture = nullptr;
 }
 
 void SceneGraph::AddToScene(NodeHandle& _node)
@@ -198,6 +196,7 @@ void SceneGraph::Update(ionFloat _deltaTime)
     ionU32 index = 0;
     for (eosMap(CameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
     {
+        index = 0;
         const CameraHandle& cam = iter->first;
 
         cam->UpdateView();

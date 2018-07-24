@@ -60,8 +60,6 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-#define DEMO_USE_RENDER_TO_TEXTURE
-//#define DEMO_SAVE_RENDER_TO_TEXTURE
 
 #define DEMO_WIDTH 800
 #define DEMO_HEIGHT 600
@@ -260,25 +258,6 @@ int main()
     //
     //////////////////////////////////////////////////////////////////////////
 
-#ifdef DEMO_USE_RENDER_TO_TEXTURE
-    Texture* testSaveFrame = ionTextureManger().GenerateTexture("Test", DEMO_WIDTH, DEMO_HEIGHT, ion::ETextureFormat_RenderTexture);
-    ionRenderManager().SetRenderToTexture(testSaveFrame);
-
-
-    Vector entityPos2(0.0f, 5.0f, -10.0f, 0.0f);
-    Quaternion entityRot2(NIX_DEG_TO_RAD(0.0f), up);
-
-    EntityHandle testRenderTo = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
-    testRenderTo->GetTransformHandle()->SetPosition(entityPos2);
-    testRenderTo->GetTransformHandle()->SetRotation(entityRot2);
-    testRenderTo->GetTransformHandle()->SetScale(10.0f);
-
-    Test_TexturedQuadEx(*testRenderTo, testSaveFrame);
-
-    ionRenderManager().AddToSceneGraph(testRenderTo);
-#endif
-
-
     // first full the scene graph
     ionRenderManager().AddToSceneGraph(camera);
     ionRenderManager().AddToSceneGraph(test);
@@ -292,14 +271,6 @@ int main()
     {
         window.Loop();
     }
-
-#ifdef DEMO_USE_RENDER_TO_TEXTURE
-#ifdef DEMO_SAVE_RENDER_TO_TEXTURE
-    eosString texturePath = ionFileSystemManager().GetTexturesPath();
-    texturePath = texturePath + "testSaveFrame.tga";
-    ionTextureManger().SaveTexture(texturePath, testSaveFrame);
-#endif
-#endif
 
     ionRenderManager().Shutdown();
 

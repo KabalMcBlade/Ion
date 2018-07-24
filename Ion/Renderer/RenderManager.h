@@ -54,8 +54,6 @@ public:
     ~RenderManager();
 
     void    AddToSceneGraph(NodeHandle _node);
-    void    SetRenderToTexture(Texture* _texture);
-    void    UnsetRenderToTexture();
 
     void    Resize(ionS32& _outNewWidth, ionS32 _outNewHeight);
     void    Prepare();

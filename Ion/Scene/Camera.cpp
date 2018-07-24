@@ -2,8 +2,6 @@
 
 #include "../Renderer/RenderCore.h"
 
-#include "../Texture/Texture.h"
-
 #include "Skybox.h"
 
 #define ION_BASE_CAMERA_NAME "BaseCamera"

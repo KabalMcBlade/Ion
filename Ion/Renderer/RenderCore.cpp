@@ -959,7 +959,7 @@ ionBool RenderCore::CreateRenderPass()
         renderPassCreateInfo.pAttachments = attachments;
         renderPassCreateInfo.subpassCount = 1;
         renderPassCreateInfo.pSubpasses = &subpass;
-        renderPassCreateInfo.dependencyCount = 2;
+        renderPassCreateInfo.dependencyCount = static_cast<ionU32>(dependencies.size());
         renderPassCreateInfo.pDependencies = dependencies.data();
 
         VkResult result = vkCreateRenderPass(m_vkDevice, &renderPassCreateInfo, vkMemory, &m_vkRenderPass);
@@ -1035,7 +1035,7 @@ ionBool RenderCore::CreateRenderPass()
         renderPassCreateInfo.pAttachments = attachments;
         renderPassCreateInfo.subpassCount = 1;
         renderPassCreateInfo.pSubpasses = &subpass;
-        renderPassCreateInfo.dependencyCount = 2;
+        renderPassCreateInfo.dependencyCount = static_cast<ionU32>(dependencies.size());
         renderPassCreateInfo.pDependencies = dependencies.data();
 
         VkResult result = vkCreateRenderPass(m_vkDevice, &renderPassCreateInfo, vkMemory, &m_vkRenderPass);
@@ -1393,6 +1393,19 @@ void RenderCore::Recreate()
     CreatePipelineCache();
     CreateFrameBuffers();
 
+    m_vkSupportBlit = true;
+    VkFormatProperties formatProps;
+    vkGetPhysicalDeviceFormatProperties(m_vkGPU.m_vkPhysicalDevice, m_vkSwapchainFormat, &formatProps);
+    if (!(formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT))
+    {
+        m_vkSupportBlit = false;
+    }
+
+    vkGetPhysicalDeviceFormatProperties(m_vkGPU.m_vkPhysicalDevice, VK_FORMAT_R8G8B8A8_UNORM, &formatProps);
+    if (!(formatProps.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT))
+    {
+        m_vkSupportBlit = false;
+    }
 
     ionShaderProgramManager().Restart();
 }
@@ -1598,7 +1611,8 @@ void RenderCore::SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax)
     }
 }
 
-void RenderCore::RenderToTexture(Texture* _texture)
+// to use after the end frame (outside the "current" render command buffer)
+void RenderCore::CopyFrameBuffer(Texture* _texture)
 {
     VkCommandBuffer commandBuffer = CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
     if (BeginCustomCommandBuffer(commandBuffer))
@@ -1729,6 +1743,7 @@ void RenderCore::RenderToTexture(Texture* _texture)
     }
 }
 
+/*
 void RenderCore::CopyFrameBuffer(Texture* _texture, ionS32 _width, ionS32 _height)
 {
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
@@ -1810,6 +1825,7 @@ void RenderCore::CopyFrameBuffer(Texture* _texture, ionS32 _width, ionS32 _heigh
 
     vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
+*/
 
 void RenderCore::Draw(const DrawSurface& _surface)
 {

@@ -42,8 +42,7 @@ public:
     void    SetViewport(ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth);
     void    SetPolygonOffset(ionFloat _scale, ionFloat _bias);
     void    SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax);
-    void    CopyFrameBuffer(Texture* _texture, ionS32 _width, ionS32 _height);
-    void    RenderToTexture(Texture* _texture);
+    void    CopyFrameBuffer(Texture* _texture);
     void    Draw(const DrawSurface& _surface);
 
     VkDevice& GetDevice() { return m_vkDevice; }
