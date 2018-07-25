@@ -684,7 +684,7 @@ void Texture::UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _
             data[i + 1] = tmpData[i];
         }
     }
-    else 
+    else
     {
         CopyBuffer(data, _buffer, size);
     }

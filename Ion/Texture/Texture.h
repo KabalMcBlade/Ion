@@ -32,7 +32,8 @@ public:
 
     ionS32 GetWidth() const { return static_cast<ionS32>(m_width); }
     ionS32 GetHeight() const { return static_cast<ionS32>(m_height); }
-
+    ionU32 GetComponent() const { return BitsPerFormat(m_optFormat) / 8; }
+    ionU32 GetSize() const { return m_width * m_height * GetComponent(); }
 
 private:
     friend class TextureManager;
@@ -77,25 +78,25 @@ private:
 private:
     eosString               m_name;
     VkDevice                m_vkDevice;
-    vkGpuMemoryAllocation    m_allocation;
+    vkGpuMemoryAllocation   m_allocation;
 
     VkFormat                m_format;
-    VkImageView                m_view;
-    VkImage                    m_image;
-    VkImageLayout            m_layout;
-    VkSampler                m_sampler;
+    VkImageView             m_view;
+    VkImage                 m_image;
+    VkImageLayout           m_layout;
+    VkSampler               m_sampler;
 
-    ETextureUsage            m_optUsage;
-    ETextureFilter            m_optFilter;
-    ETextureRepeat            m_optRepeat;
+    ETextureUsage           m_optUsage;
+    ETextureFilter          m_optFilter;
+    ETextureRepeat          m_optRepeat;
     ETextureType            m_optTextureType;
-    ETextureFormat            m_optFormat;
+    ETextureFormat          m_optFormat;
 
-    ionU32                    m_width;
-    ionU32                    m_height;            // not needed for cube maps, actually.. it is a cube and so.. all same width :)
-    ionU32                    m_numLevels;        // if this is set to 0, during generation it will be 1 for ETextureFilter_Nearest or ETextureFilter_Linear filters, otherwise will be based on the size
+    ionU32                  m_width;
+    ionU32                  m_height;            // not needed for cube maps, actually.. it is a cube and so.. all same width :)
+    ionU32                  m_numLevels;        // if this is set to 0, during generation it will be 1 for ETextureFilter_Nearest or ETextureFilter_Linear filters, otherwise will be based on the size
 
-    ionU32                    m_maxAnisotropy;    // 1 means DISABLED anisotropy
+    ionU32                  m_maxAnisotropy;    // 1 means DISABLED anisotropy
 };
 
 
