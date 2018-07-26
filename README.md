@@ -41,11 +41,6 @@ I'm not planning to do a x86 version
 	- **Damaged Helmet** is under a Creative Commons Attribution-NonCommercial license: https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0/DamagedHelmet
 	- **frace_cross.hdr** found at http://www.pauldebevec.com/Probes/ with copyright to Images Copyright © 1998, 1999 Paul Debevec (I didn't mail them, but because of the opensource nature, I hope is not an issue! Otherwise I'll remove it)
 
-## NOTE
-
-- **Using NVIDIA Drive before the 397.31 has an issue to upload large texture in memory (2048 x 2048 or more). This want mean that the DEMO attached CAN'T WORK! Please update your driver!**
-- **The Vulkan Version used is 1.0.68.0 but you could actually use any after this**
-
 
 ### Almost self inclusive
 
