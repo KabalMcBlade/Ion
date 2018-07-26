@@ -1176,6 +1176,9 @@ void RenderCore::Clear()
 
 ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
 {
+    // this prevent a odd crash due steam validation layer
+    _putenv("DISABLE_VK_LAYER_VALVE_steam_overlay_1=1");
+
     Clear();
 
     m_instance = _instance;
