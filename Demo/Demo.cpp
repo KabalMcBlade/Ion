@@ -179,6 +179,8 @@ int main()
 
 
 
+    Texture* brdflut = ionTextureManger().GenerateBRDFLUT("TestBRDF", 512);
+
 
 
 

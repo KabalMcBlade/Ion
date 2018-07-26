@@ -4,7 +4,6 @@
 
 #include "../Renderer/RenderCore.h"
 
-
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
@@ -55,7 +54,9 @@ void TextureManager::Shutdown()
     for (; it != end; ++it)
     {
         DestroyTexture(it->second);
+        eosDelete(it->second);
     }
+
     m_hashTexture.clear();
 }
 
@@ -228,7 +229,6 @@ void TextureManager::DestroyTexture(Texture* _texture)
     if (_texture != nullptr)
     {
         _texture->Destroy();
-        eosDelete(_texture);
     }
 }
 
