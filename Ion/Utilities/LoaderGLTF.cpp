@@ -868,7 +868,6 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _
                     // this could be anything, glass for instance
                     if (param.string_value == "BLEND")
                     {
-                       // material->GetState().SetColorMaskMode(EColorMask_Depth);
                         material->GetState().SetBlendStateMode(EBlendState_Source_One);
                         material->GetState().SetBlendStateMode(EBlendState_Dest_One);
                         material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
@@ -877,7 +876,6 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _
                     // this would like leaves or grass
                     if (param.string_value == "MASK")
                     {
-                        //material->GetState().SetColorMaskMode(EColorMask_Color);
                         material->GetState().SetBlendStateMode(EBlendState_Source_Source_Alpha);
                         material->GetState().SetBlendStateMode(EBlendState_Dest_One_Minus_Source_Alpha);
                         material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
