@@ -294,13 +294,16 @@ Texture* RenderManager::GenerateBRDF()
         drawSurface.m_material = brdflutEntity->GetMesh(0)->GetMaterial();
 
         m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
-        m_renderCore.DrawNoBinding(cmdBuffer, drawSurface, 3, 1, 0, 0);
+        m_renderCore.DrawNoBinding(cmdBuffer, renderPass, drawSurface, 3, 1, 0, 0);
 
         camera->EndRenderPass(m_renderCore, cmdBuffer);
 
         m_renderCore.EndCustomCommandBuffer(cmdBuffer);
         m_renderCore.FlushCustomCommandBuffer(cmdBuffer);
     }
+
+    m_renderCore.DestroyRenderPass(renderPass);
+    m_renderCore.DestroyFrameBuffer(framebuffer);
 
     return brdflut;
 }

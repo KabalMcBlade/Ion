@@ -928,7 +928,7 @@ ionBool Texture::Save(const eosString& _path) const
 
     if (ext.compare("png") == 0)
     {
-        return stbi_write_png(_path.c_str(), m_width, m_height, component, data, m_width * m_height * sizeof(ionU8)) == 1;
+        return stbi_write_png(_path.c_str(), m_width, m_height, component, data, m_width * component * sizeof(ionU8)) == 1;
     }
     else if(ext.compare("bmp") == 0)
     {
@@ -944,7 +944,7 @@ ionBool Texture::Save(const eosString& _path) const
     }
     else if (ext.compare("hdr") == 0)
     {
-        //return stbi_write_hdr(_path.c_str(), m_width, m_height, component, data);
+        //return stbi_write_hdr(_path.c_str(), m_width, m_height, component, data) == 1;
         ionAssertReturnValue(false, "HDR file format is not supported!", false);
     }
     else 

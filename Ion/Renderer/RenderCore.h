@@ -54,8 +54,8 @@ public:
     void EndCustomCommandBuffer(VkCommandBuffer _commandBuffer);
     void FlushCustomCommandBuffer(VkCommandBuffer _commandBuffer);
 
-    void Draw(VkCommandBuffer _commandBuffer, const DrawSurface& _surface);
-    void DrawNoBinding(VkCommandBuffer _commandBuffer, const DrawSurface& _surface, ionU32 _vertexCount, ionU32 _instanceCount, ionU32 _firstVertex, ionU32 _firstInstance);
+    void Draw(VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, const DrawSurface& _surface);
+    void DrawNoBinding(VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, const DrawSurface& _surface, ionU32 _vertexCount, ionU32 _instanceCount, ionU32 _firstVertex, ionU32 _firstInstance);
 
     VkRenderPass CreateTexturedRenderPass(Texture* _texture);
     VkFramebuffer CreateTexturedFrameBuffer(VkRenderPass _renderPass, Texture* _texture);
@@ -66,6 +66,8 @@ public:
     void SetScissor(VkCommandBuffer _commandBuffer, ionS32 _leftX, ionS32 _bottomY, ionU32 _width, ionU32 _height);
     void SetViewport(VkCommandBuffer _commandBuffer, ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth);
     
+    void    DestroyFrameBuffer(VkFramebuffer _frameBuffer);
+    void    DestroyRenderPass(VkRenderPass _renderPass);
 
     //////////////////////////////////////////////////////////////////////////
     // Getter
@@ -127,9 +129,6 @@ private:
     void    DestroyFrameBuffers();
     void    CreateDebugReport();
     void    DestroyDebugReport();
-
-    void    DestroyFrameBuffer(VkFramebuffer _frameBuffer);
-
 
 private:
     HINSTANCE                   m_instance;
