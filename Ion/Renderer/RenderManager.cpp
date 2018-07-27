@@ -231,7 +231,7 @@ Texture* RenderManager::GenerateBRDF()
     brdflutEntity->GetTransformHandle()->SetPosition(entityPos);
     brdflutEntity->GetTransformHandle()->SetRotation(entityRot);
 
-    LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, *brdflutEntity);
+    LoadPrimitive(EVertexLayout_Empty, EPrimitiveType_Quad, *brdflutEntity);
 
     Material* material = ionMaterialManger().CreateMaterial("BRDFLUT", 0u);
     brdflutEntity->GetMesh(0)->SetMaterial(material);
@@ -243,7 +243,6 @@ Texture* RenderManager::GenerateBRDF()
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_BRDFLUT_SHADER_NAME, EShaderStage_Fragment, fragmentLayout);
 
     brdflutEntity->GetMesh(0)->GetMaterial()->SetShaderProgramName(ION_BRDFLUT_SHADER_NAME);
-    //brdflutEntity->GetMesh(0)->GetMaterial()->SetVertexLayout(EVertexLayout_Empty);
     brdflutEntity->GetMesh(0)->GetMaterial()->SetVertexLayout(brdflutEntity->GetMesh(0)->GetLayout());
 
     brdflutEntity->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
@@ -290,12 +289,12 @@ Texture* RenderManager::GenerateBRDF()
         drawSurface.m_visible = brdflutEntity->IsVisible();
         drawSurface.m_indexStart = brdflutEntity->GetMesh(0)->GetIndexStart();
         drawSurface.m_indexCount = brdflutEntity->GetMesh(0)->GetIndexCount();
-        drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(brdflutEntity->GetMesh(0)->GetVertexData(), brdflutEntity->GetMesh(0)->GetVertexSize());
-        drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(brdflutEntity->GetMesh(0)->GetIndexData(), brdflutEntity->GetMesh(0)->GetIndexSize());
+        //drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(brdflutEntity->GetMesh(0)->GetVertexData(), brdflutEntity->GetMesh(0)->GetVertexSize());
+        //drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(brdflutEntity->GetMesh(0)->GetIndexData(), brdflutEntity->GetMesh(0)->GetIndexSize());
         drawSurface.m_material = brdflutEntity->GetMesh(0)->GetMaterial();
 
         m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
-        m_renderCore.Draw(cmdBuffer, drawSurface);
+        m_renderCore.DrawNoBinding(cmdBuffer, drawSurface, 3, 1, 0, 0);
 
         camera->EndRenderPass(m_renderCore, cmdBuffer);
 

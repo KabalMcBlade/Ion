@@ -204,8 +204,13 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
     }
     break;
 
-    case EVertexLayout_Unknow:
     case EVertexLayout_Empty:
+    {
+        BaseMesh* mesh = _entity.AddMesh<BaseMesh>();
+    }
+    break;
+
+    case EVertexLayout_Unknow:
     case EVertexLayout_Count:
         ionAssertReturnVoid(false, "Layout does not exist!");
     break;
@@ -440,11 +445,17 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
     }
     break;
 
-    case EVertexLayout_Unknow:
     case EVertexLayout_Empty:
+    {
+        BaseMesh* mesh = _entity.AddMesh<BaseMesh>();
+    }
+    break;
+
+    case EVertexLayout_Unknow:
     case EVertexLayout_Count:
         ionAssertReturnVoid(false, "Layout does not exist!");
         break;
+
 
     default:
         ionAssertReturnVoid(false, "Layout not yet implemented");
@@ -770,11 +781,17 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
     }
     break;
 
-    case EVertexLayout_Unknow:
     case EVertexLayout_Empty:
+    {
+        BaseMesh* mesh = _entity.AddMesh<BaseMesh>();
+    }
+    break;
+
+    case EVertexLayout_Unknow:
     case EVertexLayout_Count:
         ionAssertReturnVoid(false, "Layout does not exist!");
         break;
+
 
     default:
         ionAssertReturnVoid(false, "Layout not yet implemented");
@@ -1161,11 +1178,17 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
     }
     break;
 
-    case EVertexLayout_Unknow:
     case EVertexLayout_Empty:
+    {
+        BaseMesh* mesh = _entity.AddMesh<BaseMesh>();
+    }
+    break;
+
+    case EVertexLayout_Unknow:
     case EVertexLayout_Count:
         ionAssertReturnVoid(false, "Layout does not exist!");
         break;
+
 
     default:
         ionAssertReturnVoid(false, "Layout not yet implemented");

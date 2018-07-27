@@ -167,9 +167,9 @@ int main()
 
     //////////////////////////////////////////////////////////////////////////
 
-    //ionRenderManager().GenerateBRDF();
-    //eosString pathBRDFLUT = ionFileSystemManager().GetTexturesPath() + "brdflut.tga";
-    //ionRenderManager().SaveBRDF(pathBRDFLUT);
+    ionRenderManager().GenerateBRDF();
+    eosString pathBRDFLUT = ionFileSystemManager().GetTexturesPath() + "brdflut.tga";
+    ionRenderManager().SaveBRDF(pathBRDFLUT);
 
     //////////////////////////////////////////////////////////////////////////
 

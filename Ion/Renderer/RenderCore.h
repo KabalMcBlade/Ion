@@ -45,7 +45,7 @@ public:
     void    CopyFrameBuffer(Texture* _texture, VkImage _srcImage);
     void    CopyFrameBuffer(Texture* _texture);
     void    Draw(const DrawSurface& _surface);
-
+    
     //////////////////////////////////////////////////////////////////////////
     // Support function for custom purpose
 
@@ -55,6 +55,7 @@ public:
     void FlushCustomCommandBuffer(VkCommandBuffer _commandBuffer);
 
     void Draw(VkCommandBuffer _commandBuffer, const DrawSurface& _surface);
+    void DrawNoBinding(VkCommandBuffer _commandBuffer, const DrawSurface& _surface, ionU32 _vertexCount, ionU32 _instanceCount, ionU32 _firstVertex, ionU32 _firstInstance);
 
     VkRenderPass CreateTexturedRenderPass(Texture* _texture);
     VkFramebuffer CreateTexturedFrameBuffer(VkRenderPass _renderPass, Texture* _texture);

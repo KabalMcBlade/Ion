@@ -1906,6 +1906,30 @@ void RenderCore::Draw(VkCommandBuffer _commandBuffer, const DrawSurface& _surfac
     vkCmdDrawIndexed(_commandBuffer, _surface.m_indexCount, 1, _surface.m_indexStart /*(indexOffset >> 1)*/, 0 /*vertexOffset / sizeof(Vertex)*/, 0);
 }
 
+
+void RenderCore::DrawNoBinding(VkCommandBuffer _commandBuffer, const DrawSurface& _surface, ionU32 _vertexCount, ionU32 _instanceCount, ionU32 _firstVertex, ionU32 _firstInstance)
+{
+    ionS32  vertexShaderIndex = -1;
+    ionS32  fragmentShaderIndex = -1;
+    ionS32  tessellationControlIndex = -1;
+    ionS32  tessellationEvaluationIndex = -1;
+    ionS32  geometryIndex = -1;
+    ionBool useJoint = false;
+    ionBool useSkinning = false;
+
+    _surface.m_material->GetShaders(vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
+
+    const ionS32 shaderProgramIndex =
+        ionShaderProgramManager().FindProgram(_surface.m_material->GetShaderProgramName(), _surface.m_material->GetVertexLayout(), _surface.m_material->GetConstantsShaders(),
+            vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
+
+    ionShaderProgramManager().BindProgram(shaderProgramIndex);
+    ionShaderProgramManager().CommitCurrent(*this, m_vkRenderPass, m_stateBits, _commandBuffer);
+
+    vkCmdDraw(_commandBuffer, _vertexCount, _instanceCount, _firstVertex, _firstInstance);
+}
+
+
 void RenderCore::Draw(const DrawSurface& _surface)
 {
     Draw(m_vkCommandBuffers[m_currentSwapIndex], _surface);
