@@ -232,12 +232,12 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
         eosVector(DrawSurface)::const_iterator begin = surfaces.cbegin(), end = surfaces.cend(), it = begin;
         for (; it != end; ++it)
         {
-            const DrawSurface& drawSuraface = (*it);
+            const DrawSurface& drawSurface = (*it);
 
-            if (drawSuraface.m_visible)
+            if (drawSurface.m_visible)
             {
-                _renderCore.SetState(drawSuraface.m_material->GetState().GetStateBits());
-                _renderCore.Draw(drawSuraface);
+                _renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
+                _renderCore.Draw(drawSurface);
             }
         }
 

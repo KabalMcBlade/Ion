@@ -383,7 +383,8 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
         createInfo.bindingCount = (ionU32)layoutBindings.size();
         createInfo.pBindings = layoutBindings.data();
 
-        vkCreateDescriptorSetLayout(_device, &createInfo, vkMemory, &_shaderProgram.m_descriptorSetLayout);
+        VkResult result = vkCreateDescriptorSetLayout(_device, &createInfo, vkMemory, &_shaderProgram.m_descriptorSetLayout);
+        ionAssertReturnVoid(result == VK_SUCCESS, "vkCreateDescriptorSetLayout cannot create descriptor set layout!");
     }
 
 
@@ -405,7 +406,8 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
             createInfo.pPushConstantRanges = &pushConstantRange;
         }
 
-        vkCreatePipelineLayout(_device, &createInfo, vkMemory, &_shaderProgram.m_pipelineLayout);
+        VkResult result = vkCreatePipelineLayout(_device, &createInfo, vkMemory, &_shaderProgram.m_pipelineLayout);
+        ionAssertReturnVoid(result == VK_SUCCESS, "vkCreateDescriptorSetLayout cannot create pipeline layout!");
     }
 }
 
@@ -453,7 +455,7 @@ VkStencilOpState ShaderProgramHelper::GetStencilOpState(ionU64 _stencilStateBits
     return state;
 }
 
-VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render, EVertexLayout _vertexLayoutType, VkPipelineLayout _pipelineLayout, ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationControlShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationEvaluatorShader /*= VK_NULL_HANDLE*/, VkShaderModule _geometryShader /*= VK_NULL_HANDLE*/)
+VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render, VkRenderPass _renderPass, EVertexLayout _vertexLayoutType, VkPipelineLayout _pipelineLayout, ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationControlShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationEvaluatorShader /*= VK_NULL_HANDLE*/, VkShaderModule _geometryShader /*= VK_NULL_HANDLE*/)
 {
     if (_vertexShader == VK_NULL_HANDLE)
     {
@@ -591,8 +593,8 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
         }
 
         depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-        depthStencilState.depthTestEnable = VK_TRUE;
-        depthStencilState.depthWriteEnable = (_stateBits & EColorMask_Depth) == 0;
+        depthStencilState.depthTestEnable = (_stateBits & EColorMask_Depth) == 0;   //VK_TRUE;
+        depthStencilState.depthWriteEnable = (_stateBits & EColorMask_Depth) == 0;  //(_stateBits & EColorMask_Depth) == 0;
         depthStencilState.depthCompareOp = depthCompareOp;
 
         if (_render.GetGPU().m_vkPhysicalDevFeatures.depthBounds)
@@ -701,7 +703,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
 
     VkPipelineDynamicStateCreateInfo dynamicState = {};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamicState.dynamicStateCount = (ionU32)dynamic.size();
+    dynamicState.dynamicStateCount = static_cast<ionU32>(dynamic.size());
     dynamicState.pDynamicStates = dynamic.data();
 
     VkPipelineViewportStateCreateInfo viewportState = {};
@@ -713,7 +715,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
     VkGraphicsPipelineCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     createInfo.layout = _pipelineLayout;
-    createInfo.renderPass = _render.GetRenderPass();
+    createInfo.renderPass = _renderPass;
     createInfo.pVertexInputState = &vertexInputState;
     createInfo.pInputAssemblyState = &assemblyInputState;
     createInfo.pRasterizationState = &rasterizationState;

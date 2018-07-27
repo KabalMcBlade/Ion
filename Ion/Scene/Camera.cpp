@@ -231,5 +231,46 @@ void Camera::EndRenderPass(RenderCore& _renderCore)
     _renderCore.EndRenderPass();
 }
 
+void Camera::SetViewport(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height)
+{
+    const ionFloat x = static_cast<ionFloat>(_x);
+    const ionFloat y = static_cast<ionFloat>(_y);
+    const ionFloat width = static_cast<ionFloat>(_width);
+    const ionFloat height = static_cast<ionFloat>(_height);
+
+    const ionFloat newX = Lerp(x, width, m_viewPortX);
+    const ionFloat newWidth = Lerp(x, width, m_viewPortWidth);
+
+    const ionFloat newY = Lerp(y, height, m_viewPortY);
+    const ionFloat newHeight = Lerp(y, height, m_viewPortHeight);
+
+    _renderCore.SetViewport(_commandBuffer, newX, newY, newWidth, newHeight, m_minDepth, m_maxDepth);
+}
+
+void Camera::SetScissor(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height)
+{
+    const ionFloat x = static_cast<ionFloat>(_x);
+    const ionFloat y = static_cast<ionFloat>(_y);
+    const ionFloat width = static_cast<ionFloat>(_width);
+    const ionFloat height = static_cast<ionFloat>(_height);
+
+    const ionFloat newX = Lerp(x, width, m_scissorX);
+    const ionFloat newWidth = Lerp(x, width, m_scissorWidth);
+
+    const ionFloat newY = Lerp(y, height, m_scissorY);
+    const ionFloat newHeight = Lerp(y, height, m_scissorHeight);
+
+    _renderCore.SetScissor(_commandBuffer, static_cast<ionS32>(newX), static_cast<ionS32>(newY), static_cast<ionS32>(newWidth), static_cast<ionS32>(newHeight));
+}
+
+void Camera::StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionU32 _width, ionU32 _height)
+{
+    _renderCore.StartRenderPass(_renderPass, _frameBuffer, _commandBuffer, _clearValues, _width, _height);
+}
+
+void Camera::EndRenderPass(RenderCore& _renderCore, VkCommandBuffer _commandBuffer)
+{
+    _renderCore.EndRenderPass(_commandBuffer);
+}
 
 ION_NAMESPACE_END

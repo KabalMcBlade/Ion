@@ -42,9 +42,32 @@ public:
     void    SetViewport(ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth);
     void    SetPolygonOffset(ionFloat _scale, ionFloat _bias);
     void    SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax);
+    void    CopyFrameBuffer(Texture* _texture, VkImage _srcImage);
     void    CopyFrameBuffer(Texture* _texture);
     void    Draw(const DrawSurface& _surface);
 
+    //////////////////////////////////////////////////////////////////////////
+    // Support function for custom purpose
+
+    VkCommandBuffer CreateCustomCommandBuffer(VkCommandBufferLevel _level);
+    ionBool BeginCustomCommandBuffer(VkCommandBuffer _commandBuffer);
+    void EndCustomCommandBuffer(VkCommandBuffer _commandBuffer);
+    void FlushCustomCommandBuffer(VkCommandBuffer _commandBuffer);
+
+    void Draw(VkCommandBuffer _commandBuffer, const DrawSurface& _surface);
+
+    VkRenderPass CreateTexturedRenderPass(Texture* _texture);
+    VkFramebuffer CreateTexturedFrameBuffer(VkRenderPass _renderPass, Texture* _texture);
+
+    void StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionU32 _width, ionU32 _height);
+    void EndRenderPass(VkCommandBuffer _commandBuffer);
+
+    void SetScissor(VkCommandBuffer _commandBuffer, ionS32 _leftX, ionS32 _bottomY, ionU32 _width, ionU32 _height);
+    void SetViewport(VkCommandBuffer _commandBuffer, ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth);
+    
+
+    //////////////////////////////////////////////////////////////////////////
+    // Getter
     VkDevice& GetDevice() { return m_vkDevice; }
     const VkDevice& GetDevice() const { return m_vkDevice; }
 
@@ -71,6 +94,7 @@ public:
 
     ionU32 GetWidth() const { return m_width; }
     ionU32 GetHeight() const { return m_height; }
+
 
 private:
     RenderCore(const RenderCore& _Orig) = delete;
@@ -103,11 +127,8 @@ private:
     void    CreateDebugReport();
     void    DestroyDebugReport();
 
-    // internal custom use function
-    VkCommandBuffer CreateCustomCommandBuffer(VkCommandBufferLevel _level);
-    ionBool BeginCustomCommandBuffer(VkCommandBuffer _commandBuffer);
-    void EndCustomCommandBuffer(VkCommandBuffer _commandBuffer);
-    void FlushCustomCommandBuffer(VkCommandBuffer _commandBuffer);
+    void    DestroyFrameBuffer(VkFramebuffer _frameBuffer);
+
 
 private:
     HINSTANCE                   m_instance;

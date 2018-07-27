@@ -153,7 +153,7 @@ struct ShaderProgram
         VkPipeline    m_pipeline;
     };
 
-    VkPipeline GetPipeline(const RenderCore& _render, ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationControlShader = VK_NULL_HANDLE, VkShaderModule _tessellationEvaluatorShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE);
+    VkPipeline GetPipeline(const RenderCore& _render, VkRenderPass _renderPass, ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationControlShader = VK_NULL_HANDLE, VkShaderModule _tessellationEvaluatorShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE);
 
     eosVector(EShaderBinding)   m_bindings;
     eosVector(PipelineState)    m_pipelines;

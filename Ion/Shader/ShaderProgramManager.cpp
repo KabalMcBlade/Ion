@@ -327,7 +327,8 @@ void ShaderProgramManager::StartFrame()
     m_currentDescSet = 0;
     m_currentParmBufferOffset = 0;
 
-    vkResetDescriptorPool(m_vkDevice, m_descriptorPool, 0);
+    // I'll add back when I'll move to double or triple buffering!
+    //vkResetDescriptorPool(m_vkDevice, m_descriptorPool, 0);
 }
 
 void ShaderProgramManager::EndFrame()
@@ -343,11 +344,11 @@ void ShaderProgramManager::BindProgram(ionS32 _index)
     }
 }
 
-void ShaderProgramManager::CommitCurrent(const RenderCore& _render, ionU64 _stateBits, VkCommandBuffer _commandBuffer)
+void ShaderProgramManager::CommitCurrent(const RenderCore& _render, VkRenderPass _renderPass, ionU64 _stateBits, VkCommandBuffer _commandBuffer)
 {
     ShaderProgram& shaderProgram = m_shaderPrograms[m_current];
 
-    VkPipeline pipeline = shaderProgram.GetPipeline(_render, _stateBits, 
+    VkPipeline pipeline = shaderProgram.GetPipeline(_render, _renderPass, _stateBits,
         m_shaders[shaderProgram.m_vertexShaderIndex].m_shaderModule,
         shaderProgram.m_fragmentShaderIndex != -1 ? m_shaders[shaderProgram.m_fragmentShaderIndex].m_shaderModule : VK_NULL_HANDLE,
         shaderProgram.m_tessellationControlShaderIndex != -1 ? m_shaders[shaderProgram.m_tessellationControlShaderIndex].m_shaderModule : VK_NULL_HANDLE,

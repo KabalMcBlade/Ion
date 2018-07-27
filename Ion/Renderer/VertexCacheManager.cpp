@@ -289,6 +289,11 @@ ionU8* VertexCacheManager::MappedIndexBuffer(VertexCacheHandler _handler)
 
 ionBool VertexCacheManager::GetVertexBuffer(VertexCacheHandler _handler, VertexBuffer* _vb)
 {
+    if (_handler == 0)
+    {
+        return false;
+    }
+
     const ionS32 isStatic = _handler & ION_VERTCACHE_STATIC;
     const ionU64 size = (ionS32)(_handler >> ION_VERTCACHE_SIZE_SHIFT) & ION_VERTCACHE_SIZE_MASK;
     const ionU64 offset = (ionS32)(_handler >> ION_VERTCACHE_OFFSET_SHIFT) & ION_VERTCACHE_OFFSET_MASK;
@@ -305,6 +310,11 @@ ionBool VertexCacheManager::GetVertexBuffer(VertexCacheHandler _handler, VertexB
 
 ionBool VertexCacheManager::GetIndexBuffer(VertexCacheHandler _handler, IndexBuffer* _ib)
 {
+    if (_handler == 0)
+    {
+        return false;
+    }
+
     const ionS32 isStatic = _handler & ION_VERTCACHE_STATIC;
     const ionU64 size = (ionS32)(_handler >> ION_VERTCACHE_SIZE_SHIFT) & ION_VERTCACHE_SIZE_MASK;
     const ionU64 offset = (ionS32)(_handler >> ION_VERTCACHE_OFFSET_SHIFT) & ION_VERTCACHE_OFFSET_MASK;
@@ -320,6 +330,11 @@ ionBool VertexCacheManager::GetIndexBuffer(VertexCacheHandler _handler, IndexBuf
 
 ionBool VertexCacheManager::GetJointBuffer(VertexCacheHandler _handler, UniformBuffer* _jb)
 {
+    if (_handler == 0)
+    {
+        return false;
+    }
+
     const ionS32 isStatic = _handler & ION_VERTCACHE_STATIC;
     const ionU64 size = (ionS32)(_handler >> ION_VERTCACHE_SIZE_SHIFT) & ION_VERTCACHE_SIZE_MASK;
     const ionU64 offset = (ionS32)(_handler >> ION_VERTCACHE_OFFSET_SHIFT) & ION_VERTCACHE_OFFSET_MASK;

@@ -1100,11 +1100,16 @@ ionBool RenderCore::CreateFrameBuffers()
     return true;
 }
 
+void RenderCore::DestroyFrameBuffer(VkFramebuffer _frameBuffer)
+{
+    vkDestroyFramebuffer(m_vkDevice, _frameBuffer, vkMemory);
+}
+
 void RenderCore::DestroyFrameBuffers()
 {
     for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
     {
-        vkDestroyFramebuffer(m_vkDevice, m_vkFrameBuffers[i], vkMemory);
+        DestroyFrameBuffer(m_vkFrameBuffers[i]);
     }
     m_vkFrameBuffers.clear();
 }
@@ -1431,7 +1436,7 @@ ionBool RenderCore::StartFrame()
     ionAssertReturnValue(result == VK_SUCCESS, "Reset fences failed!", false);
 
     ionStagingBufferManager().Submit();
-    ionShaderProgramManager().StartFrame();
+    //ionShaderProgramManager().StartFrame();
     
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
 
@@ -1444,6 +1449,22 @@ ionBool RenderCore::StartFrame()
     return true;
 }
 
+void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionU32 _width, ionU32 _height)
+{
+    VkRenderPassBeginInfo renderPassBeginInfo = {};
+    renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassBeginInfo.renderPass = _renderPass;
+    renderPassBeginInfo.framebuffer = _frameBuffer;
+    renderPassBeginInfo.renderArea.extent.width = _width;
+    renderPassBeginInfo.renderArea.extent.height = _height;
+    renderPassBeginInfo.renderArea.offset.x = 0;
+    renderPassBeginInfo.renderArea.offset.y = 0;
+    renderPassBeginInfo.clearValueCount = static_cast<ionU32>(_clearValues.size());
+    renderPassBeginInfo.pClearValues = _clearValues.data();
+
+    vkCmdBeginRenderPass(_commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+}
+
 void RenderCore::StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue)
 {
     ionAssertReturnVoid(_clearDepthValue >= 0.0f && _clearDepthValue <= 1.0f, "Clear depth must be between 0 and 1!");
@@ -1451,36 +1472,32 @@ void RenderCore::StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilV
     ionAssertReturnVoid(_clearGreen >= 0.0f && _clearGreen <= 1.0f, "Clear green must be between 0 and 1!");
     ionAssertReturnVoid(_clearBlue >= 0.0f && _clearBlue <= 1.0f, "Clear blue must be between 0 and 1!");
 
-    const ionBool resolve = m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT;
-
-    VkClearValue clearValues[3];
-    if (resolve)
+    eosVector(VkClearValue) clearValues;
+    if (m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT)
     {
+        clearValues.resize(3);
         clearValues[0].color = { { _clearRed, _clearGreen, _clearBlue, 1.0f } };
         clearValues[1].color = { { _clearRed, _clearGreen, _clearBlue, 1.0f } };
         clearValues[2].depthStencil = { _clearDepthValue, _clearStencilValue };
     }
-    else {
+    else 
+    {
+        clearValues.resize(2);
         clearValues[0].color = { { _clearRed, _clearGreen, _clearBlue, 1.0f } };
         clearValues[1].depthStencil = { _clearDepthValue, _clearStencilValue };
     }
 
-    VkRenderPassBeginInfo renderPassBeginInfo = {};
-    renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassBeginInfo.renderPass = m_vkRenderPass;
-    renderPassBeginInfo.framebuffer = m_vkFrameBuffers[m_currentSwapIndex];
-    renderPassBeginInfo.renderArea.extent = m_vkSwapchainExtent;
-    renderPassBeginInfo.renderArea.offset.x = 0;
-    renderPassBeginInfo.renderArea.offset.y = 0;    
-    renderPassBeginInfo.clearValueCount = resolve ? 3 : 2;
-    renderPassBeginInfo.pClearValues = clearValues;
+    StartRenderPass(m_vkRenderPass, m_vkFrameBuffers[m_currentSwapIndex], m_vkCommandBuffers[m_currentSwapIndex], clearValues, m_vkSwapchainExtent.width, m_vkSwapchainExtent.height);
+}
 
-    vkCmdBeginRenderPass(m_vkCommandBuffers[m_currentSwapIndex], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+void RenderCore::EndRenderPass(VkCommandBuffer _commandBuffer)
+{
+    vkCmdEndRenderPass(_commandBuffer);
 }
 
 void RenderCore::EndRenderPass()
 {
-    vkCmdEndRenderPass(m_vkCommandBuffers[m_currentSwapIndex]);
+    EndRenderPass(m_vkCommandBuffers[m_currentSwapIndex]);
 }
 
 void RenderCore::EndFrame()
@@ -1569,17 +1586,17 @@ void RenderCore::SetState(ionU64 _stateBits)
     // m_stateBits |= ERasterization_View_Specular;
 }
 
-void RenderCore::SetScissor(ionS32 _leftX, ionS32 _bottomY, ionU32 _width, ionU32 _height)
+void RenderCore::SetScissor(VkCommandBuffer _commandBuffer, ionS32 _leftX, ionS32 _bottomY, ionU32 _width, ionU32 _height)
 {
     VkRect2D scissor;
     scissor.offset.x = _leftX;
     scissor.offset.y = _bottomY;
     scissor.extent.width = _width;
     scissor.extent.height = _height;
-    vkCmdSetScissor(m_vkCommandBuffers[m_currentSwapIndex], 0, 1, &scissor);
+    vkCmdSetScissor(_commandBuffer, 0, 1, &scissor);
 }
 
-void RenderCore::SetViewport(ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth)
+void RenderCore::SetViewport(VkCommandBuffer _commandBuffer, ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth)
 {
     VkViewport viewport;
     viewport.x = _leftX;
@@ -1588,7 +1605,17 @@ void RenderCore::SetViewport(ionFloat _leftX, ionFloat _bottomY, ionFloat _width
     viewport.height = _height;
     viewport.minDepth = _minDepth;
     viewport.maxDepth = _maxDepth;
-    vkCmdSetViewport(m_vkCommandBuffers[m_currentSwapIndex], 0, 1, &viewport);
+    vkCmdSetViewport(_commandBuffer, 0, 1, &viewport);
+}
+
+void RenderCore::SetScissor(ionS32 _leftX, ionS32 _bottomY, ionU32 _width, ionU32 _height)
+{
+    SetScissor(m_vkCommandBuffers[m_currentSwapIndex], _leftX, _bottomY, _width, _height);
+}
+
+void RenderCore::SetViewport(ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth)
+{
+    SetViewport(m_vkCommandBuffers[m_currentSwapIndex], _leftX, _bottomY, _width, _height, _minDepth, _maxDepth);
 }
 
 void RenderCore::SetPolygonOffset(ionFloat _scale, ionFloat _bias)
@@ -1615,13 +1642,11 @@ void RenderCore::SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax)
 }
 
 // to use after the end frame (outside the "current" render command buffer)
-void RenderCore::CopyFrameBuffer(Texture* _texture)
+void RenderCore::CopyFrameBuffer(Texture* _texture, VkImage _srcImage)
 {
     VkCommandBuffer commandBuffer = CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
     if (BeginCustomCommandBuffer(commandBuffer))
     {
-        VkImage srcImage = m_vkSwapchainImages[m_currentSwapIndex];
-
         VkImageMemoryBarrier dstBarrier = {};
         {
             dstBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1649,7 +1674,7 @@ void RenderCore::CopyFrameBuffer(Texture* _texture)
             srcBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
             srcBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
-            srcBarrier.image = srcImage;
+            srcBarrier.image = _srcImage;
 
             srcBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
             srcBarrier.subresourceRange.baseMipLevel = 0;
@@ -1685,7 +1710,7 @@ void RenderCore::CopyFrameBuffer(Texture* _texture)
             imageBlitRegion.dstSubresource.layerCount = 1;
             imageBlitRegion.dstOffsets[1] = dstBlitSize;
 
-            vkCmdBlitImage(commandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageBlitRegion, VK_FILTER_NEAREST);
+            vkCmdBlitImage(commandBuffer, _srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageBlitRegion, VK_FILTER_NEAREST);
         }
         else
         {
@@ -1698,7 +1723,7 @@ void RenderCore::CopyFrameBuffer(Texture* _texture)
             imageCopyRegion.extent.height = m_vkSwapchainExtent.height;
             imageCopyRegion.extent.depth = 1;
 
-            vkCmdCopyImage(commandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1, &imageCopyRegion);
+            vkCmdCopyImage(commandBuffer, _srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
         }
 
         {
@@ -1726,7 +1751,7 @@ void RenderCore::CopyFrameBuffer(Texture* _texture)
             srcBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
             srcBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
-            srcBarrier.image = srcImage;
+            srcBarrier.image = _srcImage;
 
             srcBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
             srcBarrier.subresourceRange.baseMipLevel = 0;
@@ -1744,6 +1769,11 @@ void RenderCore::CopyFrameBuffer(Texture* _texture)
         EndCustomCommandBuffer(commandBuffer);
         FlushCustomCommandBuffer(commandBuffer);
     }
+}
+
+void RenderCore::CopyFrameBuffer(Texture* _texture)
+{
+    CopyFrameBuffer(_texture, m_vkSwapchainImages[m_currentSwapIndex]);
 }
 
 /*
@@ -1830,10 +1860,8 @@ void RenderCore::CopyFrameBuffer(Texture* _texture, ionS32 _width, ionS32 _heigh
 }
 */
 
-void RenderCore::Draw(const DrawSurface& _surface)
+void RenderCore::Draw(VkCommandBuffer _commandBuffer, const DrawSurface& _surface)
 {
-    VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
-    
     ionShaderProgramManager().SetRenderParamMatrix(ION_MODEL_MATRIX_PARAM_HASH, &_surface.m_modelMatrix[0]);
     ionShaderProgramManager().SetRenderParamMatrix(ION_VIEW_MATRIX_PARAM_HASH, &_surface.m_viewMatrix[0]);
     ionShaderProgramManager().SetRenderParamMatrix(ION_PROJ_MATRIX_PARAM_HASH, &_surface.m_projectionMatrix[0]);
@@ -1853,7 +1881,7 @@ void RenderCore::Draw(const DrawSurface& _surface)
         vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
 
     ionShaderProgramManager().BindProgram(shaderProgramIndex);
-    ionShaderProgramManager().CommitCurrent(*this, m_stateBits, commandBuffer);
+    ionShaderProgramManager().CommitCurrent(*this, m_vkRenderPass, m_stateBits, _commandBuffer);
 
     ionSize indexOffset = 0;
     ionSize vertexOffset = 0;
@@ -1863,7 +1891,7 @@ void RenderCore::Draw(const DrawSurface& _surface)
         const VkBuffer buffer = indexBuffer.GetObject();
         const VkDeviceSize offset = indexBuffer.GetOffset();
         indexOffset = offset;
-        vkCmdBindIndexBuffer(commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(_commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT32);
     }
 
     VertexBuffer vertexBufer;
@@ -1872,11 +1900,17 @@ void RenderCore::Draw(const DrawSurface& _surface)
         const VkBuffer buffer = vertexBufer.GetObject();
         const VkDeviceSize offset = vertexBufer.GetOffset();
         vertexOffset = offset;
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, &buffer, &offset);
+        vkCmdBindVertexBuffers(_commandBuffer, 0, 1, &buffer, &offset);
     }
 
-    vkCmdDrawIndexed(commandBuffer, _surface.m_indexCount, 1, _surface.m_indexStart /*(indexOffset >> 1)*/, 0 /*vertexOffset / sizeof(Vertex)*/, 0);
+    vkCmdDrawIndexed(_commandBuffer, _surface.m_indexCount, 1, _surface.m_indexStart /*(indexOffset >> 1)*/, 0 /*vertexOffset / sizeof(Vertex)*/, 0);
 }
+
+void RenderCore::Draw(const DrawSurface& _surface)
+{
+    Draw(m_vkCommandBuffers[m_currentSwapIndex], _surface);
+}
+
 
 VkCommandBuffer RenderCore::CreateCustomCommandBuffer(VkCommandBufferLevel _level)
 {
@@ -1933,5 +1967,78 @@ void RenderCore::FlushCustomCommandBuffer(VkCommandBuffer _commandBuffer)
     vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, 1, &_commandBuffer);
 }
 
+VkRenderPass RenderCore::CreateTexturedRenderPass(Texture* _texture)
+{
+    VkAttachmentDescription attDesc{};
+
+    // Color attachment
+    attDesc.format = _texture->GetFormat();
+    attDesc.samples = VK_SAMPLE_COUNT_1_BIT;
+    attDesc.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attDesc.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    attDesc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    attDesc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attDesc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    attDesc.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    VkAttachmentReference colorReference = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
+
+    VkSubpassDescription subpassDescription{};
+    subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpassDescription.colorAttachmentCount = 1;
+    subpassDescription.pColorAttachments = &colorReference;
+
+    // Use subpass dependencies for layout transitions
+    eosVector(VkSubpassDependency) dependencies;
+    dependencies.resize(2);
+
+    dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependencies[0].dstSubpass = 0;
+    dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+    dependencies[1].srcSubpass = 0;
+    dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+    dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+    VkRenderPassCreateInfo renderPassCreateInfo{};
+    renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassCreateInfo.attachmentCount = 1;
+    renderPassCreateInfo.pAttachments = &attDesc;
+    renderPassCreateInfo.subpassCount = 1;
+    renderPassCreateInfo.pSubpasses = &subpassDescription;
+    renderPassCreateInfo.dependencyCount = static_cast<ionU32>(dependencies.size());
+    renderPassCreateInfo.pDependencies = dependencies.data();
+
+    VkRenderPass renderpass;
+    VkResult result = vkCreateRenderPass(m_vkDevice, &renderPassCreateInfo, vkMemory, &renderpass);
+    ionAssertReturnValue(result == VK_SUCCESS, "Cannot create render pass!", false);
+
+    return renderpass;
+}
+
+VkFramebuffer RenderCore::CreateTexturedFrameBuffer(VkRenderPass _renderPass, Texture* _texture)
+{
+    VkFramebufferCreateInfo framebufferCreateInfo{};
+    framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    framebufferCreateInfo.renderPass = _renderPass;
+    framebufferCreateInfo.attachmentCount = 1;
+    framebufferCreateInfo.pAttachments = &_texture->GetView();
+    framebufferCreateInfo.width = _texture->GetWidth();
+    framebufferCreateInfo.height = _texture->GetHeight();
+    framebufferCreateInfo.layers = 1;
+
+    VkFramebuffer framebuffer;
+    VkResult result = vkCreateFramebuffer(m_vkDevice, &framebufferCreateInfo, vkMemory, &framebuffer);
+    ionAssertReturnValue(result == VK_SUCCESS, "Cannot create framebuffer!", false);
+
+    return framebuffer;
+}
 
 ION_NAMESPACE_END

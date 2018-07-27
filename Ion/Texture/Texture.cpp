@@ -792,12 +792,6 @@ VkComponentMapping Texture::GetVulkanComponentMappingFromTextureFormat(ETextureF
         componentMapping.b = VK_COMPONENT_SWIZZLE_B;
         componentMapping.a = VK_COMPONENT_SWIZZLE_ONE;
         break;
-    case ETextureFormat_BRDF:
-        componentMapping.r = VK_COMPONENT_SWIZZLE_R;
-        componentMapping.g = VK_COMPONENT_SWIZZLE_R;
-        componentMapping.b = VK_COMPONENT_SWIZZLE_G;
-        componentMapping.a = VK_COMPONENT_SWIZZLE_G;
-        break;
     default:
         componentMapping.r = VK_COMPONENT_SWIZZLE_R;
         componentMapping.g = VK_COMPONENT_SWIZZLE_G;

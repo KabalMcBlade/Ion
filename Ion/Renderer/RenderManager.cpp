@@ -1,21 +1,27 @@
 ﻿#include "RenderManager.h"
 
+#include "VertexCacheManager.h"
+
 #include "../Dependencies/Eos/Eos/Eos.h"
 
 #include "../Scene/Entity.h"
 
 #include "../Utilities/LoaderGLTF.h"
 
-#include "VertexCacheManager.h"
-
 #include "../Geometry/Mesh.h"
+#include "../Geometry/PrimitiveFactory.h"
 
 #include "../Texture/TextureManager.h"
 
-#include "../Geometry/PrimitiveFactory.h"
+#include "../Core/FileSystemManager.h"
+
+#include "../Shader/ShaderProgramManager.h"
+
+#include "../Material/MaterialManager.h"
 
 
-#define ION_BRDFLUT_TEXTURENAME    "ionBRDFLUT"
+#define ION_BRDFLUT_TEXTURENAME    "BRDFLUT"
+#define ION_BRDFLUT_SHADER_NAME    "GenerateBRDFLUT"
 
 //#define SHADOW_MAP_SIZE                    1024
 
@@ -200,14 +206,114 @@ ionBool RenderManager::IsRunning()
     return m_running;
 }
 
-void RenderManager::GenerateBRDF()
+Texture* RenderManager::GenerateBRDF()
 {
-    ionTextureManger().GenerateTexture(ION_BRDFLUT_TEXTURENAME, 512, 512, ETextureFormat_BRDF, ETextureFilter_Default, ETextureRepeat_Clamp);
+    const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
+
+    const Vector cameraPos(0.0f, 0.0f, -1.0f, 0.0f);
+    const Quaternion cameraRot(NIX_DEG_TO_RAD(0.0f), up);
+
+    const Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
+    const Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
+
+    Texture* brdflut = ionTextureManger().GenerateTexture(ION_BRDFLUT_TEXTURENAME, 512, 512, ETextureFormat_BRDF, ETextureFilter_Default, ETextureRepeat_Clamp);
+
+    CameraHandle camera = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE);
+    camera->SetCameraType(Camera::ECameraType::ECameraType_FirstPerson);
+    camera->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(brdflut->GetWidth()) / static_cast<ionFloat>(brdflut->GetHeight()), 0.1f, 256.0f);
+    camera->GetTransformHandle()->SetPosition(cameraPos);
+    camera->GetTransformHandle()->SetRotation(cameraRot);
+    camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
+    camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+    camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
+
+    EntityHandle brdflutEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+    brdflutEntity->GetTransformHandle()->SetPosition(entityPos);
+    brdflutEntity->GetTransformHandle()->SetRotation(entityRot);
+
+    LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, *brdflutEntity);
+
+    Material* material = ionMaterialManger().CreateMaterial("BRDFLUT", 0u);
+    brdflutEntity->GetMesh(0)->SetMaterial(material);
+
+    ShaderLayoutDef vertexLayout;      // empty
+    ShaderLayoutDef fragmentLayout;    // empty
+
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_BRDFLUT_SHADER_NAME, EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_BRDFLUT_SHADER_NAME, EShaderStage_Fragment, fragmentLayout);
+
+    brdflutEntity->GetMesh(0)->GetMaterial()->SetShaderProgramName(ION_BRDFLUT_SHADER_NAME);
+    //brdflutEntity->GetMesh(0)->GetMaterial()->SetVertexLayout(EVertexLayout_Empty);
+    brdflutEntity->GetMesh(0)->GetMaterial()->SetVertexLayout(brdflutEntity->GetMesh(0)->GetLayout());
+
+    brdflutEntity->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+
+    brdflutEntity->GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ECullingMode_TwoSide);
+
+    VkRenderPass renderPass = m_renderCore.CreateTexturedRenderPass(brdflut);
+    VkFramebuffer framebuffer = m_renderCore.CreateTexturedFrameBuffer(renderPass, brdflut);
+
+    VkCommandBuffer cmdBuffer = m_renderCore.CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+    if (m_renderCore.BeginCustomCommandBuffer(cmdBuffer))
+    {
+        eosVector(VkClearValue) clearValues;
+        clearValues.resize(1);
+        clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+
+        camera->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(brdflut->GetWidth()), static_cast<ionU32>(brdflut->GetHeight()));
+        
+        camera->SetViewport(m_renderCore, cmdBuffer, 0, 0, brdflut->GetWidth(), brdflut->GetHeight());
+        camera->SetScissor(m_renderCore, cmdBuffer, 0, 0, brdflut->GetWidth(), brdflut->GetHeight());
+
+        const Matrix& projection = camera->GetPerspectiveProjection();
+        const Matrix& view = camera->GetView();
+
+        const Matrix& model = brdflutEntity->GetTransformHandle()->GetMatrixWS();
+
+        DrawSurface drawSurface;
+
+        _mm_storeu_ps(&drawSurface.m_modelMatrix[0], model[0]);
+        _mm_storeu_ps(&drawSurface.m_modelMatrix[4], model[1]);
+        _mm_storeu_ps(&drawSurface.m_modelMatrix[8], model[2]);
+        _mm_storeu_ps(&drawSurface.m_modelMatrix[12], model[3]);
+
+        _mm_storeu_ps(&drawSurface.m_viewMatrix[0], view[0]);
+        _mm_storeu_ps(&drawSurface.m_viewMatrix[4], view[1]);
+        _mm_storeu_ps(&drawSurface.m_viewMatrix[8], view[2]);
+        _mm_storeu_ps(&drawSurface.m_viewMatrix[12], view[3]);
+
+        _mm_storeu_ps(&drawSurface.m_projectionMatrix[0], projection[0]);
+        _mm_storeu_ps(&drawSurface.m_projectionMatrix[4], projection[1]);
+        _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], projection[2]);
+        _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], projection[3]);
+
+        drawSurface.m_visible = brdflutEntity->IsVisible();
+        drawSurface.m_indexStart = brdflutEntity->GetMesh(0)->GetIndexStart();
+        drawSurface.m_indexCount = brdflutEntity->GetMesh(0)->GetIndexCount();
+        drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(brdflutEntity->GetMesh(0)->GetVertexData(), brdflutEntity->GetMesh(0)->GetVertexSize());
+        drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(brdflutEntity->GetMesh(0)->GetIndexData(), brdflutEntity->GetMesh(0)->GetIndexSize());
+        drawSurface.m_material = brdflutEntity->GetMesh(0)->GetMaterial();
+
+        m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
+        m_renderCore.Draw(cmdBuffer, drawSurface);
+
+        camera->EndRenderPass(m_renderCore, cmdBuffer);
+
+        m_renderCore.EndCustomCommandBuffer(cmdBuffer);
+        m_renderCore.FlushCustomCommandBuffer(cmdBuffer);
+    }
+
+    return brdflut;
 }
 
 Texture* RenderManager::GetBRDF()
 {
-    return ionTextureManger().GetTexture(ION_BRDFLUT_TEXTURENAME);
+    Texture* brdflut = ionTextureManger().GetTexture(ION_BRDFLUT_TEXTURENAME);
+    if (brdflut == nullptr)
+    {
+        brdflut = GenerateBRDF();
+    }
+    return brdflut;
 }
 
 void RenderManager::SaveBRDF(const eosString& _path)

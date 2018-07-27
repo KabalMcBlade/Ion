@@ -69,6 +69,11 @@ public:
     void StartRenderPass(RenderCore& _renderCore);
     void EndRenderPass(RenderCore& _renderCore);
 
+    void SetViewport(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
+    void SetScissor(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
+    void StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionU32 _width, ionU32 _height);
+    void EndRenderPass(RenderCore& _renderCore, VkCommandBuffer _commandBuffer);
+
 public:
     static Matrix PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar);
     static Matrix OrthographicProjectionMatrix(ionFloat _left, ionFloat _right, ionFloat _bottom, ionFloat _top, ionFloat _zNear, ionFloat _zFar);
