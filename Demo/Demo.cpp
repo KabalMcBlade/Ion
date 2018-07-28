@@ -135,8 +135,9 @@ int main()
     std::cout << "3 - Texture Quad" << std::endl;
     std::cout << "4 - Colored Cube" << std::endl;
     std::cout << "5 - Colored Sphere" << std::endl;
-    std::cout << "6 - Model GLTF in white ambient (need a while to load!)" << std::endl;
-    std::cout << "7 - Model GLTF using PBR (WORK IN PROGRESS, NEED A WHILE TO LOAD!)" << std::endl;
+    std::cout << "6 - Show BRDF Lookup Texture" << std::endl;
+    std::cout << "7 - Model GLTF in white ambient (need a while to load!)" << std::endl;
+    std::cout << "8 - Model GLTF using PBR (WORK IN PROGRESS, NEED A WHILE TO LOAD!)" << std::endl;
     std::cout << "Selection: ";
 
     std::cin >> choice;
@@ -166,10 +167,9 @@ int main()
 
 
     //////////////////////////////////////////////////////////////////////////
+    // Generate for future purpose
+    ionRenderManager().GenerateBRDF();
 
-    //ionRenderManager().GenerateBRDF();
-    //eosString pathBRDFLUT = ionFileSystemManager().GetTexturesPath() + "brdflut.jpg";
-    //ionRenderManager().SaveBRDF(pathBRDFLUT);
 
     //////////////////////////////////////////////////////////////////////////
 
@@ -226,9 +226,12 @@ int main()
         Test_ColoredSphere(*test);
         break;
     case 6:
-        Test_Model_Ambient(*test);
+        Test_TexturedQuadEx(*test, ionRenderManager().GetBRDF());
         break;
     case 7:
+        Test_Model_Ambient(*test);
+        break;
+    case 8:
         Test_ModelPBR_WIP(*test);
         break;
     default:

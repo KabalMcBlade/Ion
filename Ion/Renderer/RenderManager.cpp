@@ -233,7 +233,7 @@ Texture* RenderManager::GenerateBRDF()
 
     LoadPrimitive(EVertexLayout_Empty, EPrimitiveType_Quad, *brdflutEntity);
 
-    Material* material = ionMaterialManger().CreateMaterial("BRDFLUT", 0u);
+    Material* material = ionMaterialManger().CreateMaterial(ION_BRDFLUT_TEXTURENAME, 0u);
     brdflutEntity->GetMesh(0)->SetMaterial(material);
 
     ShaderLayoutDef vertexLayout;      // empty
@@ -316,12 +316,6 @@ Texture* RenderManager::GetBRDF()
         brdflut = GenerateBRDF();
     }
     return brdflut;
-}
-
-void RenderManager::SaveBRDF(const eosString& _path)
-{
-    Texture* brdflut = ionTextureManger().GetTexture(ION_BRDFLUT_TEXTURENAME);
-    ionTextureManger().SaveTexture(_path, brdflut);
 }
 
 ION_NAMESPACE_END

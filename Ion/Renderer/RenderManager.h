@@ -71,7 +71,6 @@ public:
     // rendering PBR helper functions:
     Texture*    GenerateBRDF();
     Texture*    GetBRDF();
-    void        SaveBRDF(const eosString& _path);
 
 private:
     RenderManager(const RenderManager& _Orig) = delete;
