@@ -551,13 +551,14 @@ ionBool Texture::CreateFromBuffer(ionU32 _width, ionU32 _height, ionU32 _compone
     return true;
 }
 
-ionBool Texture::GenerateTexture(ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureRepeat _repeat, ionU32 _numLevel /*= 1*/)
+ionBool Texture::GenerateTexture(ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureRepeat _repeat, ETextureType _type /*= ETextureType_2D*/, ionU32 _numLevel /*= 1*/)
 {
     m_width = _width;
     m_height = _height;
     m_optFormat = _format;
     m_optRepeat = _repeat;
     m_numLevels = _numLevel;
+    m_optTextureType = _type;
 
     return Create();
 }

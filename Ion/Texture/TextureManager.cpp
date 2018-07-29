@@ -128,7 +128,7 @@ Texture* TextureManager::CreateTextureFromBuffer(const eosString& _name, ionU32 
     }
 }
 
-Texture* TextureManager::GenerateTexture(const eosString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat/*= ETextureRepeat_Clamp*/, ionU32 _numLevel /*= 1*/, ionU32 _maxAnisotrpy /*= 1*/)
+Texture* TextureManager::GenerateTexture(const eosString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat/*= ETextureRepeat_Clamp*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _numLevel /*= 1*/, ionU32 _maxAnisotrpy /*= 1*/)
 {
     if (_name.empty())
     {
@@ -147,7 +147,7 @@ Texture* TextureManager::GenerateTexture(const eosString& _name, ionU32 _width, 
 
     texture->m_maxAnisotropy = _maxAnisotrpy;
     texture->m_optFilter = _filter;
-    if (texture->GenerateTexture(_width, _height, _format, _repeat, _numLevel))
+    if (texture->GenerateTexture(_width, _height, _format, _repeat, _type, _numLevel))
     {
         return texture;
     }
@@ -155,6 +155,16 @@ Texture* TextureManager::GenerateTexture(const eosString& _name, ionU32 _width, 
     {
         return nullptr;
     }
+}
+
+void TextureManager::GenerateMipMaps(Texture* _texture)
+{
+    if (_texture == nullptr)
+    {
+        return;
+    }
+
+    _texture->GenerateMipMaps();
 }
 
 Texture* TextureManager::GetTexture(const eosString& _name) const

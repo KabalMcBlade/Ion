@@ -44,7 +44,7 @@ private:
 
     ionBool Save(const eosString& _path) const;
 
-    ionBool GenerateTexture(ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureRepeat _repeat, ionU32 _numLevel = 1);
+    ionBool GenerateTexture(ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureRepeat _repeat, ETextureType _type = ETextureType_2D, ionU32 _numLevel = 1);
 
     // this needed because Vulkan limitation
     void ConvertFrom3ChannelTo4Channel(ionU32 _width, ionU32 _height, const ionU8* _inBuffer, ionU8* _outBuffer);
