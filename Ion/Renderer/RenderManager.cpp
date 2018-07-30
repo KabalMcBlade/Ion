@@ -23,8 +23,11 @@
 #define ION_BRDFLUT_TEXTURENAME    "BRDFLUT"
 #define ION_BRDFLUT_SHADER_NAME    "GenerateBRDFLUT"
 
-#define ION_IRRADIANCE_TEXTURENAME    "IRRADIANCE"
-#define ION_PREFILTEREDENVIRONMENT_TEXTURENAME    "PREFILTERED_ENVIRONMENT"
+#define ION_IRRADIANCE_TEXTURENAME                  "IRRADIANCE"
+#define ION_PREFILTEREDENVIRONMENT_TEXTURENAME      "PREFILTERED_ENVIRONMENT"
+
+#define ION_IRRADIANCE_TEXTURENAME_OFFSCREEN                "IRRADIANCE_OFFSCREEN"
+#define ION_PREFILTEREDENVIRONMENT_TEXTURENAME_OFFSCREEN    "PREFILTERED_ENVIRONMENT_OFFSCREEN"
 
 //#define SHADOW_MAP_SIZE                    1024
 
@@ -323,18 +326,51 @@ Texture* RenderManager::GetBRDF()
 
 Texture* RenderManager::GenerateIrradianceCubemap()
 {
-    const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
-
-    const Vector cameraPos(0.0f, 0.0f, -1.0f, 0.0f);
-    const Quaternion cameraRot(NIX_DEG_TO_RAD(0.0f), up);
-
     const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(64))) + 1;
 
     Texture* irradiance = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME, 64, 64, ETextureFormat_Irradiance, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureType_Cubic, mipMapsLevel);
+    Texture* offscreen = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME_OFFSCREEN, 64, 64, ETextureFormat_Irradiance, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureType_2D);
+
+    //
+    // Transition between irradiance and offscreen
+    VkRenderPass renderPass = m_renderCore.CreateTexturedRenderPass(irradiance);
+    VkFramebuffer framebuffer = m_renderCore.CreateTexturedFrameBuffer(renderPass, offscreen);  // frame buffer on the offscreen
+
+    VkCommandBuffer layoutCmd = m_renderCore.CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+    if (m_renderCore.BeginCustomCommandBuffer(layoutCmd))
+    {
+        VkImageMemoryBarrier imageMemoryBarrier{};
+        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        imageMemoryBarrier.image = offscreen->GetImage();
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        imageMemoryBarrier.srcAccessMask = 0;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+        vkCmdPipelineBarrier(layoutCmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+
+        m_renderCore.EndCustomCommandBuffer(layoutCmd);
+        m_renderCore.FlushCustomCommandBuffer(layoutCmd);
+    }
 
 
+
+    //
+    // render
+
+    VkCommandBuffer cmdBuffer = m_renderCore.CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+    if (m_renderCore.BeginCustomCommandBuffer(cmdBuffer))
+    {
+
+        m_renderCore.EndCustomCommandBuffer(cmdBuffer);
+        m_renderCore.FlushCustomCommandBuffer(cmdBuffer);
+    }
+
+    m_renderCore.DestroyRenderPass(renderPass);
+    m_renderCore.DestroyFrameBuffer(framebuffer);
 
     ionTextureManger().GenerateMipMaps(irradiance);
+    ionTextureManger().DestroyTexture(ION_IRRADIANCE_TEXTURENAME_OFFSCREEN);
 
     return irradiance;
 }
@@ -354,10 +390,12 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap()
     const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(512))) + 1;
 
     Texture* prefilteredEnvironment = ionTextureManger().GenerateTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME, 512, 512, ETextureFormat_PrefilteredEnvironment, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureType_Cubic, mipMapsLevel);
+    Texture* offscreen = ionTextureManger().GenerateTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME_OFFSCREEN, 512, 512, ETextureFormat_PrefilteredEnvironment, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureType_2D);
 
 
-
+    
     ionTextureManger().GenerateMipMaps(prefilteredEnvironment);
+    ionTextureManger().DestroyTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME_OFFSCREEN);
 
     return prefilteredEnvironment;
 }
