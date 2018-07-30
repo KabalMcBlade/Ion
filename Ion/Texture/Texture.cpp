@@ -585,14 +585,11 @@ ionBool Texture::Create()
             createInfo.arrayLayers = (m_optTextureType == ETextureType_Cubic) ? 6 : 1;
             createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
             createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-            createInfo.usage = m_numLevels > 1 ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT : VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+            createInfo.usage = m_numLevels > 1 ? VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
-            if (m_optFormat == ETextureFormat_BRDF)
+            if (m_optFormat == ETextureFormat_Depth)
             {
-                createInfo.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-            }
-            else if (m_optFormat == ETextureFormat_Depth)
-            {
+                createInfo.usage &= ~VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
                 createInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
             }
             
@@ -840,13 +837,13 @@ ionBool Texture::CreateSampler()
     switch (m_optRepeat) 
     {
     case ETextureRepeat_Repeat:
-        createInfo.borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+        createInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE; //VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
         createInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         createInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         break;
     case ETextureRepeat_Clamp:
-        createInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        createInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
         createInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         createInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
@@ -867,10 +864,6 @@ ionBool Texture::CreateSampler()
         ionAssertReturnValue(false, "Texture repeat mode not supported", false);
     }
 
-    if (m_optFormat == ETextureFormat_BRDF || m_optFormat == ETextureFormat_Irradiance || m_optFormat == ETextureFormat_PrefilteredEnvironment)
-    {
-        createInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-    }
 
     VkResult result = vkCreateSampler(m_vkDevice, &createInfo, vkMemory, &m_sampler);
     ionAssertReturnValue(result == VK_SUCCESS, "Cannot create sampler", false);
