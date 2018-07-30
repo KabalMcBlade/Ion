@@ -184,7 +184,53 @@ int main()
     Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
     Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
 
-    //
+
+    //////////////////////////////////////////////////////////////////////////
+    // Create SkyBox
+    eosString skyboxFilePath = ionFileSystemManager().GetTexturesPath() + "grace_cross.hdr";
+    Texture* skybxoTexture = ionTextureManger().CreateTextureFromFile("grace_cross", skyboxFilePath, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_Skybox, ETextureType_Cubic, 1);
+
+    EntityHandle skybox = eosNew(Skybox, ION_MEMORY_ALIGNMENT_SIZE, "Skybox");
+    Skybox* skyboxPtr = dynamic_cast<Skybox*>(skybox.GetPtr());
+    skyboxPtr->SetLayout(ion::EVertexLayout::EVertexLayout_Pos);
+    skyboxPtr->SetCubemap(skybxoTexture);
+
+    // one uniform structure bound in the index 0 in the shader stage
+    ion::UniformBinding uniform;
+    uniform.m_bindingIndex = 0;
+    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+
+    // one sampler bound in the index 1 in the shader stage
+    ion::SamplerBinding sampler;
+    sampler.m_bindingIndex = 1;
+    sampler.m_texture = skyboxPtr->GetCubemapTexture();
+
+    // constants
+    ConstantsBindingDef constants;
+    constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
+    constants.m_values.push_back(4.5f);
+    constants.m_values.push_back(2.2f);
+
+    // set the shaders layout
+    ion::ShaderLayoutDef vertexLayout;
+    vertexLayout.m_uniforms.push_back(uniform);
+
+    ion::ShaderLayoutDef fragmentLayout;
+    fragmentLayout.m_samplers.push_back(sampler);
+
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBoxV1", ion::EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBoxV2", ion::EShaderStage_Fragment, fragmentLayout);
+
+    skyboxPtr->SetShaders("SkyBox", constants, vertexShaderIndex, fragmentShaderIndex);
+
+
+    //////////////////////////////////////////////////////////////////////////
+    // Create Camera
     CameraHandle camera = eosNew(FPSCamera, ION_MEMORY_ALIGNMENT_SIZE);
     camera->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
@@ -193,11 +239,12 @@ int main()
     camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
     camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
     camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
-    camera->CreateSkyBox(ionFileSystemManager().GetTexturesPath(), "grace_cross.hdr", EVertexLayout::EVertexLayout_Pos, ionFileSystemManager().GetShadersPath(), "SkyBoxV1", ionFileSystemManager().GetShadersPath(), "SkyBoxV2");
+    camera->AttachSkyBox(skybox);
     dynamic_cast<FPSCamera*>(camera.GetPtr())->SetParameters(0.001f, 0.05f, true);
 
 
-    //
+    //////////////////////////////////////////////////////////////////////////
+    // Create Entity to render
     EntityHandle test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE);
     test->GetTransformHandle()->SetPosition(entityPos);
     test->GetTransformHandle()->SetRotation(entityRot);

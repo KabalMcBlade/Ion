@@ -29,8 +29,8 @@ public:
     const Texture* GetBaseColorTexture() const { return m_baseColorTexture; }
     const Texture* GetMetalRoughnessTexture() const { return m_metalRoughness; }
 
-    void SetBaseColorTexture(Texture* _texture) { m_baseColorTexture = _texture; }
-    void SetMetalRoughnessTexture(Texture* _texture) { m_metalRoughness = _texture; }
+    void SetBaseColorTexture(const Texture* _texture) { m_baseColorTexture = _texture; }
+    void SetMetalRoughnessTexture(const Texture* _texture) { m_metalRoughness = _texture; }
 
     void GetColor(ionFloat& _r, ionFloat& _g, ionFloat& _b, ionFloat& _a) const 
     {
@@ -54,8 +54,8 @@ public:
     void SetRoughnessFactor(ionFloat _value) { m_roughnessFactor = _value; }
 
 private:
-    Texture*    m_baseColorTexture;
-    Texture*    m_metalRoughness;
+    const Texture*    m_baseColorTexture;
+    const Texture*    m_metalRoughness;
 
     ionFloat    m_baseColor[4];
     ionFloat    m_metallicFactor;
@@ -74,9 +74,9 @@ public:
     const Texture* GetOcclusionTexture() const { return m_occlusionTexture; }
     const Texture* GetEmissiveTexture() const { return m_emissiveTexture; }
 
-    void SetNormalTexture(Texture* _texture) { m_normalTexture = _texture; }
-    void SetOcclusionTexture(Texture* _texture) { m_occlusionTexture = _texture; }
-    void SetEmissiveTexture(Texture* _texture) { m_emissiveTexture = _texture; }
+    void SetNormalTexture(const Texture* _texture) { m_normalTexture = _texture; }
+    void SetOcclusionTexture(const Texture* _texture) { m_occlusionTexture = _texture; }
+    void SetEmissiveTexture(const Texture* _texture) { m_emissiveTexture = _texture; }
 
     const ionFloat GetAlphaCutoff() const { return m_alphaCutoff; }
     void GetEmissiveColor(ionFloat& _r, ionFloat& _g, ionFloat& _b) const
@@ -97,9 +97,9 @@ public:
 
 
 private:
-    Texture*    m_normalTexture;
-    Texture*    m_occlusionTexture;
-    Texture*    m_emissiveTexture;
+    const Texture*    m_normalTexture;
+    const Texture*    m_occlusionTexture;
+    const Texture*    m_emissiveTexture;
 
     ionFloat    m_emissiveColor[3];
     ionFloat    m_alphaCutoff;

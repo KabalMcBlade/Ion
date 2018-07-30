@@ -43,14 +43,12 @@ public:
     ionFloat GetFovDeg() const { return NIX_RAD_TO_DEG(m_fov); }
     ionFloat GetFovRad() const { return m_fov; }
 
-    const EntityHandle& GetSkyBox() const { return m_skybox; }
-
     const Matrix& GetPerspectiveProjection() const { return m_projection; }
     const Matrix& GetView() const { return m_view; }
 
     const Frustum& GetFrustum() const { return m_frustum; }
 
-    void CreateSkyBox(const eosString& _filepath, const eosString& _filename, EVertexLayout _layout, const eosString& _vertexShaderPath, const eosString& _vertexShadername, const eosString& _fragmentShaderPath, const eosString& _fragmentShadername);
+    void AttachSkyBox(EntityHandle& _skyBox);
 
     //////////////////////////////////////////////////////////////////////////
     // Setting
@@ -85,8 +83,6 @@ private:
 private:
     Matrix  m_projection;
     Matrix  m_view;
-
-    EntityHandle m_skybox;
 
     Frustum m_frustum;
 

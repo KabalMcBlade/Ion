@@ -33,8 +33,7 @@ Camera::Camera() :
     m_clearRed(1.0f),
     m_clearGreen(1.0f),
     m_clearBlue(1.0f),
-    m_clearStencilValue(0),
-    m_skybox(nullptr)
+    m_clearStencilValue(0)
 {
     m_nodeType = ENodeType_Camera;
 }
@@ -129,13 +128,11 @@ void Camera::UpdateView()
     m_frustum.Update(m_projection, m_view);
 }
 
-void Camera::CreateSkyBox(const eosString& _filepath, const eosString& _filename, EVertexLayout _layout, const eosString& _vertexShaderPath, const eosString& _vertexShadername, const eosString& _fragmentShaderPath, const eosString& _fragmentShadername)
+void Camera::AttachSkyBox(EntityHandle& _skyBox)
 {
-    if (!m_skybox.IsValid())
+    if (_skyBox.IsValid())
     {
-        m_skybox = eosNew(Skybox, ION_MEMORY_ALIGNMENT_SIZE, _filepath, _filename, _layout, _vertexShaderPath, _vertexShadername, _fragmentShaderPath, _fragmentShadername);
-
-        m_skybox->AttachToParent(*this);
+        _skyBox->AttachToParent(*this);
     }
 }
 
