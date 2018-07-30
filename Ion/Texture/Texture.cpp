@@ -589,7 +589,7 @@ ionBool Texture::Create()
 
             if (m_optFormat == ETextureFormat_Depth)
             {
-                createInfo.usage &= ~VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
+                createInfo.usage &= ~VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
                 createInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
             }
             
@@ -656,7 +656,7 @@ ionU32 Texture::BitsPerFormat(ETextureFormat _format) const
     case ETextureFormat_Alpha:              return 8;
     case ETextureFormat_Luminance8:         return 8;
     case ETextureFormat_Intensity8:         return 8;
-    case ETextureFormat_HDR:                return 48;
+    case ETextureFormat_HDR:                return 64;//48;
     case ETextureFormat_BRDF:               return 32;
     case ETextureFormat_Depth:              return 32;  // should be 24, but it works with 32
     case ETextureFormat_Irradiance:             return 128;
