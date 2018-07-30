@@ -662,6 +662,8 @@ ionU32 Texture::BitsPerFormat(ETextureFormat _format) const
     case ETextureFormat_HDR:                return 48;
     case ETextureFormat_BRDF:               return 32;
     case ETextureFormat_Depth:              return 32;  // should be 24, but it works with 32
+    case ETextureFormat_Irradiance:             return 128;
+    case ETextureFormat_PrefilteredEnvironment: return 64;
     default:
         ionAssertReturnValue(false, "Invalid format!", 0);
         return 0;
@@ -746,6 +748,8 @@ VkFormat Texture::GetVulkanFormatFromTextureFormat(ETextureFormat _format)
     case ETextureFormat_HDR: return VK_FORMAT_R16G16B16A16_SFLOAT;
     case ETextureFormat_BRDF: return VK_FORMAT_R16G16_SFLOAT;
     case ETextureFormat_Depth: return ionTextureManger().GetDepthFormat(); //VK_FORMAT_R8G8B8_UNORM;
+    case ETextureFormat_Irradiance: return VK_FORMAT_R32G32B32A32_SFLOAT;
+    case ETextureFormat_PrefilteredEnvironment: return VK_FORMAT_R16G16B16A16_SFLOAT;
     default:
         return VK_FORMAT_UNDEFINED;
     }
@@ -863,7 +867,7 @@ ionBool Texture::CreateSampler()
         ionAssertReturnValue(false, "Texture repeat mode not supported", false);
     }
 
-    if (m_optFormat == ETextureFormat_BRDF)
+    if (m_optFormat == ETextureFormat_BRDF || m_optFormat == ETextureFormat_Irradiance || m_optFormat == ETextureFormat_PrefilteredEnvironment)
     {
         createInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
     }

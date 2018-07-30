@@ -72,6 +72,12 @@ public:
     Texture*    GenerateBRDF();
     Texture*    GetBRDF();
 
+    Texture*    GenerateIrradianceCubemap();
+    Texture*    GetIrradianceCubemap();
+
+    Texture*    GeneratePrefilteredEnvironmentCubemap();
+    Texture*    GetPrefilteredEnvironmentCubemap();
+
 private:
     RenderManager(const RenderManager& _Orig) = delete;
     RenderManager& operator = (const RenderManager&) = delete;

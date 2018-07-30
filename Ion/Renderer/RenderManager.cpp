@@ -23,6 +23,9 @@
 #define ION_BRDFLUT_TEXTURENAME    "BRDFLUT"
 #define ION_BRDFLUT_SHADER_NAME    "GenerateBRDFLUT"
 
+#define ION_IRRADIANCE_TEXTURENAME    "IRRADIANCE"
+#define ION_PREFILTEREDENVIRONMENT_TEXTURENAME    "PREFILTERED_ENVIRONMENT"
+
 //#define SHADOW_MAP_SIZE                    1024
 
 #define ION_CACHE_LINE_SIZE        128
@@ -316,6 +319,57 @@ Texture* RenderManager::GetBRDF()
         brdflut = GenerateBRDF();
     }
     return brdflut;
+}
+
+Texture* RenderManager::GenerateIrradianceCubemap()
+{
+    const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
+
+    const Vector cameraPos(0.0f, 0.0f, -1.0f, 0.0f);
+    const Quaternion cameraRot(NIX_DEG_TO_RAD(0.0f), up);
+
+    const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(64))) + 1;
+
+    Texture* irradiance = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME, 64, 64, ETextureFormat_Irradiance, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureType_Cubic, mipMapsLevel);
+
+
+
+    ionTextureManger().GenerateMipMaps(irradiance);
+
+    return irradiance;
+}
+
+Texture* RenderManager::GetIrradianceCubemap()
+{
+    Texture* irradiance = ionTextureManger().GetTexture(ION_IRRADIANCE_TEXTURENAME);
+    if (irradiance == nullptr)
+    {
+        irradiance = GenerateIrradianceCubemap();
+    }
+    return irradiance;
+}
+
+Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap()
+{
+    const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(512))) + 1;
+
+    Texture* prefilteredEnvironment = ionTextureManger().GenerateTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME, 512, 512, ETextureFormat_PrefilteredEnvironment, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureType_Cubic, mipMapsLevel);
+
+
+
+    ionTextureManger().GenerateMipMaps(prefilteredEnvironment);
+
+    return prefilteredEnvironment;
+}
+
+Texture*RenderManager:: GetPrefilteredEnvironmentCubemap()
+{
+    Texture* prefilteredEnvironment = ionTextureManger().GetTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME);
+    if (prefilteredEnvironment == nullptr)
+    {
+        prefilteredEnvironment = GeneratePrefilteredEnvironmentCubemap();
+    }
+    return prefilteredEnvironment;
 }
 
 ION_NAMESPACE_END
