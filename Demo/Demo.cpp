@@ -173,10 +173,10 @@ int main()
     static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
 
 
-    Vector cameraPos(0.0f, 0.0f, 0.0f, 0.0f);
+    Vector cameraPos(0.0f, 0.0f, -3.0f, 0.0f);
     Quaternion cameraRot(NIX_DEG_TO_RAD(0.0f), up);
 
-    Vector entityPos(0.0f, 0.0f, 2.0f, 0.0f);
+    Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
     Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
 
     //////////////////////////////////////////////////////////////////////////
@@ -195,6 +195,8 @@ int main()
     
     // generate irradiance and prefiltered cube map
     {
+        Vector cameraGenPos(0.0f, 0.0f, 0.0f, 0.0f);
+
         EntityHandle skyboxEnvironmentMap = eosNew(Skybox, ION_MEMORY_ALIGNMENT_SIZE, "SkyboxEnvironmentMapGeneration");
         Skybox* skyboxPtr = dynamic_cast<Skybox*>(skyboxEnvironmentMap.GetPtr());
         skyboxPtr->SetLayout(ion::EVertexLayout::EVertexLayout_Pos);
@@ -236,8 +238,7 @@ int main()
         //
         CameraHandle camera = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE);
         camera->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
-        //camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
-        camera->GetTransformHandle()->SetPosition(cameraPos);
+        camera->GetTransformHandle()->SetPosition(cameraGenPos);
         camera->GetTransformHandle()->SetRotation(cameraRot);
         camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
         camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
@@ -264,7 +265,7 @@ int main()
     EntityHandle skybox = eosNew(Skybox, ION_MEMORY_ALIGNMENT_SIZE, "Skybox");
     Skybox* skyboxPtr = dynamic_cast<Skybox*>(skybox.GetPtr());
     skyboxPtr->SetLayout(ion::EVertexLayout::EVertexLayout_Pos);
-    skyboxPtr->SetCubemap(irradiance);
+    skyboxPtr->SetCubemap(skyboxCubeMap);
 
     // one uniform structure bound in the index 0 in the shader stage
     ion::UniformBinding uniform;
