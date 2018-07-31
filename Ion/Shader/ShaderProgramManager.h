@@ -86,7 +86,6 @@ public:
     ionS32  FindProgram(const eosString& _name, EVertexLayout _vertexLayout, const ConstantsBindingDef& _constants, ionS32 _vertexIndex, ionS32 _fragmentIndex = -1, ionS32 _tessellationControlIndex = -1, ionS32 _tessellationEvaluationIndex = -1, ionS32 _geometryIndex = -1, ionBool _useJoint = false, ionBool _useSkinning = false);
 
     void    UnloadShader(ionS32 _index);
-    void    UnloadProgram(ionS32 _index);
 
     void    Restart();
 

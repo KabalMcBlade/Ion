@@ -217,15 +217,17 @@ int main()
 
         skyboxPtr->SetShaders("SkyboxEnvironmentMapGeneration", constants, vertexShaderIndex, fragmentShaderIndex);
 
-        Texture* irradiance = ionRenderManager().GenerateIrradianceCubemap(environmentCubeMap, skyboxEnvironmentMap);
-        //Texture* prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(environmentCubeMap, skyboxEnvironmentMap);
+        // generation
+        irradiance = ionRenderManager().GenerateIrradianceCubemap(environmentCubeMap, skyboxEnvironmentMap);
+        //prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(environmentCubeMap, skyboxEnvironmentMap);
 
         // I need to clean here, because I'm using the same shader after, so I need to recreate it
         const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("SkyboxEnvironmentMapGeneration", ion::EVertexLayout::EVertexLayout_Pos, constants, vertexShaderIndex, fragmentShaderIndex, -1, -1, -1, false, false);
-        ionShaderProgramManager().UnloadProgram(shaderProgramIndex);
-
+        //ionShaderProgramManager().UnloadProgram(shaderProgramIndex);
+        
         ionShaderProgramManager().UnloadShader(vertexShaderIndex);
         ionShaderProgramManager().UnloadShader(fragmentShaderIndex);
+        ionShaderProgramManager().Restart();
     }
 
     //////////////////////////////////////////////////////////////////////////

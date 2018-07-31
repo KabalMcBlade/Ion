@@ -89,22 +89,6 @@ void ShaderProgramManager::UnloadShader(ionS32 _index)
     shader.m_shaderModule = VK_NULL_HANDLE;
 }
 
-void ShaderProgramManager::UnloadProgram(ionS32 _index)
-{
-    ionAssertReturnVoid(_index >= 0 && _index < m_shaderPrograms.size(), "index out of bound");
-
-    ShaderProgram& shaderProgram = m_shaderPrograms[_index];
-
-    for (ionSize j = 0; j < shaderProgram.m_pipelines.size(); ++j)
-    {
-        vkDestroyPipeline(m_vkDevice, shaderProgram.m_pipelines[j].m_pipeline, vkMemory);
-    }
-    shaderProgram.m_pipelines.clear();
-
-    vkDestroyPipelineLayout(m_vkDevice, shaderProgram.m_pipelineLayout, vkMemory);
-    vkDestroyDescriptorSetLayout(m_vkDevice, shaderProgram.m_descriptorSetLayout, vkMemory);
-}
-
 void ShaderProgramManager::Shutdown()
 {
     for (ionSize i = 0; i < m_shaders.size(); ++i) 

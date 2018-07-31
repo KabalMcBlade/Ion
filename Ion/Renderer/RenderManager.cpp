@@ -384,7 +384,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
     irradianceEntity->GetTransformHandle()->SetRotation(entityRot);
 
     // shader has position input
-    LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Cube, *irradianceEntity);
+    LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, *irradianceEntity);
 
     Material* material = ionMaterialManger().CreateMaterial(ION_IRRADIANCE_TEXTURENAME, 0u);
     irradianceEntity->GetMesh(0)->SetMaterial(material);
@@ -663,9 +663,323 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     Texture* prefilteredEnvironment = ionTextureManger().GenerateTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME, 512, 512, ETextureFormat_PrefilteredEnvironment, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureType_Cubic, mipMapsLevel);
     Texture* offscreen = ionTextureManger().GenerateTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME_OFFSCREEN, 512, 512, ETextureFormat_PrefilteredEnvironment, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureType_2D);
 
+    //
+    // Transition between prefilteredEnvironment and offscreen
+    VkRenderPass renderPass = m_renderCore.CreateTexturedRenderPass(prefilteredEnvironment, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    VkFramebuffer framebuffer = m_renderCore.CreateTexturedFrameBuffer(renderPass, offscreen);  // frame buffer on the offscreen
+
+    VkCommandBuffer layoutCmd = m_renderCore.CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+
+    ionStagingBufferManager().Submit();
+    ionShaderProgramManager().StartFrame();
+
+    if (m_renderCore.BeginCustomCommandBuffer(layoutCmd))
+    {
+        VkImageMemoryBarrier imageMemoryBarrier{};
+        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        imageMemoryBarrier.image = offscreen->GetImage();
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        imageMemoryBarrier.srcAccessMask = 0;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+        vkCmdPipelineBarrier(layoutCmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+
+        m_renderCore.EndCustomCommandBuffer(layoutCmd);
+        m_renderCore.FlushCustomCommandBuffer(layoutCmd);
+    }
+
+    //
+    // generation of the entity and camera render
+    const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
+    const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
+    const Vector cameraPos(0.0f, 0.0f, -1.0f, 0.0f);
+    const Quaternion cameraRot(NIX_DEG_TO_RAD(0.0f), up);
+    const Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
+    const Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
+
+    CameraHandle camera = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE);
+    camera->SetCameraType(Camera::ECameraType::ECameraType_FirstPerson);
+    camera->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(prefilteredEnvironment->GetWidth()) / static_cast<ionFloat>(prefilteredEnvironment->GetHeight()), 0.1f, 256.0f);
+    camera->GetTransformHandle()->SetPosition(cameraPos);
+    camera->GetTransformHandle()->SetRotation(cameraRot);
+    camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
+    camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+    camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
+
+    EntityHandle prefilteredEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+    prefilteredEntity->GetTransformHandle()->SetPosition(entityPos);
+    prefilteredEntity->GetTransformHandle()->SetRotation(entityRot);
+
+    // shader has position input
+    LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, *prefilteredEntity);
+
+    Material* material = ionMaterialManger().CreateMaterial(ION_IRRADIANCE_TEXTURENAME, 0u);
+    prefilteredEntity->GetMesh(0)->SetMaterial(material);
+
+    //
+    UniformBinding uniform;
+    uniform.m_bindingIndex = 0;
+    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(EUniformParameterType_Matrix);
+    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+    uniform.m_type.push_back(EUniformParameterType_Matrix);
+
+    //
+    SamplerBinding sampler;
+    sampler.m_bindingIndex = 1;
+    sampler.m_texture = _environmentCubeMap;
+
+    //
+    ConstantsBindingDef constants;
+    constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
+    constants.m_values.push_back(0.0f);
+    constants.m_values.push_back(32.0f);
+
+
+    ShaderLayoutDef vertexLayout;
+    vertexLayout.m_uniforms.push_back(uniform);
+
+    ShaderLayoutDef fragmentLayout;
+    fragmentLayout.m_samplers.push_back(sampler);
+
+
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_PREFILTERED_VERTEX_SHADER_NAME, EShaderStage_Vertex, vertexLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_FRAGMENT_SHADER_NAME, EShaderStage_Fragment, fragmentLayout);
+
+    prefilteredEntity->GetMesh(0)->GetMaterial()->SetConstantsShaders(constants);
+    prefilteredEntity->GetMesh(0)->GetMaterial()->SetShaderProgramName(ION_IRRADIANCE_FRAGMENT_SHADER_NAME);
+    prefilteredEntity->GetMesh(0)->GetMaterial()->SetVertexLayout(prefilteredEntity->GetMesh(0)->GetLayout());
+
+    prefilteredEntity->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+
+    prefilteredEntity->GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ECullingMode_TwoSide);
+
+    //
+    // render phase
+    VkCommandBuffer cmdBuffer = m_renderCore.CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+
+    ionStagingBufferManager().Submit();
+    ionShaderProgramManager().StartFrame();
+
+    if (m_renderCore.BeginCustomCommandBuffer(cmdBuffer))
+    {
+        eosVector(VkClearValue) clearValues;
+        clearValues.resize(1);
+        clearValues[0].color = { { 0.0f, 0.0f, 0.2f, 0.0f } };
+
+        camera->SetViewport(m_renderCore, cmdBuffer, 0, 0, prefilteredEnvironment->GetWidth(), prefilteredEnvironment->GetHeight());
+        camera->SetScissor(m_renderCore, cmdBuffer, 0, 0, prefilteredEnvironment->GetWidth(), prefilteredEnvironment->GetHeight());
+
+
+        // Swap
+        VkImageSubresourceRange subresourceRange{};
+        subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        subresourceRange.baseMipLevel = 0;
+        subresourceRange.levelCount = mipMapsLevel;
+        subresourceRange.layerCount = 6;
+
+        {
+            VkImageMemoryBarrier imageMemoryBarrier{};
+            imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            imageMemoryBarrier.image = prefilteredEnvironment->GetImage();
+            imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            imageMemoryBarrier.srcAccessMask = 0;
+            imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            imageMemoryBarrier.subresourceRange = subresourceRange;
+            vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+        }
+
+
+        eosVector(Quaternion) rotations;
+        rotations.resize(6);
+
+        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(0.0f), up));
+        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), up));
+        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(180.0f), up));
+        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(270.0f), up));
+        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), right));
+        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(270.0f), right));
+
+        for (ionU32 m = 0; m < mipMapsLevel; ++m)
+        {
+            for (ionU32 f = 0; f < 6; ++f)
+            {
+                camera->SetViewport(m_renderCore, cmdBuffer, 0, 0, static_cast<ionS32>(prefilteredEnvironment->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(prefilteredEnvironment->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
+
+                camera->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(prefilteredEnvironment->GetWidth()), static_cast<ionU32>(prefilteredEnvironment->GetHeight()));
+
+                // rotate the camera here
+                camera->GetTransformHandle()->SetRotation(rotations[f]);
+                camera->Update(0.0f);
+
+
+                // Draw skybox
+                {
+                    const Matrix& projection = camera->GetPerspectiveProjection();
+                    const Matrix& view = camera->GetView();
+
+                    const Matrix& model = _skyboxEntity->GetTransformHandle()->GetMatrixWS();
+
+                    DrawSurface drawSurface;
+
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[0], model[0]);
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[4], model[1]);
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[8], model[2]);
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[12], model[3]);
+
+                    _mm_storeu_ps(&drawSurface.m_viewMatrix[0], view[0]);
+                    _mm_storeu_ps(&drawSurface.m_viewMatrix[4], view[1]);
+                    _mm_storeu_ps(&drawSurface.m_viewMatrix[8], view[2]);
+                    _mm_storeu_ps(&drawSurface.m_viewMatrix[12], view[3]);
+
+                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[0], projection[0]);
+                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[4], projection[1]);
+                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], projection[2]);
+                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], projection[3]);
+
+                    drawSurface.m_visible = _skyboxEntity->IsVisible();
+                    drawSurface.m_indexStart = _skyboxEntity->GetMesh(0)->GetIndexStart();
+                    drawSurface.m_indexCount = _skyboxEntity->GetMesh(0)->GetIndexCount();
+                    drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(_skyboxEntity->GetMesh(0)->GetVertexData(), _skyboxEntity->GetMesh(0)->GetVertexSize());
+                    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(_skyboxEntity->GetMesh(0)->GetIndexData(), _skyboxEntity->GetMesh(0)->GetIndexSize());
+                    drawSurface.m_material = _skyboxEntity->GetMesh(0)->GetMaterial();
+
+                    m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
+                    m_renderCore.Draw(cmdBuffer, renderPass, drawSurface);
+                }
+
+                // draw prefilteredEnvironment
+                {
+                    //
+                    prefilteredEntity->GetMesh(0)->GetMaterial()->GetConstantsShaders().m_values[0] = (ionFloat)m / (ionFloat)(mipMapsLevel - 1);
+
+                    const Matrix& projection = camera->GetPerspectiveProjection();
+                    const Matrix& view = camera->GetView();
+
+                    const Matrix& model = prefilteredEntity->GetTransformHandle()->GetMatrixWS();
+
+                    DrawSurface drawSurface;
+
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[0], model[0]);
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[4], model[1]);
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[8], model[2]);
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[12], model[3]);
+
+                    _mm_storeu_ps(&drawSurface.m_viewMatrix[0], view[0]);
+                    _mm_storeu_ps(&drawSurface.m_viewMatrix[4], view[1]);
+                    _mm_storeu_ps(&drawSurface.m_viewMatrix[8], view[2]);
+                    _mm_storeu_ps(&drawSurface.m_viewMatrix[12], view[3]);
+
+                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[0], projection[0]);
+                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[4], projection[1]);
+                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], projection[2]);
+                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], projection[3]);
+
+                    drawSurface.m_visible = prefilteredEntity->IsVisible();
+                    drawSurface.m_indexStart = prefilteredEntity->GetMesh(0)->GetIndexStart();
+                    drawSurface.m_indexCount = prefilteredEntity->GetMesh(0)->GetIndexCount();
+                    drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(prefilteredEntity->GetMesh(0)->GetVertexData(), prefilteredEntity->GetMesh(0)->GetVertexSize());
+                    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(prefilteredEntity->GetMesh(0)->GetIndexData(), prefilteredEntity->GetMesh(0)->GetIndexSize());
+                    drawSurface.m_material = prefilteredEntity->GetMesh(0)->GetMaterial();
+
+                    m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
+                    m_renderCore.Draw(cmdBuffer, renderPass, drawSurface);
+                }
+
+
+                camera->EndRenderPass(m_renderCore, cmdBuffer);
+
+
+
+                VkImageSubresourceRange subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+                subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                subresourceRange.baseMipLevel = 0;
+                subresourceRange.levelCount = mipMapsLevel;
+                subresourceRange.layerCount = 6;
+
+                {
+                    VkImageMemoryBarrier imageMemoryBarrier{};
+                    imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                    imageMemoryBarrier.image = offscreen->GetImage();
+                    imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                    imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                    imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                    imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                    imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+                    vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+                }
+
+                // Copy region for transfer from framebuffer to cube face
+                VkImageCopy copyRegion{};
+
+                copyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                copyRegion.srcSubresource.baseArrayLayer = 0;
+                copyRegion.srcSubresource.mipLevel = 0;
+                copyRegion.srcSubresource.layerCount = 1;
+                copyRegion.srcOffset = { 0, 0, 0 };
+
+                copyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                copyRegion.dstSubresource.baseArrayLayer = f;
+                copyRegion.dstSubresource.mipLevel = m;
+                copyRegion.dstSubresource.layerCount = 1;
+                copyRegion.dstOffset = { 0, 0, 0 };
+
+                copyRegion.extent.width = static_cast<ionU32>(prefilteredEnvironment->GetWidth()* std::powf(0.5f, static_cast<ionFloat>(m)));
+                copyRegion.extent.height = static_cast<ionU32>(prefilteredEnvironment->GetHeight()* std::powf(0.5f, static_cast<ionFloat>(m)));
+                copyRegion.extent.depth = 1;
+
+                vkCmdCopyImage(
+                    cmdBuffer,
+                    offscreen->GetImage(),
+                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    prefilteredEnvironment->GetImage(),
+                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    1,
+                    &copyRegion);
+
+                {
+                    VkImageMemoryBarrier imageMemoryBarrier{};
+                    imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                    imageMemoryBarrier.image = offscreen->GetImage();
+                    imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                    imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                    imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                    imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                    imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+                    vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+                }
+            }
+        }
+
+
+        // Swap back
+        {
+            VkImageMemoryBarrier imageMemoryBarrier{};
+            imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            imageMemoryBarrier.image = prefilteredEnvironment->GetImage();
+            imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            imageMemoryBarrier.dstAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+            imageMemoryBarrier.subresourceRange = subresourceRange;
+            vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+        }
+
+
+        m_renderCore.EndCustomCommandBuffer(cmdBuffer);
+        m_renderCore.FlushCustomCommandBuffer(cmdBuffer);
+    }
+
+    m_renderCore.DestroyRenderPass(renderPass);
+    m_renderCore.DestroyFrameBuffer(framebuffer);
+
 
     
-    ionTextureManger().GenerateMipMaps(prefilteredEnvironment);
+
     ionTextureManger().DestroyTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME_OFFSCREEN);
 
     return prefilteredEnvironment;

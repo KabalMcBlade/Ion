@@ -136,6 +136,7 @@ public:
 
     void SetConstantsShaders(const ConstantsBindingDef& _constants) { m_constants = _constants; m_constants.m_runtimeStages = (VkShaderStageFlagBits)m_constants.m_shaderStages; }
     const ConstantsBindingDef& GetConstantsShaders() const { return m_constants; }
+    ConstantsBindingDef& GetConstantsShaders() { return m_constants; }
 
 private:
     eosString       m_name;
