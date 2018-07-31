@@ -167,13 +167,29 @@ int main()
 
 
     //////////////////////////////////////////////////////////////////////////
+
+    static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
+    static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
+    static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
+
+
+    Vector cameraPos(0.0f, 0.0f, 0.0f, 0.0f);
+    Quaternion cameraRot(NIX_DEG_TO_RAD(0.0f), up);
+
+    Vector entityPos(0.0f, 0.0f, 2.0f, 0.0f);
+    Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
+
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
     // Generate and load all global texture
     eosString environmentCubeMapPath = ionFileSystemManager().GetTexturesPath() + "grace_cross.hdr";
     eosString skyboxCubeMapPath = ionFileSystemManager().GetTexturesPath() + "ashcanyon.tga";
 
-    Texture* brdflut = ionRenderManager().GenerateBRDF();
     Texture* environmentCubeMap = ionTextureManger().CreateTextureFromFile("grace_cross", environmentCubeMapPath, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_Skybox /*ETextureUsage_SkyboxHDR*/, ETextureType_Cubic, 1);
     Texture* skyboxCubeMap = ionTextureManger().CreateTextureFromFile("ashcanyon", skyboxCubeMapPath, ETextureFilter_Default, ETextureRepeat_ClampAlpha, ETextureUsage_Skybox, ETextureType_Cubic, 1);
+    
+    Texture* brdflut = nullptr;
     Texture* irradiance = nullptr;
     Texture* prefilteredEnvironmentMap = nullptr;
     
@@ -217,9 +233,21 @@ int main()
 
         skyboxPtr->SetShaders("SkyboxEnvironmentMapGeneration", constants, vertexShaderIndex, fragmentShaderIndex);
 
+        //
+        CameraHandle camera = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE);
+        camera->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
+        //camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
+        camera->GetTransformHandle()->SetPosition(cameraPos);
+        camera->GetTransformHandle()->SetRotation(cameraRot);
+        camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
+        camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+        camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
+        camera->AttachSkyBox(skyboxEnvironmentMap);
+
         // generation
-        irradiance = ionRenderManager().GenerateIrradianceCubemap(environmentCubeMap, skyboxEnvironmentMap);
-        //prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(environmentCubeMap, skyboxEnvironmentMap);
+        brdflut = ionRenderManager().GenerateBRDF(camera);
+        //irradiance = ionRenderManager().GenerateIrradianceCubemap(environmentCubeMap, camera, skyboxEnvironmentMap);
+        //prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(environmentCubeMap, camera, skyboxEnvironmentMap);
 
         // I need to clean here, because I'm using the same shader after, so I need to recreate it
         const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("SkyboxEnvironmentMapGeneration", ion::EVertexLayout::EVertexLayout_Pos, constants, vertexShaderIndex, fragmentShaderIndex, -1, -1, -1, false, false);
@@ -229,29 +257,14 @@ int main()
         ionShaderProgramManager().Restart();
     }
 
-    //////////////////////////////////////////////////////////////////////////
-
-    static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
-    static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
-    static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
-
-
-    Vector cameraPos(0.0f, 0.0f, -3.0f, 0.0f);
-    Quaternion cameraRot(NIX_DEG_TO_RAD(0.0f), up);
-
-    Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
-    Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
-
 
     //////////////////////////////////////////////////////////////////////////
     // Create SkyBox
-    
-
 
     EntityHandle skybox = eosNew(Skybox, ION_MEMORY_ALIGNMENT_SIZE, "Skybox");
     Skybox* skyboxPtr = dynamic_cast<Skybox*>(skybox.GetPtr());
     skyboxPtr->SetLayout(ion::EVertexLayout::EVertexLayout_Pos);
-    skyboxPtr->SetCubemap(skyboxCubeMap);
+    skyboxPtr->SetCubemap(irradiance);
 
     // one uniform structure bound in the index 0 in the shader stage
     ion::UniformBinding uniform;
