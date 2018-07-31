@@ -38,7 +38,7 @@ Texture::Texture(VkDevice _vkDevice, const eosString& _name) :
     m_optRepeat = ETextureRepeat_Repeat;
     m_optUsage = ETextureUsage_RGBA;
     m_optTextureType = ETextureType_2D;
-    m_optFormat = ETextureFormat_RGBA8;
+    m_optFormat = ETextureFormat_None;
 }
 
 Texture::~Texture()
@@ -52,7 +52,7 @@ void Texture::ConvertFrom3ChannelTo4Channel(ionU32 _width, ionU32 _height, const
     const ionU8* rgb = _inBuffer;
     for (ionSize i = 0; i < _width * _height; ++i)
     {
-        for (int32_t j = 0; j < 3; ++j)
+        for (ionS32 j = 0; j < 3; ++j)
         {
             rgba[j] = rgb[j];
         }
@@ -241,6 +241,21 @@ ionBool Texture::LoadCubeTextureFromFile(const eosString& _path)
     ionS32 w = 0, h = 0, c = 0;
     m_numLevels = 0;
 
+    /*
+    ionU8* buffer;// = stbi_load(_path.c_str(), &w, &h, &c, 0);
+    ionSize sizeOfType = 1;
+    if (stbi_is_hdr(_path.c_str()))
+    {
+        ionFloat *data = stbi_loadf(_path.c_str(), &w, &h, &c, 0);
+        buffer = reinterpret_cast<ionU8*>(data);
+        sizeOfType = sizeof(ionFloat);
+    }
+    else
+    {
+        buffer = stbi_load(_path.c_str(), &w, &h, &c, 0);
+        sizeOfType = sizeof(ionU8);
+    }
+    */
     ionU8* buffer = stbi_load(_path.c_str(), &w, &h, &c, 0);
 
     // will be replaced
@@ -252,7 +267,7 @@ ionBool Texture::LoadCubeTextureFromFile(const eosString& _path)
     ionU8* finalBuffer = buffer;
     if (c == 3)
     {
-        ionSize newBufferSize = m_width * m_height * 4;
+        ionSize newBufferSize = m_width * m_height * 4 /** sizeOfType*/;
         newBuffer = (ionU8*)eosNewRaw(sizeof(ionU8) * newBufferSize, ION_MEMORY_ALIGNMENT_SIZE);
         memset(newBuffer, 0, sizeof(ionU8) * newBufferSize);
         ConvertFrom3ChannelTo4Channel(m_width, m_height, buffer, newBuffer);
@@ -316,7 +331,7 @@ ionBool Texture::LoadCubeTextureFromFiles(const eosVector(eosString)& paths)
         {
             ionU8* buffer = stbi_load(paths[i].c_str(), &w, &h, &c, 0);
 
-            UploadTextureBuffer(buffer, c);
+            UploadTextureBuffer(buffer, c, i);
 
             stbi_image_free(buffer);
         }
@@ -442,8 +457,11 @@ void Texture::GenerateOptions()
         case ETextureUsage_RGB:
             m_optFormat = ETextureFormat_XRGB8;
             break;
-        case ETextureUsage_Skybox:
+        case ETextureUsage_SkyboxHDR:
             m_optFormat = ETextureFormat_HDR;
+            break;
+        case ETextureUsage_Skybox:
+            m_optFormat = ETextureFormat_RGBA8;
             break;
         default:
             ionAssertReturnVoid(false, "Cannot generate proper texture options!");
@@ -585,7 +603,8 @@ ionBool Texture::Create()
             createInfo.arrayLayers = (m_optTextureType == ETextureType_Cubic) ? 6 : 1;
             createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
             createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-            createInfo.usage = m_numLevels > 1 ? VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+            //createInfo.usage = m_numLevels > 1 ? VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+            createInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
             if (m_optFormat == ETextureFormat_Depth)
             {
@@ -787,12 +806,6 @@ VkComponentMapping Texture::GetVulkanComponentMappingFromTextureFormat(ETextureF
         componentMapping.g = VK_COMPONENT_SWIZZLE_R;
         componentMapping.b = VK_COMPONENT_SWIZZLE_R;
         componentMapping.a = VK_COMPONENT_SWIZZLE_R;
-        break;
-    case ETextureFormat_HDR:
-        componentMapping.r = VK_COMPONENT_SWIZZLE_R;
-        componentMapping.g = VK_COMPONENT_SWIZZLE_G;
-        componentMapping.b = VK_COMPONENT_SWIZZLE_B;
-        componentMapping.a = VK_COMPONENT_SWIZZLE_ONE;
         break;
     default:
         componentMapping.r = VK_COMPONENT_SWIZZLE_R;

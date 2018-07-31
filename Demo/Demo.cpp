@@ -167,9 +167,66 @@ int main()
 
 
     //////////////////////////////////////////////////////////////////////////
-    // Generate for future purpose
-    ionRenderManager().GenerateBRDF();
+    // Generate and load all global texture
+    eosString environmentCubeMapPath = ionFileSystemManager().GetTexturesPath() + "grace_cross.hdr";
+    eosString skyboxCubeMapPath = ionFileSystemManager().GetTexturesPath() + "ashcanyon.tga";
 
+    Texture* brdflut = ionRenderManager().GenerateBRDF();
+    Texture* environmentCubeMap = ionTextureManger().CreateTextureFromFile("grace_cross", environmentCubeMapPath, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_Skybox /*ETextureUsage_SkyboxHDR*/, ETextureType_Cubic, 1);
+    Texture* skyboxCubeMap = ionTextureManger().CreateTextureFromFile("ashcanyon", skyboxCubeMapPath, ETextureFilter_Default, ETextureRepeat_ClampAlpha, ETextureUsage_Skybox, ETextureType_Cubic, 1);
+    Texture* irradiance = nullptr;
+    Texture* prefilteredEnvironmentMap = nullptr;
+    
+    // generate irradiance and prefiltered cube map
+    {
+        EntityHandle skyboxEnvironmentMap = eosNew(Skybox, ION_MEMORY_ALIGNMENT_SIZE, "SkyboxEnvironmentMapGeneration");
+        Skybox* skyboxPtr = dynamic_cast<Skybox*>(skyboxEnvironmentMap.GetPtr());
+        skyboxPtr->SetLayout(ion::EVertexLayout::EVertexLayout_Pos);
+        skyboxPtr->SetCubemap(environmentCubeMap);
+
+        // one uniform structure bound in the index 0 in the shader stage
+        ion::UniformBinding uniform;
+        uniform.m_bindingIndex = 0;
+        uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+        uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+        uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+        uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+        uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+        uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+
+        // one sampler bound in the index 1 in the shader stage
+        ion::SamplerBinding sampler;
+        sampler.m_bindingIndex = 1;
+        sampler.m_texture = skyboxPtr->GetCubemapTexture();
+
+        // constants
+        ConstantsBindingDef constants;
+        constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
+        constants.m_values.push_back(4.5f);
+        constants.m_values.push_back(2.2f);
+
+        // set the shaders layout
+        ion::ShaderLayoutDef vertexLayout;
+        vertexLayout.m_uniforms.push_back(uniform);
+
+        ion::ShaderLayoutDef fragmentLayout;
+        fragmentLayout.m_samplers.push_back(sampler);
+
+        const ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBoxV1", ion::EShaderStage_Vertex, vertexLayout);
+        const ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBoxV2", ion::EShaderStage_Fragment, fragmentLayout);
+
+        skyboxPtr->SetShaders("SkyboxEnvironmentMapGeneration", constants, vertexShaderIndex, fragmentShaderIndex);
+
+        Texture* irradiance = ionRenderManager().GenerateIrradianceCubemap(environmentCubeMap, skyboxEnvironmentMap);
+        //Texture* prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(environmentCubeMap, skyboxEnvironmentMap);
+
+        // I need to clean here, because I'm using the same shader after, so I need to recreate it
+        const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("SkyboxEnvironmentMapGeneration", ion::EVertexLayout::EVertexLayout_Pos, constants, vertexShaderIndex, fragmentShaderIndex, -1, -1, -1, false, false);
+        ionShaderProgramManager().UnloadProgram(shaderProgramIndex);
+
+        ionShaderProgramManager().UnloadShader(vertexShaderIndex);
+        ionShaderProgramManager().UnloadShader(fragmentShaderIndex);
+    }
 
     //////////////////////////////////////////////////////////////////////////
 
@@ -187,13 +244,13 @@ int main()
 
     //////////////////////////////////////////////////////////////////////////
     // Create SkyBox
-    eosString skyboxFilePath = ionFileSystemManager().GetTexturesPath() + "grace_cross.hdr";
-    Texture* skybxoTexture = ionTextureManger().CreateTextureFromFile("grace_cross", skyboxFilePath, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_Skybox, ETextureType_Cubic, 1);
+    
+
 
     EntityHandle skybox = eosNew(Skybox, ION_MEMORY_ALIGNMENT_SIZE, "Skybox");
     Skybox* skyboxPtr = dynamic_cast<Skybox*>(skybox.GetPtr());
     skyboxPtr->SetLayout(ion::EVertexLayout::EVertexLayout_Pos);
-    skyboxPtr->SetCubemap(skybxoTexture);
+    skyboxPtr->SetCubemap(skyboxCubeMap);
 
     // one uniform structure bound in the index 0 in the shader stage
     ion::UniformBinding uniform;

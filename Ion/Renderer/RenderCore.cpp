@@ -1441,7 +1441,7 @@ ionBool RenderCore::StartFrame()
     ionAssertReturnValue(result == VK_SUCCESS, "Reset fences failed!", false);
 
     ionStagingBufferManager().Submit();
-    //ionShaderProgramManager().StartFrame();
+    ionShaderProgramManager().StartFrame();
     
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
 
@@ -1996,7 +1996,7 @@ void RenderCore::FlushCustomCommandBuffer(VkCommandBuffer _commandBuffer)
     vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, 1, &_commandBuffer);
 }
 
-VkRenderPass RenderCore::CreateTexturedRenderPass(Texture* _texture)
+VkRenderPass RenderCore::CreateTexturedRenderPass(Texture* _texture, VkImageLayout _finalLayout)
 {
     VkAttachmentDescription attDesc{};
 
@@ -2008,7 +2008,7 @@ VkRenderPass RenderCore::CreateTexturedRenderPass(Texture* _texture)
     attDesc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     attDesc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     attDesc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    attDesc.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    attDesc.finalLayout = _finalLayout;
     VkAttachmentReference colorReference = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
 
     VkSubpassDescription subpassDescription{};

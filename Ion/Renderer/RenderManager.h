@@ -72,10 +72,10 @@ public:
     Texture*    GenerateBRDF();
     Texture*    GetBRDF();
 
-    Texture*    GenerateIrradianceCubemap();
+    Texture*    GenerateIrradianceCubemap(const Texture* _environmentCubeMap, EntityHandle _skyboxEntity);
     Texture*    GetIrradianceCubemap();
 
-    Texture*    GeneratePrefilteredEnvironmentCubemap();
+    Texture*    GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, EntityHandle _skyboxEntity);
     Texture*    GetPrefilteredEnvironmentCubemap();
 
 private:

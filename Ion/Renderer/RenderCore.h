@@ -57,7 +57,7 @@ public:
     void Draw(VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, const DrawSurface& _surface);
     void DrawNoBinding(VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, const DrawSurface& _surface, ionU32 _vertexCount, ionU32 _instanceCount, ionU32 _firstVertex, ionU32 _firstInstance);
 
-    VkRenderPass CreateTexturedRenderPass(Texture* _texture);
+    VkRenderPass CreateTexturedRenderPass(Texture* _texture, VkImageLayout _finalLayout);
     VkFramebuffer CreateTexturedFrameBuffer(VkRenderPass _renderPass, Texture* _texture);
 
     void StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionU32 _width, ionU32 _height);

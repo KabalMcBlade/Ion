@@ -57,7 +57,8 @@ enum ETextureFormat
     ETextureUsage_RGBA,                // RGBA
     ETextureUsage_RGB,                // RGB
     ETextureUsage_Depth,                // Depth
-    ETextureUsage_Skybox                // skybox hdr
+    ETextureUsage_SkyboxHDR,                // skybox hdr
+    ETextureUsage_Skybox                // skybox
 };
 
  enum ETextureFilter
