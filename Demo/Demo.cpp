@@ -223,7 +223,6 @@ int main()
 
         // I need to clean here, because I'm using the same shader after, so I need to recreate it
         const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram("SkyboxEnvironmentMapGeneration", ion::EVertexLayout::EVertexLayout_Pos, constants, vertexShaderIndex, fragmentShaderIndex, -1, -1, -1, false, false);
-        //ionShaderProgramManager().UnloadProgram(shaderProgramIndex);
         
         ionShaderProgramManager().UnloadShader(vertexShaderIndex);
         ionShaderProgramManager().UnloadShader(fragmentShaderIndex);
