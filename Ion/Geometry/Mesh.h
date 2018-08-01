@@ -30,7 +30,7 @@ public:
         m_material = nullptr;
     }
 
-    ~BaseMesh()
+    virtual ~BaseMesh()
     {
         m_indexes.clear();
         m_material = nullptr;
@@ -136,7 +136,7 @@ public:
     {
     }
 
-    ~MeshPlain()
+    virtual ~MeshPlain()
     {
         m_vertexes.clear();
     }
@@ -174,7 +174,7 @@ public:
     {
     }
 
-    ~MeshColored()
+    virtual ~MeshColored()
     {
         m_vertexes.clear();
     }
@@ -211,7 +211,7 @@ public:
     {
     }
 
-    ~MeshUV()
+    virtual ~MeshUV()
     {
         m_vertexes.clear();
     }
@@ -249,7 +249,7 @@ public:
     {
     }
 
-    ~MeshSimple()
+    virtual ~MeshSimple()
     {
         m_vertexes.clear();
     }
@@ -286,7 +286,7 @@ public:
     {
     }
 
-    ~Mesh()
+    virtual ~Mesh()
     {
         m_vertexes.clear();
     }

@@ -26,16 +26,16 @@ Skybox::~Skybox()
 
 void Skybox::SetLayout(EVertexLayout _layout)
 {
-    ionRenderManager().LoadPrimitive(_layout, ion::EPrimitiveType_Cube, *this);
+    ionRenderManager().LoadPrimitive(_layout, EPrimitiveType_Cube, *this);
 
-    ion::Material* material = ionMaterialManger().CreateMaterial(GetName(), 0u);
+    Material* material = ionMaterialManger().CreateMaterial(GetName(), 0u);
 
     GetMesh(0)->SetMaterial(material);
 }
 
 void Skybox::SetCubemap(const Texture* _cubemap)
 {
-    ion::Material* material = ionMaterialManger().GetMaterial(GetName());
+    Material* material = ionMaterialManger().GetMaterial(GetName());
     material->GetBasePBR().SetBaseColorTexture(_cubemap);
 }
 
@@ -49,9 +49,9 @@ void Skybox::SetShaders(const eosString& _shaderProgramName, const ConstantsBind
     GetMesh(0)->GetMaterial()->SetShaders(_vertexIndex, _fragmentIndex, _tessellationControlIndex, _tessellationEvaluationIndex, _geometryIndex);
 
     // default setting
-    GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_Front);
-    GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
-    GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+    GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ECullingMode_Front);
+    GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(EDepthFunction_Less);
+    GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
 }
 
 const Texture* Skybox::GetCubemapTexture() const
