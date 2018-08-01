@@ -13,8 +13,8 @@ ION_NAMESPACE_BEGIN
 SceneGraph::SceneGraph()
 {
     m_rootHandle = eosNew(Node, ION_MEMORY_ALIGNMENT_SIZE);
-    m_rootHandle->GetTransformHandle()->SetPosition(VectorHelper::Get0001());
-    m_rootHandle->GetTransformHandle()->SetRotation(VectorHelper::Get0001());
+    m_rootHandle->GetTransform().SetPosition(VectorHelper::Get0001());
+    m_rootHandle->GetTransform().SetRotation(VectorHelper::Get0001());
 }
 
 SceneGraph::~SceneGraph()
@@ -161,7 +161,7 @@ void SceneGraph::Prepare()
 
 void SceneGraph::UpdateDrawSurface(ionSize _cameraHash, const Matrix& _projection, const Matrix& _view, const EntityHandle& _entity, ionU32 _index)
 {
-    const Matrix& model = _entity->GetTransformHandle()->GetMatrixWS();
+    const Matrix& model = _entity->GetTransform().GetMatrixWS();
 
     _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_modelMatrix[0], model[0]);
     _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_modelMatrix[4], model[1]);

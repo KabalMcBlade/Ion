@@ -113,8 +113,8 @@ void Camera::SetCameraType(ECameraType _type)
 
 void Camera::UpdateView()
 {
-    Matrix rotation = GetTransformHandle()->GetRotation().ToMatrix();
-    Matrix translate; translate = translate.Translate(GetTransformHandle()->GetPosition());
+    Matrix rotation = GetTransform().GetRotation().ToMatrix();
+    Matrix translate; translate = translate.Translate(GetTransform().GetPosition());
 
     if (m_type == ECameraType::ECameraType_LookAt)
     {

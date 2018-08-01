@@ -31,7 +31,7 @@ Entity::~Entity()
 
 BoundingBox Entity::GetTransformedBoundingBox()
 {
-    return m_boundingBox.GetTransformed(GetTransformHandle()->GetMatrix());
+    return m_boundingBox.GetTransformed(GetTransform().GetMatrix());
 }
 
 ionU32 Entity::GetMeshCount() const

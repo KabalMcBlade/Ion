@@ -12,10 +12,7 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-class Transform;
-typedef SmartPointer<Transform> TransformHandle;
-
-class ION_DLL Transform final : public SmartObject
+class ION_DLL Transform final
 {
 public:
     explicit Transform();

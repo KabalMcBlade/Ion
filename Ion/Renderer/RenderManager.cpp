@@ -228,8 +228,8 @@ Texture* RenderManager::GenerateBRDF(CameraHandle _camera)
     _camera->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(brdflut->GetWidth()) / static_cast<ionFloat>(brdflut->GetHeight()), 0.1f, 256.0f);
 
     EntityHandle brdflutEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
-    brdflutEntity->GetTransformHandle()->SetPosition(entityPos);
-    brdflutEntity->GetTransformHandle()->SetRotation(entityRot);
+    brdflutEntity->GetTransform().SetPosition(entityPos);
+    brdflutEntity->GetTransform().SetRotation(entityRot);
 
     LoadPrimitive(EVertexLayout_Empty, EPrimitiveType_Quad, *brdflutEntity);
 
@@ -271,7 +271,7 @@ Texture* RenderManager::GenerateBRDF(CameraHandle _camera)
         const Matrix& projection = _camera->GetPerspectiveProjection();
         const Matrix& view = _camera->GetView();
 
-        const Matrix& model = brdflutEntity->GetTransformHandle()->GetMatrixWS();
+        const Matrix& model = brdflutEntity->GetTransform().GetMatrixWS();
 
         DrawSurface drawSurface;
 
@@ -358,8 +358,8 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
     _camera->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(irradiance->GetWidth()) / static_cast<ionFloat>(irradiance->GetHeight()), 0.1f, 256.0f);
 
     EntityHandle irradianceEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
-    irradianceEntity->GetTransformHandle()->SetPosition(entityPos);
-    irradianceEntity->GetTransformHandle()->SetRotation(entityRot);
+    irradianceEntity->GetTransform().SetPosition(entityPos);
+    irradianceEntity->GetTransform().SetRotation(entityRot);
 
     // shader has position input
     LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, *irradianceEntity);
@@ -463,7 +463,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
                 _camera->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(irradiance->GetWidth()), static_cast<ionU32>(irradiance->GetHeight()));
 
                 // rotate the camera here
-                _camera->GetTransformHandle()->SetRotation(rotations[f]);
+                _camera->GetTransform().SetRotation(rotations[f]);
                 _camera->Update(0.0f);
 
 
@@ -472,7 +472,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
                     const Matrix& projection = _camera->GetPerspectiveProjection();
                     const Matrix& view = _camera->GetView();
 
-                    const Matrix& model = _skyboxEntity->GetTransformHandle()->GetMatrixWS();
+                    const Matrix& model = _skyboxEntity->GetTransform().GetMatrixWS();
 
                     DrawSurface drawSurface;
 
@@ -507,7 +507,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
                     const Matrix& projection = _camera->GetPerspectiveProjection();
                     const Matrix& view = _camera->GetView();
 
-                    const Matrix& model = irradianceEntity->GetTransformHandle()->GetMatrixWS();
+                    const Matrix& model = irradianceEntity->GetTransform().GetMatrixWS();
 
                     DrawSurface drawSurface;
 
@@ -678,8 +678,8 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     _camera->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(prefilteredEnvironment->GetWidth()) / static_cast<ionFloat>(prefilteredEnvironment->GetHeight()), 0.1f, 256.0f);
 
     EntityHandle prefilteredEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
-    prefilteredEntity->GetTransformHandle()->SetPosition(entityPos);
-    prefilteredEntity->GetTransformHandle()->SetRotation(entityRot);
+    prefilteredEntity->GetTransform().SetPosition(entityPos);
+    prefilteredEntity->GetTransform().SetRotation(entityRot);
 
     // shader has position input
     LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, *prefilteredEntity);
@@ -783,7 +783,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
                 _camera->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(prefilteredEnvironment->GetWidth()), static_cast<ionU32>(prefilteredEnvironment->GetHeight()));
 
                 // rotate the camera here
-                _camera->GetTransformHandle()->SetRotation(rotations[f]);
+                _camera->GetTransform().SetRotation(rotations[f]);
                 _camera->Update(0.0f);
 
 
@@ -792,7 +792,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
                     const Matrix& projection = _camera->GetPerspectiveProjection();
                     const Matrix& view = _camera->GetView();
 
-                    const Matrix& model = _skyboxEntity->GetTransformHandle()->GetMatrixWS();
+                    const Matrix& model = _skyboxEntity->GetTransform().GetMatrixWS();
 
                     DrawSurface drawSurface;
 
@@ -830,7 +830,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
                     const Matrix& projection = _camera->GetPerspectiveProjection();
                     const Matrix& view = _camera->GetView();
 
-                    const Matrix& model = prefilteredEntity->GetTransformHandle()->GetMatrixWS();
+                    const Matrix& model = prefilteredEntity->GetTransform().GetMatrixWS();
 
                     DrawSurface drawSurface;
 

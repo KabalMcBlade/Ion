@@ -120,12 +120,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
         //localNodeMatrix = localNodeMatrix.Scale(scale);
     }
 
-    _entity.GetTransformHandle()->SetPosition(position);
-    _entity.GetTransformHandle()->SetRotation(rotation);
-    _entity.GetTransformHandle()->SetScale(scale);
+    _entity.GetTransform().SetPosition(position);
+    _entity.GetTransform().SetRotation(rotation);
+    _entity.GetTransform().SetScale(scale);
 
-    Matrix localNodeMatrix = _entity.GetTransformHandle()->GetMatrix();
-    _entity.GetTransformHandle()->SetMatrixWS(_parentMatrix * localNodeMatrix);
+    Matrix localNodeMatrix = _entity.GetTransform().GetMatrix();
+    _entity.GetTransform().SetMatrixWS(_parentMatrix * localNodeMatrix);
     
 
 

@@ -238,8 +238,8 @@ int main()
         //
         CameraHandle camera = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE);
         camera->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
-        camera->GetTransformHandle()->SetPosition(cameraGenPos);
-        camera->GetTransformHandle()->SetRotation(cameraRot);
+        camera->GetTransform().SetPosition(cameraGenPos);
+        camera->GetTransform().SetRotation(cameraRot);
         camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
         camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
         camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
@@ -306,8 +306,8 @@ int main()
     CameraHandle camera = eosNew(FPSCamera, ION_MEMORY_ALIGNMENT_SIZE);
     camera->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
-    camera->GetTransformHandle()->SetPosition(cameraPos);
-    camera->GetTransformHandle()->SetRotation(cameraRot);
+    camera->GetTransform().SetPosition(cameraPos);
+    camera->GetTransform().SetRotation(cameraRot);
     camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
     camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
     camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
@@ -318,8 +318,8 @@ int main()
     //////////////////////////////////////////////////////////////////////////
     // Create Entity to render
     EntityHandle test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE);
-    test->GetTransformHandle()->SetPosition(entityPos);
-    test->GetTransformHandle()->SetRotation(entityRot);
+    test->GetTransform().SetPosition(entityPos);
+    test->GetTransform().SetRotation(entityRot);
 
     //////////////////////////////////////////////////////////////////////////
     //
@@ -360,8 +360,8 @@ int main()
     }
 
     EntityHandle boundingBox = eosNew(BoundingBoxEntity, ION_MEMORY_ALIGNMENT_SIZE);
-    boundingBox->GetTransformHandle()->SetPosition(test->GetTransformedBoundingBox().GetCenter());
-    boundingBox->GetTransformHandle()->SetScale(test->GetTransformedBoundingBox().GetSize());
+    boundingBox->GetTransform().SetPosition(test->GetTransformedBoundingBox().GetCenter());
+    boundingBox->GetTransform().SetScale(test->GetTransformedBoundingBox().GetSize());
 
     Test_DrawBoundingBox(*boundingBox);
 

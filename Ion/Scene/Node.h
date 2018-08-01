@@ -96,10 +96,10 @@ public:
     void Update(ionFloat _deltaTime);
 
     const NodeHandle &GetParentHandle() const { return m_parent; }
-    const TransformHandle &GetTransformHandle() const { return m_transform; }
+    const Transform &GetTransform() const { return m_transform; }
 
     NodeHandle &GetParentHandle() { return m_parent; }
-    TransformHandle &GetTransformHandle() { return m_transform; }
+    Transform &GetTransform() { return m_transform; }
 
     eosVector(NodeHandle) &GetChildren() { return m_children; };
 
@@ -118,7 +118,7 @@ private:
     ionSize m_hash;
 
     NodeHandle m_parent;
-    TransformHandle m_transform;
+    Transform m_transform;
 
     eosString m_nameInternal;
     eosString m_name;

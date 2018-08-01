@@ -12,7 +12,7 @@ ION_NAMESPACE_BEGIN
 
 ionU32 Node::g_nextValidNodeIndex = 0;
 
-Node::Node() : m_transform(eosNew(Transform, ION_MEMORY_ALIGNMENT_SIZE)), m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_Default)
+Node::Node() : m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_Default)
 {
     m_nodeIndex = g_nextValidNodeIndex;
     ++g_nextValidNodeIndex;
@@ -21,7 +21,7 @@ Node::Node() : m_transform(eosNew(Transform, ION_MEMORY_ALIGNMENT_SIZE)), m_acti
     m_nodeType = ENodeType_EmptyNode;
 }
 
-Node::Node(const eosString & _name) : m_transform(eosNew(Transform, ION_MEMORY_ALIGNMENT_SIZE)), m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_Default)
+Node::Node(const eosString & _name) : m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_Default)
 {
     m_nodeIndex = g_nextValidNodeIndex;
     ++g_nextValidNodeIndex;
@@ -83,11 +83,11 @@ void Node::Update(ionFloat _deltaTime)
         Matrix worldTransform;
         if (m_parent.IsValid())
         {
-            m_transform->SetMatrixWS(m_parent->GetTransformHandle()->GetMatrixWS() * m_transform->GetMatrix());
+            m_transform.SetMatrixWS(m_parent->GetTransform().GetMatrixWS() * m_transform.GetMatrix());
         }
         else
         {
-            m_transform->SetMatrixWS(m_transform->GetMatrix());
+            m_transform.SetMatrixWS(m_transform.GetMatrix());
         }
 
         eosVector(NodeHandle)::const_iterator begin = GetChildIteratorBegin(), end = GetChildIteratorEnd(), it = begin;

@@ -25,7 +25,7 @@ void RotatingEntity::OnUpdate(ionFloat _deltaTime)
         radRotated += radPerFrame;
         while (radRotated > 6.283185307f) radRotated -= 6.283185307f;   // 360 deg
 
-        GetTransformHandle()->SetRotation(radRotated, axis);
+        GetTransform().SetRotation(radRotated, axis);
     }
 }
 
@@ -129,7 +129,7 @@ void FPSCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _delta
     Quaternion rotation;
     rotation.SetFromMatrix(rotationMatrix);
 
-    GetTransformHandle()->SetRotation(rotation);
+    GetTransform().SetRotation(rotation);
 }
 
 void FPSCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime)
@@ -141,7 +141,7 @@ void FPSCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFlo
 
     if (_keyboardState.m_state == ion::EKeyboardState_Down)
     {
-        Vector pos = GetTransformHandle()->GetPosition();
+        Vector pos = GetTransform().GetPosition();
 
         if (_keyboardState.m_key == ion::EKeyboardKey_W)
         {
@@ -160,7 +160,7 @@ void FPSCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFlo
             pos += right * velocity;
         }
 
-        GetTransformHandle()->SetPosition(pos);
+        GetTransform().SetPosition(pos);
     }
 
     if (_keyboardState.m_state == ion::EKeyboardState_Up)
