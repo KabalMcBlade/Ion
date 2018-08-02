@@ -1,72 +1,128 @@
 #include "Skybox.h"
 
+/*
 #include "../Renderer/RenderManager.h"
 #include "../Texture/TextureManager.h"
 #include "../Material/MaterialManager.h"
 #include "../Shader/ShaderProgramManager.h"
+*/
+#include "../Renderer/VertexCacheManager.h"
+
+#include "../Renderer/RenderCore.h"
 
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-Skybox::Skybox() : Entity()
+Skybox::Skybox()
 {
-    m_nodeType = ENodeType_Skybox;
-}
+    m_mesh = eosNew(MeshPlain, ION_MEMORY_ALIGNMENT_SIZE);
 
-Skybox::Skybox(const eosString& _name) : Entity(_name)
-{
-    m_nodeType = ENodeType_Skybox;
+    GenerateMesh();
 }
 
 Skybox::~Skybox()
 {
-
+    eosDelete(m_mesh);
 }
 
-void Skybox::SetLayout(EVertexLayout _layout)
+void Skybox::GenerateMesh()
 {
-    ionRenderManager().LoadPrimitive(_layout, EPrimitiveType_Cube, *this);
+    eosVector(Index) indices;
+    indices.resize(36);
+    indices = {
+        0,1,2,0,2,3,
+        4,5,6,4,6,7,
+        8,9,10,8,10,11,
+        12,13,14,12,14,15,
+        16,17,18,16,18,19,
+        20,21,22,20,22,23 };
 
-    Material* material = ionMaterialManger().CreateMaterial(GetName(), 0u);
+    Vector positions[24] = {
+        Vector(-1.0f, 1.0f, 1.0f, 1.0f),
+        Vector(-1.0f, -1.0f, 1.0f, 1.0f),
+        Vector(1.0f, -1.0f, 1.0f, 1.0f),
+        Vector(1.0f, 1.0f, 1.0f, 1.0f),
 
-    GetMesh(0)->SetMaterial(material);
+        Vector(1.0f, 1.0f, -1.0f, 1.0f),
+        Vector(1.0f, -1.0f, -1.0f, 1.0f),
+        Vector(-1.0f, -1.0f, -1.0f, 1.0f),
+        Vector(-1.0f, 1.0f, -1.0f, 1.0f),
+
+        Vector(1.0f, 1.0f, 1.0f, 1.0f),
+        Vector(1.0f, -1.0f, 1.0f, 1.0f),
+        Vector(1.0f, -1.0f, -1.0f, 1.0f),
+        Vector(1.0f, 1.0f, -1.0f, 1.0f),
+
+        Vector(-1.0f, 1.0f, -1.0f, 1.0f),
+        Vector(-1.0f, 1.0f, 1.0f, 1.0f),
+        Vector(1.0f, 1.0f, 1.0f, 1.0f),
+        Vector(1.0f, 1.0f, -1.0f, 1.0f),
+
+        Vector(-1.0f, 1.0f, -1.0f, 1.0f),
+        Vector(-1.0f, -1.0f, -1.0f, 1.0f),
+        Vector(-1.0f, -1.0f, 1.0f, 1.0f),
+        Vector(-1.0f, 1.0f, 1.0f, 1.0f),
+
+        Vector(-1.0f, -1.0f, 1.0f, 1.0f),
+        Vector(-1.0f, -1.0f, -1.0f, 1.0f),
+        Vector(1.0f, -1.0f, -1.0f, 1.0f),
+        Vector(1.0f, -1.0f, 1.0f, 1.0f)
+    };
+
+    eosVector(VertexPlain) vertices;
+    vertices.resize(24);
+
+    for (ionU32 i = 0; i < 24; ++i)
+    {
+        vertices[i].SetPosition(positions[i]);
+    }
+    for (ionU32 i = 0; i < 24; ++i)
+    {
+        m_mesh->PushBackVertex(vertices[i]);
+    }
+    for (ionU32 i = 0; i < 36; ++i)
+    {
+        m_mesh->PushBackIndex(indices[i]);
+    }
+
+    m_mesh->SetIndexCount(36);
+    m_mesh->SetIndexStart(0);
 }
 
-void Skybox::SetCubemap(const Texture* _cubemap)
+void Skybox::SetMaterial(Material* _material)
 {
-    Material* material = ionMaterialManger().GetMaterial(GetName());
-    material->GetBasePBR().SetBaseColorTexture(_cubemap);
+    m_mesh->SetMaterial(_material);
 }
 
-void Skybox::SetShaders(const eosString& _shaderProgramName, const ConstantsBindingDef& _constants, ionS32 _vertexIndex /*= -1*/, ionS32 _fragmentIndex /*= -1*/, ionS32 _tessellationControlIndex /*= -1*/, ionS32 _tessellationEvaluationIndex /*= -1*/, ionS32 _geometryIndex /*= -1*/)
+void Skybox::Draw(RenderCore& _renderCore, const Matrix& _projection, const Matrix& _view, const Matrix& _model)
 {
-    GetMesh(0)->GetMaterial()->SetShaderProgramName(_shaderProgramName);
-    GetMesh(0)->GetMaterial()->SetVertexLayout(GetMesh(0)->GetLayout());
+    DrawSurface drawSurface;
 
-    GetMesh(0)->GetMaterial()->SetConstantsShaders(_constants);
+    _mm_storeu_ps(&drawSurface.m_modelMatrix[0], _model[0]);
+    _mm_storeu_ps(&drawSurface.m_modelMatrix[4], _model[1]);
+    _mm_storeu_ps(&drawSurface.m_modelMatrix[8], _model[2]);
+    _mm_storeu_ps(&drawSurface.m_modelMatrix[12], _model[3]);
 
-    GetMesh(0)->GetMaterial()->SetShaders(_vertexIndex, _fragmentIndex, _tessellationControlIndex, _tessellationEvaluationIndex, _geometryIndex);
+    _mm_storeu_ps(&drawSurface.m_viewMatrix[0], _view[0]);
+    _mm_storeu_ps(&drawSurface.m_viewMatrix[4], _view[1]);
+    _mm_storeu_ps(&drawSurface.m_viewMatrix[8], _view[2]);
+    _mm_storeu_ps(&drawSurface.m_viewMatrix[12], _view[3]);
 
-    // default setting
-    GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ECullingMode_Front);
-    GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(EDepthFunction_Less);
-    GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
-}
+    _mm_storeu_ps(&drawSurface.m_projectionMatrix[0], _projection[0]);
+    _mm_storeu_ps(&drawSurface.m_projectionMatrix[4], _projection[1]);
+    _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], _projection[2]);
+    _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], _projection[3]);
 
-const Texture* Skybox::GetCubemapTexture() const
-{
-    return GetMesh(0)->GetMaterial()->GetBasePBR().GetBaseColorTexture();
-}
+    drawSurface.m_visible = true;
+    drawSurface.m_indexStart = m_mesh->GetIndexStart();
+    drawSurface.m_indexCount = m_mesh->GetIndexCount();
+    drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(m_mesh->GetVertexData(), m_mesh->GetVertexSize());
+    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(m_mesh->GetIndexData(), m_mesh->GetIndexSize());
+    drawSurface.m_material = m_mesh->GetMaterial();
 
-const MaterialState& Skybox::GetMaterialState() const
-{
-    return GetMesh(0)->GetMaterial()->GetState();
-}
-
-MaterialState& Skybox::GetMaterialState()
-{
-    return GetMesh(0)->GetMaterial()->GetState();
+    _renderCore.SetState(m_mesh->GetMaterial()->GetState().GetStateBits());
+    _renderCore.Draw(drawSurface);
 }
 
 ION_NAMESPACE_END

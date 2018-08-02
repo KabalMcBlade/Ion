@@ -33,7 +33,8 @@ Camera::Camera() :
     m_clearRed(1.0f),
     m_clearGreen(1.0f),
     m_clearBlue(1.0f),
-    m_clearStencilValue(0)
+    m_clearStencilValue(0),
+    m_skybox(nullptr)
 {
     m_nodeType = ENodeType_Camera;
 }
@@ -58,14 +59,15 @@ Camera::Camera(const eosString & _name) :
     m_clearRed(1.0f),
     m_clearGreen(1.0f),
     m_clearBlue(1.0f),
-    m_clearStencilValue(0)
+    m_clearStencilValue(0),
+    m_skybox(nullptr)
 {
     m_nodeType = ENodeType_Camera;
 }
 
 Camera::~Camera()
 {
-
+    RemoveSkybox();
 }
 
 Matrix Camera::PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar)
@@ -128,11 +130,34 @@ void Camera::UpdateView()
     m_frustum.Update(m_projection, m_view);
 }
 
-void Camera::AttachSkyBox(EntityHandle& _skyBox)
+Skybox* Camera::AddSkybox()
 {
-    if (_skyBox.IsValid())
+    if (m_skybox == nullptr)
     {
-        _skyBox->AttachToParent(*this);
+        m_skybox = eosNew(Skybox, ION_MEMORY_ALIGNMENT_SIZE);
+    }
+
+    return m_skybox;
+}
+
+void Camera::RemoveSkybox()
+{
+    if (m_skybox != nullptr)
+    {
+        eosDelete(m_skybox);
+        m_skybox = nullptr;
+    }
+}
+
+void Camera::RenderSkybox(RenderCore& _renderCore)
+{
+    if (m_skybox != nullptr)
+    {
+        const Matrix& projection = GetPerspectiveProjection();
+        const Matrix& view = GetView();
+        const Matrix& model = GetTransform().GetMatrixWS();
+
+        m_skybox->Draw(_renderCore, projection, view, model);
     }
 }
 

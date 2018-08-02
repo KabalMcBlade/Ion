@@ -48,7 +48,10 @@ public:
 
     const Frustum& GetFrustum() const { return m_frustum; }
 
-    void AttachSkyBox(EntityHandle& _skyBox);
+    Skybox* AddSkybox();
+    void RemoveSkybox();
+
+    void RenderSkybox(RenderCore& _renderCore);
 
     //////////////////////////////////////////////////////////////////////////
     // Setting
@@ -85,6 +88,8 @@ private:
     Matrix  m_view;
 
     Frustum m_frustum;
+
+    Skybox* m_skybox;
 
     ECameraType m_type;
 

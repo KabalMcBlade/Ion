@@ -115,40 +115,11 @@ void SceneGraph::GenerateMapTree(NodeHandle& _node)
 }
 
 
-void SceneGraph::AddSkyboxes(NodeHandle& _node)
-{
-    if (_node->GetNodeType() == ENodeType_Skybox)
-    {
-        for (eosMap(CameraHandle, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
-        {
-            const CameraHandle& cam = iter->first;
-
-            m_nodeCountPerCamera[cam->GetHash()]++;
-            m_treeNodes[cam].push_back(_node);
-        }
-    }
-
-    if (_node->GetChildren().empty())
-    {
-        return;
-    }
-
-    const eosVector(NodeHandle)& children = _node->GetChildren();
-    eosVector(NodeHandle)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
-    for (; it != end; ++it)
-    {
-        NodeHandle nh = (*it);
-        AddSkyboxes(nh);
-    }
-}
-
-
 void SceneGraph::Prepare()
 {
     // Generate the plain map recursively
     // I don't care about the speed here, is just once before start
     FillCameraMapTree(m_rootHandle);
-    AddSkyboxes(m_rootHandle);
     GenerateMapTree(m_rootHandle);
 
     // Update entities
@@ -226,6 +197,8 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
 
         cam->SetViewport(_renderCore, _x, _y, _width, _height);
         cam->SetScissor(_renderCore, _x, _y, _width, _height);
+
+        cam->RenderSkybox(_renderCore);
 
         const eosVector(DrawSurface)& surfaces = m_drawSurfaces[cam->GetHash()];
 

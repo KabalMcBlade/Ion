@@ -20,8 +20,7 @@ enum ENodeType
 {
     ENodeType_EmptyNode = -1,
     ENodeType_Entity = 0,
-    ENodeType_Camera,
-    ENodeType_Skybox
+    ENodeType_Camera
 };
 
 

@@ -16,7 +16,6 @@ Node::Node() : m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_D
 {
     m_nodeIndex = g_nextValidNodeIndex;
     ++g_nextValidNodeIndex;
-    m_parent = nullptr;
     SetName(ION_BASE_NODE_NAME);
     m_nodeType = ENodeType_EmptyNode;
 }
@@ -25,14 +24,13 @@ Node::Node(const eosString & _name) : m_active(true), m_visible(true), m_renderL
 {
     m_nodeIndex = g_nextValidNodeIndex;
     ++g_nextValidNodeIndex;
-    m_parent = nullptr;
     SetName(_name);
     m_nodeType = ENodeType_EmptyNode;
 }
 
 Node::~Node()
 {
-
+    DetachFromParent();
 }
 
 void Node::SetName(const eosString& _name)
@@ -70,8 +68,11 @@ void Node::DetachFromParent()
 {
     OnDetachFromParent();
 
-    m_parent->GetChildren().erase(std::remove(m_parent->GetChildren().begin(), m_parent->GetChildren().end(), this), m_parent->GetChildren().end());
-    m_parent = nullptr; // still need? 
+    if (m_parent.IsValid())
+    {
+        m_parent->GetChildren().erase(std::remove(m_parent->GetChildren().begin(), m_parent->GetChildren().end(), this), m_parent->GetChildren().end());
+        m_parent = nullptr;
+    }
 }
 
 void Node::Update(ionFloat _deltaTime)

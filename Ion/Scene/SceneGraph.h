@@ -50,7 +50,6 @@ private:
 
     void FillCameraMapTree(NodeHandle& _node);
     void GenerateMapTree(NodeHandle& _node);
-    void AddSkyboxes(NodeHandle& _node);
 
     void UpdateDrawSurface(ionSize _cameraHash, const Matrix& _projection, const Matrix& _view, const EntityHandle& _entity, ionU32 _index);
 

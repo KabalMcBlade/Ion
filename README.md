@@ -37,7 +37,7 @@ I'm not planning to do a x86 version
 	- **tiny_gltf.h** is under MIT License
 
 - Assets:
-	- **Ash Canyon** is under GPL-2.0, downloaded from here: http://www.custommapmakers.org/skyboxes.php
+	- **Yokohama3** is under Creative Commons Attribution 3.0 Unported License http://creativecommons.org/licenses/by/3.0/
 	- **Damaged Helmet** is under a Creative Commons Attribution-NonCommercial license: https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0/DamagedHelmet
 	- **frace_cross.hdr** found at http://www.pauldebevec.com/Probes/ with copyright to Images Copyright © 1998, 1999 Paul Debevec (I didn't mail them, but because of the opensource nature, I hope is not an issue! Otherwise I'll remove it)
 

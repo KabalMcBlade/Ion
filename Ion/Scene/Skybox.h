@@ -12,27 +12,28 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-class ION_DLL Skybox : public Entity
+class RenderCore;
+class ION_DLL Skybox
 {
 public:
     explicit Skybox();
-    explicit Skybox(const eosString& _name);
     virtual ~Skybox();
 
+    EVertexLayout GetVertexLayout() const { return EVertexLayout_Pos; }
 
-    void SetLayout(EVertexLayout _layout);
-    void SetCubemap(const Texture* _cubemap);
-    void SetShaders(const eosString& _shaderProgramName, const ConstantsBindingDef& _constants, ionS32 _vertexIndex = -1, ionS32 _fragmentIndex = -1, ionS32 _tessellationControlIndex = -1, ionS32 _tessellationEvaluationIndex = -1, ionS32 _geometryIndex = -1);
+    void SetMaterial(Material* _material);
 
-    const Texture* GetCubemapTexture() const;
-
-    const MaterialState& GetMaterialState() const;
-    MaterialState& GetMaterialState();
+    void Draw(RenderCore& _renderCore, const Matrix& _projection, const Matrix& _view, const Matrix& _model);
 
 private:
     Skybox(const Skybox& _Orig) = delete;
     Skybox& operator = (const Skybox&) = delete;
 
+private:
+    void GenerateMesh();
+
+private:
+    MeshPlain* m_mesh;
 };
 
 ION_NAMESPACE_END
