@@ -49,6 +49,7 @@ public:
     void RemoveSkybox();
 
     void RenderSkybox(RenderCore& _renderCore);
+    void CustomRenderSkybox(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, VkRenderPass _renderPass);
 
     //////////////////////////////////////////////////////////////////////////
     // Setting

@@ -186,10 +186,7 @@ int main()
 
     //////////////////////////////////////////////////////////////////////////
     // Generate and load all global texture
-    eosString environmentCubeMapPath = ionFileSystemManager().GetTexturesPath() + "grace_cross.hdr";
     eosString skyboxCubeMapPath = ionFileSystemManager().GetTexturesPath() + "Yokohama3.jpg";
-
-    Texture* environmentCubeMap = ionTextureManger().CreateTextureFromFile("grace_cross", environmentCubeMapPath, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureUsage_Skybox /*ETextureUsage_SkyboxHDR*/, ETextureType_Cubic, 1);
     Texture* skyboxCubeMap = ionTextureManger().CreateTextureFromFile("Yokohama3", skyboxCubeMapPath, ETextureFilter_Default, ETextureRepeat_ClampAlpha, ETextureUsage_Skybox, ETextureType_Cubic, 1);
     
     Texture* brdflut = nullptr;
@@ -213,7 +210,7 @@ int main()
 
         Skybox* skyboxPtr = cameraPtr->AddSkybox();
         skyboxPtr->SetMaterial(materialSkyBox);
-        materialSkyBox->GetBasePBR().SetBaseColorTexture(environmentCubeMap);
+        materialSkyBox->GetBasePBR().SetBaseColorTexture(skyboxCubeMap);
 
         // one uniform structure bound in the index 0 in the shader stage
         ion::UniformBinding uniform;
@@ -256,8 +253,8 @@ int main()
 
         // generation
         brdflut = ionRenderManager().GenerateBRDF(camera);
-        //irradiance = ionRenderManager().GenerateIrradianceCubemap(environmentCubeMap, camera, skyboxEnvironmentMap);
-        //prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(environmentCubeMap, camera, skyboxEnvironmentMap);
+        //irradiance = ionRenderManager().GenerateIrradianceCubemap(materialSkyBox->GetBasePBR().GetBaseColorTexture(), camera);
+        //prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(materialSkyBox->GetBasePBR().GetBaseColorTexture(), camera);
 
         ionShaderProgramManager().UnloadShader(vertexShaderIndex);
         ionShaderProgramManager().UnloadShader(fragmentShaderIndex);

@@ -1,5 +1,9 @@
 #pragma once
 
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <vulkan/vulkan.h>
+
+
 #include "../Core/CoreDefs.h"
 
 #include "../Dependencies/Eos/Eos/Eos.h"
@@ -26,6 +30,7 @@ public:
     void SetMaterial(Material* _material);
 
     void Draw(RenderCore& _renderCore, const Matrix& _projection, const Matrix& _view, const Matrix& _model);
+    void CustomDraw(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, const Matrix& _projection, const Matrix& _view, const Matrix& _model);
 
 private:
     Skybox(const Skybox& _Orig) = delete;

@@ -161,6 +161,18 @@ void Camera::RenderSkybox(RenderCore& _renderCore)
     }
 }
 
+void Camera::CustomRenderSkybox(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, VkRenderPass _renderPass)
+{
+    if (m_skybox != nullptr)
+    {
+        const Matrix& projection = GetPerspectiveProjection();
+        const Matrix& view = GetView();
+        const Matrix& model = GetTransform().GetMatrixWS();
+
+        m_skybox->CustomDraw(_renderCore, _commandBuffer, _renderPass, projection, view, model);
+    }
+}
+
 void Camera::SetViewportParameters(ionFloat _x /*= 0.0f*/, ionFloat _y /*= 0.0f*/, ionFloat _width /*= 1.0f*/, ionFloat _height /*= 1.0f*/, ionFloat _minDepth /*= 0.0f*/, ionFloat _maxDepth /*= 1.0f*/)
 {
     ionAssertReturnVoid(_x >= 0.0f && _x <= 1.0f, "min depth must be between 0 and 1");

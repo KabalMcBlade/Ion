@@ -318,7 +318,7 @@ Texture* RenderManager::GetBRDF()
     return ionTextureManger().GetTexture(ION_BRDFLUT_TEXTURENAME);
 }
 
-Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera, ObjectHandler _skyboxEntity)
+Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera)
 {
     const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(64))) + 1;
 
@@ -472,41 +472,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
                 cameraPtr->Update(0.0f);
 
-
-                // Draw skybox
-                {
-                    const Matrix& projection = cameraPtr->GetPerspectiveProjection();
-                    const Matrix& view = cameraPtr->GetView();
-
-                    const Matrix& model = _skyboxEntity->GetTransform().GetMatrixWS();
-
-                    DrawSurface drawSurface;
-
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[0], model[0]);
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[4], model[1]);
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[8], model[2]);
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[12], model[3]);
-
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[0], view[0]);
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[4], view[1]);
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[8], view[2]);
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[12], view[3]);
-
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[0], projection[0]);
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[4], projection[1]);
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], projection[2]);
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], projection[3]);
-
-                    drawSurface.m_visible = _skyboxEntity->IsVisible();
-                    drawSurface.m_indexStart = _skyboxEntity->GetMesh(0)->GetIndexStart();
-                    drawSurface.m_indexCount = _skyboxEntity->GetMesh(0)->GetIndexCount();
-                    drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(_skyboxEntity->GetMesh(0)->GetVertexData(), _skyboxEntity->GetMesh(0)->GetVertexSize());
-                    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(_skyboxEntity->GetMesh(0)->GetIndexData(), _skyboxEntity->GetMesh(0)->GetIndexSize());
-                    drawSurface.m_material = _skyboxEntity->GetMesh(0)->GetMaterial();
-
-                    m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
-                    m_renderCore.Draw(cmdBuffer, renderPass, drawSurface);
-                }
+                cameraPtr->CustomRenderSkybox(m_renderCore, cmdBuffer, renderPass);
 
                 // draw irradiance
                 {
@@ -640,7 +606,7 @@ Texture* RenderManager::GetIrradianceCubemap()
     return ionTextureManger().GetTexture(ION_IRRADIANCE_TEXTURENAME);
 }
 
-Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera, ObjectHandler _skyboxEntity)
+Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera)
 {
     const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(512))) + 1;
 
@@ -795,41 +761,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
                 cameraPtr->Update(0.0f);
 
-
-                // Draw skybox
-                {
-                    const Matrix& projection = cameraPtr->GetPerspectiveProjection();
-                    const Matrix& view = cameraPtr->GetView();
-
-                    const Matrix& model = _skyboxEntity->GetTransform().GetMatrixWS();
-
-                    DrawSurface drawSurface;
-
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[0], model[0]);
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[4], model[1]);
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[8], model[2]);
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[12], model[3]);
-
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[0], view[0]);
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[4], view[1]);
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[8], view[2]);
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[12], view[3]);
-
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[0], projection[0]);
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[4], projection[1]);
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], projection[2]);
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], projection[3]);
-
-                    drawSurface.m_visible = _skyboxEntity->IsVisible();
-                    drawSurface.m_indexStart = _skyboxEntity->GetMesh(0)->GetIndexStart();
-                    drawSurface.m_indexCount = _skyboxEntity->GetMesh(0)->GetIndexCount();
-                    drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(_skyboxEntity->GetMesh(0)->GetVertexData(), _skyboxEntity->GetMesh(0)->GetVertexSize());
-                    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(_skyboxEntity->GetMesh(0)->GetIndexData(), _skyboxEntity->GetMesh(0)->GetIndexSize());
-                    drawSurface.m_material = _skyboxEntity->GetMesh(0)->GetMaterial();
-
-                    m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
-                    m_renderCore.Draw(cmdBuffer, renderPass, drawSurface);
-                }
+                cameraPtr->CustomRenderSkybox(m_renderCore, cmdBuffer, renderPass);
 
                 // draw prefilteredEnvironment
                 {
