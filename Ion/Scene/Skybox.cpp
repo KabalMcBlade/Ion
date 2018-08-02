@@ -1,16 +1,14 @@
 #include "Skybox.h"
 
-/*
-#include "../Renderer/RenderManager.h"
-#include "../Texture/TextureManager.h"
-#include "../Material/MaterialManager.h"
-#include "../Shader/ShaderProgramManager.h"
-*/
+
 #include "../Renderer/VertexCacheManager.h"
 
 #include "../Renderer/RenderCore.h"
 
+#include "../Geometry/Mesh.h"
+
 EOS_USING_NAMESPACE
+NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 

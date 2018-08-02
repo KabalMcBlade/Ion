@@ -370,8 +370,11 @@ int main()
 
     BoundingBoxEntity* boundingBox = eosNew(BoundingBoxEntity, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler boundingBoxHandle(boundingBox);
-    boundingBox->GetTransform().SetPosition(test->GetTransform().GetPosition());
-    boundingBox->GetTransform().SetScale(test->GetTransform().GetScale());
+
+    BoundingBox bbTransformed = test->GetBoundingBox()->GetTransformed(test->GetTransform().GetMatrix());
+
+    boundingBox->GetTransform().SetPosition(bbTransformed.GetCenter());
+    boundingBox->GetTransform().SetScale(bbTransformed.GetSize());
 
     Test_DrawBoundingBox(*boundingBox);
 

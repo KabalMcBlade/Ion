@@ -3,16 +3,18 @@
 #include "../Core/CoreDefs.h"
 
 #include "../Dependencies/Eos/Eos/Eos.h"
+#include "../Dependencies/Nix/Nix/Nix.h"
 
-#include "Entity.h"
-
-#include "../Texture/TextureCommon.h"
+#include "../Renderer/RenderDefs.h"
 
 EOS_USING_NAMESPACE
+NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
 class RenderCore;
+class Material;
+class MeshPlain;
 class ION_DLL Skybox
 {
 public:
