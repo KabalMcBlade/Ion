@@ -197,14 +197,13 @@ int main()
     Texture* prefilteredEnvironmentMap = nullptr;
     
 
-    /*
-    // generate irradiance and prefiltered cube map
+    // generate brdf, irradiance and prefiltered cube map
     {
         Vector cameraGenPos(0.0f, 0.0f, 0.0f, 0.0f);
 
         //
         Camera* cameraPtr = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE);
-        NodeHandle camera(cameraPtr);
+        ObjectHandler camera(cameraPtr);
         cameraPtr->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
         cameraPtr->GetTransform().SetPosition(cameraGenPos);
         cameraPtr->GetTransform().SetRotation(cameraRot);
@@ -229,7 +228,7 @@ int main()
         // one sampler bound in the index 1 in the shader stage
         ion::SamplerBinding sampler;
         sampler.m_bindingIndex = 1;
-        sampler.m_texture = environmentCubeMap;
+        sampler.m_texture = materialSkyBox->GetBasePBR().GetBaseColorTexture();
 
         // constants
         ConstantsBindingDef constants;
@@ -244,8 +243,8 @@ int main()
         ion::ShaderLayoutDef fragmentLayout;
         fragmentLayout.m_samplers.push_back(sampler);
 
-        const ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBoxV2", ion::EShaderStage_Vertex, vertexLayout);
-        const ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBoxV2", ion::EShaderStage_Fragment, fragmentLayout);
+        const ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Vertex, vertexLayout);
+        const ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Fragment, fragmentLayout);
 
         materialSkyBox->SetShaderProgramName("SkyboxEnvironmentMapGeneration");
         materialSkyBox->SetVertexLayout(skyboxPtr->GetVertexLayout());
@@ -264,7 +263,6 @@ int main()
         ionShaderProgramManager().UnloadShader(fragmentShaderIndex);
         ionShaderProgramManager().Restart();
     }
-    */
 
     //////////////////////////////////////////////////////////////////////////
     // Create Camera
