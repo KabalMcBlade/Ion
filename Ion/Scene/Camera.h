@@ -13,9 +13,6 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-class Camera;
-typedef SmartPointer<Camera> CameraHandle;
-
 
 class RenderCore;
 class Skybox;

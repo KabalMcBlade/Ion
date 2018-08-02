@@ -69,13 +69,13 @@ public:
     ionBool IsRunning();
 
     // rendering PBR helper functions:
-    Texture*    GenerateBRDF(CameraHandle _camera);
+    Texture*    GenerateBRDF(NodeHandle _camera);
     Texture*    GetBRDF();
 
-    Texture*    GenerateIrradianceCubemap(const Texture* _environmentCubeMap, CameraHandle _camera, EntityHandle _skyboxEntity);
+    Texture*    GenerateIrradianceCubemap(const Texture* _environmentCubeMap, NodeHandle _camera, EntityHandle _skyboxEntity);
     Texture*    GetIrradianceCubemap();
 
-    Texture*    GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, CameraHandle _camera, EntityHandle _skyboxEntity);
+    Texture*    GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, NodeHandle _camera, EntityHandle _skyboxEntity);
     Texture*    GetPrefilteredEnvironmentCubemap();
 
 private:

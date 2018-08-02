@@ -217,7 +217,7 @@ ionBool RenderManager::IsRunning()
     return m_running;
 }
 
-Texture* RenderManager::GenerateBRDF(CameraHandle _camera)
+Texture* RenderManager::GenerateBRDF(NodeHandle _camera)
 {
     const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
     const Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
@@ -225,7 +225,9 @@ Texture* RenderManager::GenerateBRDF(CameraHandle _camera)
 
     Texture* brdflut = ionTextureManger().GenerateTexture(ION_BRDFLUT_TEXTURENAME, 512, 512, ETextureFormat_BRDF, ETextureFilter_Default, ETextureRepeat_Clamp);
 
-    _camera->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(brdflut->GetWidth()) / static_cast<ionFloat>(brdflut->GetHeight()), 0.1f, 256.0f);
+    Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
+
+    cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(brdflut->GetWidth()) / static_cast<ionFloat>(brdflut->GetHeight()), 0.1f, 256.0f);
 
     EntityHandle brdflutEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     brdflutEntity->GetTransform().SetPosition(entityPos);
@@ -263,13 +265,13 @@ Texture* RenderManager::GenerateBRDF(CameraHandle _camera)
         clearValues.resize(1);
         clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
 
-        _camera->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(brdflut->GetWidth()), static_cast<ionU32>(brdflut->GetHeight()));
+        cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(brdflut->GetWidth()), static_cast<ionU32>(brdflut->GetHeight()));
         
-        _camera->SetViewport(m_renderCore, cmdBuffer, 0, 0, brdflut->GetWidth(), brdflut->GetHeight());
-        _camera->SetScissor(m_renderCore, cmdBuffer, 0, 0, brdflut->GetWidth(), brdflut->GetHeight());
+        cameraPtr->SetViewport(m_renderCore, cmdBuffer, 0, 0, brdflut->GetWidth(), brdflut->GetHeight());
+        cameraPtr->SetScissor(m_renderCore, cmdBuffer, 0, 0, brdflut->GetWidth(), brdflut->GetHeight());
 
-        const Matrix& projection = _camera->GetPerspectiveProjection();
-        const Matrix& view = _camera->GetView();
+        const Matrix& projection = cameraPtr->GetPerspectiveProjection();
+        const Matrix& view = cameraPtr->GetView();
 
         const Matrix& model = brdflutEntity->GetTransform().GetMatrixWS();
 
@@ -298,7 +300,7 @@ Texture* RenderManager::GenerateBRDF(CameraHandle _camera)
         m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
         m_renderCore.DrawNoBinding(cmdBuffer, renderPass, drawSurface, 3, 1, 0, 0);
 
-        _camera->EndRenderPass(m_renderCore, cmdBuffer);
+        cameraPtr->EndRenderPass(m_renderCore, cmdBuffer);
 
         m_renderCore.EndCustomCommandBuffer(cmdBuffer);
         m_renderCore.FlushCustomCommandBuffer(cmdBuffer);
@@ -315,7 +317,7 @@ Texture* RenderManager::GetBRDF()
     return ionTextureManger().GetTexture(ION_BRDFLUT_TEXTURENAME);
 }
 
-Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCubeMap, CameraHandle _camera, EntityHandle _skyboxEntity)
+Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCubeMap, NodeHandle _camera, EntityHandle _skyboxEntity)
 {
     const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(64))) + 1;
 
@@ -355,7 +357,9 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
     const Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
     const Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
 
-    _camera->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(irradiance->GetWidth()) / static_cast<ionFloat>(irradiance->GetHeight()), 0.1f, 256.0f);
+    Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
+
+    cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(irradiance->GetWidth()) / static_cast<ionFloat>(irradiance->GetHeight()), 0.1f, 256.0f);
 
     EntityHandle irradianceEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     irradianceEntity->GetTransform().SetPosition(entityPos);
@@ -420,8 +424,8 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
         clearValues.resize(1);
         clearValues[0].color = { { 0.0f, 0.0f, 0.2f, 0.0f } };
 
-        _camera->SetViewport(m_renderCore, cmdBuffer, 0, 0, irradiance->GetWidth(), irradiance->GetHeight());
-        _camera->SetScissor(m_renderCore, cmdBuffer, 0, 0, irradiance->GetWidth(), irradiance->GetHeight());
+        cameraPtr->SetViewport(m_renderCore, cmdBuffer, 0, 0, irradiance->GetWidth(), irradiance->GetHeight());
+        cameraPtr->SetScissor(m_renderCore, cmdBuffer, 0, 0, irradiance->GetWidth(), irradiance->GetHeight());
 
 
         // Swap
@@ -458,19 +462,19 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
         {
             for (ionU32 f = 0; f < 6; ++f)
             {
-                _camera->SetViewport(m_renderCore, cmdBuffer, 0, 0, static_cast<ionS32>(irradiance->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(irradiance->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
+                cameraPtr->SetViewport(m_renderCore, cmdBuffer, 0, 0, static_cast<ionS32>(irradiance->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(irradiance->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
 
-                _camera->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(irradiance->GetWidth()), static_cast<ionU32>(irradiance->GetHeight()));
+                cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(irradiance->GetWidth()), static_cast<ionU32>(irradiance->GetHeight()));
 
                 // rotate the camera here
-                _camera->GetTransform().SetRotation(rotations[f]);
-                _camera->Update(0.0f);
+                cameraPtr->GetTransform().SetRotation(rotations[f]);
+                cameraPtr->Update(0.0f);
 
 
                 // Draw skybox
                 {
-                    const Matrix& projection = _camera->GetPerspectiveProjection();
-                    const Matrix& view = _camera->GetView();
+                    const Matrix& projection = cameraPtr->GetPerspectiveProjection();
+                    const Matrix& view = cameraPtr->GetView();
 
                     const Matrix& model = _skyboxEntity->GetTransform().GetMatrixWS();
 
@@ -504,8 +508,8 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
 
                 // draw irradiance
                 {
-                    const Matrix& projection = _camera->GetPerspectiveProjection();
-                    const Matrix& view = _camera->GetView();
+                    const Matrix& projection = cameraPtr->GetPerspectiveProjection();
+                    const Matrix& view = cameraPtr->GetView();
 
                     const Matrix& model = irradianceEntity->GetTransform().GetMatrixWS();
 
@@ -538,7 +542,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
                 }
 
 
-                _camera->EndRenderPass(m_renderCore, cmdBuffer);
+                cameraPtr->EndRenderPass(m_renderCore, cmdBuffer);
 
 
 
@@ -634,7 +638,7 @@ Texture* RenderManager::GetIrradianceCubemap()
     return ionTextureManger().GetTexture(ION_IRRADIANCE_TEXTURENAME);
 }
 
-Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, CameraHandle _camera, EntityHandle _skyboxEntity)
+Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, NodeHandle _camera, EntityHandle _skyboxEntity)
 {
     const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(512))) + 1;
 
@@ -674,8 +678,10 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     const Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
     const Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
 
-    _camera->SetCameraType(Camera::ECameraType::ECameraType_FirstPerson);
-    _camera->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(prefilteredEnvironment->GetWidth()) / static_cast<ionFloat>(prefilteredEnvironment->GetHeight()), 0.1f, 256.0f);
+    Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
+
+    cameraPtr->SetCameraType(Camera::ECameraType::ECameraType_FirstPerson);
+    cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(prefilteredEnvironment->GetWidth()) / static_cast<ionFloat>(prefilteredEnvironment->GetHeight()), 0.1f, 256.0f);
 
     EntityHandle prefilteredEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     prefilteredEntity->GetTransform().SetPosition(entityPos);
@@ -740,8 +746,8 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
         clearValues.resize(1);
         clearValues[0].color = { { 0.0f, 0.0f, 0.2f, 0.0f } };
 
-        _camera->SetViewport(m_renderCore, cmdBuffer, 0, 0, prefilteredEnvironment->GetWidth(), prefilteredEnvironment->GetHeight());
-        _camera->SetScissor(m_renderCore, cmdBuffer, 0, 0, prefilteredEnvironment->GetWidth(), prefilteredEnvironment->GetHeight());
+        cameraPtr->SetViewport(m_renderCore, cmdBuffer, 0, 0, prefilteredEnvironment->GetWidth(), prefilteredEnvironment->GetHeight());
+        cameraPtr->SetScissor(m_renderCore, cmdBuffer, 0, 0, prefilteredEnvironment->GetWidth(), prefilteredEnvironment->GetHeight());
 
 
         // Swap
@@ -778,19 +784,19 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
         {
             for (ionU32 f = 0; f < 6; ++f)
             {
-                _camera->SetViewport(m_renderCore, cmdBuffer, 0, 0, static_cast<ionS32>(prefilteredEnvironment->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(prefilteredEnvironment->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
+                cameraPtr->SetViewport(m_renderCore, cmdBuffer, 0, 0, static_cast<ionS32>(prefilteredEnvironment->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(prefilteredEnvironment->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
 
-                _camera->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(prefilteredEnvironment->GetWidth()), static_cast<ionU32>(prefilteredEnvironment->GetHeight()));
+                cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(prefilteredEnvironment->GetWidth()), static_cast<ionU32>(prefilteredEnvironment->GetHeight()));
 
                 // rotate the camera here
-                _camera->GetTransform().SetRotation(rotations[f]);
-                _camera->Update(0.0f);
+                cameraPtr->GetTransform().SetRotation(rotations[f]);
+                cameraPtr->Update(0.0f);
 
 
                 // Draw skybox
                 {
-                    const Matrix& projection = _camera->GetPerspectiveProjection();
-                    const Matrix& view = _camera->GetView();
+                    const Matrix& projection = cameraPtr->GetPerspectiveProjection();
+                    const Matrix& view = cameraPtr->GetView();
 
                     const Matrix& model = _skyboxEntity->GetTransform().GetMatrixWS();
 
@@ -827,8 +833,8 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
                     //
                     prefilteredEntity->GetMesh(0)->GetMaterial()->GetConstantsShaders().m_values[0] = (ionFloat)m / (ionFloat)(mipMapsLevel - 1);
 
-                    const Matrix& projection = _camera->GetPerspectiveProjection();
-                    const Matrix& view = _camera->GetView();
+                    const Matrix& projection = cameraPtr->GetPerspectiveProjection();
+                    const Matrix& view = cameraPtr->GetView();
 
                     const Matrix& model = prefilteredEntity->GetTransform().GetMatrixWS();
 
@@ -861,7 +867,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
                 }
 
 
-                _camera->EndRenderPass(m_renderCore, cmdBuffer);
+                cameraPtr->EndRenderPass(m_renderCore, cmdBuffer);
 
 
 

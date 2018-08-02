@@ -281,7 +281,8 @@ int main()
 
     //////////////////////////////////////////////////////////////////////////
     // Create Camera
-    CameraHandle camera = eosNew(FPSCamera, ION_MEMORY_ALIGNMENT_SIZE);
+    FPSCamera* camera = eosNew(FPSCamera, ION_MEMORY_ALIGNMENT_SIZE);
+    NodeHandle cameraHandle(camera);
     camera->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
     camera->GetTransform().SetPosition(cameraPos);
@@ -289,7 +290,7 @@ int main()
     camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
     camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
     camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
-    dynamic_cast<FPSCamera*>(camera.GetPtr())->SetParameters(0.001f, 0.05f, true);
+    camera->SetParameters(0.001f, 0.05f, true);
 
     //////////////////////////////////////////////////////////////////////////
     // Create SkyBox
@@ -333,9 +334,6 @@ int main()
     materialSkyBox->SetVertexLayout(skyboxPtr->GetVertexLayout());
     materialSkyBox->SetConstantsShaders(constants);
     materialSkyBox->SetShaders(vertexShaderIndex, fragmentShaderIndex);
-    //materialSkyBox->GetState().SetCullingMode(ECullingMode_TwoSide);
-    //materialSkyBox->GetState().SetDepthFunctionMode(EDepthFunction_Less);
-    //materialSkyBox->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
 
 
     //////////////////////////////////////////////////////////////////////////
@@ -395,11 +393,11 @@ int main()
     //////////////////////////////////////////////////////////////////////////
 
     // first full the scene graph
-    ionRenderManager().AddToSceneGraph(camera);
+    ionRenderManager().AddToSceneGraph(cameraHandle);
     ionRenderManager().AddToSceneGraph(test);
 
     // then set the active node will receive the input
-    ionRenderManager().RegisterToInput(camera);
+    ionRenderManager().RegisterToInput(cameraHandle);
     ionRenderManager().RegisterToInput(boundingBox);
     ionRenderManager().RegisterToInput(test);
 

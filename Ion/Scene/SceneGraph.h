@@ -18,6 +18,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+class Camera;
 class RenderCore;
 class ION_DLL SceneGraph final
 {
@@ -56,7 +57,7 @@ private:
 private:
     BoundingBox                                     m_sceneBoundingBox;
     NodeHandle                                      m_rootHandle;
-    eosMap(CameraHandle, eosVector(EntityHandle))   m_treeNodes;
+    eosMap(Camera*, eosVector(EntityHandle))  m_treeNodes;
     eosMap(ionSize, eosVector(DrawSurface))         m_drawSurfaces;
     eosMap(ionSize, ionU32)                         m_nodeCountPerCamera;
     eosVector(NodeHandle)                           m_registeredInput;
