@@ -5,6 +5,7 @@
 
 #include "../Renderer/RenderCommon.h"
 
+
 NIX_USING_NAMESPACE
 EOS_USING_NAMESPACE
 
@@ -19,9 +20,9 @@ SceneGraph::SceneGraph()
 
 SceneGraph::~SceneGraph()
 {
-    for (eosMap(Camera*, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
     {
-        eosVector(EntityHandle)& entities = iter->second;
+        eosVector(ObjectHandler)& entities = iter->second;
         entities.clear();
     }
     m_treeNodes.clear();
@@ -37,19 +38,19 @@ SceneGraph::~SceneGraph()
     m_registeredInput.clear();
 }
 
-void SceneGraph::AddToScene(NodeHandle& _node)
+void SceneGraph::AddToScene(ObjectHandler& _node)
 {
     _node->AttachToParent(m_rootHandle);
 }
 
-void SceneGraph::RemoveFromScene(NodeHandle& _node)
+void SceneGraph::RemoveFromScene(ObjectHandler& _node)
 {
     _node->DetachFromParent();
 }
 
 void SceneGraph::UpdateAllCameraAspectRatio(const RenderCore& _renderCore)
 {
-    for (eosMap(Camera*, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
     {
         Camera* cam = iter->first;
 
@@ -57,7 +58,7 @@ void SceneGraph::UpdateAllCameraAspectRatio(const RenderCore& _renderCore)
     }
 }
 
-void SceneGraph::FillCameraMapTree(NodeHandle& _node)
+void SceneGraph::FillCameraMapTree(ObjectHandler& _node)
 {
     if (_node->GetNodeType() == ENodeType_Camera)
     {
@@ -65,7 +66,7 @@ void SceneGraph::FillCameraMapTree(NodeHandle& _node)
 
         if (m_treeNodes.find(cam) == m_treeNodes.end())
         {
-            m_treeNodes.insert(std::pair<Camera*, eosVector(EntityHandle)>(cam, eosVector(EntityHandle)()));
+            m_treeNodes.insert(std::pair<Camera*, eosVector(ObjectHandler)>(cam, eosVector(ObjectHandler)()));
         }
     }
 
@@ -74,27 +75,29 @@ void SceneGraph::FillCameraMapTree(NodeHandle& _node)
         return;
     }
 
-    const eosVector(NodeHandle)& children = _node->GetChildren();
-    eosVector(NodeHandle)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
+    const eosVector(ObjectHandler)& children = _node->GetChildren();
+    eosVector(ObjectHandler)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
     for (; it != end; ++it)
     {
-        NodeHandle nh = (*it);
+        ObjectHandler nh = (*it);
         FillCameraMapTree(nh);
     }
 }
 
-void SceneGraph::GenerateMapTree(NodeHandle& _node)
+void SceneGraph::GenerateMapTree(ObjectHandler& _node)
 {
     if (_node->GetNodeType() == ENodeType_Entity)
     {
-        for (eosMap(Camera*, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+        for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
         {
             Camera* cam = iter->first;
 
             if (_node->IsInRenderLayer(cam->GetRenderLayer()))
             {
-                EntityHandle entity = _node;
-                m_sceneBoundingBox.Expande(entity->GetTransformedBoundingBox());
+                ObjectHandler entity = _node;
+
+                BoundingBox* bb = entity->GetBoundingBox();
+                m_sceneBoundingBox.Expande(bb->GetTransformed(entity->GetTransform().GetMatrix()));
 
                 m_nodeCountPerCamera[cam->GetHash()]++;
                 m_treeNodes[cam].push_back(_node);
@@ -107,11 +110,11 @@ void SceneGraph::GenerateMapTree(NodeHandle& _node)
         return;
     }
 
-    const eosVector(NodeHandle)& children = _node->GetChildren();
-    eosVector(NodeHandle)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
+    const eosVector(ObjectHandler)& children = _node->GetChildren();
+    eosVector(ObjectHandler)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
     for (; it != end; ++it)
     {
-        NodeHandle nh = (*it);
+        ObjectHandler nh = (*it);
         GenerateMapTree(nh);
     }
 }
@@ -125,7 +128,7 @@ void SceneGraph::Prepare()
     GenerateMapTree(m_rootHandle);
 
     // Update entities
-    for (eosMap(Camera*, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
     {
         Camera* cam = iter->first;
 
@@ -133,7 +136,7 @@ void SceneGraph::Prepare()
     }
 }
 
-void SceneGraph::UpdateDrawSurface(ionSize _cameraHash, const Matrix& _projection, const Matrix& _view, const EntityHandle& _entity, ionU32 _index)
+void SceneGraph::UpdateDrawSurface(ionSize _cameraHash, const Matrix& _projection, const Matrix& _view, const ObjectHandler& _entity, ionU32 _index)
 {
     const Matrix& model = _entity->GetTransform().GetMatrixWS();
 
@@ -168,7 +171,7 @@ void SceneGraph::Update(ionFloat _deltaTime)
     // mapping
     ionVertexCacheManager().BeginMapping();
     ionU32 index = 0;
-    for (eosMap(Camera*, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
     {
         index = 0;
         Camera* cam = iter->first;
@@ -178,11 +181,11 @@ void SceneGraph::Update(ionFloat _deltaTime)
         const Matrix& projection = cam->GetPerspectiveProjection();
         const Matrix& view = cam->GetView();
 
-        const eosVector(EntityHandle)& entities = iter->second;
-        eosVector(EntityHandle)::const_iterator begin = entities.cbegin(), end = entities.cend(), it = begin;
+        const eosVector(ObjectHandler)& entities = iter->second;
+        eosVector(ObjectHandler)::const_iterator begin = entities.cbegin(), end = entities.cend(), it = begin;
         for (; it != end; ++it)
         {
-            const EntityHandle& entity = (*it);
+            const ObjectHandler& entity = (*it);
             UpdateDrawSurface(cam->GetHash(), projection, view, entity, index);
             ++index;
         }
@@ -192,7 +195,7 @@ void SceneGraph::Update(ionFloat _deltaTime)
 
 void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _width, ionU32 _height)
 {
-    for (eosMap(Camera*, eosVector(EntityHandle))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
     {
         Camera* cam = iter->first;
 
@@ -221,12 +224,12 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
     }
 }
 
-void SceneGraph::RegisterToInput(const NodeHandle& _node)
+void SceneGraph::RegisterToInput(const ObjectHandler& _node)
 {
     m_registeredInput.push_back(_node);
 }
 
-void SceneGraph::UnregisterFromInput(const NodeHandle& _node)
+void SceneGraph::UnregisterFromInput(const ObjectHandler& _node)
 {
     //m_registeredInput.erase(std::remove(m_registeredInput.begin(), m_registeredInput.end(), _node), m_registeredInput.end());
     std::remove(m_registeredInput.begin(), m_registeredInput.end(), _node);
@@ -234,20 +237,20 @@ void SceneGraph::UnregisterFromInput(const NodeHandle& _node)
 
 void SceneGraph::UpdateMouseInput(const MouseState& _mouseState, ionFloat _deltaTime)
 {
-    eosVector(NodeHandle)::const_iterator begin = m_registeredInput.cbegin(), end = m_registeredInput.cend(), it = begin;
+    eosVector(ObjectHandler)::const_iterator begin = m_registeredInput.cbegin(), end = m_registeredInput.cend(), it = begin;
     for (; it != end; ++it)
     {
-        const NodeHandle& node = (*it);
+        const ObjectHandler& node = (*it);
         node->OnMouseInput(_mouseState, _deltaTime);
     }
 }
 
 void SceneGraph::UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime)
 {
-    eosVector(NodeHandle)::const_iterator begin = m_registeredInput.cbegin(), end = m_registeredInput.cend(), it = begin;
+    eosVector(ObjectHandler)::const_iterator begin = m_registeredInput.cbegin(), end = m_registeredInput.cend(), it = begin;
     for (; it != end; ++it)
     {
-        const NodeHandle& node = (*it);
+        const ObjectHandler& node = (*it);
         node->OnKeyboardInput(_keyboardState, _deltaTime);
     }
 }

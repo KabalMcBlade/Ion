@@ -29,11 +29,6 @@ Entity::~Entity()
     m_meshes.clear();
 }
 
-BoundingBox Entity::GetTransformedBoundingBox()
-{
-    return m_boundingBox.GetTransformed(GetTransform().GetMatrix());
-}
-
 ionU32 Entity::GetMeshCount() const
 {
     return static_cast<ionU32>(m_meshes.size());

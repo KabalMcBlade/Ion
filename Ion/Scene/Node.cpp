@@ -47,7 +47,7 @@ void Node::AttachToParent(Node& _parent)
     AttachToParent(parentHandle);
 }
 
-void Node::AttachToParent(NodeHandle& _parent)
+void Node::AttachToParent(ObjectHandler& _parent)
 {
     if (m_parent.IsValid())
     {
@@ -91,7 +91,7 @@ void Node::Update(ionFloat _deltaTime)
             m_transform.SetMatrixWS(m_transform.GetMatrix());
         }
 
-        eosVector(NodeHandle)::const_iterator begin = GetChildIteratorBegin(), end = GetChildIteratorEnd(), it = begin;
+        eosVector(ObjectHandler)::const_iterator begin = GetChildIteratorBegin(), end = GetChildIteratorEnd(), it = begin;
         for (; it != end; ++it)
         {
             (*it)->Update(_deltaTime);

@@ -42,8 +42,10 @@ enum ENodeRenderLayer : ionU32
 
 
 class Node;
-typedef SmartPointer<Node> NodeHandle;
+typedef SmartPointer<Node> ObjectHandler;
 
+class BoundingBox;
+class BaseMesh;
 class ION_DLL Node : public SmartObject
 {
 public:
@@ -55,7 +57,7 @@ public:
 
     //
     // USER VIRTUAL CALLS
-    virtual void OnAttachToParent(NodeHandle& _parent) {}
+    virtual void OnAttachToParent(ObjectHandler& _parent) {}
     virtual void OnDetachFromParent() {}
 
     virtual void OnUpdate(ionFloat _deltaTime) {}
@@ -63,6 +65,13 @@ public:
 
     virtual void OnMouseInput(const MouseState& _mouseState, ionFloat _deltaTime) {}
     virtual void OnKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime) {}
+
+    // those need to conformity
+    virtual const BaseMesh* GetMesh(ionU32 _index) const { return nullptr; }
+    virtual BaseMesh* GetMesh(ionU32 _index) { return nullptr; }
+    virtual ionU32  GetMeshCount() const { return 0; }
+
+    virtual BoundingBox* GetBoundingBox()  { return nullptr; }
 
     //
     // USER CALLS
@@ -75,7 +84,7 @@ public:
     ionBool IsVisible() { return m_visible; }
 
     void AttachToParent(Node& _parent);
-    void AttachToParent(NodeHandle& _parent);
+    void AttachToParent(ObjectHandler& _parent);
     void DetachFromParent();
 
     void AddToRenderLayer(ENodeRenderLayer _layer) { m_renderLayer |= _layer; }
@@ -94,16 +103,16 @@ public:
 
     void Update(ionFloat _deltaTime);
 
-    const NodeHandle &GetParentHandle() const { return m_parent; }
+    const ObjectHandler &GetParentHandle() const { return m_parent; }
     const Transform &GetTransform() const { return m_transform; }
 
-    NodeHandle &GetParentHandle() { return m_parent; }
+    ObjectHandler &GetParentHandle() { return m_parent; }
     Transform &GetTransform() { return m_transform; }
 
-    eosVector(NodeHandle) &GetChildren() { return m_children; };
+    eosVector(ObjectHandler) &GetChildren() { return m_children; };
 
-    eosVector(NodeHandle)::const_iterator GetChildIteratorBegin() { return m_children.begin();}
-    eosVector(NodeHandle)::const_iterator GetChildIteratorEnd() { return m_children.end(); }
+    eosVector(ObjectHandler)::const_iterator GetChildIteratorBegin() { return m_children.begin();}
+    eosVector(ObjectHandler)::const_iterator GetChildIteratorEnd() { return m_children.end(); }
 
 protected:
     ENodeType    m_nodeType;
@@ -116,13 +125,13 @@ private:
     ionU32 m_nodeIndex;
     ionSize m_hash;
 
-    NodeHandle m_parent;
+    ObjectHandler m_parent;
     Transform m_transform;
 
     eosString m_nameInternal;
     eosString m_name;
     
-    eosVector(NodeHandle) m_children;
+    eosVector(ObjectHandler) m_children;
 
     ionBool m_active;
     ionBool m_visible;

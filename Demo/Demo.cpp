@@ -282,7 +282,7 @@ int main()
     //////////////////////////////////////////////////////////////////////////
     // Create Camera
     FPSCamera* camera = eosNew(FPSCamera, ION_MEMORY_ALIGNMENT_SIZE);
-    NodeHandle cameraHandle(camera);
+    ObjectHandler cameraHandle(camera);
     camera->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
     camera->GetTransform().SetPosition(cameraPos);
@@ -338,7 +338,8 @@ int main()
 
     //////////////////////////////////////////////////////////////////////////
     // Create Entity to render
-    EntityHandle test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE);
+    RotatingEntity* test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE);
+    ObjectHandler testHandle(test);
     test->GetTransform().SetPosition(entityPos);
     test->GetTransform().SetRotation(entityRot);
 
@@ -380,13 +381,14 @@ int main()
         break;
     }
 
-    EntityHandle boundingBox = eosNew(BoundingBoxEntity, ION_MEMORY_ALIGNMENT_SIZE);
-    boundingBox->GetTransform().SetPosition(test->GetTransformedBoundingBox().GetCenter());
-    boundingBox->GetTransform().SetScale(test->GetTransformedBoundingBox().GetSize());
+    BoundingBoxEntity* boundingBox = eosNew(BoundingBoxEntity, ION_MEMORY_ALIGNMENT_SIZE);
+    ObjectHandler boundingBoxHandle(boundingBox);
+    boundingBox->GetTransform().SetPosition(test->GetTransform().GetPosition());
+    boundingBox->GetTransform().SetScale(test->GetTransform().GetScale());
 
     Test_DrawBoundingBox(*boundingBox);
 
-    boundingBox->AttachToParent(*test);
+    boundingBox->AttachToParent(testHandle);
 
     //////////////////////////////////////////////////////////////////////////
     //
@@ -394,12 +396,12 @@ int main()
 
     // first full the scene graph
     ionRenderManager().AddToSceneGraph(cameraHandle);
-    ionRenderManager().AddToSceneGraph(test);
+    ionRenderManager().AddToSceneGraph(testHandle);
 
     // then set the active node will receive the input
     ionRenderManager().RegisterToInput(cameraHandle);
-    ionRenderManager().RegisterToInput(boundingBox);
-    ionRenderManager().RegisterToInput(test);
+    ionRenderManager().RegisterToInput(boundingBoxHandle);
+    ionRenderManager().RegisterToInput(testHandle);
 
     if (rendererInitialized)
     {

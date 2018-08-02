@@ -13,11 +13,6 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-class Entity;
-typedef SmartPointer<Entity> EntityHandle;
-
-class Material;
-
 class ION_DLL Entity : public Node
 {
 public:
@@ -33,15 +28,11 @@ public:
         return mesh;
     }
 
-    const BaseMesh* GetMesh(ionU32 _index) const { return m_meshes[_index]; }
-    BaseMesh* GetMesh(ionU32 _index) { return m_meshes[_index]; }
+    virtual const BaseMesh* GetMesh(ionU32 _index) const override final { return m_meshes[_index]; }
+    virtual BaseMesh* GetMesh(ionU32 _index) override final { return m_meshes[_index]; }
+    virtual ionU32  GetMeshCount() const override final;
 
-    const BoundingBox& GetBoundingBox() const { return m_boundingBox; }
-    BoundingBox& GetBoundingBox() { return m_boundingBox; }
-
-    BoundingBox GetTransformedBoundingBox();
-
-    ionU32  GetMeshCount() const;
+    virtual BoundingBox* GetBoundingBox() override final { return &m_boundingBox; }
 
 private:
     Entity(const Entity& _Orig) = delete;

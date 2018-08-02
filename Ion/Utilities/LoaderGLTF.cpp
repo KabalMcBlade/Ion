@@ -374,7 +374,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 
                     vert.SetPosition(pos);
 
-                    _entity.GetBoundingBox().Expande(vert.GetPosition(), vert.GetPosition());
+                    _entity.GetBoundingBox()->Expande(vert.GetPosition(), vert.GetPosition());
                     
                     Vector normal;
                     if (bufferNormals != nullptr)

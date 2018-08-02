@@ -53,7 +53,7 @@ public:
     RenderManager();
     ~RenderManager();
 
-    void    AddToSceneGraph(NodeHandle _node);
+    void    AddToSceneGraph(ObjectHandler _node);
 
     void    Resize(ionS32& _outNewWidth, ionS32 _outNewHeight);
     void    Prepare();
@@ -62,20 +62,20 @@ public:
     void    SendMouseInput(const MouseState& _mouseState);
     void    SendKeyboardInput(const KeyboardState& _keyboardState);
 
-    void    RegisterToInput(const NodeHandle& _node);
-    void    UnregisterFromInput(const NodeHandle& _node);
+    void    RegisterToInput(const ObjectHandler& _node);
+    void    UnregisterFromInput(const ObjectHandler& _node);
 
     void    Quit();
     ionBool IsRunning();
 
     // rendering PBR helper functions:
-    Texture*    GenerateBRDF(NodeHandle _camera);
+    Texture*    GenerateBRDF(ObjectHandler _camera);
     Texture*    GetBRDF();
 
-    Texture*    GenerateIrradianceCubemap(const Texture* _environmentCubeMap, NodeHandle _camera, EntityHandle _skyboxEntity);
+    Texture*    GenerateIrradianceCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera, ObjectHandler _skyboxEntity);
     Texture*    GetIrradianceCubemap();
 
-    Texture*    GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, NodeHandle _camera, EntityHandle _skyboxEntity);
+    Texture*    GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera, ObjectHandler _skyboxEntity);
     Texture*    GetPrefilteredEnvironmentCubemap();
 
 private:

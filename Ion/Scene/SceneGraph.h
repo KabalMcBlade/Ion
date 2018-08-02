@@ -28,8 +28,8 @@ public:
 
     const BoundingBox& GetBoundingBox() { return m_sceneBoundingBox; }
 
-    void AddToScene(NodeHandle& _node);
-    void RemoveFromScene(NodeHandle& _node);
+    void AddToScene(ObjectHandler& _node);
+    void RemoveFromScene(ObjectHandler& _node);
 
     void UpdateAllCameraAspectRatio(const RenderCore& _renderCore);
 
@@ -39,8 +39,8 @@ public:
     void Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _width, ionU32 _height);
 
     // Input
-    void RegisterToInput(const NodeHandle& _node);
-    void UnregisterFromInput(const NodeHandle& _node);
+    void RegisterToInput(const ObjectHandler& _node);
+    void UnregisterFromInput(const ObjectHandler& _node);
 
     void UpdateMouseInput(const MouseState& _mouseState, ionFloat _deltaTime);
     void UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime);
@@ -49,18 +49,18 @@ private:
     SceneGraph(const SceneGraph& _Orig) = delete;
     SceneGraph& operator = (const SceneGraph&) = delete;
 
-    void FillCameraMapTree(NodeHandle& _node);
-    void GenerateMapTree(NodeHandle& _node);
+    void FillCameraMapTree(ObjectHandler& _node);
+    void GenerateMapTree(ObjectHandler& _node);
 
-    void UpdateDrawSurface(ionSize _cameraHash, const Matrix& _projection, const Matrix& _view, const EntityHandle& _entity, ionU32 _index);
+    void UpdateDrawSurface(ionSize _cameraHash, const Matrix& _projection, const Matrix& _view, const ObjectHandler& _entity, ionU32 _index);
 
 private:
-    BoundingBox                                     m_sceneBoundingBox;
-    NodeHandle                                      m_rootHandle;
-    eosMap(Camera*, eosVector(EntityHandle))  m_treeNodes;
-    eosMap(ionSize, eosVector(DrawSurface))         m_drawSurfaces;
-    eosMap(ionSize, ionU32)                         m_nodeCountPerCamera;
-    eosVector(NodeHandle)                           m_registeredInput;
+    BoundingBox                             m_sceneBoundingBox;
+    ObjectHandler                              m_rootHandle;
+    eosMap(Camera*, eosVector(ObjectHandler))  m_treeNodes;
+    eosMap(ionSize, eosVector(DrawSurface)) m_drawSurfaces;
+    eosMap(ionSize, ionU32)                 m_nodeCountPerCamera;
+    eosVector(ObjectHandler)                   m_registeredInput;
 };
 
 ION_NAMESPACE_END

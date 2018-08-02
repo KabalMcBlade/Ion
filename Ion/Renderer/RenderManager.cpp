@@ -127,7 +127,7 @@ void RenderManager::LoadPrimitive(EVertexLayout _layout, EPrimitiveType _type, E
     }
 }
 
-void RenderManager::AddToSceneGraph(NodeHandle _node)
+void RenderManager::AddToSceneGraph(ObjectHandler _node)
 {
     m_sceneGraph.AddToScene(_node);
 }
@@ -197,12 +197,12 @@ void RenderManager::SendKeyboardInput(const KeyboardState& _keyboardState)
     m_sceneGraph.UpdateKeyboardInput(_keyboardState, m_deltaTime);
 }
 
-void RenderManager::RegisterToInput(const NodeHandle& _node)
+void RenderManager::RegisterToInput(const ObjectHandler& _node)
 {
     m_sceneGraph.RegisterToInput(_node);
 }
 
-void RenderManager::UnregisterFromInput(const NodeHandle& _node)
+void RenderManager::UnregisterFromInput(const ObjectHandler& _node)
 {
     m_sceneGraph.UnregisterFromInput(_node);
 }
@@ -217,7 +217,7 @@ ionBool RenderManager::IsRunning()
     return m_running;
 }
 
-Texture* RenderManager::GenerateBRDF(NodeHandle _camera)
+Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
 {
     const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
     const Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
@@ -229,7 +229,8 @@ Texture* RenderManager::GenerateBRDF(NodeHandle _camera)
 
     cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(brdflut->GetWidth()) / static_cast<ionFloat>(brdflut->GetHeight()), 0.1f, 256.0f);
 
-    EntityHandle brdflutEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+    Entity* brdflutEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+    ObjectHandler brdflutEntityHandle(brdflutEntity);
     brdflutEntity->GetTransform().SetPosition(entityPos);
     brdflutEntity->GetTransform().SetRotation(entityRot);
 
@@ -317,7 +318,7 @@ Texture* RenderManager::GetBRDF()
     return ionTextureManger().GetTexture(ION_BRDFLUT_TEXTURENAME);
 }
 
-Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCubeMap, NodeHandle _camera, EntityHandle _skyboxEntity)
+Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera, ObjectHandler _skyboxEntity)
 {
     const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(64))) + 1;
 
@@ -361,7 +362,8 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
 
     cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(irradiance->GetWidth()) / static_cast<ionFloat>(irradiance->GetHeight()), 0.1f, 256.0f);
 
-    EntityHandle irradianceEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+    Entity* irradianceEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+    ObjectHandler irradianceEntityHandle(irradianceEntity);
     irradianceEntity->GetTransform().SetPosition(entityPos);
     irradianceEntity->GetTransform().SetRotation(entityRot);
 
@@ -638,7 +640,7 @@ Texture* RenderManager::GetIrradianceCubemap()
     return ionTextureManger().GetTexture(ION_IRRADIANCE_TEXTURENAME);
 }
 
-Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, NodeHandle _camera, EntityHandle _skyboxEntity)
+Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera, ObjectHandler _skyboxEntity)
 {
     const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(512))) + 1;
 
@@ -683,7 +685,8 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     cameraPtr->SetCameraType(Camera::ECameraType::ECameraType_FirstPerson);
     cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(prefilteredEnvironment->GetWidth()) / static_cast<ionFloat>(prefilteredEnvironment->GetHeight()), 0.1f, 256.0f);
 
-    EntityHandle prefilteredEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+    Entity* prefilteredEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+    ObjectHandler prefilteredEntityHandle(prefilteredEntity);
     prefilteredEntity->GetTransform().SetPosition(entityPos);
     prefilteredEntity->GetTransform().SetRotation(entityRot);
 

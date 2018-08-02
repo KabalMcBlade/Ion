@@ -220,8 +220,8 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         break;
     }
 
-    _entity.GetBoundingBox().Expande(positions[0], positions[1]);
-    _entity.GetBoundingBox().Expande(positions[0], positions[2]);
+    _entity.GetBoundingBox()->Expande(positions[0], positions[1]);
+    _entity.GetBoundingBox()->Expande(positions[0], positions[2]);
 }
 
 
@@ -462,8 +462,8 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         break;
     }
 
-    _entity.GetBoundingBox().Expande(positions[0], positions[1]);
-    _entity.GetBoundingBox().Expande(positions[2], positions[3]);
+    _entity.GetBoundingBox()->Expande(positions[0], positions[1]);
+    _entity.GetBoundingBox()->Expande(positions[2], positions[3]);
 }
 
 
@@ -800,7 +800,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 
     for (ionU32 i = 1; i < 24; ++i)
     {
-        _entity.GetBoundingBox().Expande(positions[i - 1], positions[i]);
+        _entity.GetBoundingBox()->Expande(positions[i - 1], positions[i]);
     }
 }
 
@@ -1198,7 +1198,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
     const ionSize count = positions.size();
     for (ionU32 i = 1; i < count; ++i)
     {
-        _entity.GetBoundingBox().Expande(positions[i - 1], positions[i]);
+        _entity.GetBoundingBox()->Expande(positions[i - 1], positions[i]);
     }
 }
 
