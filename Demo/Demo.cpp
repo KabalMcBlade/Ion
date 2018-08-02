@@ -168,19 +168,6 @@ int main()
 
     Material* materialSkyBox = ionMaterialManger().CreateMaterial("SkyBox", 0u);
 
-    /*
-    // MEMORY TEST!
-    {
-        Camera* cameraPtr = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE, "CameraTest");
-        NodeHandle cameraTest(cameraPtr);
-        cameraPtr->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
-        cameraPtr->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
-        cameraPtr->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
-        cameraPtr->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
-
-        Skybox* skyboxPtr = cameraPtr->AddSkybox();
-        skyboxPtr->SetMaterial(materialSkyBox);
-    }*/
 
     //////////////////////////////////////////////////////////////////////////
 

@@ -71,7 +71,7 @@ void Node::DetachFromParent()
     if (m_parent.IsValid())
     {
         m_parent->GetChildren().erase(std::remove(m_parent->GetChildren().begin(), m_parent->GetChildren().end(), this), m_parent->GetChildren().end());
-        m_parent = nullptr;
+        m_parent.Release();
     }
 }
 
