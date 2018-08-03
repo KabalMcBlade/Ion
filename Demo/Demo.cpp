@@ -166,7 +166,9 @@ int main()
     }
 
 
-    Material* materialSkyBox = ionMaterialManger().CreateMaterial("SkyBox", 0u);
+    Material* skyboxMaterial = ionMaterialManger().CreateMaterial("SkyBox", 0u);
+    ionS32 skyboxVertexShaderIndex = -1;
+    ionS32 skyboxFragmentShaderIndex = -1;
 
 
     //////////////////////////////////////////////////////////////////////////
@@ -209,8 +211,8 @@ int main()
         cameraPtr->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
 
         Skybox* skyboxPtr = cameraPtr->AddSkybox();
-        skyboxPtr->SetMaterial(materialSkyBox);
-        materialSkyBox->GetBasePBR().SetBaseColorTexture(skyboxCubeMap);
+        skyboxPtr->SetMaterial(skyboxMaterial);
+        skyboxMaterial->GetBasePBR().SetBaseColorTexture(skyboxCubeMap);
 
         // one uniform structure bound in the index 0 in the shader stage
         ion::UniformBinding uniform;
@@ -225,7 +227,7 @@ int main()
         // one sampler bound in the index 1 in the shader stage
         ion::SamplerBinding sampler;
         sampler.m_bindingIndex = 1;
-        sampler.m_texture = materialSkyBox->GetBasePBR().GetBaseColorTexture();
+        sampler.m_texture = skyboxMaterial->GetBasePBR().GetBaseColorTexture();
 
         // constants
         ConstantsBindingDef constants;
@@ -240,25 +242,21 @@ int main()
         ion::ShaderLayoutDef fragmentLayout;
         fragmentLayout.m_samplers.push_back(sampler);
 
-        const ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Vertex, vertexLayout);
-        const ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Fragment, fragmentLayout);
+        skyboxVertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Vertex, vertexLayout);
+        skyboxFragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Fragment, fragmentLayout);
 
-        materialSkyBox->SetShaderProgramName("SkyboxEnvironmentMapGeneration");
-        materialSkyBox->SetVertexLayout(skyboxPtr->GetVertexLayout());
-        materialSkyBox->SetConstantsShaders(constants);
-        materialSkyBox->SetShaders(vertexShaderIndex, fragmentShaderIndex);
-        materialSkyBox->GetState().SetCullingMode(ECullingMode_Front);
-        materialSkyBox->GetState().SetDepthFunctionMode(EDepthFunction_Less);
-        materialSkyBox->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
+        skyboxMaterial->SetShaderProgramName("SkyboxEnvironmentMapGeneration");
+        skyboxMaterial->SetVertexLayout(skyboxPtr->GetVertexLayout());
+        skyboxMaterial->SetConstantsShaders(constants);
+        skyboxMaterial->SetShaders(skyboxVertexShaderIndex, skyboxFragmentShaderIndex);
+        skyboxMaterial->GetState().SetCullingMode(ECullingMode_Front);
+        skyboxMaterial->GetState().SetDepthFunctionMode(EDepthFunction_Less);
+        skyboxMaterial->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
 
         // generation
         brdflut = ionRenderManager().GenerateBRDF(camera);
         //irradiance = ionRenderManager().GenerateIrradianceCubemap(materialSkyBox->GetBasePBR().GetBaseColorTexture(), camera);
         //prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(materialSkyBox->GetBasePBR().GetBaseColorTexture(), camera);
-
-        ionShaderProgramManager().UnloadShader(vertexShaderIndex);
-        ionShaderProgramManager().UnloadShader(fragmentShaderIndex);
-        ionShaderProgramManager().Restart();
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -278,8 +276,8 @@ int main()
     // Create SkyBox
 
     Skybox* skyboxPtr = camera->AddSkybox();
-    skyboxPtr->SetMaterial(materialSkyBox);
-    materialSkyBox->GetBasePBR().SetBaseColorTexture(skyboxCubeMap);
+    skyboxPtr->SetMaterial(skyboxMaterial);
+    skyboxMaterial->GetBasePBR().SetBaseColorTexture(skyboxCubeMap);
 
     // one uniform structure bound in the index 0 in the shader stage
     ion::UniformBinding uniform;
@@ -294,7 +292,7 @@ int main()
     // one sampler bound in the index 1 in the shader stage
     ion::SamplerBinding sampler;
     sampler.m_bindingIndex = 1;
-    sampler.m_texture = materialSkyBox->GetBasePBR().GetBaseColorTexture();
+    sampler.m_texture = skyboxMaterial->GetBasePBR().GetBaseColorTexture();
 
     // constants
     ConstantsBindingDef constants;
@@ -309,13 +307,10 @@ int main()
     ion::ShaderLayoutDef fragmentLayout;
     fragmentLayout.m_samplers.push_back(sampler);
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Fragment, fragmentLayout);
-
-    materialSkyBox->SetShaderProgramName("SkyBox");
-    materialSkyBox->SetVertexLayout(skyboxPtr->GetVertexLayout());
-    materialSkyBox->SetConstantsShaders(constants);
-    materialSkyBox->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+    skyboxMaterial->SetShaderProgramName("SkyBox");
+    skyboxMaterial->SetVertexLayout(skyboxPtr->GetVertexLayout());
+    skyboxMaterial->SetConstantsShaders(constants);
+    skyboxMaterial->SetShaders(skyboxVertexShaderIndex, skyboxFragmentShaderIndex);
 
 
     //////////////////////////////////////////////////////////////////////////

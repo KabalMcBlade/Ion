@@ -355,7 +355,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
     // generation of the entity and camera render
     const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
     const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
-    const Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
+    const Vector entityPos(0.0f, 0.0f, 1.0f, 0.0f);
     const Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
 
     Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
@@ -471,6 +471,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
                 // rotate the camera here
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
                 cameraPtr->Update(0.0f);
+                cameraPtr->UpdateView();
 
                 cameraPtr->CustomRenderSkybox(m_renderCore, cmdBuffer, renderPass);
 
@@ -478,7 +479,6 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
                 {
                     const Matrix& projection = cameraPtr->GetPerspectiveProjection();
                     const Matrix& view = cameraPtr->GetView();
-
                     const Matrix& model = irradianceEntity->GetTransform().GetMatrixWS();
 
                     DrawSurface drawSurface;
@@ -643,7 +643,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     // generation of the entity and camera render
     const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
     const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
-    const Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
+    const Vector entityPos(0.0f, 0.0f, 1.0f, 0.0f);
     const Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
 
     Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
@@ -760,6 +760,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
                 // rotate the camera here
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
                 cameraPtr->Update(0.0f);
+                cameraPtr->UpdateView();
 
                 cameraPtr->CustomRenderSkybox(m_renderCore, cmdBuffer, renderPass);
 
@@ -770,7 +771,6 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
 
                     const Matrix& projection = cameraPtr->GetPerspectiveProjection();
                     const Matrix& view = cameraPtr->GetView();
-
                     const Matrix& model = prefilteredEntity->GetTransform().GetMatrixWS();
 
                     DrawSurface drawSurface;
