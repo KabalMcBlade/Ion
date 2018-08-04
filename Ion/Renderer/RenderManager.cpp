@@ -642,7 +642,6 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
 
     Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
 
-    cameraPtr->SetCameraType(Camera::ECameraType::ECameraType_FirstPerson);
     cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(prefilteredEnvironment->GetWidth()) / static_cast<ionFloat>(prefilteredEnvironment->GetHeight()), 0.1f, 256.0f);
 
     Entity* prefilteredEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
@@ -686,10 +685,10 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
 
 
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_PREFILTERED_VERTEX_SHADER_NAME, EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_FRAGMENT_SHADER_NAME, EShaderStage_Fragment, fragmentLayout);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PREFILTEREDENVIRONMENT_FRAGMENT_SHADER_NAME, EShaderStage_Fragment, fragmentLayout);
 
     prefilteredEntity->GetMesh(0)->GetMaterial()->SetConstantsShaders(constants);
-    prefilteredEntity->GetMesh(0)->GetMaterial()->SetShaderProgramName(ION_IRRADIANCE_FRAGMENT_SHADER_NAME);
+    prefilteredEntity->GetMesh(0)->GetMaterial()->SetShaderProgramName(ION_PREFILTEREDENVIRONMENT_FRAGMENT_SHADER_NAME);
     prefilteredEntity->GetMesh(0)->GetMaterial()->SetVertexLayout(prefilteredEntity->GetMesh(0)->GetLayout());
 
     prefilteredEntity->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
@@ -735,7 +734,6 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
             vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
         }
 
-
         // TODO: find the proper rotation order!
         eosVector(Quaternion) rotations;
         rotations.push_back(Quaternion(NIX_DEG_TO_RAD(0.0f), up));
@@ -760,7 +758,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
 
                 // draw prefilteredEnvironment
                 {
-                    //
+                    // NOTE: is not updated, need to fix!
                     prefilteredEntity->GetMesh(0)->GetMaterial()->GetConstantsShaders().m_values[0] = (ionFloat)m / (ionFloat)(mipMapsLevel - 1);
 
                     const Matrix& projection = cameraPtr->GetPerspectiveProjection();
@@ -882,9 +880,6 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
 
     m_renderCore.DestroyRenderPass(renderPass);
     m_renderCore.DestroyFrameBuffer(framebuffer);
-
-
-    
 
     ionTextureManger().DestroyTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME_OFFSCREEN);
 
