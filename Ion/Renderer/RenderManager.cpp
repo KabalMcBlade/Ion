@@ -332,9 +332,6 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
 
     VkCommandBuffer layoutCmd = m_renderCore.CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
-    ionStagingBufferManager().Submit();
-    ionShaderProgramManager().StartFrame();
-
     if (m_renderCore.BeginCustomCommandBuffer(layoutCmd))
     {
         VkImageMemoryBarrier imageMemoryBarrier{};
@@ -412,6 +409,9 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
     irradianceEntity->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
     irradianceEntity->GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ECullingMode_TwoSide);
+    irradianceEntity->GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(EColorMask_Depth);
+    irradianceEntity->GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(EDepthFunction_Less);
+    irradianceEntity->GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_Always);
 
     //
     // render phase
@@ -469,16 +469,17 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
                 cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(irradiance->GetWidth()), static_cast<ionU32>(irradiance->GetHeight()));
 
                 // rotate the camera here
-                cameraPtr->GetTransform().SetRotation(rotations[f]);
+                //cameraPtr->GetTransform().SetRotation(rotations[f]);
                 cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
-
-                cameraPtr->CustomRenderSkybox(m_renderCore, cmdBuffer, renderPass);
 
                 // draw irradiance
                 {
                     const Matrix& projection = cameraPtr->GetPerspectiveProjection();
                     const Matrix& view = cameraPtr->GetView();
+
+                    irradianceEntity->GetTransform().SetRotation(rotations[f]);
+                    irradianceEntity->Update(0.0f);
                     const Matrix& model = irradianceEntity->GetTransform().GetMatrixWS();
 
                     DrawSurface drawSurface;
@@ -509,6 +510,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
                     m_renderCore.Draw(cmdBuffer, renderPass, drawSurface);
                 }
 
+                cameraPtr->CustomRenderSkybox(m_renderCore, cmdBuffer, renderPass);
 
                 cameraPtr->EndRenderPass(m_renderCore, cmdBuffer);
 
@@ -620,9 +622,6 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
 
     VkCommandBuffer layoutCmd = m_renderCore.CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
-    ionStagingBufferManager().Submit();
-    ionShaderProgramManager().StartFrame();
-
     if (m_renderCore.BeginCustomCommandBuffer(layoutCmd))
     {
         VkImageMemoryBarrier imageMemoryBarrier{};
@@ -701,6 +700,9 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     prefilteredEntity->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
     prefilteredEntity->GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ECullingMode_TwoSide);
+    prefilteredEntity->GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(EColorMask_Depth);
+    prefilteredEntity->GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(EDepthFunction_Less);
+    prefilteredEntity->GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_Always);
 
     //
     // render phase
@@ -758,11 +760,9 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
                 cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(prefilteredEnvironment->GetWidth()), static_cast<ionU32>(prefilteredEnvironment->GetHeight()));
 
                 // rotate the camera here
-                cameraPtr->GetTransform().SetRotation(rotations[f]);
+                //cameraPtr->GetTransform().SetRotation(rotations[f]);
                 cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
-
-                cameraPtr->CustomRenderSkybox(m_renderCore, cmdBuffer, renderPass);
 
                 // draw prefilteredEnvironment
                 {
@@ -771,6 +771,9 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
 
                     const Matrix& projection = cameraPtr->GetPerspectiveProjection();
                     const Matrix& view = cameraPtr->GetView();
+
+                    prefilteredEntity->GetTransform().SetRotation(rotations[f]);
+                    prefilteredEntity->Update(0.0f);
                     const Matrix& model = prefilteredEntity->GetTransform().GetMatrixWS();
 
                     DrawSurface drawSurface;
@@ -801,6 +804,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
                     m_renderCore.Draw(cmdBuffer, renderPass, drawSurface);
                 }
 
+                cameraPtr->CustomRenderSkybox(m_renderCore, cmdBuffer, renderPass);
 
                 cameraPtr->EndRenderPass(m_renderCore, cmdBuffer);
 

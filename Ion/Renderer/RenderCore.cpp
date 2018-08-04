@@ -631,6 +631,8 @@ ionBool RenderCore::CreateRenderTargets()
     m_vkDepthFormat = SelectSupportedFormat(m_vkGPU.m_vkPhysicalDevice, formats, 5, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
     
     ionTextureManger().SetDepthFormat(m_vkDepthFormat);
+    //ionTextureManger().SetSamplerAnysotropy(m_vkGPU.m_vkPhysicalDevFeatures.samplerAnisotropy == VK_TRUE);
+    ionTextureManger().SetSamplerAnysotropy(VK_FALSE);
 
     if (m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT) 
     {
