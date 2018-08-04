@@ -449,10 +449,8 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
             vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
         }
 
-
+        // TODO: find the proper rotation order!
         eosVector(Quaternion) rotations;
-        rotations.resize(6);
-
         rotations.push_back(Quaternion(NIX_DEG_TO_RAD(0.0f), up));
         rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), up));
         rotations.push_back(Quaternion(NIX_DEG_TO_RAD(180.0f), up));
@@ -469,7 +467,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
                 cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(irradiance->GetWidth()), static_cast<ionU32>(irradiance->GetHeight()));
 
                 // rotate the camera here
-                //cameraPtr->GetTransform().SetRotation(rotations[f]);
+                cameraPtr->GetTransform().SetRotation(rotations[f]);
                 cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
 
@@ -477,9 +475,6 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
                 {
                     const Matrix& projection = cameraPtr->GetPerspectiveProjection();
                     const Matrix& view = cameraPtr->GetView();
-
-                    //irradianceEntity->GetTransform().SetRotation(rotations[f]);
-                    //irradianceEntity->Update(0.0f);
                     const Matrix& model = irradianceEntity->GetTransform().GetMatrixWS();
 
                     DrawSurface drawSurface;
@@ -741,9 +736,8 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
         }
 
 
+        // TODO: find the proper rotation order!
         eosVector(Quaternion) rotations;
-        rotations.resize(6);
-
         rotations.push_back(Quaternion(NIX_DEG_TO_RAD(0.0f), up));
         rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), up));
         rotations.push_back(Quaternion(NIX_DEG_TO_RAD(180.0f), up));
@@ -760,7 +754,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
                 cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(prefilteredEnvironment->GetWidth()), static_cast<ionU32>(prefilteredEnvironment->GetHeight()));
 
                 // rotate the camera here
-                //cameraPtr->GetTransform().SetRotation(rotations[f]);
+                cameraPtr->GetTransform().SetRotation(rotations[f]);
                 cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
 
@@ -771,9 +765,6 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
 
                     const Matrix& projection = cameraPtr->GetPerspectiveProjection();
                     const Matrix& view = cameraPtr->GetView();
-
-                    //prefilteredEntity->GetTransform().SetRotation(rotations[f]);
-                    //prefilteredEntity->Update(0.0f);
                     const Matrix& model = prefilteredEntity->GetTransform().GetMatrixWS();
 
                     DrawSurface drawSurface;
