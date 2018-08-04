@@ -478,8 +478,8 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
                     const Matrix& projection = cameraPtr->GetPerspectiveProjection();
                     const Matrix& view = cameraPtr->GetView();
 
-                    irradianceEntity->GetTransform().SetRotation(rotations[f]);
-                    irradianceEntity->Update(0.0f);
+                    //irradianceEntity->GetTransform().SetRotation(rotations[f]);
+                    //irradianceEntity->Update(0.0f);
                     const Matrix& model = irradianceEntity->GetTransform().GetMatrixWS();
 
                     DrawSurface drawSurface;
@@ -772,8 +772,8 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
                     const Matrix& projection = cameraPtr->GetPerspectiveProjection();
                     const Matrix& view = cameraPtr->GetView();
 
-                    prefilteredEntity->GetTransform().SetRotation(rotations[f]);
-                    prefilteredEntity->Update(0.0f);
+                    //prefilteredEntity->GetTransform().SetRotation(rotations[f]);
+                    //prefilteredEntity->Update(0.0f);
                     const Matrix& model = prefilteredEntity->GetTransform().GetMatrixWS();
 
                     DrawSurface drawSurface;

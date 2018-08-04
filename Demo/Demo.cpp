@@ -307,6 +307,9 @@ int main()
     ion::ShaderLayoutDef fragmentLayout;
     fragmentLayout.m_samplers.push_back(sampler);
 
+    ionShaderProgramManager().UpdateShader(skyboxVertexShaderIndex, vertexLayout);
+    ionShaderProgramManager().UpdateShader(skyboxFragmentShaderIndex, fragmentLayout);
+
     skyboxMaterial->SetShaderProgramName("SkyBox");
     skyboxMaterial->SetVertexLayout(skyboxPtr->GetVertexLayout());
     skyboxMaterial->SetConstantsShaders(constants);

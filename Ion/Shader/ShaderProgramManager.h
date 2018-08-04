@@ -78,6 +78,7 @@ public:
 
     // Shader name WITHOUT extension, because is chose by the shader stage!
     ionS32  FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage, const ShaderLayoutDef& _defines);
+    void    UpdateShader(ionS32 _index, const ShaderLayoutDef& _defines);
 
     void    StartFrame();
     void    EndFrame();

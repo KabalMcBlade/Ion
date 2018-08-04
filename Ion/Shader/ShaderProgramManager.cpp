@@ -752,6 +752,28 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
     }
 }
 
+void ShaderProgramManager::UpdateShader(ionS32 _index, const ShaderLayoutDef& _defines)
+{
+    ionAssertReturnVoid(_index >= 0 && _index < m_shaders.size(), "Index out of bound!");
+
+    Shader& shader = m_shaders[_index];
+
+    shader.m_shaderLayout.Clear();  // clear the data and than overwrite
+    shader.m_shaderLayout = _defines;
+
+    ionSize uniformCount = shader.m_shaderLayout.m_uniforms.size();
+    for (ionSize i = 0; i < uniformCount; ++i)
+    {
+        ionSize paramCount = shader.m_shaderLayout.m_uniforms[i].m_parameters.size();
+        shader.m_shaderLayout.m_uniforms[i].m_runtimeParameters.resize(paramCount);
+        for (ionSize j = 0; j < paramCount; ++j)
+        {
+            const ionSize hash = std::hash<eosString>{}(shader.m_shaderLayout.m_uniforms[i].m_parameters[j]);
+            shader.m_shaderLayout.m_uniforms[i].m_runtimeParameters[j] = hash;
+        }
+    }
+}
+
 ionS32 ShaderProgramManager::FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage, const ShaderLayoutDef& _defines)
 {
     for (ionS32 i = 0; i < m_shaders.size(); ++i)
