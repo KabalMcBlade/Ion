@@ -579,17 +579,30 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
         case EDepthFunction_Greater:    depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL; break;
         }
 
-        VkCompareOp stencilCompareOp = VK_COMPARE_OP_ALWAYS;
+        VkCompareOp stencilFrontCompareOp = VK_COMPARE_OP_ALWAYS;
         switch (_stateBits & EStencilFrontFunction_Bits)
         {
-        case EStencilFrontFunction_Never:            stencilCompareOp = VK_COMPARE_OP_NEVER; break;
-        case EStencilFrontFunction_Lesser:            stencilCompareOp = VK_COMPARE_OP_LESS; break;
-        case EStencilFrontFunction_Equal:            stencilCompareOp = VK_COMPARE_OP_EQUAL; break;
-        case EStencilFrontFunction_LesserOrEqual:    stencilCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL; break;
-        case EStencilFrontFunction_Greater:            stencilCompareOp = VK_COMPARE_OP_GREATER; break;
-        case EStencilFrontFunction_NotEqual:        stencilCompareOp = VK_COMPARE_OP_NOT_EQUAL; break;
-        case EStencilFrontFunction_GreaterOrEqual:    stencilCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL; break;
-        case EStencilFrontFunction_Always:            stencilCompareOp = VK_COMPARE_OP_ALWAYS; break;
+        case EStencilFrontFunction_Never:            stencilFrontCompareOp = VK_COMPARE_OP_NEVER; break;
+        case EStencilFrontFunction_Lesser:            stencilFrontCompareOp = VK_COMPARE_OP_LESS; break;
+        case EStencilFrontFunction_Equal:            stencilFrontCompareOp = VK_COMPARE_OP_EQUAL; break;
+        case EStencilFrontFunction_LesserOrEqual:    stencilFrontCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL; break;
+        case EStencilFrontFunction_Greater:            stencilFrontCompareOp = VK_COMPARE_OP_GREATER; break;
+        case EStencilFrontFunction_NotEqual:        stencilFrontCompareOp = VK_COMPARE_OP_NOT_EQUAL; break;
+        case EStencilFrontFunction_GreaterOrEqual:    stencilFrontCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL; break;
+        case EStencilFrontFunction_Always:            stencilFrontCompareOp = VK_COMPARE_OP_ALWAYS; break;
+        }
+
+        VkCompareOp stencilBackCompareOp = VK_COMPARE_OP_ALWAYS;
+        switch (_stateBits & EStencilBackFunction_Bits)
+        {
+        case EStencilBackFunction_Never:            stencilBackCompareOp = VK_COMPARE_OP_NEVER; break;
+        case EStencilBackFunction_Lesser:            stencilBackCompareOp = VK_COMPARE_OP_LESS; break;
+        case EStencilBackFunction_Equal:            stencilBackCompareOp = VK_COMPARE_OP_EQUAL; break;
+        case EStencilBackFunction_LesserOrEqual:    stencilBackCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL; break;
+        case EStencilBackFunction_Greater:            stencilBackCompareOp = VK_COMPARE_OP_GREATER; break;
+        case EStencilBackFunction_NotEqual:        stencilBackCompareOp = VK_COMPARE_OP_NOT_EQUAL; break;
+        case EStencilBackFunction_GreaterOrEqual:    stencilBackCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL; break;
+        case EStencilBackFunction_Always:            stencilBackCompareOp = VK_COMPARE_OP_ALWAYS; break;
         }
 
         depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
@@ -612,13 +625,13 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
         {
             depthStencilState.front = GetStencilOpState(_stateBits & EStencilFrontOperator_Bits);
             depthStencilState.front.writeMask = 0xFFFFFFFF;
-            depthStencilState.front.compareOp = stencilCompareOp;
+            depthStencilState.front.compareOp = stencilFrontCompareOp;
             depthStencilState.front.compareMask = mask;
             depthStencilState.front.reference = ref;
 
             depthStencilState.back = GetStencilOpState((_stateBits & EStencilBackOperator_Bits) >> 12);
             depthStencilState.back.writeMask = 0xFFFFFFFF;
-            depthStencilState.back.compareOp = stencilCompareOp;
+            depthStencilState.back.compareOp = stencilBackCompareOp;
             depthStencilState.back.compareMask = mask;
             depthStencilState.back.reference = ref;
         }
@@ -626,7 +639,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
         {
             depthStencilState.front = GetStencilOpState(_stateBits);
             depthStencilState.front.writeMask = 0xFFFFFFFF;
-            depthStencilState.front.compareOp = stencilCompareOp;
+            depthStencilState.front.compareOp = stencilFrontCompareOp;
             depthStencilState.front.compareMask = mask;
             depthStencilState.front.reference = ref;
             depthStencilState.back = depthStencilState.front;
