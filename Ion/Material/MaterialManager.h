@@ -24,13 +24,16 @@ public:
     void        Init();
     void        Shutdown();
 
-    Material*    CreateMaterial(const eosString& _name, ionU64 _stateBits = 0);
-    Material*    GetMaterial(const eosString& _name) const;
+    Material*   CreateMaterial(const eosString& _name, ionU64 _stateBits = 0);
+    Material*   GetMaterial(const eosString& _name) const;
+
+    // This call actually destroy/delete the material
+    void        DestroyMaterial(const eosString& _name);
 
 private:
     Material*   InternalCreateMaterial(const eosString& _name);
     void        DestroyMaterial(Material* _material);
-    void        DestroyMaterial(ionSize _hash);
+    void        DestroyMaterial(ionSize _hash);         // This call actually destroy/delete the material
 
 private:
     eosMap(ionSize, Material*) m_hashMaterial;

@@ -42,6 +42,7 @@ public:
 
     ionBool     SaveTexture(const eosString& _path, const Texture* _texture) const;
 
+    // this one actually destroy/delete the texture!
     void        DestroyTexture(const eosString& _name);
 
     const ETextureSamplesPerBit& GetMainSamplePerBits() const { return m_mainSamplesPerBit; }
@@ -49,7 +50,7 @@ public:
 private:
     Texture*    CreateTexture(VkDevice _vkDevice, const eosString& _name);
     void        DestroyTexture(Texture* _texture);
-    void        DestroyTexture(ionSize _hash);
+    void        DestroyTexture(ionSize _hash);          // this one actually destroy/delete the texture!
 
 private:
     VkDevice    m_vkDevice;

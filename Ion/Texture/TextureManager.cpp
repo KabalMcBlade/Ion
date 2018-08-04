@@ -199,7 +199,7 @@ ionBool TextureManager::SaveTexture(const eosString& _path, const Texture* _text
 
 void TextureManager::DestroyTexture(const eosString& _name)
 {
-    ionSize hash = std::hash<eosString>{}(_name);   // from the original with extension
+    ionSize hash = std::hash<eosString>{}(_name);
     DestroyTexture(hash);
 }
 
@@ -229,7 +229,7 @@ void TextureManager::DestroyTexture(ionSize _hash)
     if (search != m_hashTexture.end())
     {
         DestroyTexture(search->second);
-
+        eosDelete(search->second);
         m_hashTexture.erase(_hash);
     }
 }

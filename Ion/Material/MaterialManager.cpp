@@ -53,6 +53,7 @@ void MaterialManager::Shutdown()
     for (; it != end; ++it)
     {
         DestroyMaterial(it->second);
+        eosDelete(it->second);
     }
     m_hashMaterial.clear();
 }
@@ -125,12 +126,25 @@ Material* MaterialManager::InternalCreateMaterial(const eosString& _name)
     return material;
 }
 
+void MaterialManager::DestroyMaterial(const eosString& _name)
+{
+    if (_name.empty())
+    {
+        return;
+    }
+
+    ionSize hash = std::hash<eosString>{}(_name);
+    DestroyMaterial(hash);
+}
+
 void MaterialManager::DestroyMaterial(ionSize _hash)
 {
     auto search = m_hashMaterial.find(_hash);
     if (search != m_hashMaterial.end())
     {
         DestroyMaterial(search->second);
+        eosDelete(search->second);
+        m_hashMaterial.erase(_hash);
     }
 }
 
@@ -139,7 +153,6 @@ void MaterialManager::DestroyMaterial(Material* _material)
     if (_material != nullptr)
     {
         _material->Destroy();
-        eosDelete(_material);
     }
 }
 
