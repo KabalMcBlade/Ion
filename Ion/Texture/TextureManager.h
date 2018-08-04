@@ -30,6 +30,9 @@ public:
     void        SetDepthFormat(VkFormat _depthFormat) { m_depthFormat = _depthFormat; }
     VkFormat    GetDepthFormat() const { return m_depthFormat; }
 
+    void        SetSamplerAnysotropy(ionBool _samplerAnysotrpy) { m_samplerAnisotropy = _samplerAnysotrpy; }
+    ionBool     GetSamplerAnysotropy() const { return m_samplerAnisotropy; }
+
     Texture*    CreateTextureFromFile(const eosString& _name, const eosString& _path, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureUsage _usage = ETextureUsage_RGBA, ETextureType _type = ETextureType_2D, ionU32 _maxAnisotrpy = 1);
     Texture*    CreateTextureFromBuffer(const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureUsage _usage = ETextureUsage_RGBA, ETextureType _type = ETextureType_2D, ionU32 _maxAnisotrpy = 1);
     Texture*    GenerateTexture(const eosString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureType _type = ETextureType_2D, ionU32 _numLevel = 1, ionU32 _maxAnisotrpy = 1);
@@ -54,6 +57,7 @@ private:
 
     ETextureSamplesPerBit   m_mainSamplesPerBit;
     VkFormat                m_depthFormat;
+    ionBool                 m_samplerAnisotropy;
 
     static TextureManager *s_instance;
 };

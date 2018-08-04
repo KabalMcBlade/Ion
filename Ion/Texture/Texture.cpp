@@ -617,8 +617,6 @@ ionBool Texture::Create()
                 createInfo.usage &= ~VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
                 createInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
             }
-            
-
             createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -655,7 +653,7 @@ ionBool Texture::Create()
             createInfo.subresourceRange.levelCount = m_numLevels;
             createInfo.subresourceRange.layerCount = (m_optTextureType == ETextureType_Cubic) ? 6 : 1;
             createInfo.subresourceRange.baseMipLevel = 0;
-            //createInfo.subresourceRange.baseArrayLayer = 0;
+            createInfo.subresourceRange.baseArrayLayer = 0;
 
             VkResult result = vkCreateImageView(m_vkDevice, &createInfo, vkMemory, &m_view);
             ionAssertReturnValue(result == VK_SUCCESS, "Cannot create image view!", false);
@@ -826,8 +824,8 @@ ionBool Texture::CreateSampler()
 {
     VkSamplerCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    createInfo.maxAnisotropy = (ionFloat)m_maxAnisotropy;
-    createInfo.anisotropyEnable = m_maxAnisotropy > 1 ? VK_TRUE : VK_FALSE;
+    createInfo.maxAnisotropy = ionTextureManger().GetSamplerAnysotropy() ? static_cast<ionFloat>(m_maxAnisotropy) : 1.0f;
+    createInfo.anisotropyEnable = ionTextureManger().GetSamplerAnysotropy();
     createInfo.compareEnable = (m_optFormat == ETextureFormat_Depth);
     createInfo.compareOp = (m_optFormat == ETextureFormat_Depth) ? VK_COMPARE_OP_LESS_OR_EQUAL : VK_COMPARE_OP_NEVER;
     createInfo.unnormalizedCoordinates = VK_FALSE;
@@ -854,13 +852,13 @@ ionBool Texture::CreateSampler()
     switch (m_optRepeat) 
     {
     case ETextureRepeat_Repeat:
-        createInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE; //VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+        createInfo.borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK; //VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
         createInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         createInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
         break;
     case ETextureRepeat_Clamp:
-        createInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+        createInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE; //VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
         createInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         createInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
