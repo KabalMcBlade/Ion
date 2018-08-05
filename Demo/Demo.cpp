@@ -179,10 +179,7 @@ int main()
 
 
     Vector cameraPos(0.0f, 0.0f, -3.0f, 0.0f);
-    Quaternion cameraRot(NIX_DEG_TO_RAD(0.0f), up);
-
     Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
-    Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
 
     //////////////////////////////////////////////////////////////////////////
 
@@ -205,7 +202,6 @@ int main()
         ObjectHandler camera(cameraPtr);
         cameraPtr->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
         cameraPtr->GetTransform().SetPosition(cameraGenPos);
-        cameraPtr->GetTransform().SetRotation(cameraRot);
         cameraPtr->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
         cameraPtr->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
         cameraPtr->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
@@ -266,7 +262,6 @@ int main()
     camera->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
     camera->GetTransform().SetPosition(cameraPos);
-    camera->GetTransform().SetRotation(cameraRot);
     camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
     camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
     camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
@@ -321,7 +316,6 @@ int main()
     RotatingEntity* test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler testHandle(test);
     test->GetTransform().SetPosition(entityPos);
-    test->GetTransform().SetRotation(entityRot);
 
     //////////////////////////////////////////////////////////////////////////
     //

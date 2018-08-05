@@ -219,10 +219,6 @@ ionBool RenderManager::IsRunning()
 
 Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
 {
-    const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
-    const Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
-    const Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
-
     Texture* brdflut = ionTextureManger().GenerateTexture(ION_BRDFLUT_TEXTURENAME, 512, 512, ETextureFormat_BRDF, ETextureFilter_Default, ETextureRepeat_Clamp);
 
     Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
@@ -231,8 +227,6 @@ Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
 
     Entity* brdflutEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler brdflutEntityHandle(brdflutEntity);
-    brdflutEntity->GetTransform().SetPosition(entityPos);
-    brdflutEntity->GetTransform().SetRotation(entityRot);
 
     LoadPrimitive(EVertexLayout_Empty, EPrimitiveType_Quad, *brdflutEntity);
 
@@ -350,10 +344,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
 
     //
     // generation of the entity and camera render
-    const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
-    const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
     const Vector entityPos(0.0f, 0.0f, 1.0f, 0.0f);
-    const Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
 
     Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
 
@@ -362,7 +353,6 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
     Entity* irradianceEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler irradianceEntityHandle(irradianceEntity);
     irradianceEntity->GetTransform().SetPosition(entityPos);
-    irradianceEntity->GetTransform().SetRotation(entityRot);
 
     // shader has position input
     LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, *irradianceEntity);
@@ -451,12 +441,12 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
 
         // TODO: find the proper rotation order!
         eosVector(Quaternion) rotations;
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(0.0f), up));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), up));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(180.0f), up));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(270.0f), up));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), right));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(270.0f), right));
+        rotations.push_back(Quaternion(0.0f, -0.707f, 0.0f, 0.707f));    // right in camera poi
+        rotations.push_back(Quaternion(0.0f, 0.707f, 0.0f, 0.707f));     // left in camera poi
+        rotations.push_back(Quaternion(-0.707f, 0.0f, 0.0f, 0.707f));    // up in camera poi
+        rotations.push_back(Quaternion(0.707f, 0.0f, 0.0f, 0.707f));    // down in camera poi
+        rotations.push_back(Quaternion(0.0f, 1.0f, 0.0f, 0.0f));    // rear in camera poi
+        rotations.push_back(Quaternion());                              // front in camera poi
 
         for (ionU32 m = 0; m < mipMapsLevel; ++m)
         {
@@ -468,7 +458,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
 
                 // rotate the camera here
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
-                cameraPtr->Update(0.0f);
+                //cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
 
                 // draw irradiance
@@ -635,10 +625,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
 
     //
     // generation of the entity and camera render
-    const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
-    const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
-    const Vector entityPos(0.0f, 0.0f, 1.0f, 0.0f);
-    const Quaternion entityRot(NIX_DEG_TO_RAD(0.0f), up);
+    const Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
 
     Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
 
@@ -647,7 +634,6 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     Entity* prefilteredEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler prefilteredEntityHandle(prefilteredEntity);
     prefilteredEntity->GetTransform().SetPosition(entityPos);
-    prefilteredEntity->GetTransform().SetRotation(entityRot);
 
     // shader has position input
     LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, *prefilteredEntity);
@@ -734,14 +720,13 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
             vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
         }
 
-        // TODO: find the proper rotation order!
         eosVector(Quaternion) rotations;
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(0.0f), up));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), up));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(180.0f), up));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(270.0f), up));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), right));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(270.0f), right));
+        rotations.push_back(Quaternion(0.0f, -0.707f, 0.0f, 0.707f));    // right in camera poi
+        rotations.push_back(Quaternion(0.0f, 0.707f, 0.0f, 0.707f));     // left in camera poi
+        rotations.push_back(Quaternion(-0.707f, 0.0f, 0.0f, 0.707f));    // up in camera poi
+        rotations.push_back(Quaternion(0.707f, 0.0f, 0.0f, 0.707f));    // down in camera poi
+        rotations.push_back(Quaternion(0.0f, 1.0f, 0.0f, 0.0f));    // rear in camera poi
+        rotations.push_back(Quaternion());                              // front in camera poi
 
         for (ionU32 m = 0; m < mipMapsLevel; ++m)
         {
@@ -753,7 +738,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
 
                 // rotate the camera here
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
-                cameraPtr->Update(0.0f);
+                //cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
 
                 // draw prefilteredEnvironment

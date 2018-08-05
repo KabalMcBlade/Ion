@@ -5,7 +5,7 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-Transform::Transform() : m_rotation(0.0f, 0.0f, 0.0f, 0.0f), m_scale(1.0f, 1.0f, 1.0f, 1.0f), m_position(), m_dirty(true)
+Transform::Transform() : m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f, 0.0f), m_position(0.0f, 0.0f, 0.0f, 1.0f), m_dirty(true)
 {
 
 }
