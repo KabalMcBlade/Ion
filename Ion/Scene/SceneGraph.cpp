@@ -176,7 +176,7 @@ void SceneGraph::Update(ionFloat _deltaTime)
         index = 0;
         Camera* cam = iter->first;
 
-        cam->UpdateView();
+        cam->UpdateView();  // here is updated the skybox either
 
         const Matrix& projection = cam->GetPerspectiveProjection();
         const Matrix& view = cam->GetView();

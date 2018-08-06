@@ -93,64 +93,41 @@ void Skybox::SetMaterial(Material* _material)
     m_mesh->SetMaterial(_material);
 }
 
-void Skybox::Draw(RenderCore& _renderCore, const Matrix& _projection, const Matrix& _view, const Matrix& _model)
+void Skybox::Update(const Matrix& _projection, const Matrix& _view, const Matrix& _model)
 {
-    DrawSurface drawSurface;
+    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[0], _model[0]);
+    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[4], _model[1]);
+    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[8], _model[2]);
+    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[12], _model[3]);
 
-    _mm_storeu_ps(&drawSurface.m_modelMatrix[0], _model[0]);
-    _mm_storeu_ps(&drawSurface.m_modelMatrix[4], _model[1]);
-    _mm_storeu_ps(&drawSurface.m_modelMatrix[8], _model[2]);
-    _mm_storeu_ps(&drawSurface.m_modelMatrix[12], _model[3]);
+    _mm_storeu_ps(&m_drawSurface.m_viewMatrix[0], _view[0]);
+    _mm_storeu_ps(&m_drawSurface.m_viewMatrix[4], _view[1]);
+    _mm_storeu_ps(&m_drawSurface.m_viewMatrix[8], _view[2]);
+    _mm_storeu_ps(&m_drawSurface.m_viewMatrix[12], _view[3]);
 
-    _mm_storeu_ps(&drawSurface.m_viewMatrix[0], _view[0]);
-    _mm_storeu_ps(&drawSurface.m_viewMatrix[4], _view[1]);
-    _mm_storeu_ps(&drawSurface.m_viewMatrix[8], _view[2]);
-    _mm_storeu_ps(&drawSurface.m_viewMatrix[12], _view[3]);
+    _mm_storeu_ps(&m_drawSurface.m_projectionMatrix[0], _projection[0]);
+    _mm_storeu_ps(&m_drawSurface.m_projectionMatrix[4], _projection[1]);
+    _mm_storeu_ps(&m_drawSurface.m_projectionMatrix[8], _projection[2]);
+    _mm_storeu_ps(&m_drawSurface.m_projectionMatrix[12], _projection[3]);
 
-    _mm_storeu_ps(&drawSurface.m_projectionMatrix[0], _projection[0]);
-    _mm_storeu_ps(&drawSurface.m_projectionMatrix[4], _projection[1]);
-    _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], _projection[2]);
-    _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], _projection[3]);
-
-    drawSurface.m_visible = true;
-    drawSurface.m_indexStart = m_mesh->GetIndexStart();
-    drawSurface.m_indexCount = m_mesh->GetIndexCount();
-    drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(m_mesh->GetVertexData(), m_mesh->GetVertexSize());
-    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(m_mesh->GetIndexData(), m_mesh->GetIndexSize());
-    drawSurface.m_material = m_mesh->GetMaterial();
-
-    _renderCore.SetState(m_mesh->GetMaterial()->GetState().GetStateBits());
-    _renderCore.Draw(drawSurface);
+    m_drawSurface.m_visible = true;
+    m_drawSurface.m_indexStart = m_mesh->GetIndexStart();
+    m_drawSurface.m_indexCount = m_mesh->GetIndexCount();
+    m_drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(m_mesh->GetVertexData(), m_mesh->GetVertexSize());
+    m_drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(m_mesh->GetIndexData(), m_mesh->GetIndexSize());
+    m_drawSurface.m_material = m_mesh->GetMaterial();
 }
 
-void Skybox::CustomDraw(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, const Matrix& _projection, const Matrix& _view, const Matrix& _model)
+void Skybox::Draw(RenderCore& _renderCore)
 {
-    DrawSurface drawSurface;
-
-    _mm_storeu_ps(&drawSurface.m_modelMatrix[0], _model[0]);
-    _mm_storeu_ps(&drawSurface.m_modelMatrix[4], _model[1]);
-    _mm_storeu_ps(&drawSurface.m_modelMatrix[8], _model[2]);
-    _mm_storeu_ps(&drawSurface.m_modelMatrix[12], _model[3]);
-
-    _mm_storeu_ps(&drawSurface.m_viewMatrix[0], _view[0]);
-    _mm_storeu_ps(&drawSurface.m_viewMatrix[4], _view[1]);
-    _mm_storeu_ps(&drawSurface.m_viewMatrix[8], _view[2]);
-    _mm_storeu_ps(&drawSurface.m_viewMatrix[12], _view[3]);
-
-    _mm_storeu_ps(&drawSurface.m_projectionMatrix[0], _projection[0]);
-    _mm_storeu_ps(&drawSurface.m_projectionMatrix[4], _projection[1]);
-    _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], _projection[2]);
-    _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], _projection[3]);
-
-    drawSurface.m_visible = true;
-    drawSurface.m_indexStart = m_mesh->GetIndexStart();
-    drawSurface.m_indexCount = m_mesh->GetIndexCount();
-    drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(m_mesh->GetVertexData(), m_mesh->GetVertexSize());
-    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(m_mesh->GetIndexData(), m_mesh->GetIndexSize());
-    drawSurface.m_material = m_mesh->GetMaterial();
-
     _renderCore.SetState(m_mesh->GetMaterial()->GetState().GetStateBits());
-    _renderCore.Draw(_commandBuffer, _renderPass, drawSurface);
+    _renderCore.Draw(m_drawSurface);
+}
+
+void Skybox::CustomDraw(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, VkRenderPass _renderPass)
+{
+    _renderCore.SetState(m_mesh->GetMaterial()->GetState().GetStateBits());
+    _renderCore.Draw(_commandBuffer, _renderPass, m_drawSurface);
 }
 
 ION_NAMESPACE_END

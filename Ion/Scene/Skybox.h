@@ -11,6 +11,8 @@
 
 #include "../Renderer/RenderDefs.h"
 
+#include "../Renderer/RenderCommon.h"
+
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
 
@@ -19,18 +21,20 @@ ION_NAMESPACE_BEGIN
 class RenderCore;
 class Material;
 class MeshPlain;
+
 class ION_DLL Skybox
 {
 public:
     explicit Skybox();
     virtual ~Skybox();
 
-    EVertexLayout GetVertexLayout() const { return EVertexLayout_Pos; }
+    static EVertexLayout GetVertexLayout() { return EVertexLayout_Pos; }
 
     void SetMaterial(Material* _material);
 
-    void Draw(RenderCore& _renderCore, const Matrix& _projection, const Matrix& _view, const Matrix& _model);
-    void CustomDraw(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, const Matrix& _projection, const Matrix& _view, const Matrix& _model);
+    void Update(const Matrix& _projection, const Matrix& _view, const Matrix& _model);
+    void Draw(RenderCore& _renderCore);
+    void CustomDraw(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, VkRenderPass _renderPass);
 
 private:
     Skybox(const Skybox& _Orig) = delete;
@@ -40,7 +44,8 @@ private:
     void GenerateMesh();
 
 private:
-    MeshPlain* m_mesh;
+    MeshPlain*  m_mesh;
+    DrawSurface m_drawSurface;
 };
 
 ION_NAMESPACE_END

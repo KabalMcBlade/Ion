@@ -128,6 +128,13 @@ void Camera::UpdateView()
     }
 
     m_frustum.Update(m_projection, m_view);
+
+    if (m_skybox != nullptr)
+    {
+        const Matrix& model = GetTransform().GetMatrixWS();
+
+        m_skybox->Update(m_projection, m_view, model);
+    }
 }
 
 Skybox* Camera::AddSkybox()
@@ -153,11 +160,7 @@ void Camera::RenderSkybox(RenderCore& _renderCore)
 {
     if (m_skybox != nullptr)
     {
-        const Matrix& projection = GetPerspectiveProjection();
-        const Matrix& view = GetView();
-        const Matrix& model = GetTransform().GetMatrixWS();
-
-        m_skybox->Draw(_renderCore, projection, view, model);
+        m_skybox->Draw(_renderCore);
     }
 }
 
@@ -165,11 +168,7 @@ void Camera::CustomRenderSkybox(RenderCore& _renderCore, VkCommandBuffer _comman
 {
     if (m_skybox != nullptr)
     {
-        const Matrix& projection = GetPerspectiveProjection();
-        const Matrix& view = GetView();
-        const Matrix& model = GetTransform().GetMatrixWS();
-
-        m_skybox->CustomDraw(_renderCore, _commandBuffer, _renderPass, projection, view, model);
+        m_skybox->CustomDraw(_renderCore, _commandBuffer, _renderPass);
     }
 }
 
