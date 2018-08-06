@@ -251,8 +251,8 @@ int main()
 
         // generation
         brdflut = ionRenderManager().GenerateBRDF(camera);
-        //irradiance = ionRenderManager().GenerateIrradianceCubemap(skyboxMaterial->GetBasePBR().GetBaseColorTexture(), camera);
-        //prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(skyboxMaterial->GetBasePBR().GetBaseColorTexture(), camera);
+        irradiance = ionRenderManager().GenerateIrradianceCubemap(skyboxMaterial->GetBasePBR().GetBaseColorTexture(), camera);
+        prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(skyboxMaterial->GetBasePBR().GetBaseColorTexture(), camera);
     }
 
     //////////////////////////////////////////////////////////////////////////

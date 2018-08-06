@@ -149,8 +149,9 @@ struct ShaderProgram
     {
         PipelineState();
 
-        ionU64        m_stateBits;
-        VkPipeline    m_pipeline;
+        ionU64          m_stateBits;
+        VkPipeline      m_pipeline;
+        VkRenderPass    m_renderpass;
     };
 
     VkPipeline GetPipeline(const RenderCore& _render, VkRenderPass _renderPass, ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationControlShader = VK_NULL_HANDLE, VkShaderModule _tessellationEvaluatorShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE);
@@ -162,6 +163,7 @@ struct ShaderProgram
     VkPipelineLayout            m_pipelineLayout;
     VkDescriptorSetLayout       m_descriptorSetLayout;
     ConstantsBindingDef         m_constantsDef;
+    ionSize                     m_hash;
     ionS32                      m_vertexShaderIndex;
     ionS32                      m_fragmentShaderIndex;
     ionS32                      m_tessellationControlShaderIndex;

@@ -858,10 +858,11 @@ void ShaderProgramManager::LoadShader(Shader& _shader, const ShaderLayoutDef& _d
 
 ionS32 ShaderProgramManager::FindProgram(const eosString& _name, EVertexLayout _vertexLayout, const ConstantsBindingDef& _constants, ionS32 _vertexIndex, ionS32 _fragmentIndex /*= -1*/, ionS32 _tessellationControlIndex /*= -1*/, ionS32 _tessellationEvaluationIndex /*= -1*/, ionS32 _geometryIndex /*= -1*/, ionBool _useJoint /*= false*/, ionBool _useSkinning /*= false*/)
 {
+    const ionSize hash = std::hash<eosString>{}(_name);
     for (ionSize i = 0; i < m_shaderPrograms.size(); ++i)
     {
         ShaderProgram& prog = m_shaderPrograms[i];
-        if (prog.m_vertexShaderIndex == _vertexIndex && prog.m_fragmentShaderIndex == _fragmentIndex && prog.m_tessellationControlShaderIndex == _tessellationControlIndex && prog.m_tessellationEvaluatorShaderIndex == _tessellationEvaluationIndex && prog.m_geometryShaderIndex == _geometryIndex)
+        if ((prog.m_hash == hash) && (prog.m_vertexShaderIndex == _vertexIndex && prog.m_fragmentShaderIndex == _fragmentIndex && prog.m_tessellationControlShaderIndex == _tessellationControlIndex && prog.m_tessellationEvaluatorShaderIndex == _tessellationEvaluationIndex && prog.m_geometryShaderIndex == _geometryIndex) )
         {
             return (ionS32)i;
         }
@@ -869,6 +870,7 @@ ionS32 ShaderProgramManager::FindProgram(const eosString& _name, EVertexLayout _
 
     ShaderProgram program;
     program.m_name = _name;
+    program.m_hash = hash;
     program.m_vertexShaderIndex = _vertexIndex;
     program.m_fragmentShaderIndex = _fragmentIndex;
     program.m_tessellationControlShaderIndex = _tessellationControlIndex;

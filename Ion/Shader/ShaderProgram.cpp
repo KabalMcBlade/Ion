@@ -18,7 +18,8 @@ ShaderProgram::ShaderProgram() :
     m_geometryShaderIndex(-1),
     m_vertextLayoutType(EVertexLayout_Full),
     m_pipelineLayout(VK_NULL_HANDLE),
-    m_descriptorSetLayout(VK_NULL_HANDLE) 
+    m_descriptorSetLayout(VK_NULL_HANDLE),
+    m_hash(0)
 {
 
 }
@@ -27,7 +28,8 @@ VkPipeline ShaderProgram::GetPipeline(const RenderCore& _render, VkRenderPass _r
 {
     for (ionU32 i = 0; i < m_pipelines.size(); ++i) 
     {
-        if (_stateBits == m_pipelines[i].m_stateBits)
+        // same state and same renderpass
+        if (_stateBits == m_pipelines[i].m_stateBits && _renderPass == m_pipelines[i].m_renderpass)
         {
             return m_pipelines[i].m_pipeline;
         }
@@ -38,6 +40,7 @@ VkPipeline ShaderProgram::GetPipeline(const RenderCore& _render, VkRenderPass _r
     PipelineState pipelineState;
     pipelineState.m_pipeline = pipeline;
     pipelineState.m_stateBits = _stateBits;
+    pipelineState.m_renderpass = _renderPass;
     m_pipelines.push_back(pipelineState);
 
     return pipeline;
