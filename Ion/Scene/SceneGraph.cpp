@@ -134,10 +134,40 @@ void SceneGraph::Prepare()
 
         m_drawSurfaces[cam->GetHash()].resize(m_nodeCountPerCamera[cam->GetHash()]);
     }
+
+    PrepareSurfaces();
 }
 
-void SceneGraph::UpdateDrawSurface(ionSize _cameraHash, const Matrix& _projection, const Matrix& _view, const ObjectHandler& _entity, ionU32 _index)
+void SceneGraph::PrepareSurfaces()
 {
+    ionU32 index = 0;
+    for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    {
+        index = 0;
+        const eosVector(ObjectHandler)& entities = iter->second;
+        eosVector(ObjectHandler)::const_iterator begin = entities.cbegin(), end = entities.cend(), it = begin;
+        for (; it != end; ++it)
+        {
+            Camera* cam = iter->first;
+            const ObjectHandler& entity = (*it);
+            UpdateDrawSurface(cam->GetHash(), index, entity);
+            ++index;
+        }
+    }
+}
+
+void SceneGraph::UpdateDrawSurface(ionSize _cameraHash, ionU32 _index, const ObjectHandler& _entity)
+{
+    m_drawSurfaces[_cameraHash][_index].m_visible = _entity->IsVisible();
+    m_drawSurfaces[_cameraHash][_index].m_indexStart = _entity->GetMesh(0)->GetIndexStart();
+    m_drawSurfaces[_cameraHash][_index].m_indexCount = _entity->GetMesh(0)->GetIndexCount();
+    m_drawSurfaces[_cameraHash][_index].m_vertexCache = ionVertexCacheManager().AllocVertex(_entity->GetMesh(0)->GetVertexData(), _entity->GetMesh(0)->GetVertexSize());
+    m_drawSurfaces[_cameraHash][_index].m_indexCache = ionVertexCacheManager().AllocIndex(_entity->GetMesh(0)->GetIndexData(), _entity->GetMesh(0)->GetIndexSize());
+    m_drawSurfaces[_cameraHash][_index].m_material = _entity->GetMesh(0)->GetMaterial();
+}
+
+void SceneGraph::UpdateUniformBuffer(ionSize _cameraHash, ionU32 _index, const Matrix& _projection, const Matrix& _view, const ObjectHandler& _entity)
+{    
     const Matrix& model = _entity->GetTransform().GetMatrixWS();
 
     _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_modelMatrix[0], model[0]);
@@ -156,11 +186,6 @@ void SceneGraph::UpdateDrawSurface(ionSize _cameraHash, const Matrix& _projectio
     _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_projectionMatrix[12], _projection[3]);
 
     m_drawSurfaces[_cameraHash][_index].m_visible = _entity->IsVisible();
-    m_drawSurfaces[_cameraHash][_index].m_indexStart = _entity->GetMesh(0)->GetIndexStart();
-    m_drawSurfaces[_cameraHash][_index].m_indexCount = _entity->GetMesh(0)->GetIndexCount();
-    m_drawSurfaces[_cameraHash][_index].m_vertexCache = ionVertexCacheManager().AllocVertex(_entity->GetMesh(0)->GetVertexData(), _entity->GetMesh(0)->GetVertexSize());
-    m_drawSurfaces[_cameraHash][_index].m_indexCache = ionVertexCacheManager().AllocIndex(_entity->GetMesh(0)->GetIndexData(), _entity->GetMesh(0)->GetIndexSize());
-    m_drawSurfaces[_cameraHash][_index].m_material = _entity->GetMesh(0)->GetMaterial();
 }
 
 void SceneGraph::Update(ionFloat _deltaTime)
@@ -186,7 +211,7 @@ void SceneGraph::Update(ionFloat _deltaTime)
         for (; it != end; ++it)
         {
             const ObjectHandler& entity = (*it);
-            UpdateDrawSurface(cam->GetHash(), projection, view, entity, index);
+            UpdateUniformBuffer(cam->GetHash(), index, projection, view, entity);
             ++index;
         }
     }

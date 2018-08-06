@@ -34,6 +34,7 @@ public:
     void UpdateAllCameraAspectRatio(const RenderCore& _renderCore);
 
     void Prepare();
+    void PrepareSurfaces();
 
     void Update(ionFloat _deltaTime);
     void Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _width, ionU32 _height);
@@ -52,7 +53,8 @@ private:
     void FillCameraMapTree(ObjectHandler& _node);
     void GenerateMapTree(ObjectHandler& _node);
 
-    void UpdateDrawSurface(ionSize _cameraHash, const Matrix& _projection, const Matrix& _view, const ObjectHandler& _entity, ionU32 _index);
+    void UpdateDrawSurface(ionSize _cameraHash, ionU32 _index, const ObjectHandler& _entity);
+    void UpdateUniformBuffer(ionSize _cameraHash, ionU32 _index, const Matrix& _projection, const Matrix& _view, const ObjectHandler& _entity);
 
 private:
     BoundingBox                             m_sceneBoundingBox;

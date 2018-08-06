@@ -32,7 +32,7 @@ public:
 
     void SetMaterial(Material* _material);
 
-    void Update(const Matrix& _projection, const Matrix& _view, const Matrix& _model);
+    void UpdateUniformBuffer(const Matrix& _projection, const Matrix& _view, const Matrix& _model);
     void Draw(RenderCore& _renderCore);
     void CustomDraw(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, VkRenderPass _renderPass);
 

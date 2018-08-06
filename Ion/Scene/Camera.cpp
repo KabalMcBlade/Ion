@@ -133,7 +133,7 @@ void Camera::UpdateView()
     {
         const Matrix& model = GetTransform().GetMatrixWS();
 
-        m_skybox->Update(m_projection, m_view, model);
+        m_skybox->UpdateUniformBuffer(m_projection, m_view, model);
     }
 }
 
