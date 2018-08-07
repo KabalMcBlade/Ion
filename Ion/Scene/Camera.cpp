@@ -74,10 +74,10 @@ Matrix Camera::PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionF
 {
     ionFloat field = 1.0f / tanf(0.5f * _fov);
     Matrix perspective(
-        field / _aspect,    0.0f,        0.0f,                                       0.0f,
-        0.0f,               -field,      0.0f,                                       0.0f,
-        0.0f,               0.0f,        _zFar / (_zNear - _zFar),                   -1.0f,
-        0.0f,               0.0f,        (_zNear * _zFar) / (_zNear - _zFar),       0.0f
+        field / _aspect,    0.0f,        0.0f,                                  0.0f,
+        0.0f,               -field,      0.0f,                                  0.0f,
+        0.0f,               0.0f,        _zFar / (_zNear - _zFar),              -1.0f,
+        0.0f,               0.0f,        (_zNear * _zFar) / (_zNear - _zFar),   0.0f
     );
 
     return perspective;
@@ -115,8 +115,9 @@ void Camera::SetCameraType(ECameraType _type)
 
 void Camera::UpdateView()
 {
+    Vector position = GetTransform().GetPosition();
     Matrix rotation = GetTransform().GetRotation().ToMatrix();
-    Matrix translate; translate = translate.Translate(GetTransform().GetPosition());
+    Matrix translate; translate = translate.Translate(position);
 
     if (m_type == ECameraType::ECameraType_LookAt)
     {
