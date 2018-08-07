@@ -343,15 +343,14 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
 
     //
     // generation of the entity and camera render
-    const Vector entityPos(0.0f, 0.0f, 1.0f, 0.0f);
-
     Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
 
     cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(irradiance->GetWidth()) / static_cast<ionFloat>(irradiance->GetHeight()), 0.1f, 256.0f);
 
     Entity* irradianceEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler irradianceEntityHandle(irradianceEntity);
-    irradianceEntity->GetTransform().SetPosition(entityPos);
+
+    irradianceEntityHandle->AttachToParent(_camera);
 
     // shader has position input
     LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, *irradianceEntity);
@@ -467,7 +466,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
 
                 // rotate the camera here
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
-                //cameraPtr->Update(0.0f);
+                cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
 
                 // draw irradiance
@@ -585,6 +584,8 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
 
     ionTextureManger().DestroyTexture(ION_IRRADIANCE_TEXTURENAME_OFFSCREEN);
 
+    irradianceEntityHandle->DetachFromParent();
+
     return irradiance;
 }
 
@@ -625,15 +626,14 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
 
     //
     // generation of the entity and camera render
-    const Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
-
     Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
 
     cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(prefilteredEnvironment->GetWidth()) / static_cast<ionFloat>(prefilteredEnvironment->GetHeight()), 0.1f, 256.0f);
 
     Entity* prefilteredEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler prefilteredEntityHandle(prefilteredEntity);
-    prefilteredEntity->GetTransform().SetPosition(entityPos);
+
+    prefilteredEntityHandle->AttachToParent(_camera);
 
     // shader has position input
     LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, *prefilteredEntity);
@@ -746,7 +746,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
 
                 // rotate the camera here
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
-                //cameraPtr->Update(0.0f);
+                cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
 
                 // draw prefilteredEnvironment
@@ -866,6 +866,8 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     m_renderCore.DestroyFrameBuffer(framebuffer);
 
     ionTextureManger().DestroyTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME_OFFSCREEN);
+
+    prefilteredEntityHandle->DetachFromParent();
 
     return prefilteredEnvironment;
 }

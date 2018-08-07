@@ -195,13 +195,10 @@ int main()
 
     // generate brdf, irradiance and prefiltered cube map
     {
-        Vector cameraGenPos(0.0f, 0.0f, 0.0f, 0.0f);
-
         //
         Camera* cameraPtr = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE);
         ObjectHandler camera(cameraPtr);
         cameraPtr->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
-        cameraPtr->GetTransform().SetPosition(cameraGenPos);
         cameraPtr->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
         cameraPtr->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
         cameraPtr->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
