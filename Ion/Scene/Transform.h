@@ -26,13 +26,9 @@ public:
     ~Transform();
 
     void SetMatrixWS(const Matrix& _parentMatrix) { m_matrixWS = _parentMatrix; }
-    void SetMatrixInverseWS(const Matrix& _parentInvertMatrix) { m_matrixInverseWS = _parentInvertMatrix; }
 
     const Matrix& GetMatrixWS() const;
-    const Matrix& GetMatrixInverseWS() const;
-
     const Matrix& GetMatrix();
-    const Matrix& GetMatrixInverse();
 
     const Vector& GetPosition() const;
     const Vector& GetScale() const;
@@ -53,8 +49,6 @@ private:
     Transform& operator = (const Transform&) = delete;
 
     Matrix m_matrixWS;
-    Matrix m_matrixInverseWS;
-
     Matrix m_matrix;
     Matrix m_matrixInverse;
     Vector m_position;

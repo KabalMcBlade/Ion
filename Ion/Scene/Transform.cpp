@@ -48,11 +48,6 @@ const Matrix& Transform::GetMatrixWS() const
     return m_matrixWS;
 }
 
-const Matrix& Transform::GetMatrixInverseWS() const
-{
-    return m_matrixInverseWS;
-}
-
 const Matrix& Transform::GetMatrix()
 {
     if (m_dirty)
@@ -65,12 +60,6 @@ const Matrix& Transform::GetMatrix()
         m_dirty = false;
     }
     return m_matrix;
-}
-
-const Matrix& Transform::GetMatrixInverse()
-{
-    m_matrixInverse = m_matrix.Inverse();
-    return m_matrixInverse;
 }
 
 const Vector& Transform::GetPosition() const
