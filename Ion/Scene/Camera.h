@@ -33,7 +33,7 @@ public:
     void SetPerspectiveProjection(ionFloat _fovDeg, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar);
     void UpdateAspectRatio(ionFloat _aspect);
 
-    // for the nature of the skybox I need to kall this function inside of the mapping!
+    // for the nature of the skybox I need to call this function inside of the mapping!
     void UpdateView();
 
     ionFloat GetNear() const { return m_zNear; }
