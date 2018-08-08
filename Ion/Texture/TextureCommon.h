@@ -73,7 +73,9 @@ enum ETextureFormat
      ETextureRepeat_Repeat,
      ETextureRepeat_Clamp,
      ETextureRepeat_ClampZero,    // guarantee 0,0,0,255 edge for projected textures
-     ETextureRepeat_ClampAlpha    // guarantee 0 alpha edge for projected textures
+     ETextureRepeat_ClampAlpha,    // guarantee 0 alpha edge for projected textures
+     ETextureRepeat_Mirrored,
+     ETextureRepeat_MirroredClamp
  };
 
 ION_NAMESPACE_END

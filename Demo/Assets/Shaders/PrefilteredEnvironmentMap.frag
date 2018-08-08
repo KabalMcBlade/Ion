@@ -3,10 +3,14 @@
 layout (location = 0) in vec4 inPos;
 layout (location = 0) out vec4 outColor;
 
-layout (binding = 1) uniform samplerCube samplerEnv;
+layout (binding = 1) uniform UniformBufferObject {
+    float roughness;
+} ubo;
 
-layout(push_constant) uniform PushConsts {
-	float roughness;
+layout (binding = 2) uniform samplerCube samplerEnv;
+
+layout(push_constant) uniform PushConsts 
+{
 	float numSamples;
 } consts;
 
@@ -102,5 +106,5 @@ vec3 prefilterEnvMap(vec3 R, float roughness)
 void main()
 {		
 	vec3 N = normalize(inPos.xyz);
-	outColor = vec4(prefilterEnvMap(N, consts.roughness), 1.0);
+	outColor = vec4(prefilterEnvMap(N, ubo.roughness), 1.0);
 }

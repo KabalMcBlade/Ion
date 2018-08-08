@@ -361,11 +361,11 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
     //
     UniformBinding uniform;
     uniform.m_bindingIndex = 0;
-    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
     uniform.m_type.push_back(EUniformParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
     uniform.m_type.push_back(EUniformParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
     uniform.m_type.push_back(EUniformParameterType_Matrix);
 
     //
@@ -466,7 +466,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
 
                 // rotate the camera here
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
-                cameraPtr->Update(0.0f);
+                //cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
 
                 // draw irradiance
@@ -644,22 +644,26 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     //
     UniformBinding uniform;
     uniform.m_bindingIndex = 0;
-    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
     uniform.m_type.push_back(EUniformParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
     uniform.m_type.push_back(EUniformParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
     uniform.m_type.push_back(EUniformParameterType_Matrix);
 
     //
+    UniformBinding uniformFragment;
+    uniformFragment.m_bindingIndex = 1;
+    uniformFragment.m_parameters.push_back("roughness");
+    uniformFragment.m_type.push_back(EUniformParameterType_Float);
+   
     SamplerBinding sampler;
-    sampler.m_bindingIndex = 1;
+    sampler.m_bindingIndex = 2;
     sampler.m_texture = _environmentCubeMap;
 
     //
     ConstantsBindingDef constants;
     constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-    constants.m_values.push_back(0.0f);
     constants.m_values.push_back(32.0f);
 
 
@@ -667,6 +671,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     vertexLayout.m_uniforms.push_back(uniform);
 
     ShaderLayoutDef fragmentLayout;
+    fragmentLayout.m_uniforms.push_back(uniformFragment);
     fragmentLayout.m_samplers.push_back(sampler);
 
 
@@ -746,13 +751,13 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
 
                 // rotate the camera here
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
-                cameraPtr->Update(0.0f);
+                //cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
 
                 // draw prefilteredEnvironment
                 {
-                    // NOTE: is not updated, need to fix!
-                    prefilteredEntity->GetMesh(0)->GetMaterial()->GetConstantsShaders().m_values[0] = (ionFloat)m / (ionFloat)(mipMapsLevel - 1);
+                    // custom draw uniform
+                    ionShaderProgramManager().SetRenderParamFloat("roughness", (ionFloat)m / (ionFloat)(mipMapsLevel - 1));
 
                     const Matrix& projection = cameraPtr->GetPerspectiveProjection();
                     const Matrix& view = cameraPtr->GetView();

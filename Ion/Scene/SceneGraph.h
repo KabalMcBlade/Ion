@@ -54,7 +54,7 @@ private:
     void GenerateMapTree(ObjectHandler& _node);
 
     void UpdateDrawSurface(ionSize _cameraHash, ionU32 _index, const ObjectHandler& _entity);
-    void UpdateUniformBuffer(ionSize _cameraHash, ionU32 _index, const Matrix& _projection, const Matrix& _view, const ObjectHandler& _entity);
+    void UpdateUniformBuffer(Camera* _camera, ionU32 _index, const Matrix& _projection, const Matrix& _view, const ObjectHandler& _entity);
 
 private:
     BoundingBox                             m_sceneBoundingBox;

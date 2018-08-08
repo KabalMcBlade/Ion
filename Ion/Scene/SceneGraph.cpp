@@ -166,26 +166,38 @@ void SceneGraph::UpdateDrawSurface(ionSize _cameraHash, ionU32 _index, const Obj
     m_drawSurfaces[_cameraHash][_index].m_material = _entity->GetMesh(0)->GetMaterial();
 }
 
-void SceneGraph::UpdateUniformBuffer(ionSize _cameraHash, ionU32 _index, const Matrix& _projection, const Matrix& _view, const ObjectHandler& _entity)
+void SceneGraph::UpdateUniformBuffer(Camera* _camera, ionU32 _index, const Matrix& _projection, const Matrix& _view, const ObjectHandler& _entity)
 {    
+    const ionSize cameraHash = _camera->GetHash();
     const Matrix& model = _entity->GetTransform().GetMatrixWS();
 
-    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_modelMatrix[0], model[0]);
-    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_modelMatrix[4], model[1]);
-    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_modelMatrix[8], model[2]);
-    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_modelMatrix[12], model[3]);
+    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_modelMatrix[0], model[0]);
+    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_modelMatrix[4], model[1]);
+    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_modelMatrix[8], model[2]);
+    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_modelMatrix[12], model[3]);
 
-    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_viewMatrix[0], _view[0]);
-    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_viewMatrix[4], _view[1]);
-    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_viewMatrix[8], _view[2]);
-    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_viewMatrix[12], _view[3]);
+    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_viewMatrix[0], _view[0]);
+    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_viewMatrix[4], _view[1]);
+    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_viewMatrix[8], _view[2]);
+    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_viewMatrix[12], _view[3]);
 
-    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_projectionMatrix[0], _projection[0]);
-    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_projectionMatrix[4], _projection[1]);
-    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_projectionMatrix[8], _projection[2]);
-    _mm_storeu_ps(&m_drawSurfaces[_cameraHash][_index].m_projectionMatrix[12], _projection[3]);
+    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_projectionMatrix[0], _projection[0]);
+    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_projectionMatrix[4], _projection[1]);
+    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_projectionMatrix[8], _projection[2]);
+    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_projectionMatrix[12], _projection[3]);
 
-    m_drawSurfaces[_cameraHash][_index].m_visible = _entity->IsVisible();
+    // for now hard coded all parameters except camera
+    const Vector& cameraPos = _camera->GetTransform().GetPosition();
+    const Vector directionalLight(75.0f, 40.0f, 0.0f, 1.0f);
+
+    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_mainCameraPos[0], cameraPos);
+    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_directionalLight[0], directionalLight);
+
+    m_drawSurfaces[cameraHash][_index].m_exposure = 4.5f;
+    m_drawSurfaces[cameraHash][_index].m_gamma = 2.2f;
+    m_drawSurfaces[cameraHash][_index].m_prefilteredCubeMipLevels = 10.0f;  // I know that because I debugged my preflitered texture generation
+
+    m_drawSurfaces[cameraHash][_index].m_visible = _entity->IsVisible();
 }
 
 void SceneGraph::Update(ionFloat _deltaTime)
@@ -194,7 +206,7 @@ void SceneGraph::Update(ionFloat _deltaTime)
     m_rootHandle->Update(_deltaTime);
 
     // mapping
-    ionVertexCacheManager().BeginMapping();
+    //ionVertexCacheManager().BeginMapping();
     ionU32 index = 0;
     for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
     {
@@ -211,11 +223,11 @@ void SceneGraph::Update(ionFloat _deltaTime)
         for (; it != end; ++it)
         {
             const ObjectHandler& entity = (*it);
-            UpdateUniformBuffer(cam->GetHash(), index, projection, view, entity);
+            UpdateUniformBuffer(cam, index, projection, view, entity);
             ++index;
         }
     }
-    ionVertexCacheManager().EndMapping();
+    //ionVertexCacheManager().EndMapping();
 }
 
 void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _width, ionU32 _height)

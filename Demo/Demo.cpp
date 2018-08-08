@@ -173,9 +173,9 @@ int main()
 
     //////////////////////////////////////////////////////////////////////////
 
-    static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
-    static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
-    static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
+    //static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
+    //static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
+    //static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
 
 
     Vector cameraPos(0.0f, 0.0f, -3.0f, 0.0f);
@@ -210,11 +210,11 @@ int main()
         // one uniform structure bound in the index 0 in the shader stage
         ion::UniformBinding uniform;
         uniform.m_bindingIndex = 0;
-        uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+        uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
         uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
-        uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+        uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
         uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
-        uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+        uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
         uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
 
         // one sampler bound in the index 1 in the shader stage
@@ -274,11 +274,11 @@ int main()
     // one uniform structure bound in the index 0 in the shader stage
     ion::UniformBinding uniform;
     uniform.m_bindingIndex = 0;
-    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM_TEXT);
+    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
     uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM_TEXT);
+    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
     uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM_TEXT);
+    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
     uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
 
     // one sampler bound in the index 1 in the shader stage
@@ -344,7 +344,7 @@ int main()
         Test_Model_Ambient(*test);
         break;
     case 8:
-        Test_ModelPBR_WIP(*test);
+        Test_ModelPBR(*test, brdflut, irradiance, prefilteredEnvironmentMap);
         break;
     default:
         std::cout << "Any valid choose made, will run the Colored Triangle test" << std::endl;

@@ -875,6 +875,18 @@ ionBool Texture::CreateSampler()
         createInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
         createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
         break;
+    case ETextureRepeat_Mirrored:
+        createInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+        createInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+        createInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+        createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+        break;
+    case ETextureRepeat_MirroredClamp:
+        createInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+        createInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+        createInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+        createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+        break;
     default:
         ionAssertReturnValue(false, "Texture repeat mode not supported", false);
     }

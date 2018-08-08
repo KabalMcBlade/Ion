@@ -22,13 +22,20 @@
 
 
 // REMEMBER TO ADD THE ONE WITH THE HASH!
-#define ION_MODEL_MATRIX_PARAM_TEXT  "model"
-#define ION_VIEW_MATRIX_PARAM_TEXT   "view"
-#define ION_PROJ_MATRIX_PARAM_TEXT   "proj"
+#define ION_MODEL_MATRIX_PARAM  "model"
+#define ION_VIEW_MATRIX_PARAM   "view"
+#define ION_PROJ_MATRIX_PARAM   "proj"
 
 #define ION_MODEL_MATRIX_PARAM_HASH  11377574333308104762
 #define ION_VIEW_MATRIX_PARAM_HASH   18322600418174592600
 #define ION_PROJ_MATRIX_PARAM_HASH   9615908744109468950
+
+// PBR
+#define ION_MAIN_CAMERA_POSITION_VECTOR_PARAM  "mainCameraPos"
+#define ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM  "directionalLight"
+#define ION_EXPOSURE_FLOAT_PARAM  "exposure"
+#define ION_GAMMA_FLOAT_PARAM  "gamma"
+#define ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM  "prefilteredCubeMipLevels"
 
 
 EOS_USING_NAMESPACE
@@ -885,6 +892,11 @@ struct DrawSurface final
     ionFloat            m_modelMatrix[16];
     ionFloat            m_viewMatrix[16];
     ionFloat            m_projectionMatrix[16];
+    ionFloat            m_mainCameraPos[4];
+    ionFloat            m_directionalLight[4];
+    ionFloat            m_exposure;
+    ionFloat            m_gamma;
+    ionFloat            m_prefilteredCubeMipLevels;
     ionU32              m_indexStart;
     ionU32              m_indexCount;
     VertexCacheHandler  m_vertexCache;
@@ -899,6 +911,8 @@ struct DrawSurface final
         memset(&m_modelMatrix, 0, sizeof(m_modelMatrix));
         memset(&m_viewMatrix, 0, sizeof(m_viewMatrix));
         memset(&m_projectionMatrix, 0, sizeof(m_projectionMatrix));
+        memset(&m_mainCameraPos, 0, sizeof(m_mainCameraPos));
+        memset(&m_directionalLight, 0, sizeof(m_directionalLight));
         m_indexStart = 0;
         m_indexCount = 0;
         m_vertexCache = 0;
@@ -907,6 +921,9 @@ struct DrawSurface final
         m_extraGLState = 0;
         m_material = nullptr;
         m_visible = true;
+        m_exposure = 1.0f;
+        m_gamma = 1.0f;
+        m_prefilteredCubeMipLevels = 1.0f;
     }
 
     ~DrawSurface()
