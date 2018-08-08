@@ -24,7 +24,8 @@ public:
 
     void                Update(const void* _data, ionSize _size, ionSize _offset = 0) const;
 
-    void*                MapBuffer(EBufferMappingType _mapType);
+    void*               MapBuffer(EBufferMappingType _mapType);
+    void*               MapBuffer(EBufferMappingType _mapType, ionSize _offset);
     void                UnmapBuffer();
 
 private:

@@ -165,10 +165,15 @@ void UniformBuffer::Update(const void* _data, ionSize _size, ionSize _offset /*=
 
 void* UniformBuffer::MapBuffer(EBufferMappingType _mapType)
 {
+    return MapBuffer(_mapType, 0);
+}
+
+void* UniformBuffer::MapBuffer(EBufferMappingType _mapType, ionSize _offset)
+{
     ionAssertReturnValue(m_object != VK_NULL_HANDLE, "Buffer must be allocated", nullptr);
     ionAssertReturnValue(m_usage != EBufferUsage_Static, "Cannot map static buffer", nullptr);
 
-    void* buffer = m_allocation.m_mappedData + GetOffset();
+    void* buffer = m_allocation.m_mappedData + GetOffset() + _offset;
 
     SetMapped();
 
