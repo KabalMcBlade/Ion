@@ -790,6 +790,15 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _
 
             Material* material = ionMaterialManger().CreateMaterial(mat.name.c_str(), 0u);
 
+            // set default values
+            material->GetBasePBR().SetBaseColor(1.0f, 1.0f, 1.0f, 1.0f);
+            material->GetBasePBR().SetRoughnessFactor(1.0f);
+            material->GetBasePBR().SetMetallicFactor(1.0f);
+            material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
+            material->GetAdvancePBR().SetAlphaCutoff(1.0f);
+
+            material->GetState().SetCullingMode(ion::ECullingMode_Back);
+
             // base PBR
             for (auto const& x : mat.values)
             {
