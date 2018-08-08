@@ -32,11 +32,11 @@ public:
     ~ShaderProgramManager();
 
     // if parameter not found, return a vector 0 and create this new hash! BE CAREFUL!
-    const   Vector& GetRenderParamVector(const eosString& _param);
-    const   Vector& GetRenderParamVector(ionSize _paramHash);
-
     const   Matrix& GetRenderParamMatrix(const eosString& _param);
     const   Matrix& GetRenderParamMatrix(ionSize _paramHash);
+
+    const   Vector& GetRenderParamVector(const eosString& _param);
+    const   Vector& GetRenderParamVector(ionSize _paramHash);
 
     const   ionFloat GetRenderParamFloat(const eosString& _param);
     const   ionFloat GetRenderParamFloat(ionSize _paramHash);
@@ -56,15 +56,15 @@ public:
         as well as in the shader layout on code side.
     */
 
-    void    SetRenderParamVector(const eosString& _param, const ionFloat* _value);
-    void    SetRenderParamVector(ionSize _paramHash, const ionFloat* _value);
-    void    SetRenderParamsVector(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
-    void    SetRenderParamsVector(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
-
     void    SetRenderParamMatrix(const eosString& _param, const ionFloat* _value);
     void    SetRenderParamMatrix(ionSize _paramHash, const ionFloat* _value);
     void    SetRenderParamsMatrix(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
     void    SetRenderParamsMatrix(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
+
+    void    SetRenderParamVector(const eosString& _param, const ionFloat* _value);
+    void    SetRenderParamVector(ionSize _paramHash, const ionFloat* _value);
+    void    SetRenderParamsVector(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
+    void    SetRenderParamsVector(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
 
     void    SetRenderParamFloat(const eosString& _param, const ionFloat _value);
     void    SetRenderParamFloat(ionSize _paramHash, const ionFloat _value);
