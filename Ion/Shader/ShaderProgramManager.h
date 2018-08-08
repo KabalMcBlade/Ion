@@ -119,10 +119,7 @@ private:
     VkDescriptorSet         m_descriptorSets[ION_MAX_DESCRIPTOR_SETS];
 
     UniformBuffer*          m_skinningUniformBuffer;
-    UniformBuffer*          m_parmBufferMatrix;
-    UniformBuffer*          m_parmBufferVector;
-    UniformBuffer*          m_parmBufferFloat;
-    UniformBuffer*          m_parmBufferInteger;
+    UniformBuffer*          m_uniformBuffer;
 
 private:
     static ShaderProgramManager *s_instance;

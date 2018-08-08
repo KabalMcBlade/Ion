@@ -62,17 +62,8 @@ ionBool ShaderProgramManager::Init(VkDevice _vkDevice)
 
     ShaderProgramHelper::CreateDescriptorPools(m_vkDevice, m_descriptorPool);
 
-    m_parmBufferMatrix = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
-    m_parmBufferMatrix->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS * sizeof(Matrix), EBufferUsage_Dynamic);
-
-    m_parmBufferVector = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
-    m_parmBufferVector->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS * sizeof(Vector), EBufferUsage_Dynamic);
-
-    m_parmBufferFloat = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
-    m_parmBufferFloat->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS * sizeof(ionFloat), EBufferUsage_Dynamic);
-
-    m_parmBufferInteger = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
-    m_parmBufferInteger->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS * sizeof(ionS32), EBufferUsage_Dynamic);
+    m_uniformBuffer = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
+    m_uniformBuffer->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS, EBufferUsage_Dynamic);
 
     m_skinningUniformBuffer = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
     m_skinningUniformBuffer->Alloc(m_vkDevice, nullptr, sizeof(Vector), EBufferUsage_Dynamic);
@@ -113,22 +104,10 @@ void ShaderProgramManager::Shutdown()
     }
     m_shaderPrograms.clear();
 
-    m_parmBufferMatrix->Free();
-    eosDelete(m_parmBufferMatrix);
-    m_parmBufferMatrix = nullptr;
+    m_uniformBuffer->Free();
+    eosDelete(m_uniformBuffer);
+    m_uniformBuffer = nullptr;
 
-    m_parmBufferVector->Free();
-    eosDelete(m_parmBufferVector);
-    m_parmBufferVector = nullptr;
-
-    m_parmBufferFloat->Free();
-    eosDelete(m_parmBufferFloat);
-    m_parmBufferFloat = nullptr;
-
-    m_parmBufferInteger->Free();
-    eosDelete(m_parmBufferInteger);
-    m_parmBufferInteger = nullptr;
-    
     m_skinningUniformBuffer->Free();
     eosDelete(m_skinningUniformBuffer);
     m_skinningUniformBuffer = nullptr;
@@ -642,103 +621,54 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
     Integer
     */
 
-    //////////////////////////////////////////////////////////////////////////
-    // Matrix 
-    ionSize numParms = counterForType[EUniformParameterType_Matrix];
+    const ionSize numParmsMatrix = counterForType[EUniformParameterType_Matrix];
+    const ionSize sizeMatrix = numParmsMatrix * sizeof(Matrix);
 
-    if (numParms > 0)
+    const ionSize numParmsVector = counterForType[EUniformParameterType_Vector];
+    const ionSize sizeVector = numParmsVector * sizeof(Vector);
+
+    const ionSize numParmsFloat = counterForType[EUniformParameterType_Float];
+    const ionSize sizeFloat = numParmsFloat * sizeof(ionFloat);
+
+    const ionSize numParmsInt = counterForType[EUniformParameterType_Integer];
+    const ionSize sizeInt = numParmsInt * sizeof(ionS32);
+
+
+    const ionSize size = sizeMatrix + sizeVector + sizeFloat + sizeInt;
+    const ionSize mask = _render.GetGPU().m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment - 1;
+    const ionSize alignedSize = (size + mask) & ~mask;
+
+    //
+    _ubo.ReferenceTo(*m_uniformBuffer, m_currentParmBufferOffset, alignedSize);
+
+
+    Matrix* uniformsMatrix = (Matrix*)_ubo.MapBuffer(EBufferMappingType_Write);
+    for (ionSize i = 0; i < numParmsMatrix; ++i)
     {
-        ionSize size = numParms * sizeof(Matrix);
-        ionSize mask = _render.GetGPU().m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment - 1;
-        ionSize alignedSize = (size + mask) & ~mask;
-
-        _ubo.ReferenceTo(*m_parmBufferMatrix, m_currentParmBufferOffset, alignedSize);
-
-        Matrix* uniforms = (Matrix*)_ubo.MapBuffer(EBufferMappingType_Write);
-
-        for (ionSize i = 0; i < numParms; ++i)
-        {
-            uniforms[i] = GetRenderParamMatrix(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Matrix][i]]);
-        }
-
-        _ubo.UnmapBuffer();
-
-        m_currentParmBufferOffset += alignedSize;
-    }
-    
-    //////////////////////////////////////////////////////////////////////////
-    // Vector 
-    numParms = counterForType[EUniformParameterType_Vector];
-
-    if (numParms > 0)
-    {
-        ionSize size = numParms * sizeof(Vector);
-        ionSize mask = _render.GetGPU().m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment - 1;
-        ionSize alignedSize = (size + mask) & ~mask;
-
-        _ubo.ReferenceTo(*m_parmBufferVector, m_currentParmBufferOffset, alignedSize);
-
-        Vector* uniforms = (Vector*)_ubo.MapBuffer(EBufferMappingType_Write);
-
-        for (ionSize i = 0; i < numParms; ++i)
-        {
-            uniforms[i] = GetRenderParamVector(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Vector][i]]);
-        }
-
-        _ubo.UnmapBuffer();
-
-        m_currentParmBufferOffset += alignedSize;
+        uniformsMatrix[i] = GetRenderParamMatrix(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Matrix][i]]);
     }
 
-
-    //////////////////////////////////////////////////////////////////////////
-    // Float 
-    numParms = counterForType[EUniformParameterType_Float];
-
-    if (numParms > 0)
+    Vector* uniformsVector = (Vector*)_ubo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix) * numParmsMatrix));
+    for (ionSize i = 0; i < numParmsVector; ++i)
     {
-        ionSize size = numParms * sizeof(ionFloat);
-        ionSize mask = _render.GetGPU().m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment - 1;
-        ionSize alignedSize = (size + mask) & ~mask;
-
-        _ubo.ReferenceTo(*m_parmBufferFloat, m_currentParmBufferOffset, alignedSize);
-
-        ionFloat* uniforms = (ionFloat*)_ubo.MapBuffer(EBufferMappingType_Write);
-
-        for (ionSize i = 0; i < numParms; ++i)
-        {
-            uniforms[i] = GetRenderParamFloat(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Float][i]]);
-        }
-
-        _ubo.UnmapBuffer();
-
-        m_currentParmBufferOffset += alignedSize;
+        uniformsVector[i] = GetRenderParamVector(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Vector][i]]);
     }
 
-
-    //////////////////////////////////////////////////////////////////////////
-    // Integer 
-    numParms = counterForType[EUniformParameterType_Integer];
-
-    if (numParms > 0)
+    ionFloat* uniformsFloat = (ionFloat*)_ubo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix) * numParmsMatrix) + (sizeof(Vector) * numParmsVector));
+    for (ionSize i = 0; i < numParmsFloat; ++i)
     {
-        ionSize size = numParms * sizeof(ionS32);
-        ionSize mask = _render.GetGPU().m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment - 1;
-        ionSize alignedSize = (size + mask) & ~mask;
-
-        _ubo.ReferenceTo(*m_parmBufferInteger, m_currentParmBufferOffset, alignedSize);
-
-        ionS32* uniforms = (ionS32*)_ubo.MapBuffer(EBufferMappingType_Write);
-
-        for (ionSize i = 0; i < numParms; ++i)
-        {
-            uniforms[i] = GetRenderParamInteger(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Integer][i]]);
-        }
-
-        _ubo.UnmapBuffer();
-
-        m_currentParmBufferOffset += alignedSize;
+        uniformsFloat[i] = GetRenderParamFloat(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Float][i]]);
     }
+
+    ionS32* uniformsInt = (ionS32*)_ubo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix) * numParmsMatrix) + (sizeof(Vector) * numParmsVector) + (sizeof(ionFloat) * numParmsFloat));
+    for (ionSize i = 0; i < numParmsInt; ++i)
+    {
+        uniformsInt[i] = GetRenderParamInteger(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Integer][i]]);
+    }
+
+    _ubo.UnmapBuffer();
+
+    m_currentParmBufferOffset += alignedSize;
 }
 
 void ShaderProgramManager::UpdateShader(ionS32 _index, const ShaderLayoutDef& _defines)
