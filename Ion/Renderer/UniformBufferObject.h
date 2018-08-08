@@ -16,7 +16,7 @@ public:
     UniformBuffer();
     ~UniformBuffer();
 
-    ionBool                Alloc(const VkDevice& _device, const void* _data, ionSize _allocSize, EBufferUsage _usage);
+    ionBool             Alloc(const VkDevice& _device, const void* _data, ionSize _allocSize, EBufferUsage _usage);
     void                Free();
 
     void                ReferenceTo(const UniformBuffer& _other);

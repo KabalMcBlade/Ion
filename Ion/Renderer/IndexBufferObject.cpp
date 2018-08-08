@@ -105,6 +105,7 @@ void IndexBuffer::ReferenceTo(const IndexBuffer& _other)
     Free();
     m_size = _other.GetSize();
     m_offsetInOtherBuffer = _other.GetOffset();
+    m_device = _other.m_device;
     m_usage = _other.m_usage;
     m_object = _other.m_object;
     m_allocation = _other.m_allocation;
@@ -122,6 +123,7 @@ void IndexBuffer::ReferenceTo(const IndexBuffer& _other, ionSize _refOffset, ion
     Free();
     m_size = _refSize;
     m_offsetInOtherBuffer = _other.GetOffset() + _refOffset;
+    m_device = _other.m_device;
     m_usage = _other.m_usage;
     m_object = _other.m_object;
     m_allocation = _other.m_allocation;
