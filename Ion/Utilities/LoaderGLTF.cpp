@@ -798,6 +798,11 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _
             material->GetAdvancePBR().SetAlphaCutoff(1.0f);
 
             material->GetState().SetCullingMode(ion::ECullingMode_Back);
+            material->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
+            material->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+            material->GetState().SetBlendStateMode(ion::EBlendState_Source_One);
+            material->GetState().SetBlendStateMode(ion::EBlendState_Dest_Zero);
+            material->GetState().SetBlendOperatorMode(ion::EBlendOperator_Add);
 
             // base PBR
             for (auto const& x : mat.values)
@@ -873,6 +878,10 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _
 
                 if (key == "alphaMode")
                 {
+                    material->GetState().UnsetBlendStateMode(ion::EBlendState_Source_One);
+                    material->GetState().UnsetBlendStateMode(ion::EBlendState_Dest_Zero);
+                    material->GetState().UnsetBlendOperatorMode(ion::EBlendOperator_Add);
+
                     // mesh sorting for blend
                     // this could be anything, glass for instance
                     if (param.string_value == "BLEND")
