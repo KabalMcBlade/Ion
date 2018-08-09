@@ -95,7 +95,7 @@ void Skybox::SetMaterial(Material* _material)
     m_drawSurface.m_visible = true;
     m_drawSurface.m_indexStart = m_mesh->GetIndexStart();
     m_drawSurface.m_indexCount = m_mesh->GetIndexCount();
-    m_drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(m_mesh->GetVertexData(), m_mesh->GetVertexSize());
+    m_drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(m_mesh->GetVertexData(), m_mesh->GetVertexSize(), m_mesh->GetSize());
     m_drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(m_mesh->GetIndexData(), m_mesh->GetIndexSize());
     m_drawSurface.m_material = m_mesh->GetMaterial();
 }

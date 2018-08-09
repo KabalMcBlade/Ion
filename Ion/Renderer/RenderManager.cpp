@@ -413,7 +413,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
     drawSurface.m_visible = irradianceEntity->IsVisible();
     drawSurface.m_indexStart = irradianceEntity->GetMesh(0)->GetIndexStart();
     drawSurface.m_indexCount = irradianceEntity->GetMesh(0)->GetIndexCount();
-    drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(irradianceEntity->GetMesh(0)->GetVertexData(), irradianceEntity->GetMesh(0)->GetVertexSize());
+    drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(irradianceEntity->GetMesh(0)->GetVertexData(), irradianceEntity->GetMesh(0)->GetVertexSize(), irradianceEntity->GetMesh(0)->GetSize());
     drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(irradianceEntity->GetMesh(0)->GetIndexData(), irradianceEntity->GetMesh(0)->GetIndexSize());
     drawSurface.m_material = irradianceEntity->GetMesh(0)->GetMaterial();
 
@@ -700,7 +700,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     drawSurface.m_visible = prefilteredEntity->IsVisible();
     drawSurface.m_indexStart = prefilteredEntity->GetMesh(0)->GetIndexStart();
     drawSurface.m_indexCount = prefilteredEntity->GetMesh(0)->GetIndexCount();
-    drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(prefilteredEntity->GetMesh(0)->GetVertexData(), prefilteredEntity->GetMesh(0)->GetVertexSize());
+    drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(prefilteredEntity->GetMesh(0)->GetVertexData(), prefilteredEntity->GetMesh(0)->GetVertexSize(), prefilteredEntity->GetMesh(0)->GetSize());
     drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(prefilteredEntity->GetMesh(0)->GetIndexData(), prefilteredEntity->GetMesh(0)->GetIndexSize());
     drawSurface.m_material = prefilteredEntity->GetMesh(0)->GetMaterial();
 
