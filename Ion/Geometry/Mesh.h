@@ -65,6 +65,11 @@ public:
         return -1;
     }
 
+    virtual ionSize GetSize() const
+    {
+        return sizeof(BaseMesh);
+    }
+
     //////////////////////////////////////////////////////////////////////////
     // implementation
     
@@ -118,7 +123,6 @@ public:
         m_material = _material;
     }
 
-
 protected:
     // in the inherit class, declare the vertex type. 
     eosVector(Index)        m_indexes;
@@ -161,6 +165,11 @@ public:
         return m_vertexes.size();
     }
 
+    virtual ionSize GetSize() const override
+    {
+        return sizeof(MeshPlain);
+    }
+
 private:
     eosVector(VertexPlain)   m_vertexes;
 };
@@ -197,6 +206,11 @@ public:
     virtual ionSize GetVertexSize() const override
     {
         return m_vertexes.size();
+    }
+
+    virtual ionSize GetSize() const override
+    {
+        return sizeof(MeshColored);
     }
 
 private:
@@ -236,6 +250,11 @@ public:
         return m_vertexes.size();
     }
 
+    virtual ionSize GetSize() const override
+    {
+        return sizeof(MeshUV);
+    }
+
 private:
     eosVector(VertexUV)   m_vertexes;
 };
@@ -261,7 +280,7 @@ public:
 
     virtual EVertexLayout GetLayout() const override
     {
-        return EVertexLayout_Pos_UV;
+        return EVertexLayout_Pos_UV_Normal;
     }
 
     virtual const void* GetVertexData() const override
@@ -272,6 +291,21 @@ public:
     virtual ionSize GetVertexSize() const override
     {
         return m_vertexes.size();
+    }
+
+    VertexSimple& GetVertex(ionSize _index)
+    {
+        return m_vertexes[_index];
+    }
+
+    const VertexSimple& GetVertex(ionSize _index) const
+    {
+        return m_vertexes[_index];
+    }
+
+    virtual ionSize GetSize() const override
+    {
+        return sizeof(MeshSimple);
     }
 
 private:
@@ -321,6 +355,11 @@ public:
     const Vertex& GetVertex(ionSize _index) const
     {
         return m_vertexes[_index];
+    }
+
+    virtual ionSize GetSize() const override
+    {
+        return sizeof(Mesh);
     }
 
 private:
