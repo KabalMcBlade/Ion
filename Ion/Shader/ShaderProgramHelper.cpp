@@ -59,21 +59,21 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         locationOffset += sizeof(Vertex::m_position);
 
         // TexCoord0
-        attribute.format = VK_FORMAT_R32G32_SFLOAT;         //VK_FORMAT_R16G16_SFLOAT;
+        attribute.format = VK_FORMAT_R32G32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(Vertex::m_textureCoordUV0);
 
         // TexCoord1
-        attribute.format = VK_FORMAT_R32G32_SFLOAT;         //VK_FORMAT_R16G16_SFLOAT;
+        attribute.format = VK_FORMAT_R32G32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(Vertex::m_textureCoordUV1);
 
         // Joints
-        attribute.format = VK_FORMAT_R16G16B16A16_UNORM;
+        attribute.format = VK_FORMAT_R16G16B16A16_UINT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
@@ -120,14 +120,14 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         vertexLayout.m_bindinggDescription.push_back(binding);
 
         // Position
-        attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;   //VK_FORMAT_R32G32B32_SFLOAT;
+        attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(VertexSimple::m_position);
 
         // TexCoord0
-        attribute.format = VK_FORMAT_R32G32_SFLOAT;         //VK_FORMAT_R16G16_SFLOAT;
+        attribute.format = VK_FORMAT_R32G32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
@@ -160,7 +160,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         locationOffset += sizeof(VertexUV::m_position);
 
         // TexCoord
-        attribute.format = VK_FORMAT_R32G32_SFLOAT;         //VK_FORMAT_R16G16_SFLOAT;
+        attribute.format = VK_FORMAT_R32G32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
