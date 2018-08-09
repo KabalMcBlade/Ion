@@ -93,13 +93,13 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct ShaderVertexLayout
 
 //////////////////////////////////////////////////////////////////////////
 
-// 56 -> 64
+// 64 -> 64
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 {
     Vector              m_position;             // 16 byte
     ionFloat            m_textureCoordUV0[2];   // 8 byte
     ionFloat            m_textureCoordUV1[2];   // 8 byte
-    ionU16              m_joints[4];            // 8 byte
+    ionFloat            m_joints[4];            // 16 byte
     ionU8               m_normal[4];            // 4 byte
     ionU8               m_tangent[4];           // 4 byte
     ionU8               m_color[4];             // 4 byte
@@ -242,22 +242,22 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         return m_textureCoordUV1[1];
     }
 
-    ION_INLINE ionU16 GetJoint0()
+    ION_INLINE ionFloat GetJoint0() const
     {
         return m_joints[0];
     }
 
-    ION_INLINE ionU16 GetJoint1()
+    ION_INLINE ionFloat GetJoint1() const
     {
         return m_joints[1];
     }
 
-    ION_INLINE ionU16 GetJoint2()
+    ION_INLINE ionFloat GetJoint2() const
     {
         return m_joints[2];
     }
 
-    ION_INLINE ionU16 GetJoint3()
+    ION_INLINE ionFloat GetJoint3() const
     {
         return m_joints[3];
     }
@@ -392,22 +392,22 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         SetTexCoordV1(VectorHelper::ExtractElement_1(_uvuv));
     }
 
-    ION_INLINE void SetJoint0(ionU16 _joint)
+    ION_INLINE void SetJoint0(ionFloat _joint)
     {
         m_joints[0] = _joint;
     }
 
-    ION_INLINE void SetJoint1(ionU16 _joint)
+    ION_INLINE void SetJoint1(ionFloat _joint)
     {
         m_joints[1] = _joint;
     }
 
-    ION_INLINE void SetJoint2(ionU16 _joint)
+    ION_INLINE void SetJoint2(ionFloat _joint)
     {
         m_joints[2] = _joint;
     }
 
-    ION_INLINE void SetJoint3(ionU16 _joint)
+    ION_INLINE void SetJoint3(ionFloat _joint)
     {
         m_joints[3] = _joint;
     }
@@ -467,10 +467,10 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         m_weights[2] = (ionU8)(_a.m_weights[2] + _t * (_b.m_weights[2] - _a.m_weights[2]));
         m_weights[3] = (ionU8)(_a.m_weights[3] + _t * (_b.m_weights[3] - _a.m_weights[3]));
 
-        m_joints[0] = (ionU16)(_a.m_joints[0] + _t * (_b.m_joints[0] - _a.m_joints[0]));
-        m_joints[1] = (ionU16)(_a.m_joints[1] + _t * (_b.m_joints[1] - _a.m_joints[1]));
-        m_joints[2] = (ionU16)(_a.m_joints[2] + _t * (_b.m_joints[2] - _a.m_joints[2]));
-        m_joints[3] = (ionU16)(_a.m_joints[3] + _t * (_b.m_joints[3] - _a.m_joints[3]));
+        m_joints[0] = (ionFloat)(_a.m_joints[0] + _t * (_b.m_joints[0] - _a.m_joints[0]));
+        m_joints[1] = (ionFloat)(_a.m_joints[1] + _t * (_b.m_joints[1] - _a.m_joints[1]));
+        m_joints[2] = (ionFloat)(_a.m_joints[2] + _t * (_b.m_joints[2] - _a.m_joints[2]));
+        m_joints[3] = (ionFloat)(_a.m_joints[3] + _t * (_b.m_joints[3] - _a.m_joints[3]));
     }
 
 
@@ -482,10 +482,10 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
             return *this;
         }
 
-        const Matrix& j0 = _joints[m_joints[0]];
-        const Matrix& j1 = _joints[m_joints[1]];
-        const Matrix& j2 = _joints[m_joints[2]];
-        const Matrix& j3 = _joints[m_joints[3]];
+        const Matrix& j0 = _joints[static_cast<ionU32>(m_joints[0])];
+        const Matrix& j1 = _joints[static_cast<ionU32>(m_joints[1])];
+        const Matrix& j2 = _joints[static_cast<ionU32>(m_joints[2])];
+        const Matrix& j3 = _joints[static_cast<ionU32>(m_joints[3])];
 
         const ionFloat w0 = m_weights[0] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
         const ionFloat w1 = m_weights[1] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
@@ -521,10 +521,10 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
             return m_position;
         }
 
-        const Matrix& j0 = _joints[m_joints[0]];
-        const Matrix& j1 = _joints[m_joints[1]];
-        const Matrix& j2 = _joints[m_joints[2]];
-        const Matrix& j3 = _joints[m_joints[3]];
+        const Matrix& j0 = _joints[static_cast<ionU32>(m_joints[0])];
+        const Matrix& j1 = _joints[static_cast<ionU32>(m_joints[1])];
+        const Matrix& j2 = _joints[static_cast<ionU32>(m_joints[2])];
+        const Matrix& j3 = _joints[static_cast<ionU32>(m_joints[3])];
 
         const ionFloat w0 = m_weights[0] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
         const ionFloat w1 = m_weights[1] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;

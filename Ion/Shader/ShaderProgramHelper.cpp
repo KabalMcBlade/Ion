@@ -73,7 +73,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
         locationOffset += sizeof(Vertex::m_textureCoordUV1);
 
         // Joints
-        attribute.format = VK_FORMAT_R16G16B16A16_UINT;
+        attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
         vertexLayout.m_attributegDescription.push_back(attribute);
