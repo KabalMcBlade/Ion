@@ -187,8 +187,16 @@ void SceneGraph::UpdateUniformBuffer(Camera* _camera, ionU32 _index, const Matri
     _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_projectionMatrix[12], _projection[3]);
 
     // for now hard coded all parameters except camera
+
     const Vector& cameraPos = _camera->GetTransform().GetPosition();
-    const Vector directionalLight(75.0f, 40.0f, 0.0f, 1.0f);
+    //const Vector directionalLight(75.0f, 40.0f, 0.0f, 1.0f);
+
+    const Vector directionalLight(
+        sinf(NIX_DEG_TO_RAD(75.0f)) * cosf(NIX_DEG_TO_RAD(40.0f)),
+        sinf(NIX_DEG_TO_RAD(40.0f)),
+        cosf(NIX_DEG_TO_RAD(75.0f)) * cosf(NIX_DEG_TO_RAD(40.0f)),
+        0.0f);
+
 
     _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_mainCameraPos[0], cameraPos);
     _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_directionalLight[0], directionalLight);

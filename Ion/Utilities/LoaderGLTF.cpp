@@ -749,7 +749,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _
 
             m_textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, name.c_str()));
 
-            ionTextureManger().CreateTextureFromBuffer(name, _model.images[i].width, _model.images[i].height, _model.images[i].component, &_model.images[i].image[0], _model.images[i].image.size(), ETextureFilter_Default, ETextureRepeat_Mirrored, ETextureUsage_RGBA, ETextureType_2D);
+            ionTextureManger().CreateTextureFromBuffer(name, _model.images[i].width, _model.images[i].height, _model.images[i].component, &_model.images[i].image[0], _model.images[i].image.size(), ETextureFilter_Nearest, ETextureRepeat_Repeat, ETextureUsage_RGBA, ETextureType_2D);
         }
         else
         {
@@ -789,6 +789,8 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _
             m_materialIndexToMaterialName.insert(std::pair<ionS32, eosString>((ionS32)i, mat.name.c_str()));
 
             Material* material = ionMaterialManger().CreateMaterial(mat.name.c_str(), 0u);
+
+            material->SetAlphaMode(EAlphaMode_Opaque);
 
             // set default values
             material->GetBasePBR().SetBaseColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -886,7 +888,8 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _
                     // this could be anything, glass for instance
                     if (param.string_value == "BLEND")
                     {
-                        material->GetState().SetBlendStateMode(EBlendState_Source_One);
+                        material->SetAlphaMode(EAlphaMode_Blend);
+                        material->GetState().SetBlendStateMode(EBlendState_Source_One_Minus_Source_Alpha);
                         material->GetState().SetBlendStateMode(EBlendState_Dest_One);
                         material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
                     }
@@ -894,6 +897,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _
                     // this would like leaves or grass
                     if (param.string_value == "MASK")
                     {
+                        material->SetAlphaMode(EAlphaMode_Mask);
                         material->GetState().SetBlendStateMode(EBlendState_Source_Source_Alpha);
                         material->GetState().SetBlendStateMode(EBlendState_Dest_One_Minus_Source_Alpha);
                         material->GetState().SetBlendOperatorMode(EBlendOperator_Add);

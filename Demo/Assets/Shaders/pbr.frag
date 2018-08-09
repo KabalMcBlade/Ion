@@ -1,3 +1,7 @@
+// PBR shader based on the Khronos WebGL PBR implementation
+// See https://github.com/KhronosGroup/glTF-WebGL-PBR
+// Supports both metallic roughness and specular glossiness inputs
+
 #version 450
 
 layout (location = 0) in vec3 inWorldPos;
@@ -14,12 +18,9 @@ layout (binding = 1) uniform UBOParams
 	float prefilteredCubeMipLevels;
 } uboParams;
 
-
 layout (binding = 2) uniform samplerCube samplerIrradiance;
 layout (binding = 3) uniform samplerCube prefilteredMap;
 layout (binding = 4) uniform sampler2D samplerBRDFLUT;
-
-// Material bindings
 
 layout (binding = 5) uniform sampler2D albedoMap;
 layout (binding = 6) uniform sampler2D normalMap;
@@ -34,23 +35,43 @@ layout (push_constant) uniform Material {
 	float baseColorFactorA;
 	float hasBaseColorTexture;
 	float hasMetallicRoughnessTexture;
-	float hasNormalTexture;
-	float hasOcclusionTexture;
+	float hasNormalTexture;	
+	float hasOcclusionTexture;	
 	float hasEmissiveTexture;
-	float metallicFactor;
-	float roughnessFactor;
-	float alphaMask;
+	float metallicFactor;	
+	float roughnessFactor;	
+	float alphaMask;	
 	float alphaMaskCutoff;
 } material;
 
-
 layout (location = 0) out vec4 outColor;
 
-#define PI 3.1415926535897932384626433832795
-#define ALBEDO pow(texture(albedoMap, inUV).rgb, vec3(2.2))
+// Encapsulate the various inputs used by the various functions in the shading equation
+// We store values in this struct to simplify the integration of alternative implementations
+// of the shading terms, outlined in the Readme.MD Appendix.
+struct PBRInfo
+{
+	float NdotL;                  // cos angle between normal and light direction
+	float NdotV;                  // cos angle between normal and view direction
+	float NdotH;                  // cos angle between normal and half vector
+	float LdotH;                  // cos angle between light direction and half vector
+	float VdotH;                  // cos angle between view direction and half vector
+	float perceptualRoughness;    // roughness value, as authored by the model creator (input to shader)
+	float metalness;              // metallic value at the surface
+	vec3 reflectance0;            // full reflectance color (normal incidence angle)
+	vec3 reflectance90;           // reflectance color at grazing angle
+	float alphaRoughness;         // roughness mapped to a more linear change in the roughness (proposed by [2])
+	vec3 diffuseColor;            // color contribution from diffuse lighting
+	vec3 specularColor;           // color contribution from specular lighting
+};
 
-// From http://filmicgames.com/archives/75
-vec3 Uncharted2Tonemap(vec3 x)
+const float M_PI = 3.141592653589793;
+const float c_MinRoughness = 0.04;
+
+
+#define MANUAL_SRGB 1
+
+vec3 Uncharted2Tonemap(vec3 color)
 {
 	float A = 0.15;
 	float B = 0.50;
@@ -58,79 +79,37 @@ vec3 Uncharted2Tonemap(vec3 x)
 	float D = 0.20;
 	float E = 0.02;
 	float F = 0.30;
-	return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
+	float W = 11.2;
+	return ((color*(A*color+C*B)+D*E)/(color*(A*color+B)+D*F))-E/F;
 }
 
-// Normal Distribution function --------------------------------------
-float D_GGX(float dotNH, float roughness)
+vec4 tonemap(vec4 color)
 {
-	float alpha = roughness * roughness;
-	float alpha2 = alpha * alpha;
-	float denom = dotNH * dotNH * (alpha2 - 1.0) + 1.0;
-	return (alpha2)/(PI * denom*denom); 
+	vec3 outcol = Uncharted2Tonemap(color.rgb * uboParams.exposure);
+	outcol = outcol * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
+	return vec4(pow(outcol, vec3(1.0f / uboParams.gamma)), color.a);
 }
 
-// Geometric Shadowing function --------------------------------------
-float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
+vec4 SRGBtoLINEAR(vec4 srgbIn)
 {
-	float r = (roughness + 1.0);
-	float k = (r*r) / 8.0;
-	float GL = dotNL / (dotNL * (1.0 - k) + k);
-	float GV = dotNV / (dotNV * (1.0 - k) + k);
-	return GL * GV;
+	#ifdef MANUAL_SRGB
+	#ifdef SRGB_FAST_APPROXIMATION
+	vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
+	#else //SRGB_FAST_APPROXIMATION
+	vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
+	vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
+	#endif //SRGB_FAST_APPROXIMATION
+	return vec4(linOut,srgbIn.w);;
+	#else //MANUAL_SRGB
+	return srgbIn;
+	#endif //MANUAL_SRGB
 }
 
-// Fresnel function ----------------------------------------------------
-vec3 F_Schlick(float cosTheta, vec3 F0)
+// Find the normal for this fragment, pulling either from a predefined normal map
+// or from the interpolated mesh normal and tangent attributes.
+vec3 getNormal()
 {
-	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
-}
-vec3 F_SchlickR(float cosTheta, vec3 F0, float roughness)
-{
-	return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
-}
-
-vec3 prefilteredReflection(vec3 R, float roughness)
-{
-	float lod = roughness * uboParams.prefilteredCubeMipLevels;
-	float lodf = floor(lod);
-	float lodc = ceil(lod);
-	vec3 a = textureLod(prefilteredMap, R, lodf).rgb;
-	vec3 b = textureLod(prefilteredMap, R, lodc).rgb;
-	return mix(a, b, lod - lodf);
-}
-
-vec3 specularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float roughness)
-{
-	// Precalculate vectors and dot products	
-	vec3 H = normalize (V + L);
-	float dotNH = clamp(dot(N, H), 0.0, 1.0);
-	float dotNV = clamp(dot(N, V), 0.0, 1.0);
-	float dotNL = clamp(dot(N, L), 0.0, 1.0);
-
-	// Light color fixed
-	vec3 lightColor = vec3(1.0);
-
-	vec3 color = vec3(0.0);
-
-	if (dotNL > 0.0) {
-		// D = Normal distribution (Distribution of the microfacets)
-		float D = D_GGX(dotNH, roughness); 
-		// G = Geometric shadowing term (Microfacets shadowing)
-		float G = G_SchlicksmithGGX(dotNL, dotNV, roughness);
-		// F = Fresnel factor (Reflectance depending on angle of incidence)
-		vec3 F = F_Schlick(dotNV, F0);		
-		vec3 spec = D * F * G / (4.0 * dotNL * dotNV + 0.001);		
-		vec3 kD = (vec3(1.0) - F) * (1.0 - metallic);			
-		color += (kD * ALBEDO / PI + spec) * dotNL;
-	}
-
-	return color;
-}
-
-// See http://www.thetenthplanet.de/archives/1180
-vec3 perturbNormal()
-{
+	// Perturb normal, see http://www.thetenthplanet.de/archives/1180
 	vec3 tangentNormal = texture(normalMap, inUV).xyz * 2.0 - 1.0;
 
 	vec3 q1 = dFdx(inWorldPos);
@@ -146,63 +125,207 @@ vec3 perturbNormal()
 	return normalize(TBN * tangentNormal);
 }
 
+// Calculation of the lighting contribution from an optional Image Based Light source.
+// Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].
+// See our README.md on Environment Maps [3] for additional discussion.
+vec3 getIBLContribution(PBRInfo pbrInputs, vec3 n, vec3 reflection)
+{
+	float lod = (pbrInputs.perceptualRoughness * uboParams.prefilteredCubeMipLevels);
+	// retrieve a scale and bias to F0. See [1], Figure 3
+	vec3 brdf = (texture(samplerBRDFLUT, vec2(pbrInputs.NdotV, 1.0 - pbrInputs.perceptualRoughness))).rgb;
+	vec3 diffuseLight = SRGBtoLINEAR(tonemap(texture(samplerIrradiance, n))).rgb;
+
+	vec3 specularLight = SRGBtoLINEAR(tonemap(textureLod(prefilteredMap, reflection, lod))).rgb;
+
+	vec3 diffuse = diffuseLight * pbrInputs.diffuseColor;
+	vec3 specular = specularLight * (pbrInputs.specularColor * brdf.x + brdf.y);
+
+	const vec2 u_ScaleIBLAmbient = vec2(1.0f);
+
+	// For presentation, this allows us to disable IBL terms
+	diffuse *= u_ScaleIBLAmbient.x;
+	specular *= u_ScaleIBLAmbient.y;
+
+	return diffuse + specular;
+}
+
+// Basic Lambertian diffuse
+// Implementation from Lambert's Photometria https://archive.org/details/lambertsphotome00lambgoog
+// See also [1], Equation 1
+vec3 diffuse(PBRInfo pbrInputs)
+{
+	return pbrInputs.diffuseColor / M_PI;
+}
+
+// The following equation models the Fresnel reflectance term of the spec equation (aka F())
+// Implementation of fresnel from [4], Equation 15
+vec3 specularReflection(PBRInfo pbrInputs)
+{
+	return pbrInputs.reflectance0 + (pbrInputs.reflectance90 - pbrInputs.reflectance0) * pow(clamp(1.0 - pbrInputs.VdotH, 0.0, 1.0), 5.0);
+}
+
+// This calculates the specular geometric attenuation (aka G()),
+// where rougher material will reflect less light back to the viewer.
+// This implementation is based on [1] Equation 4, and we adopt their modifications to
+// alphaRoughness as input as originally proposed in [2].
+float geometricOcclusion(PBRInfo pbrInputs)
+{
+	float NdotL = pbrInputs.NdotL;
+	float NdotV = pbrInputs.NdotV;
+	float r = pbrInputs.alphaRoughness;
+
+	float attenuationL = 2.0 * NdotL / (NdotL + sqrt(r * r + (1.0 - r * r) * (NdotL * NdotL)));
+	float attenuationV = 2.0 * NdotV / (NdotV + sqrt(r * r + (1.0 - r * r) * (NdotV * NdotV)));
+	return attenuationL * attenuationV;
+}
+
+// The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())
+// Implementation from "Average Irregularity Representation of a Roughened Surface for Ray Reflection" by T. S. Trowbridge, and K. P. Reitz
+// Follows the distribution function recommended in the SIGGRAPH 2013 course notes from EPIC Games [1], Equation 3.
+float microfacetDistribution(PBRInfo pbrInputs)
+{
+	float roughnessSq = pbrInputs.alphaRoughness * pbrInputs.alphaRoughness;
+	float f = (pbrInputs.NdotH * roughnessSq - pbrInputs.NdotH) * pbrInputs.NdotH + 1.0;
+	return roughnessSq / (M_PI * f * f);
+}
+
+// Gets metallic factor from specular glossiness workflow inputs 
+float convertMetallic(vec3 diffuse, vec3 specular, float maxSpecular) {
+	float perceivedDiffuse = sqrt(0.299 * diffuse.r * diffuse.r + 0.587 * diffuse.g * diffuse.g + 0.114 * diffuse.b * diffuse.b);
+	float perceivedSpecular = sqrt(0.299 * specular.r * specular.r + 0.587 * specular.g * specular.g + 0.114 * specular.b * specular.b);
+	if (perceivedSpecular < c_MinRoughness) {
+		return 0.0;
+	}
+	float a = c_MinRoughness;
+	float b = perceivedDiffuse * (1.0 - maxSpecular) / (1.0 - c_MinRoughness) + perceivedSpecular - 2.0 * c_MinRoughness;
+	float c = c_MinRoughness - perceivedSpecular;
+	float D = max(b * b - 4.0 * a * c, 0.0);
+	return clamp((-b + sqrt(D)) / (2.0 * a), 0.0, 1.0);
+}
+
 void main()
-{		
-	if (material.alphaMask == 1.0f) {
-		if (texture(albedoMap, inUV).a < material.alphaMaskCutoff) {
-			discard;
-		}
-	}
+{
+	float perceptualRoughness;
+	float metallic;
+	vec3 diffuseColor;
+	vec4 baseColor;
 
-	vec3 N = (material.hasNormalTexture == 1.0f) ? perturbNormal() : normalize(inNormal);
-	vec3 V = normalize(uboParams.mainCameraPos.xyz - inWorldPos);
-	vec3 R = -normalize(reflect(V, N));
+	vec3 f0 = vec3(0.04);
 
-	float metallic = material.metallicFactor;
-	float roughness = material.roughnessFactor;
+	// Metallic and Roughness material properties are packed together
+	// In glTF, these factors can be specified by fixed scalar values
+	// or from a metallic-roughness map
+	perceptualRoughness = material.roughnessFactor;
+	metallic = material.metallicFactor;
 	if (material.hasMetallicRoughnessTexture == 1.0f) {
-		metallic *= texture(metallicMap, inUV).b;
-		roughness *= clamp(texture(metallicMap, inUV).g, 0.04, 1.0);
+		// Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
+		// This layout intentionally reserves the 'r' channel for (optional) occlusion map data
+		vec4 mrSample = texture(metallicMap, inUV);
+		perceptualRoughness = mrSample.g * perceptualRoughness;
+		metallic = mrSample.b * metallic;
+	} else {
+		perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
+		metallic = clamp(metallic, 0.0, 1.0);
+	}
+	// Roughness is authored as perceptual roughness; as is convention,
+	// convert to material roughness by squaring the perceptual roughness [2].
+
+	const vec4 baseColorFactor = vec4(material.baseColorFactorR, material.baseColorFactorG, material.baseColorFactorB, material.baseColorFactorA);
+	// The albedo may be defined from a base texture or a flat color
+	if (material.hasBaseColorTexture == 1.0f) {
+		baseColor = SRGBtoLINEAR(texture(albedoMap, inUV)) * baseColorFactor;
+	} else {
+		baseColor = baseColorFactor;
+	}
+	
+
+	diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
+	diffuseColor *= 1.0 - metallic;
+		
+	float alphaRoughness = perceptualRoughness * perceptualRoughness;
+
+	vec3 specularColor = mix(f0, baseColor.rgb, metallic);
+
+	// Compute reflectance.
+	float reflectance = max(max(specularColor.r, specularColor.g), specularColor.b);
+
+	// For typical incident reflectance range (between 4% to 100%) set the grazing reflectance to 100% for typical fresnel effect.
+	// For very low reflectance range on highly diffuse objects (below 4%), incrementally reduce grazing reflecance to 0%.
+	float reflectance90 = clamp(reflectance * 25.0, 0.0, 1.0);
+	vec3 specularEnvironmentR0 = specularColor.rgb;
+	vec3 specularEnvironmentR90 = vec3(1.0, 1.0, 1.0) * reflectance90;
+
+	vec3 n = (material.hasNormalTexture == 1.0f) ? getNormal() : normalize(inNormal);
+	vec3 v = normalize(uboParams.mainCameraPos.xyz - inWorldPos);    // Vector from surface point to camera
+	vec3 l = normalize(uboParams.directionalLight.xyz);     // Vector from surface point to light
+	vec3 h = normalize(l+v);                        // Half vector between both l and v
+	vec3 reflection = -normalize(reflect(v, n));
+	reflection.y *= -1.0f;
+
+	float NdotL = clamp(dot(n, l), 0.001, 1.0);
+	float NdotV = clamp(abs(dot(n, v)), 0.001, 1.0);
+	float NdotH = clamp(dot(n, h), 0.0, 1.0);
+	float LdotH = clamp(dot(l, h), 0.0, 1.0);
+	float VdotH = clamp(dot(v, h), 0.0, 1.0);
+
+	PBRInfo pbrInputs = PBRInfo(
+		NdotL,
+		NdotV,
+		NdotH,
+		LdotH,
+		VdotH,
+		perceptualRoughness,
+		metallic,
+		specularEnvironmentR0,
+		specularEnvironmentR90,
+		alphaRoughness,
+		diffuseColor,
+		specularColor
+	);
+
+	// Calculate the shading terms for the microfacet specular shading model
+	vec3 F = specularReflection(pbrInputs);
+	float G = geometricOcclusion(pbrInputs);
+	float D = microfacetDistribution(pbrInputs);
+
+	const vec3 u_LightColor = vec3(1.0);
+
+	// Calculation of analytical lighting contribution
+	vec3 diffuseContrib = (1.0 - F) * diffuse(pbrInputs);
+	vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
+	// Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
+	vec3 color = NdotL * u_LightColor * (diffuseContrib + specContrib);
+
+	// Calculate lighting contribution from image based lighting source (IBL)
+	color += getIBLContribution(pbrInputs, n, reflection);
+
+	const float u_OcclusionStrength = 1.0f;
+	// Apply optional PBR terms for additional (optional) shading
+	if (material.hasOcclusionTexture == 1.0f) {
+		float ao = texture(aoMap, inUV).r;
+		color = mix(color, color * ao, u_OcclusionStrength);
 	}
 
-	vec3 F0 = vec3(0.04); 
-	F0 = mix(F0, ALBEDO, metallic);
-
-	vec3 L = normalize(uboParams.directionalLight.xyz);
-	vec3 Lo = specularContribution(L, V, N, F0, metallic, roughness);
-	
-	vec2 brdf = texture(samplerBRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
-	vec3 reflection = prefilteredReflection(R, roughness).rgb;	
-	vec3 irradiance = texture(samplerIrradiance, N).rgb;
-
-	// Diffuse based on irradiance
-	vec3 diffuse = irradiance * ALBEDO;	
-
-	vec3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
-
-	// Specular reflectance
-	vec3 specular = reflection * (F * brdf.x + brdf.y);
-
-	// Ambient part
-	vec3 kD = 1.0 - F;
-	kD *= 1.0 - metallic;
-	float ao = (material.hasOcclusionTexture == 1.0f) ? texture(aoMap, inUV).r : 1.0f;
-	vec3 ambient = (kD * diffuse + specular) * ao;
-	vec3 color = ambient + Lo;
-
-	// Tone mapping
-	color = Uncharted2Tonemap(color * uboParams.exposure);
-	color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
-	// Gamma correction
-	color = pow(color, vec3(1.0f / uboParams.gamma));
-
+	const float u_EmissiveFactor = 1.0f;
 	if (material.hasEmissiveTexture == 1.0f) {
-		vec3 emissive = texture(emissiveMap, inUV).rgb;// * u_EmissiveFactor;
+		vec3 emissive = SRGBtoLINEAR(texture(emissiveMap, inUV)).rgb * u_EmissiveFactor;
 		color += emissive;
 	}
 
-	float a = texture(albedoMap, inUV).a;
+	const vec4 u_ScaleFGDSpec = vec4(0.0f);
+	const vec4 u_ScaleDiffBaseMR = vec4(0.0f);
 
-	const vec4 baseColorFactor = vec4(material.baseColorFactorR, material.baseColorFactorG, material.baseColorFactorB, material.baseColorFactorA);
-	outColor = vec4(color, a) * baseColorFactor;
+	// This section uses mix to override final color for reference app visualization
+	// of various parameters in the lighting equation.
+	color = mix(color, F, u_ScaleFGDSpec.x);
+	color = mix(color, vec3(G), u_ScaleFGDSpec.y);
+	color = mix(color, vec3(D), u_ScaleFGDSpec.z);
+	color = mix(color, specContrib, u_ScaleFGDSpec.w);
+
+	color = mix(color, diffuseContrib, u_ScaleDiffBaseMR.x);
+	color = mix(color, baseColor.rgb, u_ScaleDiffBaseMR.y);
+	color = mix(color, vec3(metallic), u_ScaleDiffBaseMR.z);
+	color = mix(color, vec3(perceptualRoughness), u_ScaleDiffBaseMR.w);
+
+	outColor = vec4(color, baseColor.a);
 }
