@@ -50,7 +50,8 @@ Material::Material(const eosString& _name) :
     m_tessellationEvaluationIndex(-1),
     m_geometryIndex(-1),
     m_useJoint(false),
-    m_useSkinning(false)
+    m_useSkinning(false),
+    m_alphaMode(EAlphaMode_Opaque)
 {
 }
 

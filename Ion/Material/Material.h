@@ -107,6 +107,13 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+enum EAlphaMode
+{
+    EAlphaMode_Opaque = 0,
+    EAlphaMode_Blend,
+    EAlphaMode_Mask
+};
+
 class ION_DLL Material
 {
 public:
@@ -124,6 +131,9 @@ public:
 
     AdvancePBR& GetAdvancePBR() { return m_advancePBR; }
     const AdvancePBR& GetAdvancePBR() const { return m_advancePBR; }
+
+    void SetAlphaMode(EAlphaMode _mode) { m_alphaMode = _mode; }
+    EAlphaMode GetAlphaMode() { return m_alphaMode; }
 
     void SetShaders(const ionS32 _vertexIndex, const ionS32 _fragmentIndex = -1, const ionS32 _tessellationControlIndex = -1, const ionS32 _tessellationEvaluationIndex = -1, const ionS32 _geometryIndex = -1, const ionBool _useJoint = false, const ionBool _useSkinning = false);
     void GetShaders(ionS32& _vertexIndex, ionS32& _fragmentIndex, ionS32& _tessellationControlIndex, ionS32& _tessellationEvaluationIndex, ionS32& _geometryIndex, ionBool& _useJoint, ionBool& _useSkinning) const;
@@ -148,6 +158,7 @@ private:
     ConstantsBindingDef m_constants;
 
     EVertexLayout   m_vertexLayout;
+    EAlphaMode      m_alphaMode;
 
     MaterialState   m_state;
 
