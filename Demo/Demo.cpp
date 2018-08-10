@@ -136,8 +136,7 @@ int main()
     std::cout << "4 - Colored Cube" << std::endl;
     std::cout << "5 - Colored Sphere" << std::endl;
     std::cout << "6 - Show BRDF Lookup Texture" << std::endl;
-    std::cout << "7 - Model GLTF in white ambient (need a while to load!)" << std::endl;
-    std::cout << "8 - Model GLTF using PBR (WORK IN PROGRESS, NEED A WHILE TO LOAD!)" << std::endl;
+    std::cout << "7 - Model GLTF using PBR (NEED A WHILE TO LOAD!)" << std::endl;
     std::cout << "Selection: ";
 
     std::cin >> choice;
@@ -341,9 +340,6 @@ int main()
         Test_TexturedQuadEx(*test, ionRenderManager().GetBRDF());
         break;
     case 7:
-        Test_Model_Ambient(*test);
-        break;
-    case 8:
         Test_ModelPBR(*test, brdflut, irradiance, prefilteredEnvironmentMap);
         break;
     default:

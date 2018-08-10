@@ -202,45 +202,6 @@ void Test_ColoredSphere(ion::Entity& _entity)
     _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
 }
 
-void Test_Model_Ambient(ion::Entity& _entity)
-{
-    eosString damagedHelmetModelPath = ionFileSystemManager().GetModelsPath();
-    damagedHelmetModelPath.append("DamagedHelmet.gltf");
-    ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, _entity);
-
-    //
-    // one uniform structure bound in the index 0 in the shader stage
-    ion::UniformBinding uniform;
-    uniform.m_bindingIndex = 0;
-    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
-
-    // set the shaders layout
-    ion::ShaderLayoutDef vertexLayout;
-    vertexLayout.m_uniforms.push_back(uniform);
-
-    ion::ShaderLayoutDef fragmentLayout;
-
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "DamagedHelmetWhitePlain", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "DamagedHelmetWhitePlain", ion::EShaderStage_Fragment, fragmentLayout);
-
-    _entity.GetMesh(0)->GetMaterial()->SetShaderProgramName("DamagedHelmetWhitePlain");
-    _entity.GetMesh(0)->GetMaterial()->SetVertexLayout(_entity.GetMesh(0)->GetLayout());
-
-    _entity.GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
-
-    _entity.GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ion::ECullingMode_Back);
-    _entity.GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
-    _entity.GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-    _entity.GetMesh(0)->GetMaterial()->GetState().SetBlendStateMode(ion::EBlendState_Source_One);
-    _entity.GetMesh(0)->GetMaterial()->GetState().SetBlendStateMode(ion::EBlendState_Dest_Zero);
-    _entity.GetMesh(0)->GetMaterial()->GetState().SetBlendOperatorMode(ion::EBlendOperator_Add);
-}
-
 void Test_ModelPBR(ion::Entity& _entity, ion::Texture* _brdf, ion::Texture* _irradiance, ion::Texture* _prefiltered)
 {
     eosString damagedHelmetModelPath = ionFileSystemManager().GetModelsPath();
