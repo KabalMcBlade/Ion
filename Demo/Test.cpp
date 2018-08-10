@@ -247,6 +247,9 @@ void Test_ModelPBR(ion::Entity& _entity, ion::Texture* _brdf, ion::Texture* _irr
     damagedHelmetModelPath.append("DamagedHelmet.gltf");
     ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, _entity);
 
+    static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
+    _entity.GetTransform().SetRotation(NIX_DEG_TO_RAD(90.0f), right);
+
     //
     ion::UniformBinding uniformVertex;
     uniformVertex.m_bindingIndex = 0;
@@ -351,13 +354,6 @@ void Test_ModelPBR(ion::Entity& _entity, ion::Texture* _brdf, ion::Texture* _irr
     constants.m_values.push_back(_entity.GetMesh(0)->GetMaterial()->GetAdvancePBR().GetNormalTexture() != nullptr ? 1.0f : 0.0f);
     constants.m_values.push_back(_entity.GetMesh(0)->GetMaterial()->GetAdvancePBR().GetOcclusionTexture() != nullptr ? 1.0f : 0.0f);
     constants.m_values.push_back(_entity.GetMesh(0)->GetMaterial()->GetAdvancePBR().GetEmissiveTexture() != nullptr ? 1.0f : 0.0f);
-
-//     constants.m_values.push_back(0.0f);
-//     constants.m_values.push_back(0.0f);
-//     constants.m_values.push_back(0.0f);
-//     constants.m_values.push_back(0.0f);
-//     constants.m_values.push_back(0.0f);
-
     constants.m_values.push_back(_entity.GetMesh(0)->GetMaterial()->GetBasePBR().GetMetallicFactor());
     constants.m_values.push_back(_entity.GetMesh(0)->GetMaterial()->GetBasePBR().GetRoughnessFactor());
     constants.m_values.push_back(_entity.GetMesh(0)->GetMaterial()->GetAlphaMode() == ion::EAlphaMode_Mask ? 1.0f : 0.0f);

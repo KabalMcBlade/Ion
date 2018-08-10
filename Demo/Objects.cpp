@@ -22,10 +22,12 @@ void RotatingEntity::OnUpdate(ionFloat _deltaTime)
 
     if (m_rotating)
     {
-        radRotated += radPerFrame;
-        while (radRotated > 6.283185307f) radRotated -= 6.283185307f;   // 360 deg
+        const Quaternion& prevRot = GetTransform().GetRotation();
 
-        GetTransform().SetRotation(radRotated, axis);
+        Quaternion currRot = Quaternion(radPerFrame, axis);
+        currRot = currRot * prevRot;
+
+        GetTransform().SetRotation(currRot);
     }
 }
 

@@ -72,7 +72,7 @@ Camera::~Camera()
 
 Matrix Camera::PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar)
 {
-    ionFloat field = 1.0f / tanf(0.5f * _fov);
+    const ionFloat field = 1.0f / tanf(0.5f * _fov);
     Matrix perspective(
         field / _aspect,    0.0f,        0.0f,                                  0.0f,
         0.0f,               -field,      0.0f,                                  0.0f,
