@@ -37,7 +37,7 @@ private:
     static VkStencilOpState GetStencilOpState(ionU64 _stencilStateBits);
 
 private:
-    static ShaderVertexLayout* m_vertexLayouts;
+    static ShaderVertexLayout** m_vertexLayouts;
 };
 
 ION_NAMESPACE_END

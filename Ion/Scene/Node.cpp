@@ -41,12 +41,6 @@ void Node::SetName(const eosString& _name)
     m_hash = std::hash<eosString>{}(m_nameInternal);
 }
 
-void Node::AttachToParent(Node& _parent)
-{
-    SmartPointer<Node> parentHandle(&_parent);
-    AttachToParent(parentHandle);
-}
-
 void Node::AttachToParent(ObjectHandler& _parent)
 {
     if (m_parent.IsValid())

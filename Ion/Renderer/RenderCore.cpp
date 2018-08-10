@@ -8,7 +8,7 @@
 
 #include "../Shader/ShaderProgramManager.h"
 
-#include "../Material/Material.h"
+#include "../Material/MaterialManager.h"
 
 #include "StagingBufferManager.h"
 #include "VertexCacheManager.h"
@@ -1281,6 +1281,8 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
 
     ionVertexCacheManager().Init(m_vkDevice, m_vkGPU.m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment);
 
+    ionMaterialManger().Init();
+
     ionTextureManger().Init(m_vkDevice, ETextureSamplesPerBit_16);
 
     return true;
@@ -1299,6 +1301,8 @@ void RenderCore::Shutdown()
     vkDeviceWaitIdle(m_vkDevice);
 
     ionTextureManger().Shutdown();
+
+    ionMaterialManger().Shutdown();
 
     ionVertexCacheManager().Shutdown();
 

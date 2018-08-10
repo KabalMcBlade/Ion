@@ -22,7 +22,7 @@ ION_NAMESPACE_BEGIN
 ///
 ///            TRIANGLE
 ///
-void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
+void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _entity)
 {
     eosVector(Index) indices;
     indices.resize(3);
@@ -30,11 +30,13 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 
     Vector positions[3] = { Vector(0.0f, 0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f) };
 
+    Entity* entityPtr = dynamic_cast<Entity*>(_entity.GetPtr());
+
     switch(_layout)
     {
     case EVertexLayout_Pos:
     {
-        MeshPlain* mesh = _entity.AddMesh<MeshPlain>();
+        MeshPlain* mesh = entityPtr->AddMesh<MeshPlain>();
 
         eosVector(VertexPlain) vertices;
         vertices.resize(3);
@@ -58,7 +60,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Pos_Color:
     {
-        MeshColored* mesh = _entity.AddMesh<MeshColored>();
+        MeshColored* mesh = entityPtr->AddMesh<MeshColored>();
 
         eosVector(VertexColored) vertices;
         vertices.resize(3);
@@ -86,7 +88,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Pos_UV:
     {
-        MeshUV* mesh = _entity.AddMesh<MeshUV>();
+        MeshUV* mesh = entityPtr->AddMesh<MeshUV>();
 
         eosVector(VertexUV) vertices;
         vertices.resize(3);
@@ -114,7 +116,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
     
     case EVertexLayout_Pos_UV_Normal:
     {
-        MeshSimple* mesh = _entity.AddMesh<MeshSimple>();
+        MeshSimple* mesh = entityPtr->AddMesh<MeshSimple>();
 
         eosVector(VertexSimple) vertices;
         vertices.resize(3);
@@ -150,7 +152,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Full:
     {
-        Mesh* mesh = _entity.AddMesh<Mesh>();
+        Mesh* mesh = entityPtr->AddMesh<Mesh>();
 
         eosVector(Vertex) vertices;
         vertices.resize(3);
@@ -206,7 +208,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Empty:
     {
-        BaseMesh* mesh = _entity.AddMesh<BaseMesh>();
+        BaseMesh* mesh = entityPtr->AddMesh<BaseMesh>();
     }
     break;
 
@@ -220,15 +222,15 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, Entity& _entity)
         break;
     }
 
-    _entity.GetBoundingBox()->Expande(positions[0], positions[1]);
-    _entity.GetBoundingBox()->Expande(positions[0], positions[2]);
+    entityPtr->GetBoundingBox()->Expande(positions[0], positions[1]);
+    entityPtr->GetBoundingBox()->Expande(positions[0], positions[2]);
 }
 
 
 ///
 ///            QUAD
 ///
-void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
+void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entity)
 {
     eosVector(Index) indices;
     indices.resize(6);
@@ -236,12 +238,13 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 
     Vector positions[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
 
+    Entity* entityPtr = dynamic_cast<Entity*>(_entity.GetPtr());
 
     switch (_layout)
     {
     case EVertexLayout_Pos:
     {
-        MeshPlain* mesh = _entity.AddMesh<MeshPlain>();
+        MeshPlain* mesh = entityPtr->AddMesh<MeshPlain>();
 
         eosVector(VertexPlain) vertices;
         vertices.resize(4);
@@ -270,7 +273,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
     
     case EVertexLayout_Pos_Color:
     {
-        MeshColored* mesh = _entity.AddMesh<MeshColored>();
+        MeshColored* mesh = entityPtr->AddMesh<MeshColored>();
 
         eosVector(VertexColored) vertices;
         vertices.resize(4);
@@ -304,7 +307,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Pos_UV:
     {
-        MeshUV* mesh = _entity.AddMesh<MeshUV>();
+        MeshUV* mesh = entityPtr->AddMesh<MeshUV>();
 
         eosVector(VertexUV) vertices;
         vertices.resize(4);
@@ -338,7 +341,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Pos_UV_Normal:
     {
-        MeshSimple* mesh = _entity.AddMesh<MeshSimple>();
+        MeshSimple* mesh = entityPtr->AddMesh<MeshSimple>();
 
         eosVector(VertexSimple) vertices;
         vertices.resize(4);
@@ -380,7 +383,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Full:
     {
-        Mesh* mesh = _entity.AddMesh<Mesh>();
+        Mesh* mesh = entityPtr->AddMesh<Mesh>();
 
         eosVector(Vertex) vertices;
         vertices.resize(4);
@@ -447,7 +450,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Empty:
     {
-        BaseMesh* mesh = _entity.AddMesh<BaseMesh>();
+        BaseMesh* mesh = entityPtr->AddMesh<BaseMesh>();
     }
     break;
 
@@ -462,15 +465,15 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, Entity& _entity)
         break;
     }
 
-    _entity.GetBoundingBox()->Expande(positions[0], positions[1]);
-    _entity.GetBoundingBox()->Expande(positions[2], positions[3]);
+    entityPtr->GetBoundingBox()->Expande(positions[0], positions[1]);
+    entityPtr->GetBoundingBox()->Expande(positions[2], positions[3]);
 }
 
 
 ///
 ///            CUBE
 ///
-void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
+void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entity)
 {
     eosVector(Index) indices;
     indices.resize(36);
@@ -643,11 +646,13 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
         Vector(0.0f, 0.0f, 1.0f, 1.0f),
     };
 
+    Entity* entityPtr = dynamic_cast<Entity*>(_entity.GetPtr());
+
     switch (_layout)
     {
     case EVertexLayout_Pos:
     {
-        MeshPlain* mesh = _entity.AddMesh<MeshPlain>();
+        MeshPlain* mesh = entityPtr->AddMesh<MeshPlain>();
 
         eosVector(VertexPlain) vertices;
         vertices.resize(24);
@@ -672,7 +677,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Pos_Color:
     {
-        MeshColored* mesh = _entity.AddMesh<MeshColored>();
+        MeshColored* mesh = entityPtr->AddMesh<MeshColored>();
 
         eosVector(VertexColored) vertices;
         vertices.resize(24); 
@@ -698,7 +703,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Pos_UV:
     {
-        MeshUV* mesh = _entity.AddMesh<MeshUV>();
+        MeshUV* mesh = entityPtr->AddMesh<MeshUV>();
 
         eosVector(VertexUV) vertices;
         vertices.resize(24);
@@ -724,7 +729,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Pos_UV_Normal:
     {
-        MeshSimple* mesh = _entity.AddMesh<MeshSimple>();
+        MeshSimple* mesh = entityPtr->AddMesh<MeshSimple>();
 
         eosVector(VertexSimple) vertices;
         vertices.resize(24);
@@ -751,7 +756,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Full:
     {
-        Mesh* mesh = _entity.AddMesh<Mesh>();
+        Mesh* mesh = entityPtr->AddMesh<Mesh>();
 
         eosVector(Vertex) vertices;
         vertices.resize(24);
@@ -783,7 +788,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Empty:
     {
-        BaseMesh* mesh = _entity.AddMesh<BaseMesh>();
+        BaseMesh* mesh = entityPtr->AddMesh<BaseMesh>();
     }
     break;
 
@@ -800,7 +805,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 
     for (ionU32 i = 1; i < 24; ++i)
     {
-        _entity.GetBoundingBox()->Expande(positions[i - 1], positions[i]);
+        entityPtr->GetBoundingBox()->Expande(positions[i - 1], positions[i]);
     }
 }
 
@@ -808,7 +813,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, Entity& _entity)
 ///
 ///            SPHERE
 ///
-void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
+void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _entity)
 {
     static const ionFloat radius = 1.0f;
     static const ionU32 rings = 24;
@@ -820,11 +825,13 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
     eosVector(Vector) uvuv;
     eosVector(Index) indices;
 
+    Entity* entityPtr = dynamic_cast<Entity*>(_entity.GetPtr());
+
     switch (_layout)
     {
     case EVertexLayout_Pos:
     {
-        MeshPlain* mesh = _entity.AddMesh<MeshPlain>();
+        MeshPlain* mesh = entityPtr->AddMesh<MeshPlain>();
 
         eosVector(VertexPlain) vertices; 
 
@@ -888,7 +895,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Pos_Color:
     {
-        MeshColored* mesh = _entity.AddMesh<MeshColored>();
+        MeshColored* mesh = entityPtr->AddMesh<MeshColored>();
 
         eosVector(VertexColored) vertices;
 
@@ -960,7 +967,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Pos_UV:
     {
-        MeshUV* mesh = _entity.AddMesh<MeshUV>();
+        MeshUV* mesh = entityPtr->AddMesh<MeshUV>();
 
         eosVector(VertexUV) vertices;
 
@@ -1028,7 +1035,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Pos_UV_Normal:
     {
-        MeshSimple* mesh = _entity.AddMesh<MeshSimple>();
+        MeshSimple* mesh = entityPtr->AddMesh<MeshSimple>();
 
         eosVector(VertexSimple) vertices;
 
@@ -1100,7 +1107,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Full:
     {
-        Mesh* mesh = _entity.AddMesh<Mesh>();
+        Mesh* mesh = entityPtr->AddMesh<Mesh>();
 
         eosVector(Vertex) vertices;
 
@@ -1180,7 +1187,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
 
     case EVertexLayout_Empty:
     {
-        BaseMesh* mesh = _entity.AddMesh<BaseMesh>();
+        BaseMesh* mesh = entityPtr->AddMesh<BaseMesh>();
     }
     break;
 
@@ -1198,7 +1205,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity& _entity)
     const ionSize count = positions.size();
     for (ionU32 i = 1; i < count; ++i)
     {
-        _entity.GetBoundingBox()->Expande(positions[i - 1], positions[i]);
+        entityPtr->GetBoundingBox()->Expande(positions[i - 1], positions[i]);
     }
 }
 

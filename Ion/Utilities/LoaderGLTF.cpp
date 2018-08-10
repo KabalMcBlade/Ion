@@ -28,7 +28,7 @@ LoaderGLTF::~LoaderGLTF()
 }
 
 // for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
-void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const Matrix& _parentMatrix, Entity& _entity, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign)
+void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const Matrix& _parentMatrix, ObjectHandler& _entityHandle, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign)
 {
     Vector position(0.0f, 0.0f, 0.0f, 1.0f);
     Quaternion rotation;
@@ -120,12 +120,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
         //localNodeMatrix = localNodeMatrix.Scale(scale);
     }
 
-    _entity.GetTransform().SetPosition(position);
-    _entity.GetTransform().SetRotation(rotation);
-    _entity.GetTransform().SetScale(scale);
+    _entityHandle->GetTransform().SetPosition(position);
+    _entityHandle->GetTransform().SetRotation(rotation);
+    _entityHandle->GetTransform().SetScale(scale);
 
-    Matrix localNodeMatrix = _entity.GetTransform().GetMatrix();
-    _entity.GetTransform().SetMatrixWS(_parentMatrix * localNodeMatrix);
+    Matrix localNodeMatrix = _entityHandle->GetTransform().GetMatrix();
+    _entityHandle->GetTransform().SetMatrixWS(_parentMatrix * localNodeMatrix);
     
 
 
@@ -134,9 +134,10 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
     {
         for (ionSize i = 0; i < _node.children.size(); ++i)
         {
-            Entity child;
-            child.AttachToParent(_entity);
-            LoadNode(_model.nodes[_node.children[i]], _model, localNodeMatrix, child, _textureIndexToTextureName, _materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+            Entity* child = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+            ObjectHandler childHandle(child);
+            child->AttachToParent(_entityHandle);
+            LoadNode(_model.nodes[_node.children[i]], _model, localNodeMatrix, childHandle, _textureIndexToTextureName, _materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
         }
     }
 
@@ -154,7 +155,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                 continue;
             }
 
-            Mesh* ionMesh = _entity.AddMesh<Mesh>();
+            Entity* entityPtr = dynamic_cast<Entity*>(_entityHandle.GetPtr());
+            Mesh* ionMesh = entityPtr->AddMesh<Mesh>();
 
             ionMesh->SetIndexStart(prevIndexSize);
             ionU32 vertexStart = prevVertexSize;
@@ -374,7 +376,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 
                     vert.SetPosition(pos);
 
-                    _entity.GetBoundingBox()->Expande(vert.GetPosition(), vert.GetPosition());
+                    _entityHandle->GetBoundingBox()->Expande(vert.GetPosition(), vert.GetPosition());
                     
                     Vector normal;
                     if (bufferNormals != nullptr)
@@ -667,7 +669,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 }
 
 
-ionBool LoaderGLTF::Load(const eosString & _filePath, Entity& _entity, ionBool _generateNormalWhenMissing /*= false*/, ionBool _generateTangentWhenMissing /*= false*/, ionBool _setBitangentSign /*= false*/)
+ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, ionBool _generateNormalWhenMissing /*= false*/, ionBool _generateTangentWhenMissing /*= false*/, ionBool _setBitangentSign /*= false*/)
 {
     tinygltf::Model     _model;
     tinygltf::TinyGLTF  gltf;

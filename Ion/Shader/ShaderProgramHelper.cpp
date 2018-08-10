@@ -11,21 +11,22 @@ VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-ShaderVertexLayout *ShaderProgramHelper::m_vertexLayouts = nullptr;
+ShaderVertexLayout **ShaderProgramHelper::m_vertexLayouts = nullptr;
 
 void ShaderProgramHelper::Create()
 {
-    if (!m_vertexLayouts)
+    m_vertexLayouts = new ShaderVertexLayout*[EVertexLayout_Count];
+    for (int i = 0; i < EVertexLayout_Count; i++)
     {
-        m_vertexLayouts = (ShaderVertexLayout*)eosNewRaw(sizeof(ShaderVertexLayout) * EVertexLayout_Count, ION_MEMORY_ALIGNMENT_SIZE);
+        m_vertexLayouts[i] = eosNew(ShaderVertexLayout, ION_MEMORY_ALIGNMENT_SIZE);
     }
 }
 
 void ShaderProgramHelper::Destroy()
 {
-    if (m_vertexLayouts)
+    for (int i = 0; i < EVertexLayout_Count; i++)
     {
-        eosDeleteRaw(m_vertexLayouts);
+        eosDelete(m_vertexLayouts[i]);
     }
 }
 
@@ -40,7 +41,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
     VkVertexInputAttributeDescription attribute = {};
     
     {
-        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Full];
+        ShaderVertexLayout& vertexLayout = *m_vertexLayouts[EVertexLayout::EVertexLayout_Full];
 
         vertexLayout.m_inputState = createInfo;
 
@@ -108,7 +109,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
     }
 
     {
-        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Pos_UV_Normal];
+        ShaderVertexLayout& vertexLayout = *m_vertexLayouts[EVertexLayout::EVertexLayout_Pos_UV_Normal];
 
         vertexLayout.m_inputState = createInfo;
 
@@ -141,7 +142,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
     }
 
     {
-        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Pos_UV];
+        ShaderVertexLayout& vertexLayout = *m_vertexLayouts[EVertexLayout::EVertexLayout_Pos_UV];
 
         vertexLayout.m_inputState = createInfo;
 
@@ -167,7 +168,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
     }
 
     {
-        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Pos_Color];
+        ShaderVertexLayout& vertexLayout = *m_vertexLayouts[EVertexLayout::EVertexLayout_Pos_Color];
 
         vertexLayout.m_inputState = createInfo;
 
@@ -193,7 +194,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
     }
 
     {
-        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Pos];
+        ShaderVertexLayout& vertexLayout = *m_vertexLayouts[EVertexLayout::EVertexLayout_Pos];
 
         vertexLayout.m_inputState = createInfo;
 
@@ -209,7 +210,7 @@ void ShaderProgramHelper::CreateVertexDescriptor()
     }
 
     {
-        ShaderVertexLayout& vertexLayout = m_vertexLayouts[EVertexLayout::EVertexLayout_Empty];
+        ShaderVertexLayout& vertexLayout = *m_vertexLayouts[EVertexLayout::EVertexLayout_Empty];
         vertexLayout.m_inputState = createInfo;
     }
 }
@@ -462,7 +463,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
         return VK_NULL_HANDLE;
     }
 
-    ShaderVertexLayout& vertexLayout = m_vertexLayouts[_vertexLayoutType];
+    ShaderVertexLayout& vertexLayout = *m_vertexLayouts[_vertexLayoutType];
 
     VkPipelineVertexInputStateCreateInfo vertexInputState = vertexLayout.m_inputState;
     vertexInputState.vertexBindingDescriptionCount = (ionU32)vertexLayout.m_bindinggDescription.size();

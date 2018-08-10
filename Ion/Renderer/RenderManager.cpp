@@ -102,13 +102,13 @@ RenderManager& RenderManager::Instance()
     return *s_instance;
 }
 
-ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, Entity& _entity, ionBool _generateNormalWhenMissing /*= false*/, ionBool _generateTangentWhenMissing /*= false*/, ionBool _setBitangentSign /*= false*/)
+ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, ObjectHandler& _entity, ionBool _generateNormalWhenMissing /*= false*/, ionBool _generateTangentWhenMissing /*= false*/, ionBool _setBitangentSign /*= false*/)
 {
     LoaderGLTF loader;
     return loader.Load(_fileName, _entity, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
 }
 
-void RenderManager::LoadPrimitive(EVertexLayout _layout, EPrimitiveType _type, Entity& _entity)
+void RenderManager::LoadPrimitive(EVertexLayout _layout, EPrimitiveType _type, ObjectHandler& _entity)
 {
     switch(_type)
     {
@@ -228,7 +228,7 @@ Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
     Entity* brdflutEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler brdflutEntityHandle(brdflutEntity);
 
-    LoadPrimitive(EVertexLayout_Empty, EPrimitiveType_Quad, *brdflutEntity);
+    LoadPrimitive(EVertexLayout_Empty, EPrimitiveType_Quad, brdflutEntityHandle);
 
     Material* material = ionMaterialManger().CreateMaterial(ION_BRDFLUT_TEXTURENAME, 0u);
     brdflutEntity->GetMesh(0)->SetMaterial(material);
@@ -353,7 +353,7 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
     irradianceEntityHandle->AttachToParent(_camera);
 
     // shader has position input
-    LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, *irradianceEntity);
+    LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, irradianceEntityHandle);
 
     Material* material = ionMaterialManger().CreateMaterial(ION_IRRADIANCE_TEXTURENAME, 0u);
     irradianceEntity->GetMesh(0)->SetMaterial(material);
@@ -636,7 +636,7 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     prefilteredEntityHandle->AttachToParent(_camera);
 
     // shader has position input
-    LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, *prefilteredEntity);
+    LoadPrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, prefilteredEntityHandle);
 
     Material* material = ionMaterialManger().CreateMaterial(ION_IRRADIANCE_TEXTURENAME, 0u);
     prefilteredEntity->GetMesh(0)->SetMaterial(material);

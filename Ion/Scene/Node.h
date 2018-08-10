@@ -83,7 +83,6 @@ public:
     void SetVisible(ionBool _isVisible) { m_visible = _isVisible; }
     ionBool IsVisible() { return m_visible; }
 
-    void AttachToParent(Node& _parent);
     void AttachToParent(ObjectHandler& _parent);
     void DetachFromParent();
 

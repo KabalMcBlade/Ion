@@ -164,12 +164,12 @@ int main()
         rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
     }
 
-
+    
     Material* skyboxMaterial = ionMaterialManger().CreateMaterial("SkyBox", 0u);
     ionS32 skyboxVertexShaderIndex = -1;
     ionS32 skyboxFragmentShaderIndex = -1;
 
-
+    
     //////////////////////////////////////////////////////////////////////////
 
     //static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
@@ -250,7 +250,7 @@ int main()
         irradiance = ionRenderManager().GenerateIrradianceCubemap(skyboxMaterial->GetBasePBR().GetBaseColorTexture(), camera);
         prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(skyboxMaterial->GetBasePBR().GetBaseColorTexture(), camera);
     }
-
+    
     //////////////////////////////////////////////////////////////////////////
     // Create Camera
     FPSCamera* camera = eosNew(FPSCamera, ION_MEMORY_ALIGNMENT_SIZE);
@@ -306,7 +306,7 @@ int main()
     skyboxMaterial->SetConstantsShaders(constants);
     skyboxMaterial->SetShaders(skyboxVertexShaderIndex, skyboxFragmentShaderIndex);
 
-
+    
     //////////////////////////////////////////////////////////////////////////
     // Create Entity to render
     RotatingEntity* test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE);
@@ -322,32 +322,32 @@ int main()
     switch(choice)
     {
     case 1:
-        Test_ColoredTriangle(*test);
+        Test_ColoredTriangle(testHandle);
         break;
     case 2:
-        Test_ColoredQuad(*test);
+        Test_ColoredQuad(testHandle);
         break;
     case 3:
-        Test_TexturedQuad(*test);
+        Test_TexturedQuad(testHandle);
         break;
     case 4:
-        Test_ColoredCube(*test);
+        Test_ColoredCube(testHandle);
         break;
     case 5:
-        Test_ColoredSphere(*test);
+        Test_ColoredSphere(testHandle);
         break;
     case 6:
-        Test_TexturedQuadEx(*test, ionRenderManager().GetBRDF());
+        Test_TexturedQuadEx(testHandle, ionRenderManager().GetBRDF());
         break;
     case 7:
-        Test_ModelPBR(*test, brdflut, irradiance, prefilteredEnvironmentMap);
+        Test_ModelPBR(testHandle, brdflut, irradiance, prefilteredEnvironmentMap);
         break;
     default:
         std::cout << "Any valid choose made, will run the Colored Triangle test" << std::endl;
-        Test_ColoredTriangle(*test);
+        Test_ColoredTriangle(testHandle);
         break;
     }
-
+    
     BoundingBoxEntity* boundingBox = eosNew(BoundingBoxEntity, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler boundingBoxHandle(boundingBox);
 
@@ -355,10 +355,10 @@ int main()
 
     boundingBox->GetTransform().SetPosition(bbTransformed.GetCenter());
     boundingBox->GetTransform().SetScale(bbTransformed.GetSize());
-
-    Test_DrawBoundingBox(*boundingBox);
-
-    boundingBox->AttachToParent(testHandle);
+    
+    Test_DrawBoundingBox(boundingBoxHandle);
+    
+    boundingBox->AttachToParent(testHandle);    // leak using this code
 
     //////////////////////////////////////////////////////////////////////////
     //
