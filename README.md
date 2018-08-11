@@ -10,10 +10,9 @@ I'm not a render or engine programmer and this work MUST NOT BE USED for any com
 
 **[X64] WORKING**
 
-Has some memory leaks and I'm working to fix them
 I'm not planning to do a x86 version
 
-This is a screenshot about a first test on PBR render, maybe I need a more "shiny" skybox to generate maps from...
+This is a screenshot about a first test on PBR render, maybe I need a more "brighty" and "shiny" skybox to generate maps from and set some different material parameters.
 
 <img src="./Screenshots/FirstTest.png" width="814px">
 
