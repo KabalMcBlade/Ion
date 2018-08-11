@@ -5,7 +5,19 @@ I'm not a render or engine programmer and this work MUST NOT BE USED for any com
 
 > Ion in the Greek Mythology is the illegitimate child of Creüsa, daughter of Erechtheus and wife of Xuthus
 
- 
+
+## Status
+
+**[X64] WORKING**
+
+Has some memory leaks and I'm working to fix them
+I'm not planning to do a x86 version
+
+This is a screenshot about a first test on PBR render, maybe I need a more "shiny" skybox to generate maps from...
+
+<img src="./Screenshots/FirstTest.png" width="814px">
+
+
 ## Important
 
 As I wrote before, this is made to learn something about this API.
@@ -16,14 +28,6 @@ Most of the code has been studied and inspired by:
 - Sascha Willems (https://www.saschawillems.de/)
 	- GitHub: https://github.com/SaschaWillems
 		- Shaders and rendering tecnniques
-
-
-
-## Status
-
-**[X64] WORKING**
-
-I'm not planning to do a x86 version
 
 
 ## LICENSE
