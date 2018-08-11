@@ -232,6 +232,7 @@ void ShaderProgramHelper::CreateDescriptorPools(const VkDevice& _device, VkDescr
     createInfo.maxSets = ION_MAX_DESCRIPTOR_SETS;
     createInfo.poolSizeCount = poolCount;
     createInfo.pPoolSizes = poolSizes;
+    createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
     VkResult result = vkCreateDescriptorPool(_device, &createInfo, vkMemory, &_pool);
     ionAssertReturnVoid(result == VK_SUCCESS, "vkCreateDescriptorPool cannot create descriptor pool!");

@@ -112,7 +112,7 @@ void ShaderProgramManager::Shutdown()
     eosDelete(m_skinningUniformBuffer);
     m_skinningUniformBuffer = nullptr;
 
-    //vkFreeDescriptorSets( m_vkDevice, m_descriptorPools, ION_MAX_DESCRIPTOR_SETS, m_descriptorSets);
+ 
     vkResetDescriptorPool(m_vkDevice, m_descriptorPool, 0);
     vkDestroyDescriptorPool(m_vkDevice, m_descriptorPool, vkMemory);
 
@@ -836,6 +836,8 @@ void ShaderProgramManager::Restart()
         vkDestroyDescriptorSetLayout(m_vkDevice, shaderProgram.m_descriptorSetLayout, vkMemory);
     }
     m_shaderPrograms.clear();
+
+    vkResetDescriptorPool(m_vkDevice, m_descriptorPool, 0);
 }
 
 
