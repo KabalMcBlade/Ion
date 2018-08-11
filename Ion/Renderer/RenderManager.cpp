@@ -48,13 +48,16 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-
 RenderManager *RenderManager::s_instance = nullptr;
 
 
 RenderManager::RenderManager() : m_deltaTime(0.0f), m_running(false)
 {
-
+#ifdef ION_PBR_DEBUG
+    m_exposure = 4.5f;
+    m_gamma = 2.2f;
+    m_prefilteredCubeMipLevels = 10.0f;
+#endif // ION_PBR_DEBUG
 }
 
 RenderManager::~RenderManager()

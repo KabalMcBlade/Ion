@@ -21,6 +21,8 @@
 
 #include "../App/Mode.h"
 
+#define ION_PBR_DEBUG
+
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
@@ -77,6 +79,13 @@ public:
 
     Texture*    GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera);
     Texture*    GetPrefilteredEnvironmentCubemap();
+
+
+#ifdef ION_PBR_DEBUG
+    ionFloat m_exposure;
+    ionFloat m_gamma;
+    ionFloat m_prefilteredCubeMipLevels;
+#endif // ION_PBR_DEBUG
 
 private:
     RenderManager(const RenderManager& _Orig) = delete;

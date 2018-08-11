@@ -5,6 +5,7 @@
 
 #include "../Renderer/RenderCommon.h"
 
+#include "../Renderer/RenderManager.h"
 
 NIX_USING_NAMESPACE
 EOS_USING_NAMESPACE
@@ -189,7 +190,6 @@ void SceneGraph::UpdateUniformBuffer(Camera* _camera, ionU32 _index, const Matri
     // for now hard coded all parameters except camera
 
     const Vector& cameraPos = _camera->GetTransform().GetPosition();
-    //const Vector directionalLight(75.0f, 40.0f, 0.0f, 1.0f);
 
     const Vector directionalLight(
         sinf(NIX_DEG_TO_RAD(75.0f)) * cosf(NIX_DEG_TO_RAD(40.0f)),
@@ -201,9 +201,19 @@ void SceneGraph::UpdateUniformBuffer(Camera* _camera, ionU32 _index, const Matri
     _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_mainCameraPos[0], cameraPos);
     _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_directionalLight[0], directionalLight);
 
+#ifdef ION_PBR_DEBUG
+
+    m_drawSurfaces[cameraHash][_index].m_exposure = ionRenderManager().m_exposure;
+    m_drawSurfaces[cameraHash][_index].m_gamma = ionRenderManager().m_gamma;
+    m_drawSurfaces[cameraHash][_index].m_prefilteredCubeMipLevels = ionRenderManager().m_prefilteredCubeMipLevels;
+
+#else
+
     m_drawSurfaces[cameraHash][_index].m_exposure = 4.5f;
     m_drawSurfaces[cameraHash][_index].m_gamma = 2.2f;
     m_drawSurfaces[cameraHash][_index].m_prefilteredCubeMipLevels = 10.0f;  // I know that because I debugged my preflitered texture generation
+
+#endif // ION_PBR_DEBUG
 
     m_drawSurfaces[cameraHash][_index].m_visible = _entity->IsVisible();
 }

@@ -46,6 +46,17 @@ public:
     virtual void OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime) override;
     virtual void OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime) override;
 
+#ifdef ION_PBR_DEBUG
+private:
+    enum EPBRDebugType
+    {
+        EPBRDebugType_Exposure = 0,
+        EPBRDebugType_Gamma,
+        EPBRDebugType_PrefilteredCubeMipLevels
+    };
+    EPBRDebugType m_pbrDebug;
+#endif
+
 private:
     ionFloat m_movementSpeed;
     ionFloat m_mouseSensitivity;

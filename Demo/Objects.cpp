@@ -1,6 +1,7 @@
 #include "Objects.h"
 
 
+
 //////////////////////////////////////////////////////////////////////////
 // ENTITIES
 
@@ -87,7 +88,10 @@ void BoundingBoxEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState
 
 FPSCamera::FPSCamera() : Camera("FPS Camera"), m_movementSpeed(1.0f), m_mouseSensitivity(0.05f), m_pitchDeg(0.0f), m_yawDeg(0.0f), m_constrainPitch(true)
 {
-
+#ifdef ION_PBR_DEBUG
+    m_pbrDebug = EPBRDebugType_Exposure;
+    std::cout << "Active PBR Debug: Esposure - Current level is " << ionRenderManager().m_exposure << std::endl;
+#endif
 }
 
 FPSCamera::~FPSCamera()
@@ -162,7 +166,50 @@ void FPSCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFlo
             pos += right * velocity;
         }
 
-        GetTransform().SetPosition(pos);
+#ifdef ION_PBR_DEBUG
+        else if (_keyboardState.m_key == ion::EKeyboardKey_Q)
+        {
+            switch (m_pbrDebug)
+            {
+            case FPSCamera::EPBRDebugType_Exposure:
+                ionRenderManager().m_exposure += 0.01f;
+                std::cout << "Incremented to " << ionRenderManager().m_exposure << std::endl;
+                break;
+            case FPSCamera::EPBRDebugType_Gamma:
+                ionRenderManager().m_gamma += 0.01f;
+                std::cout << "Incremented to " << ionRenderManager().m_gamma << std::endl;
+                break;
+            case FPSCamera::EPBRDebugType_PrefilteredCubeMipLevels:
+                ionRenderManager().m_prefilteredCubeMipLevels += 0.01f;
+                std::cout << "Incremented to " << ionRenderManager().m_prefilteredCubeMipLevels << std::endl;
+                break;
+            default:
+                break;
+            }
+        }
+        else if (_keyboardState.m_key == ion::EKeyboardKey_Z)
+        {
+            switch (m_pbrDebug)
+            {
+            case FPSCamera::EPBRDebugType_Exposure:
+                ionRenderManager().m_exposure -= 0.01f;
+                std::cout << "Decremented to " << ionRenderManager().m_exposure << std::endl;
+                break;
+            case FPSCamera::EPBRDebugType_Gamma:
+                ionRenderManager().m_gamma -= 0.01f;
+                std::cout << "Decremented to " << ionRenderManager().m_gamma << std::endl;
+                break;
+            case FPSCamera::EPBRDebugType_PrefilteredCubeMipLevels:
+                ionRenderManager().m_prefilteredCubeMipLevels -= 0.01f;
+                std::cout << "Decremented to " << ionRenderManager().m_prefilteredCubeMipLevels << std::endl;
+                break;
+            default:
+                break;
+            }
+        }
+#endif
+
+        GetTransform().SetPosition(pos); 
     }
 
     if (_keyboardState.m_state == ion::EKeyboardState_Up)
@@ -171,6 +218,24 @@ void FPSCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFlo
         {
             ionRenderManager().Quit();
         }
+
+#ifdef ION_PBR_DEBUG
+        else if (_keyboardState.m_key == ion::EKeyboardKey_N1)
+        {
+            m_pbrDebug = EPBRDebugType_Exposure;
+            std::cout << "Active PBR Debug: Esposure - Current level is " << ionRenderManager().m_exposure << std::endl;
+        }
+        else if (_keyboardState.m_key == ion::EKeyboardKey_N2)
+        {
+            m_pbrDebug = EPBRDebugType_Gamma;
+            std::cout << "Active PBR Debug: Gamma - Current level is " << ionRenderManager().m_gamma << std::endl;
+        }
+        else if (_keyboardState.m_key == ion::EKeyboardKey_N3)
+        {
+            m_pbrDebug = EPBRDebugType_PrefilteredCubeMipLevels;
+            std::cout << "Active PBR Debug: Prefiltered Cube Mip Levels - Current level is " << ionRenderManager().m_prefilteredCubeMipLevels << std::endl;
+        }
+#endif
     }
 }
 
