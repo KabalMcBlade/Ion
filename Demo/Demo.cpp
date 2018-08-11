@@ -309,7 +309,7 @@ int main()
     
     //////////////////////////////////////////////////////////////////////////
     // Create Entity to render
-    RotatingEntity* test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE);
+    RotatingEntity* test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE, "GameEntity");
     ObjectHandler testHandle(test);
     test->GetTransform().SetPosition(entityPos);
 
@@ -348,7 +348,7 @@ int main()
         break;
     }
     
-    BoundingBoxEntity* boundingBox = eosNew(BoundingBoxEntity, ION_MEMORY_ALIGNMENT_SIZE);
+    BoundingBoxEntity* boundingBox = eosNew(BoundingBoxEntity, ION_MEMORY_ALIGNMENT_SIZE, "BoundingBox");
     ObjectHandler boundingBoxHandle(boundingBox);
 
     BoundingBox bbTransformed = test->GetBoundingBox()->GetTransformed(test->GetTransform().GetMatrix());
@@ -358,7 +358,7 @@ int main()
     
     Test_DrawBoundingBox(boundingBoxHandle);
     
-    boundingBox->AttachToParent(testHandle);    // leak using this code
+    boundingBox->AttachToParent(testHandle);
 
     //////////////////////////////////////////////////////////////////////////
     //

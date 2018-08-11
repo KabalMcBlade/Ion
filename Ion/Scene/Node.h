@@ -102,10 +102,9 @@ public:
 
     void Update(ionFloat _deltaTime);
 
-    const ObjectHandler &GetParentHandle() const { return m_parent; }
-    const Transform &GetTransform() const { return m_transform; }
+    const Node* GetParent() const { return m_parent; }
 
-    ObjectHandler &GetParentHandle() { return m_parent; }
+    const Transform &GetTransform() const { return m_transform; }
     Transform &GetTransform() { return m_transform; }
 
     eosVector(ObjectHandler) &GetChildren() { return m_children; };
@@ -124,7 +123,7 @@ private:
     ionU32 m_nodeIndex;
     ionSize m_hash;
 
-    ObjectHandler m_parent;
+    Node* m_parent; // to avoid cross reference is a ptr instead of a smart object
     Transform m_transform;
 
     eosString m_nameInternal;

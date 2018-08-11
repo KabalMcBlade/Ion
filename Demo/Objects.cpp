@@ -10,6 +10,11 @@ RotatingEntity::RotatingEntity() : m_rotating(false)
 
 }
 
+RotatingEntity::RotatingEntity(const eosString & _name) : Entity(_name), m_rotating(false)
+{
+}
+
+
 RotatingEntity::~RotatingEntity()
 {
 
@@ -46,6 +51,10 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
 
 
 BoundingBoxEntity::BoundingBoxEntity() : m_waitForAction(false)
+{
+}
+
+BoundingBoxEntity::BoundingBoxEntity(const eosString & _name) : Entity(_name), m_waitForAction(false)
 {
 }
 

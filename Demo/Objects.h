@@ -9,6 +9,7 @@ class RotatingEntity : public ion::Entity
 {
 public:
     RotatingEntity();
+    RotatingEntity(const eosString & _name);
     virtual ~RotatingEntity();
 
     virtual void OnUpdate(ionFloat _deltaTime) override;
@@ -24,6 +25,7 @@ class BoundingBoxEntity : public ion::Entity
 {
 public:
     BoundingBoxEntity();
+    BoundingBoxEntity(const eosString & _name);
     virtual ~BoundingBoxEntity();
 
     virtual void OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime) override;

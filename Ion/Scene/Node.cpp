@@ -12,7 +12,7 @@ ION_NAMESPACE_BEGIN
 
 ionU32 Node::g_nextValidNodeIndex = 0;
 
-Node::Node() : m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_Default)
+Node::Node() : m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_Default), m_parent(nullptr)
 {
     m_nodeIndex = g_nextValidNodeIndex;
     ++g_nextValidNodeIndex;
@@ -20,7 +20,7 @@ Node::Node() : m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_D
     m_nodeType = ENodeType_EmptyNode;
 }
 
-Node::Node(const eosString & _name) : m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_Default)
+Node::Node(const eosString & _name) : m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_Default), m_parent(nullptr)
 {
     m_nodeIndex = g_nextValidNodeIndex;
     ++g_nextValidNodeIndex;
@@ -43,18 +43,17 @@ void Node::SetName(const eosString& _name)
 
 void Node::AttachToParent(ObjectHandler& _parent)
 {
-    if (m_parent.IsValid())
+    if (m_parent != nullptr)
     {
         DetachFromParent();
     }
 
-    m_parent = _parent;
-    if (m_parent.IsValid())
+    m_parent = _parent.GetPtr();
+    if (m_parent != nullptr)
     {
-        SmartPointer<Node> thisHandle(this);
-        m_parent->GetChildren().push_back(thisHandle);
+        m_parent->GetChildren().push_back(this);
 
-        OnAttachToParent(m_parent);
+        OnAttachToParent(_parent);
     }
 }
 
@@ -62,10 +61,9 @@ void Node::DetachFromParent()
 {
     OnDetachFromParent();
 
-    if (m_parent.IsValid())
+    if (m_parent != nullptr)
     {
         m_parent->GetChildren().erase(std::remove(m_parent->GetChildren().begin(), m_parent->GetChildren().end(), this), m_parent->GetChildren().end());
-        m_parent.Release();
     }
 }
 
@@ -76,7 +74,7 @@ void Node::Update(ionFloat _deltaTime)
         OnUpdate(_deltaTime);
 
         Matrix worldTransform;
-        if (m_parent.IsValid())
+        if (m_parent != nullptr)
         {
             m_transform.SetMatrixWS(m_parent->GetTransform().GetMatrixWS() * m_transform.GetMatrix());
         }
