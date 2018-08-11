@@ -307,6 +307,8 @@ Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
     m_renderCore.DestroyRenderPass(renderPass);
     m_renderCore.DestroyFrameBuffer(framebuffer);
 
+    ionShaderProgramManager().Restart();
+
     return brdflut;
 }
 
@@ -589,6 +591,8 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
     ionTextureManger().DestroyTexture(ION_IRRADIANCE_TEXTURENAME_OFFSCREEN);
 
     irradianceEntityHandle->DetachFromParent();
+
+    ionShaderProgramManager().Restart();
 
     return irradiance;
 }
@@ -877,6 +881,8 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     ionTextureManger().DestroyTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME_OFFSCREEN);
 
     prefilteredEntityHandle->DetachFromParent();
+
+    ionShaderProgramManager().Restart();
 
     return prefilteredEnvironment;
 }
