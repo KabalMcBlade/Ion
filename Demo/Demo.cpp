@@ -367,17 +367,17 @@ int main()
     // first full the scene graph
     ionRenderManager().AddToSceneGraph(cameraHandle);
     ionRenderManager().AddToSceneGraph(testHandle);
-
+    
     // then set the active node will receive the input
     ionRenderManager().RegisterToInput(cameraHandle);
     ionRenderManager().RegisterToInput(boundingBoxHandle);
     ionRenderManager().RegisterToInput(testHandle);
-
+    
     if (rendererInitialized)
     {
         window.Loop();
     }
-
+    
     ionRenderManager().Shutdown();
 
     ionFileSystemManager().Shutdown();

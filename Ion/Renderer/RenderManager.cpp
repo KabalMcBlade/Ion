@@ -80,6 +80,7 @@ ionBool RenderManager::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, io
 
 void RenderManager::Shutdown()
 {
+    m_sceneGraph.RemoveAll();
     m_renderCore.Shutdown();
 }
 

@@ -49,6 +49,12 @@ void SceneGraph::RemoveFromScene(ObjectHandler& _node)
     _node->DetachFromParent();
 }
 
+void SceneGraph::RemoveAll()
+{
+    m_rootHandle->GetChildren().clear();
+    m_rootHandle.Release();
+}
+
 void SceneGraph::UpdateAllCameraAspectRatio(const RenderCore& _renderCore)
 {
     for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)

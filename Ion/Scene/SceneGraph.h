@@ -30,6 +30,7 @@ public:
 
     void AddToScene(ObjectHandler& _node);
     void RemoveFromScene(ObjectHandler& _node);
+    void RemoveAll();
 
     void UpdateAllCameraAspectRatio(const RenderCore& _renderCore);
 
