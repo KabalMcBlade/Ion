@@ -15,7 +15,8 @@ ShaderVertexLayout **ShaderProgramHelper::m_vertexLayouts = nullptr;
 
 void ShaderProgramHelper::Create()
 {
-    m_vertexLayouts = new ShaderVertexLayout*[EVertexLayout_Count];
+
+    m_vertexLayouts = (ShaderVertexLayout**)eosNewRaw(sizeof(ShaderVertexLayout*) * EVertexLayout_Count, ION_MEMORY_ALIGNMENT_SIZE);
     for (int i = 0; i < EVertexLayout_Count; i++)
     {
         m_vertexLayouts[i] = eosNew(ShaderVertexLayout, ION_MEMORY_ALIGNMENT_SIZE);
@@ -28,6 +29,7 @@ void ShaderProgramHelper::Destroy()
     {
         eosDelete(m_vertexLayouts[i]);
     }
+    eosDeleteRaw(m_vertexLayouts);
 }
 
 void ShaderProgramHelper::CreateVertexDescriptor()
