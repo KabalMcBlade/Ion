@@ -197,7 +197,7 @@ int main()
         //
         Camera* cameraPtr = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE);
         ObjectHandler camera(cameraPtr);
-        cameraPtr->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
+        cameraPtr->SetCameraType(ion::Camera::ECameraType::ECameraType_LookAt);
         cameraPtr->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
         cameraPtr->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
         cameraPtr->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
@@ -253,15 +253,15 @@ int main()
     
     //////////////////////////////////////////////////////////////////////////
     // Create Camera
-    FPSCamera* camera = eosNew(FPSCamera, ION_MEMORY_ALIGNMENT_SIZE);
+    MainCamera* camera = eosNew(MainCamera, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler cameraHandle(camera);
-    camera->SetCameraType(ion::Camera::ECameraType::ECameraType_FirstPerson);
+    camera->SetCameraType(ion::Camera::ECameraType::ECameraType_LookAt);
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
     camera->GetTransform().SetPosition(cameraPos);
     camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
     camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
     camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
-    camera->SetParameters(0.001f, 0.05f, true);
+    camera->SetParameters(10.0f, 0.05f);
 
     //////////////////////////////////////////////////////////////////////////
     // Create SkyBox

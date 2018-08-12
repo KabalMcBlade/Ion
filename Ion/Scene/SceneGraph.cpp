@@ -14,9 +14,6 @@ ION_NAMESPACE_BEGIN
 
 SceneGraph::SceneGraph()
 {
-    m_rootHandle = eosNew(Node, ION_MEMORY_ALIGNMENT_SIZE);
-    m_rootHandle->GetTransform().SetPosition(VectorHelper::Get0001());
-    m_rootHandle->GetTransform().SetRotation(VectorHelper::Get0001());
 }
 
 SceneGraph::~SceneGraph()
@@ -41,18 +38,17 @@ SceneGraph::~SceneGraph()
 
 void SceneGraph::AddToScene(ObjectHandler& _node)
 {
-    _node->AttachToParent(m_rootHandle);
+    m_nodes.push_back(_node);
 }
 
 void SceneGraph::RemoveFromScene(ObjectHandler& _node)
 {
-    _node->DetachFromParent();
+    m_nodes.erase(std::remove(m_nodes.begin(), m_nodes.end(), _node), m_nodes.end());
 }
 
 void SceneGraph::RemoveAll()
 {
-    m_rootHandle->GetChildren().clear();
-    m_rootHandle.Release();
+    m_nodes.clear();
 }
 
 void SceneGraph::UpdateAllCameraAspectRatio(const RenderCore& _renderCore)
@@ -65,7 +61,7 @@ void SceneGraph::UpdateAllCameraAspectRatio(const RenderCore& _renderCore)
     }
 }
 
-void SceneGraph::FillCameraMapTree(ObjectHandler& _node)
+void SceneGraph::FillCameraMapTree(const ObjectHandler& _node)
 {
     if (_node->GetNodeType() == ENodeType_Camera)
     {
@@ -91,7 +87,7 @@ void SceneGraph::FillCameraMapTree(ObjectHandler& _node)
     }
 }
 
-void SceneGraph::GenerateMapTree(ObjectHandler& _node)
+void SceneGraph::GenerateMapTree(const ObjectHandler& _node)
 {
     if (_node->GetNodeType() == ENodeType_Entity)
     {
@@ -131,8 +127,13 @@ void SceneGraph::Prepare()
 {
     // Generate the plain map recursively
     // I don't care about the speed here, is just once before start
-    FillCameraMapTree(m_rootHandle);
-    GenerateMapTree(m_rootHandle);
+    eosVector(ObjectHandler)::const_iterator begin = m_nodes.cbegin(), end = m_nodes.cend(), it = begin;
+    for (; it != end; ++it)
+    {
+        const ObjectHandler& node = (*it);
+        FillCameraMapTree(node);
+        GenerateMapTree(node);
+    }
 
     // Update entities
     for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
@@ -227,7 +228,12 @@ void SceneGraph::UpdateUniformBuffer(Camera* _camera, ionU32 _index, const Matri
 void SceneGraph::Update(ionFloat _deltaTime)
 {
     // update
-    m_rootHandle->Update(_deltaTime);
+    eosVector(ObjectHandler)::const_iterator begin = m_nodes.cbegin(), end = m_nodes.cend(), it = begin;
+    for (; it != end; ++it)
+    {
+        const ObjectHandler& node = (*it);
+        node->Update(_deltaTime);
+    }
 
     // mapping
     //ionVertexCacheManager().BeginMapping();

@@ -14,9 +14,12 @@ public:
 
     virtual void OnUpdate(ionFloat _deltaTime) override;
 
+    virtual void OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime) override;
     virtual void OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime) override;
 
 private:
+    ionFloat m_mouseSensitivity;
+
     ionBool m_rotating;
 };
 
@@ -36,13 +39,13 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 // CAMERA
-class FPSCamera : public ion::Camera
+class MainCamera : public ion::Camera
 {
 public:
-    FPSCamera();
-    virtual ~FPSCamera();
+    MainCamera();
+    virtual ~MainCamera();
 
-    void SetParameters(ionFloat _movementSpeed, ionFloat _mouseSensitivity, ionBool _constrainPitch);
+    void SetParameters(ionFloat _movementSpeed, ionFloat _mouseSensitivity);
 
 public:
     virtual void OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime) override;
@@ -62,9 +65,4 @@ private:
 private:
     ionFloat m_movementSpeed;
     ionFloat m_mouseSensitivity;
-
-    ionFloat m_pitchDeg;
-    ionFloat m_yawDeg;
-
-    ionBool m_constrainPitch;
 };

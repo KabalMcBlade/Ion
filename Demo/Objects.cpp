@@ -5,12 +5,12 @@
 //////////////////////////////////////////////////////////////////////////
 // ENTITIES
 
-RotatingEntity::RotatingEntity() : m_rotating(false)
+RotatingEntity::RotatingEntity() : m_rotating(false), m_mouseSensitivity(0.05f)
 {
 
 }
 
-RotatingEntity::RotatingEntity(const eosString & _name) : Entity(_name), m_rotating(false)
+RotatingEntity::RotatingEntity(const eosString & _name) : Entity(_name), m_rotating(false), m_mouseSensitivity(0.05f)
 {
 }
 
@@ -49,6 +49,33 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
 }
 
 
+void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime)
+{
+    if (_mouseState.m_buttons[0].IsPressed)
+    {
+        ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
+        ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
+
+        xOffset *= m_mouseSensitivity;
+        yOffset *= m_mouseSensitivity;
+
+        const Quaternion& prevRot = GetTransform().GetRotation();
+
+        Matrix rotationMatrix;
+        rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(xOffset), NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(0.0f));
+
+        Quaternion currRot;
+        currRot.SetFromMatrix(rotationMatrix);
+
+
+        currRot = currRot * prevRot;
+
+        GetTransform().SetRotation(currRot);
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////
 
 BoundingBoxEntity::BoundingBoxEntity() : m_waitForAction(false)
 {
@@ -95,7 +122,7 @@ void BoundingBoxEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState
 //////////////////////////////////////////////////////////////////////////
 // CAMERA
 
-FPSCamera::FPSCamera() : Camera("FPS Camera"), m_movementSpeed(1.0f), m_mouseSensitivity(0.05f), m_pitchDeg(0.0f), m_yawDeg(0.0f), m_constrainPitch(true)
+MainCamera::MainCamera() : Camera("FPS Camera"), m_movementSpeed(1.0f), m_mouseSensitivity(0.05f)
 {
 #ifdef ION_PBR_DEBUG
     m_pbrDebug = EPBRDebugType_Exposure;
@@ -106,92 +133,80 @@ FPSCamera::FPSCamera() : Camera("FPS Camera"), m_movementSpeed(1.0f), m_mouseSen
 #endif
 }
 
-FPSCamera::~FPSCamera()
+MainCamera::~MainCamera()
 {
 
 }
 
-void FPSCamera::SetParameters(ionFloat _movementSpeed, ionFloat _mouseSensitivity, ionBool _constrainPitch)
+void MainCamera::SetParameters(ionFloat _movementSpeed, ionFloat _mouseSensitivity)
 {
     m_movementSpeed = _movementSpeed;
     m_mouseSensitivity = _mouseSensitivity;
-    m_constrainPitch = _constrainPitch;
 }
 
-void FPSCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime)
+void MainCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime)
 {
-    ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
-    ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
-
-    xOffset *= m_mouseSensitivity;
-    yOffset *= m_mouseSensitivity;
-
-    m_yawDeg += xOffset;
-    m_pitchDeg -= yOffset;
-
-    if (m_constrainPitch)
+    if (_mouseState.m_wheel.m_wasMoved)
     {
-        if (m_pitchDeg > 89.0f)
-        {
-            m_pitchDeg = 89.0f;
-        }
-        if (m_pitchDeg < -89.0f)
-        {
-            m_pitchDeg = -89.0f;
-        }
-    }
+        static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
 
-    Matrix rotationMatrix;
-    rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(m_yawDeg), NIX_DEG_TO_RAD(m_pitchDeg), NIX_DEG_TO_RAD(0.0f));
+        const Quaternion& orientation = GetTransform().GetRotation();
 
-    Quaternion rotation;
-    rotation.SetFromMatrix(rotationMatrix);
+        ionFloat velocity = m_movementSpeed * _deltaTime;
 
-    GetTransform().SetRotation(rotation);
-}
-
-void FPSCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime)
-{
-    static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
-    static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
-
-    ionFloat velocity = m_movementSpeed * _deltaTime;
-
-    if (_keyboardState.m_state == ion::EKeyboardState_Down)
-    {
         Vector pos = GetTransform().GetPosition();
 
-        if (_keyboardState.m_key == ion::EKeyboardKey_W)
-        {
-            pos += forward * velocity;
-        }
-        else if (_keyboardState.m_key == ion::EKeyboardKey_S)
-        {
-            pos -= forward * velocity;
-        }
-        else if (_keyboardState.m_key == ion::EKeyboardKey_D)
-        {
-            pos -= right * velocity;
-        }
-        else if (_keyboardState.m_key == ion::EKeyboardKey_A)
-        {
-            pos += right * velocity;
-        }
+        pos = pos * orientation;
 
+        pos += forward * _mouseState.m_wheel.m_distance * velocity;
+
+        GetTransform().SetPosition(pos);
+    }
+
+    if (_mouseState.m_buttons[1].IsPressed)
+    {
+        static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
+        static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
+
+        ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
+        ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
+
+        xOffset *= m_mouseSensitivity;
+        yOffset *= m_mouseSensitivity;
+
+        ionFloat velocity = m_movementSpeed * _deltaTime;
+
+        const Quaternion& orientation = GetTransform().GetRotation();
+
+        Vector dir = right * xOffset + up * yOffset;
+        dir = dir * orientation;
+
+        Vector pos = GetTransform().GetPosition();
+
+        pos += dir * velocity;
+
+        GetTransform().SetPosition(pos);
+    }
+}
+
+void MainCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime)
+{
+    if (_keyboardState.m_state == ion::EKeyboardState_Down)
+    {
 #ifdef ION_PBR_DEBUG
-        else if (_keyboardState.m_key == ion::EKeyboardKey_Q)
+        if (_keyboardState.m_key == ion::EKeyboardKey_Q)
         {
             switch (m_pbrDebug)
             {
-            case FPSCamera::EPBRDebugType_Exposure:
+            case MainCamera::EPBRDebugType_Exposure:
                 ionRenderManager().m_exposure += 0.01f;
                 std::cout << "Incremented to " << ionRenderManager().m_exposure << std::endl;
                 break;
-            case FPSCamera::EPBRDebugType_Gamma:
+            case MainCamera::EPBRDebugType_Gamma:
                 ionRenderManager().m_gamma += 0.01f;
                 std::cout << "Incremented to " << ionRenderManager().m_gamma << std::endl;
                 break;
-            case FPSCamera::EPBRDebugType_PrefilteredCubeMipLevels:
+            case MainCamera::EPBRDebugType_PrefilteredCubeMipLevels:
                 ionRenderManager().m_prefilteredCubeMipLevels += 0.01f;
                 std::cout << "Incremented to " << ionRenderManager().m_prefilteredCubeMipLevels << std::endl;
                 break;
@@ -203,15 +218,15 @@ void FPSCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFlo
         {
             switch (m_pbrDebug)
             {
-            case FPSCamera::EPBRDebugType_Exposure:
+            case MainCamera::EPBRDebugType_Exposure:
                 ionRenderManager().m_exposure -= 0.01f;
                 std::cout << "Decremented to " << ionRenderManager().m_exposure << std::endl;
                 break;
-            case FPSCamera::EPBRDebugType_Gamma:
+            case MainCamera::EPBRDebugType_Gamma:
                 ionRenderManager().m_gamma -= 0.01f;
                 std::cout << "Decremented to " << ionRenderManager().m_gamma << std::endl;
                 break;
-            case FPSCamera::EPBRDebugType_PrefilteredCubeMipLevels:
+            case MainCamera::EPBRDebugType_PrefilteredCubeMipLevels:
                 ionRenderManager().m_prefilteredCubeMipLevels -= 0.01f;
                 std::cout << "Decremented to " << ionRenderManager().m_prefilteredCubeMipLevels << std::endl;
                 break;
@@ -220,8 +235,6 @@ void FPSCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFlo
             }
         }
 #endif
-
-        GetTransform().SetPosition(pos); 
     }
 
     if (_keyboardState.m_state == ion::EKeyboardState_Up)

@@ -16,6 +16,19 @@ This is a screenshot about a first test on PBR render, maybe I need a more "brig
 
 <img src="./Screenshots/FirstTest.png" width="814px">
 
+## Controls
+
+At the beginning you have to select the test, from 1 to 5 are generated primitives, 6 is to see the BRDFlut texture in a quad and the 7 is the DamageHelmet PBR test.
+
+The controls in this demo test are:
+* Hold left mouse button in order to rotate the object
+* Hold right mouse button in order to pan right or left the camera
+* Use the mouse wheel to go toward or far away the object
+* Press R to auto rotate the model
+* Press B to toggle a fancy bounding box
+
+For the PBR test there are other control, but you can read directly on the console shell
+
 
 ## Important
 
@@ -56,10 +69,6 @@ Other dependencies are single file, like json and stb_image
 
 About how to use the dependencies please take a look to their own owner. (also for the mine!)
 
-
-## Example
-
-In the Demo folder you will find a demo project using ION Library
 
 
 # Build Status

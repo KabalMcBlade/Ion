@@ -51,15 +51,15 @@ private:
     SceneGraph(const SceneGraph& _Orig) = delete;
     SceneGraph& operator = (const SceneGraph&) = delete;
 
-    void FillCameraMapTree(ObjectHandler& _node);
-    void GenerateMapTree(ObjectHandler& _node);
+    void FillCameraMapTree(const ObjectHandler& _node);
+    void GenerateMapTree(const ObjectHandler& _node);
 
     void UpdateDrawSurface(ionSize _cameraHash, ionU32 _index, const ObjectHandler& _entity);
     void UpdateUniformBuffer(Camera* _camera, ionU32 _index, const Matrix& _projection, const Matrix& _view, const ObjectHandler& _entity);
 
 private:
     BoundingBox                             m_sceneBoundingBox;
-    ObjectHandler                              m_rootHandle;
+    eosVector(ObjectHandler)                m_nodes;
     eosMap(Camera*, eosVector(ObjectHandler))  m_treeNodes;
     eosMap(ionSize, eosVector(DrawSurface)) m_drawSurfaces;
     eosMap(ionSize, ionU32)                 m_nodeCountPerCamera;
