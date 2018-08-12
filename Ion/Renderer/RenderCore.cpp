@@ -1432,7 +1432,16 @@ void RenderCore::Recreate()
 
 ionBool RenderCore::StartFrame()
 {
-    VkResult result = vkAcquireNextImageKHR(m_vkDevice, m_vkSwapchain, UINT64_MAX, m_vkAcquiringSemaphore, VK_NULL_HANDLE, &m_currentSwapIndex);
+    VkResult result = vkWaitForFences(m_vkDevice, 1, &m_vkCommandBufferFences[m_currentSwapIndex], VK_TRUE, UINT64_MAX);
+    ionAssertReturnValue(result == VK_SUCCESS, "Wait for fences failed!", false);
+
+    result = vkResetCommandBuffer(m_vkCommandBuffers[m_currentSwapIndex], VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+    ionAssertReturnValue(result == VK_SUCCESS, "Reset command buffer failed!", false);
+
+    ionStagingBufferManager().Submit();
+    ionShaderProgramManager().StartFrame();
+
+    result = vkAcquireNextImageKHR(m_vkDevice, m_vkSwapchain, UINT64_MAX, m_vkAcquiringSemaphore, VK_NULL_HANDLE, &m_currentSwapIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) 
     {
         Recreate();
@@ -1440,14 +1449,9 @@ ionBool RenderCore::StartFrame()
     }
     ionAssertReturnValue(result == VK_SUCCESS || result  == VK_SUBOPTIMAL_KHR, "vkAcquireNextImageKHR failed!", false);
 
-    result = vkWaitForFences(m_vkDevice, 1, &m_vkCommandBufferFences[m_currentSwapIndex], VK_TRUE, UINT64_MAX);
-    ionAssertReturnValue(result == VK_SUCCESS, "Wait for fences failed!", false);
-
     result = vkResetFences(m_vkDevice, 1, &m_vkCommandBufferFences[m_currentSwapIndex]);
     ionAssertReturnValue(result == VK_SUCCESS, "Reset fences failed!", false);
 
-    ionStagingBufferManager().Submit();
-    ionShaderProgramManager().StartFrame();
     
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
 

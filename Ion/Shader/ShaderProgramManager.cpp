@@ -304,8 +304,7 @@ void ShaderProgramManager::StartFrame()
     m_currentDescSet = 0;
     m_currentParmBufferOffset = 0;
 
-    // I'll add back when I'll move to double or triple buffering!
-    //vkResetDescriptorPool(m_vkDevice, m_descriptorPool, 0);
+    vkResetDescriptorPool(m_vkDevice, m_descriptorPool, 0);
 }
 
 void ShaderProgramManager::EndFrame()
