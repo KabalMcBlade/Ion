@@ -22,7 +22,7 @@ At the beginning you have to select the test, from 1 to 5 are generated primitiv
 
 The controls in this demo test are:
 * Hold left mouse button in order to rotate the object
-* Hold right mouse button in order to pan right or left the camera
+* Hold right mouse button in order to pan right or left and up or down the camera
 * Use the mouse wheel to go toward or far away the object
 * Press R to auto rotate the model
 * Press B to toggle a fancy bounding box
