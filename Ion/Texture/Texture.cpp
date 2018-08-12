@@ -822,6 +822,12 @@ VkComponentMapping Texture::GetVulkanComponentMappingFromTextureFormat(ETextureF
 
 ionBool Texture::CreateSampler()
 {
+    // if have chosen to not create sampler, the function return true but skip the sampler
+    if (m_optFilter == ETextureFilter_NoSampler && m_optRepeat == ETextureRepeat_NoSampler)
+    {
+        return true;
+    }
+
     VkSamplerCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     createInfo.maxAnisotropy = ionTextureManger().GetSamplerAnysotropy() ? static_cast<ionFloat>(m_maxAnisotropy) : 1.0f;

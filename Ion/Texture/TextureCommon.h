@@ -65,7 +65,8 @@ enum ETextureFormat
  {
      ETextureFilter_Linear,
      ETextureFilter_Nearest,    
-     ETextureFilter_Default         // Using this filtering, the TextureOptions::m_numLevels will be computed by width and height, and the filtering will be set as ETextureFilter_Linear
+     ETextureFilter_Default,         // Using this filtering, the TextureOptions::m_numLevels will be computed by width and height, and the filtering will be set as ETextureFilter_Linear
+     ETextureFilter_NoSampler       // is used with the ETextureRepeat_NoSampler, the sampler is not created for the texture, otherwise just use default value for this filter
  };
 
  enum ETextureRepeat
@@ -75,7 +76,8 @@ enum ETextureFormat
      ETextureRepeat_ClampZero,    // guarantee 0,0,0,255 edge for projected textures
      ETextureRepeat_ClampAlpha,    // guarantee 0 alpha edge for projected textures
      ETextureRepeat_Mirrored,
-     ETextureRepeat_MirroredClamp
+     ETextureRepeat_MirroredClamp,
+     ETextureRepeat_NoSampler       // is used with the ETextureFilter_NoSampler, the sampler is not created for the texture, otherwise just use default value for this filter
  };
 
 ION_NAMESPACE_END

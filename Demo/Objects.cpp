@@ -102,7 +102,7 @@ FPSCamera::FPSCamera() : Camera("FPS Camera"), m_movementSpeed(1.0f), m_mouseSen
     std::cout << std::endl << "Active PBR Debug: Esposure - Current level is " << ionRenderManager().m_exposure << std::endl <<
         "Press 1, 2 or 3 to change the active value " << std::endl << "[esposure, gamma or prefiltered cube mip levels]" << std::endl <<
         "and then press Q or Z to increment or decrement such values." << std::endl <<
-        "This works only with the PBR test (number 7)" << std::endl;
+        "This works only with the PBR test (number 7)" << std::endl << std::endl;
 #endif
 }
 
