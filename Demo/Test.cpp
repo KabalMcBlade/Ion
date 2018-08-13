@@ -249,9 +249,12 @@ void Test_ModelPBR(ion::ObjectHandler& _entity, ion::Texture* _brdf, ion::Textur
     samplerBRDFLUT.m_texture = _brdf;
 
     //
+    ionBool usingSpecularGlossiness = _entity->GetMesh(0)->GetMaterial()->IsUsingSpecularGlossiness();
+
+    //
     ion::SamplerBinding albedoMap;
     albedoMap.m_bindingIndex = 5;
-    albedoMap.m_texture = _entity->GetMesh(0)->GetMaterial()->GetBasePBR().GetBaseColorTexture();
+    albedoMap.m_texture = usingSpecularGlossiness ? _entity->GetMesh(0)->GetMaterial()->GetSpecularGlossiness().GetBaseColorTexture() : _entity->GetMesh(0)->GetMaterial()->GetBasePBR().GetBaseColorTexture();
 
     ion::SamplerBinding normalMap;
     normalMap.m_bindingIndex = 6;
@@ -261,9 +264,9 @@ void Test_ModelPBR(ion::ObjectHandler& _entity, ion::Texture* _brdf, ion::Textur
     aoMap.m_bindingIndex = 7;
     aoMap.m_texture = _entity->GetMesh(0)->GetMaterial()->GetAdvancePBR().GetOcclusionTexture();
 
-    ion::SamplerBinding metallicMap;
-    metallicMap.m_bindingIndex = 8;
-    metallicMap.m_texture = _entity->GetMesh(0)->GetMaterial()->GetBasePBR().GetMetalRoughnessTexture();
+    ion::SamplerBinding physicalDescriptorMap;
+    physicalDescriptorMap.m_bindingIndex = 8;
+    physicalDescriptorMap.m_texture = usingSpecularGlossiness ? _entity->GetMesh(0)->GetMaterial()->GetSpecularGlossiness().GetSpecularGlossinessTexture() : _entity->GetMesh(0)->GetMaterial()->GetBasePBR().GetMetalRoughnessTexture();
 
     ion::SamplerBinding emissiveMap;
     emissiveMap.m_bindingIndex = 9;
@@ -282,7 +285,7 @@ void Test_ModelPBR(ion::ObjectHandler& _entity, ion::Texture* _brdf, ion::Textur
     fragmentLayout.m_samplers.push_back(albedoMap);
     fragmentLayout.m_samplers.push_back(normalMap);
     fragmentLayout.m_samplers.push_back(aoMap);
-    fragmentLayout.m_samplers.push_back(metallicMap);
+    fragmentLayout.m_samplers.push_back(physicalDescriptorMap);
     fragmentLayout.m_samplers.push_back(emissiveMap);
 
     //
@@ -293,8 +296,21 @@ void Test_ModelPBR(ion::ObjectHandler& _entity, ion::Texture* _brdf, ion::Textur
     float baseColorFactorG;
     float baseColorFactorB;
     float baseColorFactorA;
+    float emissiveFactorR;
+    float emissiveFactorG;
+    float emissiveFactorB;
+    float emissiveFactorA;
+    float diffuseFactorR;
+    float diffuseFactorG;
+    float diffuseFactorB;
+    float diffuseFactorA;
+    float specularFactorFactorR;
+    float specularFactorFactorG;
+    float specularFactorFactorB;
+    float specularFactorFactorA;
+    float usingSpecularGlossiness;
     float hasBaseColorTexture;
-    float hasMetallicRoughnessTexture;
+    float hasPhysicalDescriptorTexture;
     float hasNormalTexture;
     float hasOcclusionTexture;
     float hasEmissiveTexture;
@@ -304,14 +320,36 @@ void Test_ModelPBR(ion::ObjectHandler& _entity, ion::Texture* _brdf, ion::Textur
     float alphaMaskCutoff;
     } material;
     */
+
     ion::ConstantsBindingDef constants;
     constants.m_shaderStages = ion::EPushConstantStage::EPushConstantStage_Fragment;
     constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetBasePBR().GetColor()[0]);
     constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetBasePBR().GetColor()[1]);
     constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetBasePBR().GetColor()[2]);
     constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetBasePBR().GetColor()[3]);
-    constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetBasePBR().GetBaseColorTexture() != nullptr ? 1.0f : 0.0f);
-    constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetBasePBR().GetMetalRoughnessTexture() != nullptr ? 1.0f : 0.0f);
+    constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetAdvancePBR().GetEmissiveColor()[0]);
+    constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetAdvancePBR().GetEmissiveColor()[1]);
+    constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetAdvancePBR().GetEmissiveColor()[2]);
+    constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetAdvancePBR().GetEmissiveColor()[3]);
+    constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetSpecularGlossiness().GetBaseColor()[0]);
+    constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetSpecularGlossiness().GetBaseColor()[1]);
+    constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetSpecularGlossiness().GetBaseColor()[2]);
+    constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetSpecularGlossiness().GetBaseColor()[3]);
+    constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetSpecularGlossiness().GetSpecularGlossinessColor()[0]);
+    constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetSpecularGlossiness().GetSpecularGlossinessColor()[1]);
+    constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetSpecularGlossiness().GetSpecularGlossinessColor()[2]);
+    constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetSpecularGlossiness().GetSpecularGlossinessColor()[3]);
+    constants.m_values.push_back(usingSpecularGlossiness);
+    if (usingSpecularGlossiness)
+    {
+        constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetSpecularGlossiness().GetBaseColorTexture() != nullptr ? 1.0f : 0.0f);
+        constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetSpecularGlossiness().GetSpecularGlossinessColor() != nullptr ? 1.0f : 0.0f);
+    }
+    else
+    {
+        constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetBasePBR().GetBaseColorTexture() != nullptr ? 1.0f : 0.0f);
+        constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetBasePBR().GetMetalRoughnessTexture() != nullptr ? 1.0f : 0.0f);
+    }
     constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetAdvancePBR().GetNormalTexture() != nullptr ? 1.0f : 0.0f);
     constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetAdvancePBR().GetOcclusionTexture() != nullptr ? 1.0f : 0.0f);
     constants.m_values.push_back(_entity->GetMesh(0)->GetMaterial()->GetAdvancePBR().GetEmissiveTexture() != nullptr ? 1.0f : 0.0f);

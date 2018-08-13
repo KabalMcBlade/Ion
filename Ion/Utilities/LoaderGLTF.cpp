@@ -919,6 +919,38 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                     material->GetState().SetCullingMode(ECullingMode_TwoSide);
                 }
             }
+
+            for (auto const& x : mat.extPBRValues)
+            {
+                const std::string& key = (x.first);
+                const tinygltf::Parameter& param = (x.second);
+
+                // SPECULAR GLOSSINESS
+                {
+                    if (key == "specularGlossinessTexture") 
+                    {
+                        material->GetSpecularGlossiness().SetSpecularGlossinessTexture(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                    }
+                    if (key == "diffuseTexture")
+                    {
+                        material->GetSpecularGlossiness().SetBaseColorTexture(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                    }
+                    if (key == "diffuseFactor")
+                    {
+                        material->GetSpecularGlossiness().SetBaseColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2], (ionFloat)param.ColorFactor()[3]);
+                    }
+                    if (mat.extPBRValues.find("specularFactor") != mat.extPBRValues.end())
+                    {
+                        material->GetSpecularGlossiness().SetSpecularGlossinessColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2], 1.0f);
+                    }
+                }
+            }
+
+            // Check if PBR is not present and if so fall back to specular glossiness
+            if (material->GetBasePBR().GetMetalRoughnessTexture() == nullptr && material->GetSpecularGlossiness().GetSpecularGlossinessTexture() != nullptr)
+            {
+                material->SetUsingSpecularGloss(true);
+            }
         }
     }
     else

@@ -13,7 +13,10 @@ BasePBR::BasePBR() :
     m_metallicFactor(1.0f),
     m_roughnessFactor(1.0f)
 {
-    memset(m_baseColor, 0, sizeof(m_baseColor));
+    m_baseColor[0] = 1.0f;
+    m_baseColor[1] = 1.0f;
+    m_baseColor[2] = 1.0f;
+    m_baseColor[3] = 1.0f;
 }
 
 BasePBR::~BasePBR()
@@ -30,7 +33,9 @@ AdvancePBR::AdvancePBR() :
     m_emissiveTexture(nullptr),
     m_alphaCutoff(0.5f) // 0 means fully opaque, 1 full transparent
 {
-    memset(m_emissiveColor, 0, sizeof(m_emissiveColor));
+    m_emissiveColor[0] = 1.0f;
+    m_emissiveColor[1] = 1.0f;
+    m_emissiveColor[2] = 1.0f;
 }
 
 AdvancePBR::~AdvancePBR()
@@ -38,6 +43,29 @@ AdvancePBR::~AdvancePBR()
     m_normalTexture = nullptr;
     m_occlusionTexture = nullptr;
     m_emissiveTexture = nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+SpecularGlossiness::SpecularGlossiness() :
+    m_baseColorTexture(nullptr),
+    m_specularGlossiness(nullptr)
+{
+    m_baseColor[0] = 1.0f;
+    m_baseColor[1] = 1.0f;
+    m_baseColor[2] = 1.0f;
+    m_baseColor[3] = 1.0f;
+
+    m_specularGlossinessColor[0] = 1.0f;
+    m_specularGlossinessColor[1] = 1.0f;
+    m_specularGlossinessColor[2] = 1.0f;
+    m_specularGlossinessColor[3] = 1.0f;
+}
+
+SpecularGlossiness::~SpecularGlossiness()
+{
+    m_baseColorTexture = nullptr;
+    m_specularGlossiness = nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -51,6 +79,7 @@ Material::Material(const eosString& _name) :
     m_geometryIndex(-1),
     m_useJoint(false),
     m_useSkinning(false),
+    m_useGlossiness(false),
     m_alphaMode(EAlphaMode_Opaque)
 {
 }

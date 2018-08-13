@@ -107,6 +107,64 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+class ION_DLL SpecularGlossiness
+{
+public:
+    SpecularGlossiness();
+    ~SpecularGlossiness();
+
+    const Texture* GetBaseColorTexture() const { return m_baseColorTexture; }
+    const Texture* GetSpecularGlossinessTexture() const { return m_specularGlossiness; }
+
+    void SetBaseColorTexture(const Texture* _texture) { m_baseColorTexture = _texture; }
+    void SetSpecularGlossinessTexture(const Texture* _texture) { m_specularGlossiness = _texture; }
+
+    void GetBaseColor(ionFloat& _r, ionFloat& _g, ionFloat& _b, ionFloat& _a) const
+    {
+        _r = m_baseColor[0];
+        _g = m_baseColor[1];
+        _b = m_baseColor[2];
+        _a = m_baseColor[3];
+    }
+    const ionFloat* GetBaseColor() const { return &m_baseColor[0]; }
+
+    void SetBaseColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
+    {
+        m_baseColor[0] = _r;
+        m_baseColor[1] = _g;
+        m_baseColor[2] = _b;
+        m_baseColor[3] = _a;
+    }
+
+
+    void GetSpecularGlossinessColor(ionFloat& _r, ionFloat& _g, ionFloat& _b, ionFloat& _a) const
+    {
+        _r = m_specularGlossinessColor[0];
+        _g = m_specularGlossinessColor[1];
+        _b = m_specularGlossinessColor[2];
+        _a = m_specularGlossinessColor[3];
+    }
+    const ionFloat* GetSpecularGlossinessColor() const { return &m_specularGlossinessColor[0]; }
+
+    void SetSpecularGlossinessColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
+    {
+        m_specularGlossinessColor[0] = _r;
+        m_specularGlossinessColor[1] = _g;
+        m_specularGlossinessColor[2] = _b;
+        m_specularGlossinessColor[3] = _a;
+    }
+
+private:
+    const Texture*    m_baseColorTexture;
+    const Texture*    m_specularGlossiness;
+
+    ionFloat    m_baseColor[4];
+    ionFloat    m_specularGlossinessColor[4];
+};
+
+
+//////////////////////////////////////////////////////////////////////////
+
 enum EAlphaMode
 {
     EAlphaMode_Opaque = 0,
@@ -123,6 +181,9 @@ public:
     ionBool Create();
     void Destroy();
 
+    void SetUsingSpecularGloss(ionBool _specularGlossiness) { m_useGlossiness = _specularGlossiness; }
+    const ionBool IsUsingSpecularGlossiness() const { return m_useGlossiness; }
+
     MaterialState& GetState() { return m_state; }
     const MaterialState& GetState() const { return m_state; }
 
@@ -131,6 +192,9 @@ public:
 
     AdvancePBR& GetAdvancePBR() { return m_advancePBR; }
     const AdvancePBR& GetAdvancePBR() const { return m_advancePBR; }
+
+    SpecularGlossiness& GetSpecularGlossiness() { return m_specularGlossiness; }
+    const SpecularGlossiness& GetSpecularGlossiness() const { return m_specularGlossiness; }
 
     void SetAlphaMode(EAlphaMode _mode) { m_alphaMode = _mode; }
     EAlphaMode GetAlphaMode() { return m_alphaMode; }
@@ -154,6 +218,7 @@ private:
 
     BasePBR         m_basePBR;
     AdvancePBR      m_advancePBR;
+    SpecularGlossiness m_specularGlossiness;
 
     ConstantsBindingDef m_constants;
 
@@ -168,6 +233,7 @@ private:
     ionS32          m_tessellationEvaluationIndex;
     ionS32          m_geometryIndex;
 
+    ionBool         m_useGlossiness;       // the default render pipeline is PBR, but if the texture are not found, this became true and use the specular glossiness, so it is just a fallback!
     ionBool         m_useJoint;
     ionBool         m_useSkinning;
 };

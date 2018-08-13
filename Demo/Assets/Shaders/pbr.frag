@@ -25,7 +25,7 @@ layout (binding = 4) uniform sampler2D samplerBRDFLUT;
 layout (binding = 5) uniform sampler2D albedoMap;
 layout (binding = 6) uniform sampler2D normalMap;
 layout (binding = 7) uniform sampler2D aoMap;
-layout (binding = 8) uniform sampler2D metallicMap;
+layout (binding = 8) uniform sampler2D physicalDescriptorMap;
 layout (binding = 9) uniform sampler2D emissiveMap;
 
 layout (push_constant) uniform Material {
@@ -33,8 +33,21 @@ layout (push_constant) uniform Material {
 	float baseColorFactorG;
 	float baseColorFactorB;
 	float baseColorFactorA;
+	float emissiveFactorR;
+	float emissiveFactorG;
+	float emissiveFactorB;
+	float emissiveFactorA;
+	float diffuseFactorR;
+	float diffuseFactorG;
+	float diffuseFactorB;
+	float diffuseFactorA;
+	float specularFactorR;
+	float specularFactorG;
+	float specularFactorB;
+	float specularFactorA;
+	float usingSpecularGlossiness;
 	float hasBaseColorTexture;
-	float hasMetallicRoughnessTexture;
+	float hasPhysicalDescriptorTexture;
 	float hasNormalTexture;	
 	float hasOcclusionTexture;	
 	float hasEmissiveTexture;
@@ -68,6 +81,8 @@ struct PBRInfo
 const float M_PI = 3.141592653589793;
 const float c_MinRoughness = 0.04;
 
+const float PBR_METALLIC_ROUGHNESS = 0.0;
+const float PBR_SPECULAR_GLOSINESS = 1.0f;
 
 #define MANUAL_SRGB 1
 
@@ -211,33 +226,68 @@ void main()
 	vec4 baseColor;
 
 	vec3 f0 = vec3(0.04);
-
-	// Metallic and Roughness material properties are packed together
-	// In glTF, these factors can be specified by fixed scalar values
-	// or from a metallic-roughness map
-	perceptualRoughness = material.roughnessFactor;
-	metallic = material.metallicFactor;
-	if (material.hasMetallicRoughnessTexture == 1.0f) {
-		// Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
-		// This layout intentionally reserves the 'r' channel for (optional) occlusion map data
-		vec4 mrSample = texture(metallicMap, inUV);
-		perceptualRoughness = mrSample.g * perceptualRoughness;
-		metallic = mrSample.b * metallic;
-	} else {
-		perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
-		metallic = clamp(metallic, 0.0, 1.0);
-	}
-	// Roughness is authored as perceptual roughness; as is convention,
-	// convert to material roughness by squaring the perceptual roughness [2].
-
-	const vec4 baseColorFactor = vec4(material.baseColorFactorR, material.baseColorFactorG, material.baseColorFactorB, material.baseColorFactorA);
-	// The albedo may be defined from a base texture or a flat color
-	if (material.hasBaseColorTexture == 1.0f) {
-		baseColor = SRGBtoLINEAR(texture(albedoMap, inUV)) * baseColorFactor;
-	} else {
-		baseColor = baseColorFactor;
-	}
 	
+	
+	if (material.usingSpecularGlossiness == PBR_METALLIC_ROUGHNESS) 
+	{
+		// Metallic and Roughness material properties are packed together
+		// In glTF, these factors can be specified by fixed scalar values
+		// or from a metallic-roughness map
+		perceptualRoughness = material.roughnessFactor;
+		metallic = material.metallicFactor;
+		if (material.hasPhysicalDescriptorTexture == 1.0f)
+		{
+			// Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
+			// This layout intentionally reserves the 'r' channel for (optional) occlusion map data
+			vec4 mrSample = texture(physicalDescriptorMap, inUV);
+			perceptualRoughness = mrSample.g * perceptualRoughness;
+			metallic = mrSample.b * metallic;
+		} 
+		else
+		{
+			perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
+			metallic = clamp(metallic, 0.0, 1.0);
+		}
+		// Roughness is authored as perceptual roughness; as is convention,
+		// convert to material roughness by squaring the perceptual roughness [2].
+
+		const vec4 baseColorFactor = vec4(material.baseColorFactorR, material.baseColorFactorG, material.baseColorFactorB, material.baseColorFactorA);
+		// The albedo may be defined from a base texture or a flat color
+		if (material.hasBaseColorTexture == 1.0f) 
+		{
+			baseColor = SRGBtoLINEAR(texture(albedoMap, inUV)) * baseColorFactor;
+		} 
+		else 
+		{
+			baseColor = baseColorFactor;
+		}
+	}
+	else if (material.usingSpecularGlossiness == PBR_SPECULAR_GLOSINESS)
+	{
+		// Values from specular glossiness workflow are converted to metallic roughness
+		if (material.hasPhysicalDescriptorTexture == 1.0f) {
+			perceptualRoughness = 1.0 - texture(physicalDescriptorMap, inUV).a;
+		} else {
+			perceptualRoughness = 0.0;
+		}
+
+		const float epsilon = 1e-6;
+
+		vec4 diffuse = SRGBtoLINEAR(texture(albedoMap, inUV));
+		vec3 specular = SRGBtoLINEAR(texture(physicalDescriptorMap, inUV)).rgb;
+
+		float maxSpecular = max(max(specular.r, specular.g), specular.b);
+
+		// Convert metallic value from specular glossiness inputs
+		metallic = convertMetallic(diffuse.rgb, specular, maxSpecular);
+
+		const vec4 diffuseFactor = vec4(material.diffuseFactorR, material.diffuseFactorG, material.diffuseFactorB, material.diffuseFactorA);
+		const vec4 specularFactor = vec4(material.specularFactorR, material.specularFactorG, material.specularFactorB, material.specularFactorA);
+		
+		vec3 baseColorDiffusePart = diffuse.rgb * ((1.0 - maxSpecular) / (1 - c_MinRoughness) / max(1 - metallic, epsilon)) * diffuseFactor.rgb;
+		vec3 baseColorSpecularPart = specular - (vec3(c_MinRoughness) * (1 - metallic) * (1 / max(metallic, epsilon))) * specularFactor.rgb;
+		baseColor = vec4(mix(baseColorDiffusePart, baseColorSpecularPart, metallic * metallic), diffuse.a);
+	}
 
 	diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
 	diffuseColor *= 1.0 - metallic;
@@ -306,9 +356,9 @@ void main()
 		color = mix(color, color * ao, u_OcclusionStrength);
 	}
 
-	const float u_EmissiveFactor = 1.0f;
+	const vec4 emissiveColorFactor = vec4(material.emissiveFactorR, material.emissiveFactorG, material.emissiveFactorB, material.emissiveFactorA);
 	if (material.hasEmissiveTexture == 1.0f) {
-		vec3 emissive = SRGBtoLINEAR(texture(emissiveMap, inUV)).rgb * u_EmissiveFactor;
+		vec3 emissive = SRGBtoLINEAR(texture(emissiveMap, inUV)).rgb * emissiveColorFactor.rgb;
 		color += emissive;
 	}
 
