@@ -60,6 +60,7 @@
 #include "Scene/Entity.h"
 #include "Scene/Skybox.h"
 #include "Scene/Camera.h"
+#include "Scene/DirectionalLight.h"
 #include "Scene/SceneGraph.h"
 
 #include "Utilities/LoaderGLTF.h"

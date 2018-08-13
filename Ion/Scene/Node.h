@@ -20,7 +20,10 @@ enum ENodeType
 {
     ENodeType_EmptyNode = -1,
     ENodeType_Entity = 0,
-    ENodeType_Camera
+    ENodeType_Camera,
+    ENodeType_DirectionalLight,
+    ENodeType_SpotLight,
+    ENodeType_PointLight,
 };
 
 

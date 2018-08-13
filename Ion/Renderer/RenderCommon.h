@@ -33,6 +33,7 @@
 // PBR
 #define ION_MAIN_CAMERA_POSITION_VECTOR_PARAM  "mainCameraPos"
 #define ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM  "directionalLight"
+#define ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM  "directionalLightColor"
 #define ION_EXPOSURE_FLOAT_PARAM  "exposure"
 #define ION_GAMMA_FLOAT_PARAM  "gamma"
 #define ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM  "prefilteredCubeMipLevels"
@@ -894,6 +895,7 @@ struct DrawSurface final
     ionFloat            m_projectionMatrix[16];
     ionFloat            m_mainCameraPos[4];
     ionFloat            m_directionalLight[4];
+    ionFloat            m_directionalLightColor[4];
     ionFloat            m_exposure;
     ionFloat            m_gamma;
     ionFloat            m_prefilteredCubeMipLevels;
@@ -913,6 +915,7 @@ struct DrawSurface final
         memset(&m_projectionMatrix, 0, sizeof(m_projectionMatrix));
         memset(&m_mainCameraPos, 0, sizeof(m_mainCameraPos));
         memset(&m_directionalLight, 0, sizeof(m_directionalLight));
+        memset(&m_directionalLightColor, 0, sizeof(m_directionalLight));
         m_indexStart = 0;
         m_indexCount = 0;
         m_vertexCache = 0;

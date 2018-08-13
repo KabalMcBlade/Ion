@@ -7,6 +7,8 @@
 
 #include "../Renderer/RenderManager.h"
 
+#include "../Scene/DirectionalLight.h"
+
 NIX_USING_NAMESPACE
 EOS_USING_NAMESPACE
 
@@ -14,10 +16,13 @@ ION_NAMESPACE_BEGIN
 
 SceneGraph::SceneGraph()
 {
+    
 }
 
 SceneGraph::~SceneGraph()
 {
+    RemoveDirectionalLightToScene();
+
     for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
     {
         eosVector(ObjectHandler)& entities = iter->second;
@@ -36,12 +41,38 @@ SceneGraph::~SceneGraph()
     m_registeredInput.clear();
 }
 
-void SceneGraph::AddToScene(ObjectHandler& _node)
+void SceneGraph::AddDirectionalLightToScene()
+{
+    if (!m_directionalLight.IsValid())
+    {
+        m_directionalLight = eosNew(DirectionalLight, ION_MEMORY_ALIGNMENT_SIZE, "MainDirectionalLight");
+    }
+}
+
+void SceneGraph::RemoveDirectionalLightToScene()
+{
+    if (m_directionalLight.IsValid())
+    {
+        m_directionalLight.Release();
+    }
+}
+
+ObjectHandler& SceneGraph::GetDirectionalLight()
+{
+    return m_directionalLight;
+}
+
+DirectionalLight* SceneGraph::GetDirectionalLightPtr()
+{
+    return dynamic_cast<DirectionalLight*>(m_directionalLight.GetPtr());
+}
+
+void SceneGraph::AddToScene(const ObjectHandler& _node)
 {
     m_nodes.push_back(_node);
 }
 
-void SceneGraph::RemoveFromScene(ObjectHandler& _node)
+void SceneGraph::RemoveFromScene(const ObjectHandler& _node)
 {
     m_nodes.erase(std::remove(m_nodes.begin(), m_nodes.end(), _node), m_nodes.end());
 }
@@ -198,15 +229,12 @@ void SceneGraph::UpdateUniformBuffer(Camera* _camera, ionU32 _index, const Matri
 
     const Vector& cameraPos = _camera->GetTransform().GetPosition();
 
-    const Vector directionalLight(
-        sinf(NIX_DEG_TO_RAD(75.0f)) * cosf(NIX_DEG_TO_RAD(40.0f)),
-        sinf(NIX_DEG_TO_RAD(40.0f)),
-        cosf(NIX_DEG_TO_RAD(75.0f)) * cosf(NIX_DEG_TO_RAD(40.0f)),
-        0.0f);
-
-
     _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_mainCameraPos[0], cameraPos);
-    _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_directionalLight[0], directionalLight);
+    if (m_directionalLight.IsValid())
+    {
+        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_directionalLight[0], GetDirectionalLightPtr()->GetLightDirection());
+        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_index].m_directionalLightColor[0], GetDirectionalLightPtr()->GetColor());
+    }
 
 #ifdef ION_PBR_DEBUG
 

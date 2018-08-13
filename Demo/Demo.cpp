@@ -372,6 +372,20 @@ int main()
     ionRenderManager().RegisterToInput(cameraHandle);
     ionRenderManager().RegisterToInput(boundingBoxHandle);
     ionRenderManager().RegisterToInput(testHandle);
+
+    ionRenderManager().AddDirectionalLight();
+    DirectionalLight* directionalLight = ionRenderManager().GetDirectionalLight();
+
+
+    const Vector lightDir(0.0f, 0.0f, 10.0f, 1.0f);
+    const Vector lightCol(1.0f, 1.0f, 1.0f, 1.0f);
+    const Vector lightRotEuler(75.0f, 40.0f, 0.0f, 1.0f);
+    Quaternion lightRot;
+    lightRot = lightRot.FromEuler(lightRotEuler);
+
+    directionalLight->GetTransform().SetRotation(lightRot);
+    directionalLight->SetDirection(lightDir);
+    directionalLight->SetColor(lightCol);
     
     if (rendererInitialized)
     {

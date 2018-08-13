@@ -20,6 +20,7 @@ ION_NAMESPACE_BEGIN
 
 class Camera;
 class RenderCore;
+class DirectionalLight;
 class ION_DLL SceneGraph final
 {
 public:
@@ -28,8 +29,13 @@ public:
 
     const BoundingBox& GetBoundingBox() { return m_sceneBoundingBox; }
 
-    void AddToScene(ObjectHandler& _node);
-    void RemoveFromScene(ObjectHandler& _node);
+    void AddDirectionalLightToScene();
+    void RemoveDirectionalLightToScene();
+    ObjectHandler& GetDirectionalLight();
+    DirectionalLight* GetDirectionalLightPtr();
+
+    void AddToScene(const ObjectHandler& _node);
+    void RemoveFromScene(const ObjectHandler& _node);
     void RemoveAll();
 
     void UpdateAllCameraAspectRatio(const RenderCore& _renderCore);
@@ -59,6 +65,7 @@ private:
 
 private:
     BoundingBox                             m_sceneBoundingBox;
+    ObjectHandler                           m_directionalLight;
     eosVector(ObjectHandler)                m_nodes;
     eosMap(Camera*, eosVector(ObjectHandler))  m_treeNodes;
     eosMap(ionSize, eosVector(DrawSurface)) m_drawSurfaces;

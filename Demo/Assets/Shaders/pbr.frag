@@ -13,6 +13,7 @@ layout (binding = 1) uniform UBOParams
 {
 	vec4 mainCameraPos;
 	vec4 directionalLight;
+	vec4 directionalLightColor;
 	float exposure;
 	float gamma;
 	float prefilteredCubeMipLevels;
@@ -338,13 +339,11 @@ void main()
 	float G = geometricOcclusion(pbrInputs);
 	float D = microfacetDistribution(pbrInputs);
 
-	const vec3 u_LightColor = vec3(1.0);
-
 	// Calculation of analytical lighting contribution
 	vec3 diffuseContrib = (1.0 - F) * diffuse(pbrInputs);
 	vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
 	// Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
-	vec3 color = NdotL * u_LightColor * (diffuseContrib + specContrib);
+	vec3 color = NdotL * uboParams.directionalLightColor.rgb * (diffuseContrib + specContrib);
 
 	// Calculate lighting contribution from image based lighting source (IBL)
 	color += getIBLContribution(pbrInputs, n, reflection);

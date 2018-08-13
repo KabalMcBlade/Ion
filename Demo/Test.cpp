@@ -228,6 +228,8 @@ void Test_ModelPBR(ion::ObjectHandler& _entity, ion::Texture* _brdf, ion::Textur
     uniformFragment.m_type.push_back(ion::EUniformParameterType_Vector);
     uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
     uniformFragment.m_type.push_back(ion::EUniformParameterType_Vector);
+    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
+    uniformFragment.m_type.push_back(ion::EUniformParameterType_Vector);
     uniformFragment.m_parameters.push_back(ION_EXPOSURE_FLOAT_PARAM);
     uniformFragment.m_type.push_back(ion::EUniformParameterType_Float);
     uniformFragment.m_parameters.push_back(ION_GAMMA_FLOAT_PARAM);

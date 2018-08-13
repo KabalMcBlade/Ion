@@ -1884,6 +1884,7 @@ void RenderCore::Draw(VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, 
     // use hash version here!
     ionShaderProgramManager().SetRenderParamVector(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM, &_surface.m_mainCameraPos[0]);
     ionShaderProgramManager().SetRenderParamVector(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM, &_surface.m_directionalLight[0]);
+    ionShaderProgramManager().SetRenderParamVector(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM, &_surface.m_directionalLightColor[0]);
     ionShaderProgramManager().SetRenderParamFloat(ION_EXPOSURE_FLOAT_PARAM, _surface.m_exposure);
     ionShaderProgramManager().SetRenderParamFloat(ION_GAMMA_FLOAT_PARAM, _surface.m_gamma);
     ionShaderProgramManager().SetRenderParamFloat(ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM, _surface.m_prefilteredCubeMipLevels);

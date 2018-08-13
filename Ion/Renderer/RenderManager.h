@@ -38,6 +38,7 @@ enum EPrimitiveType
 
 
 class Entity;
+class DirectionalLight;
 class ION_DLL RenderManager final
 {
 public:
@@ -54,6 +55,10 @@ public:
 
     RenderManager();
     ~RenderManager();
+
+    void    AddDirectionalLight();
+    void    RemoveDirectionalLight();
+     DirectionalLight*   GetDirectionalLight();
 
     void    AddToSceneGraph(ObjectHandler _node);
 

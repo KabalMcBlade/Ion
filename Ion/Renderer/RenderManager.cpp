@@ -6,6 +6,7 @@
 #include "../Dependencies/Eos/Eos/Eos.h"
 
 #include "../Scene/Entity.h"
+#include "../Scene/DirectionalLight.h"
 
 #include "../Utilities/LoaderGLTF.h"
 
@@ -887,9 +888,24 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     return prefilteredEnvironment;
 }
 
-Texture*RenderManager:: GetPrefilteredEnvironmentCubemap()
+Texture* RenderManager::GetPrefilteredEnvironmentCubemap()
 {
     return ionTextureManger().GetTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME);
+}
+
+void RenderManager::AddDirectionalLight()
+{
+    m_sceneGraph.AddDirectionalLightToScene();
+}
+
+void RenderManager::RemoveDirectionalLight()
+{
+    m_sceneGraph.RemoveDirectionalLightToScene();
+}
+
+DirectionalLight* RenderManager::GetDirectionalLight()
+{
+    return m_sceneGraph.GetDirectionalLightPtr();
 }
 
 ION_NAMESPACE_END
