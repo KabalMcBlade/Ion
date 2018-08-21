@@ -130,11 +130,16 @@ void SceneGraph::GenerateMapTree(const ObjectHandler& _node)
             {
                 ObjectHandler entity = _node;
 
-                BoundingBox* bb = entity->GetBoundingBox();
-                m_sceneBoundingBox.Expande(bb->GetTransformed(entity->GetTransform().GetMatrix()));
+                // full logical entity are not valid for rendering
+                // TODO: remember to add a system to draw all the children attached to!
+                if (entity->GetMeshCount() > 0)
+                {
+                    BoundingBox* bb = entity->GetBoundingBox();
+                    m_sceneBoundingBox.Expande(bb->GetTransformed(entity->GetTransform().GetMatrix()));
 
-                m_nodeCountPerCamera[cam->GetHash()]++;
-                m_treeNodes[cam].push_back(_node);
+                    m_nodeCountPerCamera[cam->GetHash()]++;
+                    m_treeNodes[cam].push_back(_node);
+                }
             }
         }
     }
@@ -197,6 +202,7 @@ void SceneGraph::PrepareSurfaces()
 
 void SceneGraph::UpdateDrawSurface(ionSize _cameraHash, ionU32 _index, const ObjectHandler& _entity)
 {
+    // TODO: Rework here for muliple meshes
     m_drawSurfaces[_cameraHash][_index].m_visible = _entity->IsVisible();
     m_drawSurfaces[_cameraHash][_index].m_indexStart = _entity->GetMesh(0)->GetIndexStart();
     m_drawSurfaces[_cameraHash][_index].m_indexCount = _entity->GetMesh(0)->GetIndexCount();
