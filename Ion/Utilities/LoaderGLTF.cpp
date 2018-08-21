@@ -130,16 +130,14 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 
 
     // calculate matrix for all children if any
-    if (_node.children.size() > 0)
+    for (ionSize i = 0; i < _node.children.size(); ++i)
     {
-        for (ionSize i = 0; i < _node.children.size(); ++i)
-        {
-            Entity* child = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
-            ObjectHandler childHandle(child);
-            child->AttachToParent(_entityHandle);
-            LoadNode(_model.nodes[_node.children[i]], _model, localNodeMatrix, childHandle, _textureIndexToTextureName, _materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
-        }
+        Entity* child = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+        ObjectHandler childHandle(child);
+        child->AttachToParent(_entityHandle);
+        LoadNode(_model.nodes[_node.children[i]], _model, localNodeMatrix, childHandle, _textureIndexToTextureName, _materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
     }
+    
 
     ionU32 prevIndexSize = 0;
     ionU32 prevVertexSize = 0;
