@@ -541,23 +541,26 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, VkRenderPass
         {
             const Texture* image = textures[imageIndex];
 
-            VkDescriptorImageInfo & imageInfo = imageInfos[imageIndex];
-            memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
-            imageInfo.imageLayout = image->GetLayout();
-            imageInfo.imageView = image->GetView();
-            imageInfo.sampler = image->GetSampler();
+            if (image != nullptr)
+            {
+                VkDescriptorImageInfo & imageInfo = imageInfos[imageIndex];
+                memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
 
-            ionAssertReturnVoid(image->GetView() != VK_NULL_HANDLE, "View is null!");
+                imageInfo.imageLayout = image->GetLayout();
+                imageInfo.imageView = image->GetView();
+                imageInfo.sampler = image->GetSampler();
 
-            VkWriteDescriptorSet & write = writes[writeIndex++];
-            memset(&write, 0, sizeof(VkWriteDescriptorSet));
-            write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            write.dstSet = descSet;
-            write.dstBinding = destBindingTexture[imageIndex++];
-            write.descriptorCount = 1;
-            write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            write.pImageInfo = &imageInfo;
+                ionAssertReturnVoid(image->GetView() != VK_NULL_HANDLE, "View is null!");
 
+                VkWriteDescriptorSet & write = writes[writeIndex++];
+                memset(&write, 0, sizeof(VkWriteDescriptorSet));
+                write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                write.dstSet = descSet;
+                write.dstBinding = destBindingTexture[imageIndex++];
+                write.descriptorCount = 1;
+                write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                write.pImageInfo = &imageInfo;
+            }
             break;
         }
         }
