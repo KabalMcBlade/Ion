@@ -210,6 +210,7 @@
     <ClInclude Include="Renderer\RenderManager.h" />
     <ClInclude Include="Renderer\RenderState.h" />
     <ClInclude Include="Scene\DirectionalLight.h" />
+    <ClInclude Include="Scene\Model.h" />
     <ClInclude Include="Scene\SceneGraph.h" />
     <ClInclude Include="Scene\Skybox.h" />
     <ClInclude Include="Shader\ShaderProgram.h" />
@@ -272,6 +273,7 @@
     <ClCompile Include="Renderer\RenderCore.cpp" />
     <ClCompile Include="Renderer\RenderManager.cpp" />
     <ClCompile Include="Scene\DirectionalLight.cpp" />
+    <ClCompile Include="Scene\Model.cpp" />
     <ClCompile Include="Scene\SceneGraph.cpp" />
     <ClCompile Include="Scene\Skybox.cpp" />
     <ClCompile Include="Shader\ShaderProgram.cpp" />
