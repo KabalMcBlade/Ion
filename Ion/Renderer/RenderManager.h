@@ -19,6 +19,8 @@
 #include "../Scene/Camera.h"
 #include "../Scene/SceneGraph.h"
 
+#include "../Utilities/LoaderGLTF.h"
+
 #include "../App/Mode.h"
 
 #define ION_PBR_DEBUG
@@ -102,6 +104,7 @@ private:
 private:
     RenderCore  m_renderCore;
     SceneGraph  m_sceneGraph;
+    LoaderGLTF  m_loader;
 
     ionFloat    m_deltaTime;
 

@@ -671,53 +671,63 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 
 ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, ionBool _generateNormalWhenMissing /*= false*/, ionBool _generateTangentWhenMissing /*= false*/, ionBool _setBitangentSign /*= false*/)
 {
-    tinygltf::Model     _model;
+    //
+    eosString dir;
+    eosString filename;
+    eosString filenameNoExt;
+    eosString ext;
+    eosMap(ionS32, eosString) textureIndexToTextureName;
+    eosMap(ionS32, eosString) materialIndexToMaterialName;
+
+
+    //
+    tinygltf::Model     model;
     tinygltf::TinyGLTF  gltf;
     std::string         err;
 
     //
     if (_filePath.find_last_of('/') != std::string::npos)
     {
-        m_dir = _filePath.substr(0, _filePath.find_last_of('/'));
+        dir = _filePath.substr(0, _filePath.find_last_of('/'));
     }
 
-    ionAssertReturnValue(!m_dir.empty(), "Path invalid", false);
+    ionAssertReturnValue(!dir.empty(), "Path invalid", false);
 
     //
     if (_filePath.rfind('\\', _filePath.length()) != std::string::npos)
     {
-        m_filename = _filePath.substr(_filePath.rfind('\\', _filePath.length()) + 1, _filePath.length() - _filePath.rfind('\\', _filePath.length()));
+        filename = _filePath.substr(_filePath.rfind('\\', _filePath.length()) + 1, _filePath.length() - _filePath.rfind('\\', _filePath.length()));
     }
-    if (m_filename.empty())
+    if (filename.empty())
     {
         if (_filePath.rfind('/', _filePath.length()) != std::string::npos)
         {
-            m_filename = _filePath.substr(_filePath.rfind('/', _filePath.length()) + 1, _filePath.length() - _filePath.rfind('/', _filePath.length()));
+            filename = _filePath.substr(_filePath.rfind('/', _filePath.length()) + 1, _filePath.length() - _filePath.rfind('/', _filePath.length()));
         }
     }
 
-    ionAssertReturnValue(!m_filename.empty(), "Filename invalid", false);
+    ionAssertReturnValue(!filename.empty(), "Filename invalid", false);
 
     //
-    m_filenameNoExt = m_filename.substr(0, m_filename.find_last_of('.'));
+    filenameNoExt = filename.substr(0, filename.find_last_of('.'));
 
     //
     if (_filePath.find_last_of('.') != std::string::npos)
     {
-        m_ext = _filePath.substr(_filePath.find_last_of('.') + 1);
+        ext = _filePath.substr(_filePath.find_last_of('.') + 1);
     }
 
-    ionAssertReturnValue(!m_ext.empty(), "Extension invalid", false);
+    ionAssertReturnValue(!ext.empty(), "Extension invalid", false);
 
     //
     ionBool ret = false;
-    if (m_ext.compare("glb") == 0 || m_ext.compare("bin") == 0)         // FULL BINARY
+    if (ext.compare("glb") == 0 || ext.compare("bin") == 0)         // FULL BINARY
     {
-        ret = gltf.LoadBinaryFromFile(&_model, &err, _filePath.c_str());
+        ret = gltf.LoadBinaryFromFile(&model, &err, _filePath.c_str());
     }
-    else if (m_ext.compare("gltf") == 0)                                // FULL TEXT OR HYBRID
+    else if (ext.compare("gltf") == 0)                                // FULL TEXT OR HYBRID
     {
-        ret = gltf.LoadASCIIFromFile(&_model, &err, _filePath.c_str());
+        ret = gltf.LoadASCIIFromFile(&model, &err, _filePath.c_str());
     }
     else
     {
@@ -738,25 +748,25 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
 
     //////////////////////////////////////////////////////////////////////////
     // 1. Load all the texture inside the texture manager
-    for (ionSize i = 0; i < _model.images.size(); ++i)
+    for (ionSize i = 0; i < model.images.size(); ++i)
     {
-        if (_model.images[i].uri.empty())                    // no uri, so image could be stored in binary format
+        if (model.images[i].uri.empty())                    // no uri, so image could be stored in binary format
         {
-            eosString name = _model.images[i].name.c_str();  // no filename, I just give you one
+            eosString name = model.images[i].name.c_str();  // no filename, I just give you one
             if (name.empty())
             {
                 eosString val = std::to_string(i).c_str();
-                name = m_filenameNoExt + underscore + val;
+                name = filenameNoExt + underscore + val;
             }
 
-            m_textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, name.c_str()));
+            textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, name.c_str()));
 
-            ionTextureManger().CreateTextureFromBuffer(name, _model.images[i].width, _model.images[i].height, _model.images[i].component, &_model.images[i].image[0], _model.images[i].image.size(), ETextureFilter_Nearest, ETextureRepeat_Repeat, ETextureUsage_RGBA, ETextureType_2D);
+            ionTextureManger().CreateTextureFromBuffer(name, model.images[i].width, model.images[i].height, model.images[i].component, &model.images[i].image[0], model.images[i].image.size(), ETextureFilter_Nearest, ETextureRepeat_Repeat, ETextureUsage_RGBA, ETextureType_2D);
         }
         else
         {
-            eosString val = _model.images[i].uri.c_str();
-            eosString path = m_dir + backslash + val;
+            eosString val = model.images[i].uri.c_str();
+            eosString path = dir + backslash + val;
             eosString filename;
 
             if (path.rfind('\\', path.length()) != std::string::npos)
@@ -771,7 +781,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                 }
             }
 
-            m_textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, filename.c_str()));
+            textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, filename.c_str()));
 
             ionTextureManger().CreateTextureFromFile(filename, path);
         }
@@ -781,14 +791,14 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
     // NOTE: this part MUST be re-factored when I finish the demo. Because should be handleable from different materials
     //
     // 2. Load all materials inside the material manager
-    if (_model.materials.size() > 0)
+    if (model.materials.size() > 0)
     {
-        for (ionSize i = 0; i < _model.materials.size(); ++i)
+        for (ionSize i = 0; i < model.materials.size(); ++i)
         {
-            const tinygltf::Material& mat = _model.materials[i];
+            const tinygltf::Material& mat = model.materials[i];
 
 
-            m_materialIndexToMaterialName.insert(std::pair<ionS32, eosString>((ionS32)i, mat.name.c_str()));
+            materialIndexToMaterialName.insert(std::pair<ionS32, eosString>((ionS32)i, mat.name.c_str()));
 
             Material* material = ionMaterialManger().CreateMaterial(mat.name.c_str(), 0u);
 
@@ -819,13 +829,13 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                     // this is the base texture
                     if (key == "baseColorTexture")
                     {
-                        material->GetBasePBR().SetBaseColorTexture(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                        material->GetBasePBR().SetBaseColorTexture(ionTextureManger().GetTexture(textureIndexToTextureName[param.TextureIndex()]));
                     }
 
                     //the texture contain Metallic and Roughness in 2 different channel, red and green
                     if (key == "metallicRoughnessTexture")
                     {
-                        material->GetBasePBR().SetMetalRoughnessTexture(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                        material->GetBasePBR().SetMetalRoughnessTexture(ionTextureManger().GetTexture(textureIndexToTextureName[param.TextureIndex()]));
                     }
                 }
 
@@ -858,17 +868,17 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                 {
                     if (key == "normalTexture")
                     {
-                        material->GetAdvancePBR().SetNormalTexture(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                        material->GetAdvancePBR().SetNormalTexture(ionTextureManger().GetTexture(textureIndexToTextureName[param.TextureIndex()]));
                     }
 
                     if (key == "occlusionTexture")
                     {
-                        material->GetAdvancePBR().SetOcclusionTexture(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                        material->GetAdvancePBR().SetOcclusionTexture(ionTextureManger().GetTexture(textureIndexToTextureName[param.TextureIndex()]));
                     }
 
                     if (key == "emissiveTexture")
                     {
-                        material->GetAdvancePBR().SetEmissiveTexture(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                        material->GetAdvancePBR().SetEmissiveTexture(ionTextureManger().GetTexture(textureIndexToTextureName[param.TextureIndex()]));
                     }
                 }
 
@@ -929,11 +939,11 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                 {
                     if (key == "specularGlossinessTexture") 
                     {
-                        material->GetSpecularGlossiness().SetSpecularGlossinessTexture(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                        material->GetSpecularGlossiness().SetSpecularGlossinessTexture(ionTextureManger().GetTexture(textureIndexToTextureName[param.TextureIndex()]));
                     }
                     if (key == "diffuseTexture")
                     {
-                        material->GetSpecularGlossiness().SetBaseColorTexture(ionTextureManger().GetTexture(m_textureIndexToTextureName[param.TextureIndex()]));
+                        material->GetSpecularGlossiness().SetBaseColorTexture(ionTextureManger().GetTexture(textureIndexToTextureName[param.TextureIndex()]));
                     }
                     if (key == "diffuseFactor")
                     {
@@ -961,19 +971,25 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
         material->GetBasePBR().SetBaseColor(1.0f, 1.0f, 1.0f, 1.0f);
         material->GetBasePBR().SetMetallicFactor(1.0f);
         material->GetBasePBR().SetRoughnessFactor(1.0f);
-        material->GetAdvancePBR().SetEmissiveColor(0.0f, 0.0f, 0.0f);
-        material->GetAdvancePBR().SetAlphaCutoff(0.5f);
+        material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
+        material->GetAdvancePBR().SetAlphaCutoff(1.0f);
+        material->GetState().SetCullingMode(ion::ECullingMode_Back);
+        material->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
+        material->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
+        material->GetState().SetBlendStateMode(ion::EBlendState_Source_One);
+        material->GetState().SetBlendStateMode(ion::EBlendState_Dest_Zero);
+        material->GetState().SetBlendOperatorMode(ion::EBlendOperator_Add);
     }
     
     //
     // 3. Load all meshes..
     Matrix parent;
-    const tinygltf::Scene &scene = _model.scenes[_model.defaultScene];
+    const tinygltf::Scene &scene = model.scenes[model.defaultScene];
     for (ionSize i = 0; i < scene.nodes.size(); ++i)
     {
-        const tinygltf::Node node = _model.nodes[scene.nodes[i]];
+        const tinygltf::Node node = model.nodes[scene.nodes[i]];
 
-        LoadNode(node, _model, parent, _entity, m_textureIndexToTextureName, m_materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+        LoadNode(node, model, parent, _entity, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
     }
 
     return true;

@@ -13,23 +13,13 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-class LoaderGLTF
+class LoaderGLTF final
 {
 public:
     LoaderGLTF();
     ~LoaderGLTF();
 
     ionBool Load(const eosString& _fileName, ObjectHandler& _entity, ionBool _generateNormalWhenMissing = false, ionBool _generateTangentWhenMissing = false, ionBool _setBitangentSign = false);
-
-private:
-    VkDevice m_vkDevice;
-    eosString m_dir;
-    eosString m_filename;
-    eosString m_filenameNoExt;
-    eosString m_ext;
-
-    eosMap(ionS32, eosString) m_textureIndexToTextureName;
-    eosMap(ionS32, eosString) m_materialIndexToMaterialName;
 };
 
 

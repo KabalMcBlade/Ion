@@ -8,8 +8,6 @@
 #include "../Scene/Entity.h"
 #include "../Scene/DirectionalLight.h"
 
-#include "../Utilities/LoaderGLTF.h"
-
 #include "../Geometry/Mesh.h"
 #include "../Geometry/PrimitiveFactory.h"
 
@@ -109,8 +107,7 @@ RenderManager& RenderManager::Instance()
 
 ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, ObjectHandler& _entity, ionBool _generateNormalWhenMissing /*= false*/, ionBool _generateTangentWhenMissing /*= false*/, ionBool _setBitangentSign /*= false*/)
 {
-    LoaderGLTF loader;
-    return loader.Load(_fileName, _entity, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+    return m_loader.Load(_fileName, _entity, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
 }
 
 void RenderManager::LoadPrimitive(EVertexLayout _layout, EPrimitiveType _type, ObjectHandler& _entity)
