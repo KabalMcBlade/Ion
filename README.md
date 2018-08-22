@@ -14,7 +14,7 @@ I'm not planning to do a x86 version
 
 This is a screenshot about a first test on PBR render, maybe I need a more "brighty" and "shiny" skybox to generate maps from and set some different material parameters.
 
-<img src="./Screenshots/FirstTest.png" width="814px">
+<img src="./Screenshots/FirstTest.jpg">
 
 ## Controls
 
