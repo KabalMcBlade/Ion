@@ -1889,22 +1889,9 @@ void RenderCore::Draw(VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, 
     ionShaderProgramManager().SetRenderParamFloat(ION_GAMMA_FLOAT_PARAM, _surface.m_gamma);
     ionShaderProgramManager().SetRenderParamFloat(ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM, _surface.m_prefilteredCubeMipLevels);
 
-    ionS32  vertexShaderIndex = -1;
-    ionS32  fragmentShaderIndex = -1;
-    ionS32  tessellationControlIndex = -1;
-    ionS32  tessellationEvaluationIndex = -1;
-    ionS32  geometryIndex = -1;
-    ionBool useJoint = false;
-    ionBool useSkinning = false;
-
-    _surface.m_material->GetShaders(vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
-
-    const ionS32 shaderProgramIndex = 
-        ionShaderProgramManager().FindProgram(_surface.m_material->GetShaderProgramName(), _surface.m_material->GetVertexLayout(), _surface.m_material->GetConstantsShaders(),
-        vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
-
+    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(_surface.m_material);
     ionShaderProgramManager().BindProgram(shaderProgramIndex);
-    ionShaderProgramManager().CommitCurrent(*this, _renderPass, m_stateBits, _commandBuffer);
+    ionShaderProgramManager().CommitCurrent(*this, _surface.m_material, _renderPass, m_stateBits, _commandBuffer);
 
     ionSize indexOffset = 0;
     ionSize vertexOffset = 0;
@@ -1932,22 +1919,10 @@ void RenderCore::Draw(VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, 
 
 void RenderCore::DrawNoBinding(VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, const DrawSurface& _surface, ionU32 _vertexCount, ionU32 _instanceCount, ionU32 _firstVertex, ionU32 _firstInstance)
 {
-    ionS32  vertexShaderIndex = -1;
-    ionS32  fragmentShaderIndex = -1;
-    ionS32  tessellationControlIndex = -1;
-    ionS32  tessellationEvaluationIndex = -1;
-    ionS32  geometryIndex = -1;
-    ionBool useJoint = false;
-    ionBool useSkinning = false;
-
-    _surface.m_material->GetShaders(vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
-
-    const ionS32 shaderProgramIndex =
-        ionShaderProgramManager().FindProgram(_surface.m_material->GetShaderProgramName(), _surface.m_material->GetVertexLayout(), _surface.m_material->GetConstantsShaders(),
-            vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
+    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(_surface.m_material);
 
     ionShaderProgramManager().BindProgram(shaderProgramIndex);
-    ionShaderProgramManager().CommitCurrent(*this, _renderPass, m_stateBits, _commandBuffer);
+    ionShaderProgramManager().CommitCurrent(*this, _surface.m_material, _renderPass, m_stateBits, _commandBuffer);
 
     vkCmdDraw(_commandBuffer, _vertexCount, _instanceCount, _firstVertex, _firstInstance);
 }

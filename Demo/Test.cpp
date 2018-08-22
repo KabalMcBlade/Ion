@@ -23,10 +23,10 @@ void Test_ColoredTriangle(ion::ObjectHandler& _entity)
     ion::ShaderLayoutDef vertexLayout;
     vertexLayout.m_uniforms.push_back(uniform);
 
-    ion::ShaderLayoutDef fragmentLayout;
+    _entity->GetMesh(0)->GetMaterial()->SetVertexShaderLayout(vertexLayout);
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment);
 
     _entity->GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
     _entity->GetMesh(0)->GetMaterial()->SetVertexLayout(_entity->GetMesh(0)->GetLayout());
@@ -59,10 +59,10 @@ void Test_ColoredQuad(ion::ObjectHandler& _entity)
     ion::ShaderLayoutDef vertexLayout;
     vertexLayout.m_uniforms.push_back(uniform);
 
-    ion::ShaderLayoutDef fragmentLayout;
+    _entity->GetMesh(0)->GetMaterial()->SetVertexShaderLayout(vertexLayout);
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment);
 
     _entity->GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
     _entity->GetMesh(0)->GetMaterial()->SetVertexLayout(_entity->GetMesh(0)->GetLayout());
@@ -115,8 +115,11 @@ void Test_TexturedQuadEx(ion::ObjectHandler& _entity, ion::Texture* _texture)
     ion::ShaderLayoutDef fragmentLayout;
     fragmentLayout.m_samplers.push_back(sampler);
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColorTextured", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColorTextured", ion::EShaderStage_Fragment, fragmentLayout);
+    _entity->GetMesh(0)->GetMaterial()->SetVertexShaderLayout(vertexLayout);
+    _entity->GetMesh(0)->GetMaterial()->SetFragmentShaderLayout(fragmentLayout);
+
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColorTextured", ion::EShaderStage_Vertex);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColorTextured", ion::EShaderStage_Fragment);
 
     _entity->GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColorTextured");
     _entity->GetMesh(0)->GetMaterial()->SetVertexLayout(_entity->GetMesh(0)->GetLayout());
@@ -150,10 +153,10 @@ void Test_ColoredCube(ion::ObjectHandler& _entity)
     ion::ShaderLayoutDef vertexLayout;
     vertexLayout.m_uniforms.push_back(uniform);
 
-    ion::ShaderLayoutDef fragmentLayout;
+    _entity->GetMesh(0)->GetMaterial()->SetVertexShaderLayout(vertexLayout);
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment);
 
     _entity->GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
     _entity->GetMesh(0)->GetMaterial()->SetVertexLayout(_entity->GetMesh(0)->GetLayout());
@@ -187,10 +190,10 @@ void Test_ColoredSphere(ion::ObjectHandler& _entity)
     ion::ShaderLayoutDef vertexLayout;
     vertexLayout.m_uniforms.push_back(uniform);
 
-    ion::ShaderLayoutDef fragmentLayout;
+    _entity->GetMesh(0)->GetMaterial()->SetVertexShaderLayout(vertexLayout);
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment);
 
     _entity->GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
     _entity->GetMesh(0)->GetMaterial()->SetVertexLayout(_entity->GetMesh(0)->GetLayout());
@@ -358,8 +361,11 @@ void Test_ModelPBR_Recursive(ion::ObjectHandler& _entity, ion::Texture* _brdf, i
         constants.m_values.push_back(mesh->GetMaterial()->GetAlphaMode() == ion::EAlphaMode_Mask ? 1.0f : 0.0f);
         constants.m_values.push_back(mesh->GetMaterial()->GetAdvancePBR().GetAlphaCutoff());
 
-        ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "pbr", ion::EShaderStage_Vertex, vertexLayout);
-        ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "pbr", ion::EShaderStage_Fragment, fragmentLayout);
+        mesh->GetMaterial()->SetVertexShaderLayout(vertexLayout);
+        mesh->GetMaterial()->SetFragmentShaderLayout(fragmentLayout);
+
+        ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "pbr", ion::EShaderStage_Vertex);
+        ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "pbr", ion::EShaderStage_Fragment);
 
         mesh->GetMaterial()->SetShaderProgramName("pbr");
         mesh->GetMaterial()->SetVertexLayout(mesh->GetLayout());
@@ -415,10 +421,10 @@ void Test_DrawBoundingBox(ion::ObjectHandler& _entity)
     ion::ShaderLayoutDef vertexLayout;
     vertexLayout.m_uniforms.push_back(uniform);
 
-    ion::ShaderLayoutDef fragmentLayout;
+    _entity->GetMesh(0)->GetMaterial()->SetVertexShaderLayout(vertexLayout);
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Vertex);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SimplePosColor", ion::EShaderStage_Fragment);
 
     _entity->GetMesh(0)->GetMaterial()->SetShaderProgramName("SimplePosColor");
     _entity->GetMesh(0)->GetMaterial()->SetVertexLayout(_entity->GetMesh(0)->GetLayout());

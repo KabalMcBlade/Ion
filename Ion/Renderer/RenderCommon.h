@@ -53,6 +53,7 @@ enum EShaderStage
     EShaderStage_Tessellation_Ctrl  = 0b00000100,
     EShaderStage_Tessellation_Eval  = 0b00001000,
     EShaderStage_Geometry           = 0b00010000,
+    EShaderStage_Compute            = 0b00100000,
 
     EShaderStage_Mandatory      = EShaderStage_Vertex,
     EShaderStage_MandatoryAll   = EShaderStage_Vertex | EShaderStage_Fragment,

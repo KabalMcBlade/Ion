@@ -126,7 +126,6 @@ struct Shader
 
     ~Shader()
     {
-        m_shaderLayout.Clear();
     }
 
     ionBool IsValid() const
@@ -138,7 +137,6 @@ struct Shader
     eosString                       m_path;
     EShaderStage                    m_stage;
     VkShaderModule                  m_shaderModule;
-    ShaderLayoutDef                 m_shaderLayout;
 };
 
 struct ShaderProgram

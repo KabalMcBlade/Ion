@@ -208,13 +208,35 @@ public:
     void SetShaderProgramName(const eosString& _name) { m_shaderProgramName = _name; }
     const eosString& GetShaderProgramName() const { return m_shaderProgramName; }
 
+    //////////////////////////////////////////////////////////////////////////
+    // Shader Specific
     void SetConstantsShaders(const ConstantsBindingDef& _constants) { m_constants = _constants; m_constants.m_runtimeStages = (VkShaderStageFlagBits)m_constants.m_shaderStages; }
     const ConstantsBindingDef& GetConstantsShaders() const { return m_constants; }
-    ConstantsBindingDef& GetConstantsShaders() { return m_constants; }
+
+    void SetVertexShaderLayout(const ShaderLayoutDef& _defines);
+    void SetTessellationControlShaderLayout(const ShaderLayoutDef& _defines);
+    void SetTessellationEvaluatorShaderLayout(const ShaderLayoutDef& _defines);
+    void SetGeometryShaderLayout(const ShaderLayoutDef& _defines);
+    void SetFragmentShaderLayout(const ShaderLayoutDef& _defines);
+    void SetComputeShaderLayout(const ShaderLayoutDef& _defines);
+
+    const ShaderLayoutDef& GetVertexShaderLayout() const { return m_vertexShaderLayout; }
+    const ShaderLayoutDef& GetTessellationControlShaderLayout() const { return m_tessCtrlShaderLayout; }
+    const ShaderLayoutDef& GetTessellationEvaluatorShaderLayout() const { return m_tessEvalShaderLayout; }
+    const ShaderLayoutDef& GetGeometryShaderLayout() const { return m_geomtryShaderLayout; }
+    const ShaderLayoutDef& GetFragmentShaderLayout() const { return m_fragmentShaderLayout; }
+    const ShaderLayoutDef& GetComputeShaderLayout() const { return m_computeShaderLayout; }
 
 private:
     eosString       m_name;
     eosString       m_shaderProgramName;
+
+    ShaderLayoutDef m_vertexShaderLayout;
+    ShaderLayoutDef m_tessCtrlShaderLayout;
+    ShaderLayoutDef m_tessEvalShaderLayout;
+    ShaderLayoutDef m_geomtryShaderLayout;
+    ShaderLayoutDef m_fragmentShaderLayout;
+    ShaderLayoutDef m_computeShaderLayout;
 
     BasePBR         m_basePBR;
     AdvancePBR      m_advancePBR;

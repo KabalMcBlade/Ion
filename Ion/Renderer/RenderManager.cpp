@@ -235,11 +235,8 @@ Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
     Material* material = ionMaterialManger().CreateMaterial(ION_BRDFLUT_TEXTURENAME, 0u);
     brdflutEntity->GetMesh(0)->SetMaterial(material);
 
-    ShaderLayoutDef vertexLayout;      // empty
-    ShaderLayoutDef fragmentLayout;    // empty
-
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_BRDFLUT_SHADER_NAME, EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_BRDFLUT_SHADER_NAME, EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_BRDFLUT_SHADER_NAME, EShaderStage_Vertex);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_BRDFLUT_SHADER_NAME, EShaderStage_Fragment);
 
     brdflutEntity->GetMesh(0)->GetMaterial()->SetShaderProgramName(ION_BRDFLUT_SHADER_NAME);
     brdflutEntity->GetMesh(0)->GetMaterial()->SetVertexLayout(brdflutEntity->GetMesh(0)->GetLayout());
@@ -390,9 +387,11 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
     ShaderLayoutDef fragmentLayout;
     fragmentLayout.m_samplers.push_back(sampler);
 
+    irradianceEntity->GetMesh(0)->GetMaterial()->SetVertexShaderLayout(vertexLayout);
+    irradianceEntity->GetMesh(0)->GetMaterial()->SetFragmentShaderLayout(fragmentLayout);
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_PREFILTERED_VERTEX_SHADER_NAME, EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_FRAGMENT_SHADER_NAME, EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_PREFILTERED_VERTEX_SHADER_NAME, EShaderStage_Vertex);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_FRAGMENT_SHADER_NAME, EShaderStage_Fragment);
 
     irradianceEntity->GetMesh(0)->GetMaterial()->SetConstantsShaders(constants);
     irradianceEntity->GetMesh(0)->GetMaterial()->SetShaderProgramName(ION_IRRADIANCE_FRAGMENT_SHADER_NAME);
@@ -680,9 +679,11 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     fragmentLayout.m_uniforms.push_back(uniformFragment);
     fragmentLayout.m_samplers.push_back(sampler);
 
+    prefilteredEntity->GetMesh(0)->GetMaterial()->SetVertexShaderLayout(vertexLayout);
+    prefilteredEntity->GetMesh(0)->GetMaterial()->SetFragmentShaderLayout(fragmentLayout);
 
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_PREFILTERED_VERTEX_SHADER_NAME, EShaderStage_Vertex, vertexLayout);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PREFILTEREDENVIRONMENT_FRAGMENT_SHADER_NAME, EShaderStage_Fragment, fragmentLayout);
+    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_PREFILTERED_VERTEX_SHADER_NAME, EShaderStage_Vertex);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PREFILTEREDENVIRONMENT_FRAGMENT_SHADER_NAME, EShaderStage_Fragment);
 
     prefilteredEntity->GetMesh(0)->GetMaterial()->SetConstantsShaders(constants);
     prefilteredEntity->GetMesh(0)->GetMaterial()->SetShaderProgramName(ION_PREFILTEREDENVIRONMENT_FRAGMENT_SHADER_NAME);

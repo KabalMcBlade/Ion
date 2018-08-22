@@ -234,8 +234,11 @@ int main()
         ion::ShaderLayoutDef fragmentLayout;
         fragmentLayout.m_samplers.push_back(sampler);
 
-        skyboxVertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Vertex, vertexLayout);
-        skyboxFragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Fragment, fragmentLayout);
+        skyboxMaterial->SetVertexShaderLayout(vertexLayout);
+        skyboxMaterial->SetFragmentShaderLayout(fragmentLayout);
+
+        skyboxVertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Vertex);
+        skyboxFragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Fragment);
 
         skyboxMaterial->SetShaderProgramName("SkyboxEnvironmentMapGeneration");
         skyboxMaterial->SetVertexLayout(skyboxPtr->GetVertexLayout());
@@ -297,9 +300,6 @@ int main()
 
     ion::ShaderLayoutDef fragmentLayout;
     fragmentLayout.m_samplers.push_back(sampler);
-
-    ionShaderProgramManager().UpdateShader(skyboxVertexShaderIndex, vertexLayout);
-    ionShaderProgramManager().UpdateShader(skyboxFragmentShaderIndex, fragmentLayout);
 
     skyboxMaterial->SetShaderProgramName("SkyBox");
     skyboxMaterial->SetVertexLayout(skyboxPtr->GetVertexLayout());

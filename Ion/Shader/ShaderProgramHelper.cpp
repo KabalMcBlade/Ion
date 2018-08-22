@@ -6,6 +6,8 @@
 #include "../Renderer/RenderState.h"
 #include "../Renderer/RenderCore.h"
 
+#include "../Material/Material.h"
+
 EOS_USING_NAMESPACE
 VK_ALLOCATOR_USING_NAMESPACE
 
@@ -249,7 +251,7 @@ VkDescriptorType ShaderProgramHelper::GetDescriptorType(EShaderBinding _type)
     }
 }
 
-void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, ShaderProgram& _shaderProgram, const Shader& _vertexShader, const Shader& _fragmentShader, const Shader& _tessellationControlShader, const Shader& _tessellationEvaluatorShader, const Shader& _geometryShader, const ConstantsBindingDef& _constants)
+void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, ShaderProgram& _shaderProgram, const Shader& _vertexShader, const Shader& _fragmentShader, const Shader& _tessellationControlShader, const Shader& _tessellationEvaluatorShader, const Shader& _geometryShader, const Material* _material)
 {
     // Descriptor Set Layout
     {
@@ -261,21 +263,21 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
         {
             binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-            ionSize uniformCount = _vertexShader.m_shaderLayout.m_uniforms.size();
+            ionSize uniformCount = _material->GetVertexShaderLayout().m_uniforms.size();
             for (ionSize i = 0; i < uniformCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                binding.binding = _vertexShader.m_shaderLayout.m_uniforms[i].m_bindingIndex;
+                binding.binding = _material->GetVertexShaderLayout().m_uniforms[i].m_bindingIndex;
                 layoutBindings.push_back(binding);
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
             }
 
-            ionSize samplerCount = _vertexShader.m_shaderLayout.m_samplers.size();
+            ionSize samplerCount = _material->GetVertexShaderLayout().m_samplers.size();
             for (ionSize i = 0; i < samplerCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                binding.binding = _vertexShader.m_shaderLayout.m_samplers[i].m_bindingIndex;
+                binding.binding = _material->GetVertexShaderLayout().m_samplers[i].m_bindingIndex;
                 layoutBindings.push_back(binding);
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
@@ -286,21 +288,21 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
         {
             binding.stageFlags = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
 
-            ionSize uniformCount = _tessellationControlShader.m_shaderLayout.m_uniforms.size();
+            ionSize uniformCount = _material->GetTessellationControlShaderLayout().m_uniforms.size();
             for (ionSize i = 0; i < uniformCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                binding.binding = _tessellationControlShader.m_shaderLayout.m_uniforms[i].m_bindingIndex;
+                binding.binding = _material->GetTessellationControlShaderLayout().m_uniforms[i].m_bindingIndex;
                 layoutBindings.push_back(binding);
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
             }
 
-            ionSize samplerCount = _tessellationControlShader.m_shaderLayout.m_samplers.size();
+            ionSize samplerCount = _material->GetTessellationControlShaderLayout().m_samplers.size();
             for (ionSize i = 0; i < samplerCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                binding.binding = _tessellationControlShader.m_shaderLayout.m_samplers[i].m_bindingIndex;
+                binding.binding = _material->GetTessellationControlShaderLayout().m_samplers[i].m_bindingIndex;
                 layoutBindings.push_back(binding);
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
@@ -311,21 +313,21 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
         {
             binding.stageFlags = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
 
-            ionSize uniformCount = _tessellationEvaluatorShader.m_shaderLayout.m_uniforms.size();
+            ionSize uniformCount = _material->GetTessellationEvaluatorShaderLayout().m_uniforms.size();
             for (ionSize i = 0; i < uniformCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                binding.binding = _tessellationEvaluatorShader.m_shaderLayout.m_uniforms[i].m_bindingIndex;
+                binding.binding = _material->GetTessellationEvaluatorShaderLayout().m_uniforms[i].m_bindingIndex;
                 layoutBindings.push_back(binding);
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
             }
 
-            ionSize samplerCount = _tessellationEvaluatorShader.m_shaderLayout.m_samplers.size();
+            ionSize samplerCount = _material->GetTessellationEvaluatorShaderLayout().m_samplers.size();
             for (ionSize i = 0; i < samplerCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                binding.binding = _tessellationEvaluatorShader.m_shaderLayout.m_samplers[i].m_bindingIndex;
+                binding.binding = _material->GetTessellationEvaluatorShaderLayout().m_samplers[i].m_bindingIndex;
                 layoutBindings.push_back(binding);
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
@@ -336,21 +338,21 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
         {
             binding.stageFlags = VK_SHADER_STAGE_GEOMETRY_BIT;
 
-            ionSize uniformCount = _geometryShader.m_shaderLayout.m_uniforms.size();
+            ionSize uniformCount = _material->GetGeometryShaderLayout().m_uniforms.size();
             for (ionSize i = 0; i < uniformCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                binding.binding = _geometryShader.m_shaderLayout.m_uniforms[i].m_bindingIndex;
+                binding.binding = _material->GetGeometryShaderLayout().m_uniforms[i].m_bindingIndex;
                 layoutBindings.push_back(binding);
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
             }
 
-            ionSize samplerCount = _geometryShader.m_shaderLayout.m_samplers.size();
+            ionSize samplerCount = _material->GetGeometryShaderLayout().m_samplers.size();
             for (ionSize i = 0; i < samplerCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                binding.binding = _geometryShader.m_shaderLayout.m_samplers[i].m_bindingIndex;
+                binding.binding = _material->GetGeometryShaderLayout().m_samplers[i].m_bindingIndex;
                 layoutBindings.push_back(binding);
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
@@ -361,21 +363,21 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
         {
             binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-            ionSize uniformCount = _fragmentShader.m_shaderLayout.m_uniforms.size();
+            ionSize uniformCount = _material->GetFragmentShaderLayout().m_uniforms.size();
             for (ionSize i = 0; i < uniformCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                binding.binding = _fragmentShader.m_shaderLayout.m_uniforms[i].m_bindingIndex;
+                binding.binding = _material->GetFragmentShaderLayout().m_uniforms[i].m_bindingIndex;
                 layoutBindings.push_back(binding);
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
             }
 
-            ionSize samplerCount = _fragmentShader.m_shaderLayout.m_samplers.size();
+            ionSize samplerCount = _material->GetFragmentShaderLayout().m_samplers.size();
             for (ionSize i = 0; i < samplerCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                binding.binding = _fragmentShader.m_shaderLayout.m_samplers[i].m_bindingIndex;
+                binding.binding = _material->GetFragmentShaderLayout().m_samplers[i].m_bindingIndex;
                 layoutBindings.push_back(binding);
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
@@ -399,12 +401,12 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
         createInfo.setLayoutCount = 1;
         createInfo.pSetLayouts = &_shaderProgram.m_descriptorSetLayout;
 
-        if (_constants.IsValid())
+        if (_material->GetConstantsShaders().IsValid())
         {
             VkPushConstantRange pushConstantRange{};
-            pushConstantRange.stageFlags = _constants.m_runtimeStages;
+            pushConstantRange.stageFlags = _material->GetConstantsShaders().m_runtimeStages;
             pushConstantRange.offset = 0;
-            pushConstantRange.size = static_cast<ionU32>(_constants.GetSizeByte());
+            pushConstantRange.size = static_cast<ionU32>(_material->GetConstantsShaders().GetSizeByte());
 
             createInfo.pushConstantRangeCount = 1;
             createInfo.pPushConstantRanges = &pushConstantRange;

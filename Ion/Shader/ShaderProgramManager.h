@@ -16,6 +16,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+class Material;
 class RenderCore;
 class ION_DLL ShaderProgramManager final
 {
@@ -77,14 +78,13 @@ public:
     void    SetRenderParamsInteger(ionSize _paramHash, const ionS32* _values, ionU32 _numValues);
 
     // Shader name WITHOUT extension, because is chose by the shader stage!
-    ionS32  FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage, const ShaderLayoutDef& _defines);
-    void    UpdateShader(ionS32 _index, const ShaderLayoutDef& _defines);
+    ionS32  FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage);
 
     void    StartFrame();
     void    EndFrame();
     void    BindProgram(ionS32 _index);
-    void    CommitCurrent(const RenderCore& _render, VkRenderPass _renderPass, ionU64 _stateBits, VkCommandBuffer _commandBuffer);
-    ionS32  FindProgram(const eosString& _name, EVertexLayout _vertexLayout, const ConstantsBindingDef& _constants, ionS32 _vertexIndex, ionS32 _fragmentIndex = -1, ionS32 _tessellationControlIndex = -1, ionS32 _tessellationEvaluationIndex = -1, ionS32 _geometryIndex = -1, ionBool _useJoint = false, ionBool _useSkinning = false);
+    void    CommitCurrent(const RenderCore& _render, const Material* _material, VkRenderPass _renderPass, ionU64 _stateBits, VkCommandBuffer _commandBuffer);
+    ionS32  FindProgram(const Material* _material);
 
     void    UnloadShader(ionS32 _index);
 
@@ -94,8 +94,8 @@ private:
     ShaderProgramManager(const ShaderProgramManager& _Orig) = delete;
     ShaderProgramManager& operator = (const ShaderProgramManager&) = delete;
 
-    void    LoadShader(ionS32 _index, const ShaderLayoutDef& _defines);
-    void    LoadShader(Shader& _shader, const ShaderLayoutDef& _defines);
+    void    LoadShader(ionS32 _index);
+    void    LoadShader(Shader& _shader);
 
     void    AllocUniformParametersBlockBuffer(const RenderCore& _render, const UniformBinding& _uniform, UniformBuffer& _ubo);
 
