@@ -205,6 +205,9 @@ public:
     void SetVertexLayout(EVertexLayout _layout) { m_vertexLayout = _layout; }
     EVertexLayout GetVertexLayout() const { return m_vertexLayout; }
 
+    ionBool IsValidPBR() const;
+    ionBool IsValidSpecularGlossiness() const;
+
     //////////////////////////////////////////////////////////////////////////
     // Shader Specific
     void SetConstantsShaders(const ConstantsBindingDef& _constants) { m_constants = _constants; m_constants.m_runtimeStages = (VkShaderStageFlagBits)m_constants.m_shaderStages; }

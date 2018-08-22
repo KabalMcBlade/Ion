@@ -134,6 +134,16 @@ void Material::GetShaders(ionS32& _vertexIndex, ionS32& _fragmentIndex, ionS32& 
     _useSkinning = m_useSkinning;
 }
 
+ionBool Material::IsValidPBR() const
+{
+    return (m_basePBR.GetBaseColorTexture() != nullptr && m_basePBR.GetMetalRoughnessTexture() != nullptr);
+}
+
+ionBool Material::IsValidSpecularGlossiness() const
+{
+    return (m_specularGlossiness.GetBaseColorTexture() != nullptr && m_specularGlossiness.GetSpecularGlossinessTexture() != nullptr);
+}
+
 void Material::SetVertexShaderLayout(const ShaderLayoutDef& _defines)
 {
     m_vertexShaderLayout = _defines;

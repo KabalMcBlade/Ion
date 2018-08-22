@@ -23,6 +23,10 @@
 
 #include "../App/Mode.h"
 
+
+#define ION_PBR_SHADER_NAME    "pbr"
+
+
 #define ION_PBR_DEBUG
 
 EOS_USING_NAMESPACE
