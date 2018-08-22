@@ -46,7 +46,7 @@ struct ION_DLL UniformBinding final
     eosVector(EUniformParameterType)    m_type;
 
     // it is computed by the engine, do not set manually
-    eosVector(ionSize)                    m_runtimeParameters;
+    eosVector(ionSize)                  m_runtimeParameters;
 
     ~UniformBinding()
     {
@@ -55,6 +55,34 @@ struct ION_DLL UniformBinding final
         m_runtimeParameters.clear();
     }
 };
+
+ION_INLINE ionBool operator==(const UniformBinding& lhs, const UniformBinding& rhs)
+{
+    const eosVector(EUniformParameterType)::size_type count = lhs.m_type.size();
+    for (eosVector(EUniformParameterType)::size_type i = 0; i != count; ++i)
+    {
+        if ((lhs.m_type[i] != rhs.m_type[i]) || (lhs.m_runtimeParameters[i] != rhs.m_runtimeParameters[i]))
+        {
+            return false;
+        }
+    }
+
+    return (lhs.m_bindingIndex == rhs.m_bindingIndex);
+}
+
+ION_INLINE ionBool operator!=(const UniformBinding& lhs, const UniformBinding& rhs)
+{
+    const eosVector(EUniformParameterType)::size_type count = lhs.m_type.size();
+    for (eosVector(EUniformParameterType)::size_type i = 0; i != count; ++i)
+    {
+        if ((lhs.m_type[i] == rhs.m_type[i]) || (lhs.m_runtimeParameters[i] == rhs.m_runtimeParameters[i]))
+        {
+            return false;
+        }
+    }
+
+    return (lhs.m_bindingIndex != rhs.m_bindingIndex);
+}
 
 class Texture;
 struct ION_DLL SamplerBinding final
@@ -72,6 +100,17 @@ struct ION_DLL SamplerBinding final
         m_texture = nullptr;
     }
 };
+
+ION_INLINE ionBool operator==(const SamplerBinding& lhs, const SamplerBinding& rhs)
+{
+    return (lhs.m_bindingIndex == rhs.m_bindingIndex) && (lhs.m_texture == rhs.m_texture);
+}
+
+ION_INLINE ionBool operator!=(const SamplerBinding& lhs, const SamplerBinding& rhs)
+{
+    return (lhs.m_bindingIndex != rhs.m_bindingIndex) && (lhs.m_texture != rhs.m_texture);
+}
+
 
 // The push_constant in the shader and for now ONLY floats supported.
 // Anyway seems enough, you can pass matrix, vector, bool, float and integer as "float" representation
@@ -100,6 +139,16 @@ struct ION_DLL ConstantsBindingDef final
     }
 };
 
+ION_INLINE ionBool operator==(const ConstantsBindingDef& lhs, const ConstantsBindingDef& rhs)
+{
+    return (lhs.GetData() == rhs.GetData());
+}
+
+ION_INLINE ionBool operator!=(const ConstantsBindingDef& lhs, const ConstantsBindingDef& rhs)
+{
+    return (lhs.GetData() != rhs.GetData());
+}
+
 struct ION_DLL ShaderLayoutDef final
 {
     eosVector(UniformBinding)   m_uniforms;
@@ -116,6 +165,53 @@ struct ION_DLL ShaderLayoutDef final
         m_samplers.clear();
     }
 };
+
+ION_INLINE ionBool operator==(const ShaderLayoutDef& lhs, const ShaderLayoutDef& rhs)
+{
+    const eosVector(UniformBinding)::size_type uniformCount = lhs.m_uniforms.size();
+    for (eosVector(UniformBinding)::size_type i = 0; i != uniformCount; ++i)
+    {
+        if (lhs.m_uniforms[i] != rhs.m_uniforms[i])
+        {
+            return false;
+        }
+    }
+
+    const eosVector(SamplerBinding)::size_type samplerCount = lhs.m_samplers.size();
+    for (eosVector(SamplerBinding)::size_type i = 0; i != samplerCount; ++i)
+    {
+        if (lhs.m_samplers[i] != rhs.m_samplers[i])
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+ION_INLINE ionBool operator!=(const ShaderLayoutDef& lhs, const ShaderLayoutDef& rhs)
+{
+    const eosVector(UniformBinding)::size_type uniformCount = lhs.m_uniforms.size();
+    for (eosVector(UniformBinding)::size_type i = 0; i != uniformCount; ++i)
+    {
+        if (lhs.m_uniforms[i] == rhs.m_uniforms[i])
+        {
+            return false;
+        }
+    }
+
+    const eosVector(SamplerBinding)::size_type samplerCount = lhs.m_samplers.size();
+    for (eosVector(SamplerBinding)::size_type i = 0; i != samplerCount; ++i)
+    {
+        if (lhs.m_samplers[i] == rhs.m_samplers[i])
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 class RenderCore;
 struct Shader
@@ -139,9 +235,11 @@ struct Shader
     VkShaderModule                  m_shaderModule;
 };
 
+class Material;
 struct ShaderProgram
 {
     ShaderProgram();
+    ~ShaderProgram();
 
     struct PipelineState 
     {
@@ -156,19 +254,10 @@ struct ShaderProgram
 
     eosVector(EShaderBinding)   m_bindings;
     eosVector(PipelineState)    m_pipelines;
-    eosString                   m_name;
     EVertexLayout               m_vertextLayoutType;
     VkPipelineLayout            m_pipelineLayout;
     VkDescriptorSetLayout       m_descriptorSetLayout;
-    ConstantsBindingDef         m_constantsDef;
-    ionSize                     m_hash;
-    ionS32                      m_vertexShaderIndex;
-    ionS32                      m_fragmentShaderIndex;
-    ionS32                      m_tessellationControlShaderIndex;
-    ionS32                      m_tessellationEvaluatorShaderIndex;
-    ionS32                      m_geometryShaderIndex;
-    ionBool                     m_usesJoints;
-    ionBool                     m_usesSkinning;
+    const Material*             m_material;
 };
 
 

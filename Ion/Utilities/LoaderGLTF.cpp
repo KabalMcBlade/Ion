@@ -795,10 +795,11 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
         {
             const tinygltf::Material& mat = model.materials[i];
 
+            const eosString materialName = filenameNoExt + "#" + mat.name.c_str();
 
-            materialIndexToMaterialName.insert(std::pair<ionS32, eosString>((ionS32)i, mat.name.c_str()));
+            materialIndexToMaterialName.insert(std::pair<ionS32, eosString>((ionS32)i, materialName));
 
-            Material* material = ionMaterialManger().CreateMaterial(mat.name.c_str(), 0u);
+            Material* material = ionMaterialManger().CreateMaterial(materialName, 0u);
 
             material->SetAlphaMode(EAlphaMode_Opaque);
 

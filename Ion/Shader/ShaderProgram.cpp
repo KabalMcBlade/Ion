@@ -9,19 +9,17 @@ ION_NAMESPACE_BEGIN
 
 
 ShaderProgram::ShaderProgram() :
-    m_usesJoints(false),
-    m_usesSkinning(false),
-    m_vertexShaderIndex(-1),
-    m_fragmentShaderIndex(-1),
-    m_tessellationControlShaderIndex(-1),
-    m_tessellationEvaluatorShaderIndex(-1),
-    m_geometryShaderIndex(-1),
     m_vertextLayoutType(EVertexLayout_Full),
     m_pipelineLayout(VK_NULL_HANDLE),
     m_descriptorSetLayout(VK_NULL_HANDLE),
-    m_hash(0)
+    m_material(nullptr)
 {
 
+}
+
+ShaderProgram::~ShaderProgram()
+{
+    m_material = nullptr;
 }
 
 VkPipeline ShaderProgram::GetPipeline(const RenderCore& _render, VkRenderPass _renderPass, ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationControlShader  /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationEvaluatorShader /*= VK_NULL_HANDLE*/, VkShaderModule _geometryShader /*= VK_NULL_HANDLE*/)

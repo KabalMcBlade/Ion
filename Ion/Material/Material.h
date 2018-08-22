@@ -205,9 +205,6 @@ public:
     void SetVertexLayout(EVertexLayout _layout) { m_vertexLayout = _layout; }
     EVertexLayout GetVertexLayout() const { return m_vertexLayout; }
 
-    void SetShaderProgramName(const eosString& _name) { m_shaderProgramName = _name; }
-    const eosString& GetShaderProgramName() const { return m_shaderProgramName; }
-
     //////////////////////////////////////////////////////////////////////////
     // Shader Specific
     void SetConstantsShaders(const ConstantsBindingDef& _constants) { m_constants = _constants; m_constants.m_runtimeStages = (VkShaderStageFlagBits)m_constants.m_shaderStages; }
@@ -229,7 +226,6 @@ public:
 
 private:
     eosString       m_name;
-    eosString       m_shaderProgramName;
 
     ShaderLayoutDef m_vertexShaderLayout;
     ShaderLayoutDef m_tessCtrlShaderLayout;

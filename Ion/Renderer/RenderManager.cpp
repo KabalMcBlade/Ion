@@ -238,7 +238,6 @@ Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_BRDFLUT_SHADER_NAME, EShaderStage_Vertex);
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_BRDFLUT_SHADER_NAME, EShaderStage_Fragment);
 
-    brdflutEntity->GetMesh(0)->GetMaterial()->SetShaderProgramName(ION_BRDFLUT_SHADER_NAME);
     brdflutEntity->GetMesh(0)->GetMaterial()->SetVertexLayout(brdflutEntity->GetMesh(0)->GetLayout());
 
     brdflutEntity->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
@@ -394,7 +393,6 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_FRAGMENT_SHADER_NAME, EShaderStage_Fragment);
 
     irradianceEntity->GetMesh(0)->GetMaterial()->SetConstantsShaders(constants);
-    irradianceEntity->GetMesh(0)->GetMaterial()->SetShaderProgramName(ION_IRRADIANCE_FRAGMENT_SHADER_NAME);
     irradianceEntity->GetMesh(0)->GetMaterial()->SetVertexLayout(irradianceEntity->GetMesh(0)->GetLayout());
 
     irradianceEntity->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
@@ -686,7 +684,6 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PREFILTEREDENVIRONMENT_FRAGMENT_SHADER_NAME, EShaderStage_Fragment);
 
     prefilteredEntity->GetMesh(0)->GetMaterial()->SetConstantsShaders(constants);
-    prefilteredEntity->GetMesh(0)->GetMaterial()->SetShaderProgramName(ION_PREFILTEREDENVIRONMENT_FRAGMENT_SHADER_NAME);
     prefilteredEntity->GetMesh(0)->GetMaterial()->SetVertexLayout(prefilteredEntity->GetMesh(0)->GetLayout());
 
     prefilteredEntity->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);

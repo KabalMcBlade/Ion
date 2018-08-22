@@ -326,12 +326,22 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
 {
     ShaderProgram& shaderProgram = m_shaderPrograms[m_current];
 
+    ionS32  vertexShaderIndex = -1;
+    ionS32  fragmentShaderIndex = -1;
+    ionS32  tessellationControlIndex = -1;
+    ionS32  tessellationEvaluationIndex = -1;
+    ionS32  geometryIndex = -1;
+    ionBool useJoint = false;
+    ionBool useSkinning = false;
+
+    _material->GetShaders(vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
+
     VkPipeline pipeline = shaderProgram.GetPipeline(_render, _renderPass, _stateBits,
-        m_shaders[shaderProgram.m_vertexShaderIndex].m_shaderModule,
-        shaderProgram.m_fragmentShaderIndex != -1 ? m_shaders[shaderProgram.m_fragmentShaderIndex].m_shaderModule : VK_NULL_HANDLE,
-        shaderProgram.m_tessellationControlShaderIndex != -1 ? m_shaders[shaderProgram.m_tessellationControlShaderIndex].m_shaderModule : VK_NULL_HANDLE,
-        shaderProgram.m_tessellationEvaluatorShaderIndex != -1 ? m_shaders[shaderProgram.m_tessellationEvaluatorShaderIndex].m_shaderModule : VK_NULL_HANDLE, 
-        shaderProgram.m_geometryShaderIndex != -1 ? m_shaders[shaderProgram.m_geometryShaderIndex].m_shaderModule : VK_NULL_HANDLE);
+        m_shaders[vertexShaderIndex].m_shaderModule,
+        fragmentShaderIndex != -1 ? m_shaders[fragmentShaderIndex].m_shaderModule : VK_NULL_HANDLE,
+        tessellationControlIndex != -1 ? m_shaders[tessellationControlIndex].m_shaderModule : VK_NULL_HANDLE,
+        tessellationEvaluationIndex != -1 ? m_shaders[tessellationEvaluationIndex].m_shaderModule : VK_NULL_HANDLE,
+        geometryIndex != -1 ? m_shaders[geometryIndex].m_shaderModule : VK_NULL_HANDLE);
 
     VkDescriptorSetAllocateInfo setAllocInfo = {};
     setAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -371,7 +381,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
     memset(&destBindingTexture, 0, sizeof(destBindingTexture));
 
     UniformBuffer vertParms;
-    if (shaderProgram.m_vertexShaderIndex > -1)
+    if (vertexShaderIndex > -1)
     {
         ionSize uniformCount = _material->GetVertexShaderLayout().m_uniforms.size();
         for (ionSize i = 0; i < uniformCount; ++i)
@@ -396,7 +406,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
 
     // Need to rework here for skinning
     UniformBuffer jointBuffer;
-    if (shaderProgram.m_usesJoints && _render.GetJointCacheHandler() > 0)
+    if (useJoint && _render.GetJointCacheHandler() > 0)
     {
         if (!ionVertexCacheManager().GetJointBuffer(_render.GetJointCacheHandler(), &jointBuffer))
         {
@@ -407,14 +417,14 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
 
         ubos[uboIndex++] = &jointBuffer;
     }
-    else if (shaderProgram.m_usesSkinning)
+    else if (useSkinning)
     {
         ubos[uboIndex++] = m_skinningUniformBuffer;
     }
 
     UniformBuffer tessCtrlParms;
     
-    if (shaderProgram.m_tessellationControlShaderIndex > -1)
+    if (tessellationControlIndex > -1)
     {
         ionSize uniformCount = _material->GetTessellationControlShaderLayout().m_uniforms.size();
         for (ionSize i = 0; i < uniformCount; ++i)
@@ -438,7 +448,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
     }
 
     UniformBuffer tessEvalParms;
-    if (shaderProgram.m_tessellationEvaluatorShaderIndex > -1)
+    if (tessellationEvaluationIndex > -1)
     {
         ionSize uniformCount = _material->GetTessellationEvaluatorShaderLayout().m_uniforms.size();
         for (ionSize i = 0; i < uniformCount; ++i)
@@ -462,7 +472,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
     }
 
     UniformBuffer geometryParms;
-    if (shaderProgram.m_geometryShaderIndex > -1)
+    if (geometryIndex > -1)
     {
         ionSize uniformCount = _material->GetGeometryShaderLayout().m_uniforms.size();
         for (ionSize i = 0; i < uniformCount; ++i)
@@ -486,7 +496,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
     }
 
     UniformBuffer fragParms;
-    if (shaderProgram.m_fragmentShaderIndex > -1)
+    if (fragmentShaderIndex > -1)
     {
         ionSize uniformCount = _material->GetFragmentShaderLayout().m_uniforms.size();
         for (ionSize i = 0; i < uniformCount; ++i)
@@ -573,9 +583,11 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
     vkCmdBindDescriptorSets(_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shaderProgram.m_pipelineLayout, 0, 1, &descSet, 0, nullptr);
     vkCmdBindPipeline(_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
-    if (shaderProgram.m_constantsDef.IsValid())
+    const ConstantsBindingDef& constantsDef = _material->GetConstantsShaders();
+
+    if (constantsDef.IsValid())
     {
-        vkCmdPushConstants(_commandBuffer, shaderProgram.m_pipelineLayout, shaderProgram.m_constantsDef.m_runtimeStages, 0, static_cast<ionU32>(shaderProgram.m_constantsDef.GetSizeByte()), shaderProgram.m_constantsDef.GetData());
+        vkCmdPushConstants(_commandBuffer, shaderProgram.m_pipelineLayout, constantsDef.m_runtimeStages, 0, static_cast<ionU32>(constantsDef.GetSizeByte()), constantsDef.GetData());
     }
 }
 
@@ -746,6 +758,27 @@ void ShaderProgramManager::LoadShader(Shader& _shader)
 
 ionS32 ShaderProgramManager::FindProgram(const Material* _material)
 {
+    for (ionSize i = 0; i < m_shaderPrograms.size(); ++i)
+    {
+        ShaderProgram& prog = m_shaderPrograms[i];
+        if ((prog.m_material == _material) /*&&         // NOT SURE THIS STILL NEED!
+            (prog.m_material->GetVertexShaderLayout() == _material->GetVertexShaderLayout()) && 
+            (prog.m_material->GetFragmentShaderLayout() == _material->GetFragmentShaderLayout()) &&
+            (prog.m_material->GetTessellationControlShaderLayout() == _material->GetTessellationControlShaderLayout()) &&
+            (prog.m_material->GetTessellationEvaluatorShaderLayout() == _material->GetTessellationEvaluatorShaderLayout()) &&
+            (prog.m_material->GetGeometryShaderLayout() == _material->GetGeometryShaderLayout()) &&
+            (prog.m_material->GetComputeShaderLayout() == _material->GetComputeShaderLayout())*/
+            )
+        {
+            return (ionS32)i;
+        }
+    }
+
+    ShaderProgram program;
+    program.m_vertextLayoutType = _material->GetVertexLayout();
+    program.m_material = _material;
+
+    // If index is -1 for some shader, I have to manually pass an "invalid" shader to the next function!
     ionS32  vertexShaderIndex = -1;
     ionS32  fragmentShaderIndex = -1;
     ionS32  tessellationControlIndex = -1;
@@ -756,30 +789,6 @@ ionS32 ShaderProgramManager::FindProgram(const Material* _material)
 
     _material->GetShaders(vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
 
-    const ionSize hash = std::hash<eosString>{}(_material->GetShaderProgramName());
-    for (ionSize i = 0; i < m_shaderPrograms.size(); ++i)
-    {
-        ShaderProgram& prog = m_shaderPrograms[i];
-        if ((prog.m_hash == hash) && (prog.m_vertexShaderIndex == vertexShaderIndex && prog.m_fragmentShaderIndex == fragmentShaderIndex && prog.m_tessellationControlShaderIndex == tessellationControlIndex && prog.m_tessellationEvaluatorShaderIndex == tessellationEvaluationIndex && prog.m_geometryShaderIndex == geometryIndex) )
-        {
-            return (ionS32)i;
-        }
-    }
-
-    ShaderProgram program;
-    program.m_name = _material->GetShaderProgramName();
-    program.m_hash = hash;
-    program.m_vertexShaderIndex = vertexShaderIndex;
-    program.m_fragmentShaderIndex = fragmentShaderIndex;
-    program.m_tessellationControlShaderIndex = tessellationControlIndex;
-    program.m_tessellationEvaluatorShaderIndex = tessellationEvaluationIndex;
-    program.m_geometryShaderIndex = geometryIndex;
-    program.m_vertextLayoutType = _material->GetVertexLayout();
-    program.m_usesJoints = useJoint;
-    program.m_usesSkinning = useSkinning;
-
-    // TODO:
-    // If index is -1 for some shader, I have to manually pass an "invalid" shader to the next function!
     const ionSize shaderCount = m_shaders.size();
     const Shader& vertexShader = vertexShaderIndex > -1 && vertexShaderIndex < shaderCount ? m_shaders[vertexShaderIndex] : Shader();
     const Shader& fragmentShader = fragmentShaderIndex > -1 && fragmentShaderIndex < shaderCount ? m_shaders[fragmentShaderIndex] : Shader();
@@ -788,8 +797,6 @@ ionS32 ShaderProgramManager::FindProgram(const Material* _material)
     const Shader& geometryShader = geometryIndex > -1 && geometryIndex < shaderCount ? m_shaders[geometryIndex] : Shader();
 
     ShaderProgramHelper::CreateDescriptorSetLayout(m_vkDevice, program, vertexShader, fragmentShader, tessControlShader, tessEvalShader, geometryShader, _material);
-
-    program.m_constantsDef = _material->GetConstantsShaders();    // add any
 
     // skinning here?
 
