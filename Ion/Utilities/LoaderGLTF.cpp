@@ -142,9 +142,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
         LoadNode(_model.nodes[_node.children[i]], _model, localNodeMatrix, childHandle, _textureIndexToTextureName, _materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
     }
     
+    // NOTE IMPORTANT!!!
+    // NOW EVERY MESH HAS ITS OWN INDEX FROM 0 TO COUNT, THIS MEANS THAT THE DRAW CALLS ARE NO BATCHED!!
+    // NEED TO MERGE IN ONE SINGLE INDEX AND BUFFER ARRAY!!!
 
-    ionU32 prevIndexSize = 0;
-    ionU32 prevVertexSize = 0;
+    //ionU32 prevIndexSize = 0;
+    //ionU32 prevVertexSize = 0;
     if (_node.mesh > -1) 
     {
         const tinygltf::Mesh mesh = _model.meshes[_node.mesh];
@@ -160,8 +163,16 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
             Entity* entityPtr = dynamic_cast<Entity*>(_entityHandle.GetPtr());
             Mesh* ionMesh = entityPtr->AddMesh<Mesh>();
 
-            ionMesh->SetIndexStart(prevIndexSize);
-            ionU32 vertexStart = prevVertexSize;
+
+            // NOTE IMPORTANT!!!
+            // NOW EVERY MESH HAS ITS OWN INDEX FROM 0 TO COUNT, THIS MEANS THAT THE DRAW CALLS ARE NO BATCHED!!
+            // NEED TO MERGE IN ONE SINGLE INDEX AND BUFFER ARRAY!!!
+
+
+            //ionMesh->SetIndexStart(prevIndexSize);
+            //ionU32 vertexStart = prevVertexSize;
+            ionMesh->SetIndexStart(0);
+            ionU32 vertexStart = 0;
 
 
             eosVector(Vector) positionToBeNormalized;
@@ -649,48 +660,73 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                 } 
             }
 
+            // NOTE IMPORTANT!!!
+            // NOW EVERY MESH HAS ITS OWN INDEX FROM 0 TO COUNT, THIS MEANS THAT THE DRAW CALLS ARE NO BATCHED!!
+            // NEED TO MERGE IN ONE SINGLE INDEX AND BUFFER ARRAY!!!
+
+            // update index size
+            //prevIndexSize += static_cast<ionU32>(ionMesh->GetIndexSize());
+            //prevVertexSize += static_cast<ionU32>(ionMesh->GetVertexSize());
+
             // add material and add all to primitive
             if (_model.materials.size() > 0)
             {
                 Material* material = ionMaterialManger().GetMaterial(_materialIndexToMaterialName[primitive.material]);
-                if (material->IsValidPBR() || material->IsValidSpecularGlossiness())
+
+                enum ESettingType
+                {
+                    ESettingType_Base = 0,
+                    ESettingType_Physical,
+                    ESettingType_Normal,
+                    ESettingType_Occlusion,
+                    ESettingType_Emissive,
+
+                    ESettingType_Count
+                };
+
+                ionFloat constantTexturesSettings[ESettingType_Count];
+                for (ionU32 constantCounter = 0; constantCounter < ESettingType_Count; ++constantCounter)
+                {
+                    constantTexturesSettings[constantCounter] = 1.0f;
+                }
+
                 {
                     //
-                    ion::UniformBinding uniformVertex;
+                    UniformBinding uniformVertex;
                     uniformVertex.m_bindingIndex = 0;
                     uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-                    uniformVertex.m_type.push_back(ion::EUniformParameterType_Matrix);
+                    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
                     uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-                    uniformVertex.m_type.push_back(ion::EUniformParameterType_Matrix);
+                    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
                     uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-                    uniformVertex.m_type.push_back(ion::EUniformParameterType_Matrix);
+                    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
 
                     //
-                    ion::UniformBinding uniformFragment;
+                    UniformBinding uniformFragment;
                     uniformFragment.m_bindingIndex = 1;
                     uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-                    uniformFragment.m_type.push_back(ion::EUniformParameterType_Vector);
+                    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
                     uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-                    uniformFragment.m_type.push_back(ion::EUniformParameterType_Vector);
+                    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
                     uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-                    uniformFragment.m_type.push_back(ion::EUniformParameterType_Vector);
+                    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
                     uniformFragment.m_parameters.push_back(ION_EXPOSURE_FLOAT_PARAM);
-                    uniformFragment.m_type.push_back(ion::EUniformParameterType_Float);
+                    uniformFragment.m_type.push_back(EUniformParameterType_Float);
                     uniformFragment.m_parameters.push_back(ION_GAMMA_FLOAT_PARAM);
-                    uniformFragment.m_type.push_back(ion::EUniformParameterType_Float);
+                    uniformFragment.m_type.push_back(EUniformParameterType_Float);
                     uniformFragment.m_parameters.push_back(ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM);
-                    uniformFragment.m_type.push_back(ion::EUniformParameterType_Float);
+                    uniformFragment.m_type.push_back(EUniformParameterType_Float);
 
                     //
-                    ion::SamplerBinding samplerIrradiance;
+                    SamplerBinding samplerIrradiance;
                     samplerIrradiance.m_bindingIndex = 2;
                     samplerIrradiance.m_texture = ionRenderManager().GetIrradianceCubemap();
 
-                    ion::SamplerBinding prefilteredMap;
+                    SamplerBinding prefilteredMap;
                     prefilteredMap.m_bindingIndex = 3;
                     prefilteredMap.m_texture = ionRenderManager().GetPrefilteredEnvironmentCubemap();
 
-                    ion::SamplerBinding samplerBRDFLUT;
+                    SamplerBinding samplerBRDFLUT;
                     samplerBRDFLUT.m_bindingIndex = 4;
                     samplerBRDFLUT.m_texture = ionRenderManager().GetBRDF();
 
@@ -698,32 +734,56 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     ionBool usingSpecularGlossiness = material->IsUsingSpecularGlossiness();
 
                     //
-                    ion::SamplerBinding albedoMap;
+                    SamplerBinding albedoMap;
                     albedoMap.m_bindingIndex = 5;
                     albedoMap.m_texture = usingSpecularGlossiness ? material->GetSpecularGlossiness().GetBaseColorTexture() : material->GetBasePBR().GetBaseColorTexture();
+                    if (albedoMap.m_texture == nullptr)
+                    {
+                        constantTexturesSettings[ESettingType_Base] = 0.0f;
+                        albedoMap.m_texture = ionRenderManager().GetNullTexure();
+                    }
 
-                    ion::SamplerBinding normalMap;
+                    SamplerBinding normalMap;
                     normalMap.m_bindingIndex = 6;
                     normalMap.m_texture = material->GetAdvancePBR().GetNormalTexture();
+                    if (normalMap.m_texture == nullptr)
+                    {
+                        constantTexturesSettings[ESettingType_Normal] = 0.0f;
+                        normalMap.m_texture = ionRenderManager().GetNullTexure();
+                    }
 
-                    ion::SamplerBinding aoMap;
+                    SamplerBinding aoMap;
                     aoMap.m_bindingIndex = 7;
                     aoMap.m_texture = material->GetAdvancePBR().GetOcclusionTexture();
+                    if (aoMap.m_texture == nullptr)
+                    {
+                        constantTexturesSettings[ESettingType_Occlusion] = 0.0f;
+                        aoMap.m_texture = ionRenderManager().GetNullTexure();
+                    }
 
-                    ion::SamplerBinding physicalDescriptorMap;
+                    SamplerBinding physicalDescriptorMap;
                     physicalDescriptorMap.m_bindingIndex = 8;
                     physicalDescriptorMap.m_texture = usingSpecularGlossiness ? material->GetSpecularGlossiness().GetSpecularGlossinessTexture() : material->GetBasePBR().GetMetalRoughnessTexture();
+                    if (physicalDescriptorMap.m_texture == nullptr)
+                    {
+                        constantTexturesSettings[ESettingType_Physical] = 0.0f;
+                        physicalDescriptorMap.m_texture = ionRenderManager().GetNullTexure();
+                    }
 
-                    ion::SamplerBinding emissiveMap;
+                    SamplerBinding emissiveMap;
                     emissiveMap.m_bindingIndex = 9;
                     emissiveMap.m_texture = material->GetAdvancePBR().GetEmissiveTexture();
-
+                    if (emissiveMap.m_texture == nullptr)
+                    {
+                        constantTexturesSettings[ESettingType_Emissive] = 0.0f;
+                        emissiveMap.m_texture = ionRenderManager().GetNullTexure();
+                    }
 
                     // set the shaders layout
-                    ion::ShaderLayoutDef vertexLayout;
+                    ShaderLayoutDef vertexLayout;
                     vertexLayout.m_uniforms.push_back(uniformVertex);
 
-                    ion::ShaderLayoutDef fragmentLayout;
+                    ShaderLayoutDef fragmentLayout;
                     fragmentLayout.m_uniforms.push_back(uniformFragment);
                     fragmentLayout.m_samplers.push_back(samplerIrradiance);
                     fragmentLayout.m_samplers.push_back(prefilteredMap);
@@ -735,8 +795,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     fragmentLayout.m_samplers.push_back(emissiveMap);
 
                     //
-                    ion::ConstantsBindingDef constants;
-                    constants.m_shaderStages = ion::EPushConstantStage::EPushConstantStage_Fragment;
+                    ConstantsBindingDef constants;
+                    constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
                     constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
                     constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
                     constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
@@ -756,20 +816,20 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     constants.m_values.push_back(usingSpecularGlossiness);
                     if (usingSpecularGlossiness)
                     {
-                        constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColorTexture() != nullptr ? 1.0f : 0.0f);
-                        constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularGlossinessColor() != nullptr ? 1.0f : 0.0f);
+                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Base]);
+                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Physical]);
                     }
                     else
                     {
-                        constants.m_values.push_back(material->GetBasePBR().GetBaseColorTexture() != nullptr ? 1.0f : 0.0f);
-                        constants.m_values.push_back(material->GetBasePBR().GetMetalRoughnessTexture() != nullptr ? 1.0f : 0.0f);
+                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Base]);
+                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Physical]);
                     }
-                    constants.m_values.push_back(material->GetAdvancePBR().GetNormalTexture() != nullptr ? 1.0f : 0.0f);
-                    constants.m_values.push_back(material->GetAdvancePBR().GetOcclusionTexture() != nullptr ? 1.0f : 0.0f);
-                    constants.m_values.push_back(material->GetAdvancePBR().GetEmissiveTexture() != nullptr ? 1.0f : 0.0f);
+                    constants.m_values.push_back(constantTexturesSettings[ESettingType_Normal]);
+                    constants.m_values.push_back(constantTexturesSettings[ESettingType_Occlusion]);
+                    constants.m_values.push_back(constantTexturesSettings[ESettingType_Emissive]);
                     constants.m_values.push_back(material->GetBasePBR().GetMetallicFactor());
                     constants.m_values.push_back(material->GetBasePBR().GetRoughnessFactor());
-                    constants.m_values.push_back(material->GetAlphaMode() == ion::EAlphaMode_Mask ? 1.0f : 0.0f);
+                    constants.m_values.push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
                     constants.m_values.push_back(material->GetAdvancePBR().GetAlphaCutoff());
 
                     material->SetVertexShaderLayout(vertexLayout);
@@ -777,12 +837,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     material->SetVertexLayout(ionMesh->GetLayout());
                     material->SetConstantsShaders(constants);
 
-                    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, ion::EShaderStage_Vertex);
-                    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, ion::EShaderStage_Fragment);
+                    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+                    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Fragment);
 
                     material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
                 }
-                else
+                //else
                 {
                     // fallback here!
                     // such a lambert or something like that
@@ -796,10 +856,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
             {
                 ionMesh->SetMaterial(ionMaterialManger().GetMaterial("Default"));
             }
-            
-
-            prevIndexSize = static_cast<ionU32>(ionMesh->GetIndexSize());
-            prevVertexSize = static_cast<ionU32>(ionMesh->GetVertexSize());
         }
 
         // Bone weight for morph targets (NEXT: After the base renderer will works)
@@ -952,12 +1008,12 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
             material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
             material->GetAdvancePBR().SetAlphaCutoff(1.0f);
 
-            material->GetState().SetCullingMode(ion::ECullingMode_Back);
-            material->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
-            material->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-            material->GetState().SetBlendStateMode(ion::EBlendState_Source_One);
-            material->GetState().SetBlendStateMode(ion::EBlendState_Dest_Zero);
-            material->GetState().SetBlendOperatorMode(ion::EBlendOperator_Add);
+            material->GetState().SetCullingMode(ECullingMode_Back);
+            material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
+            material->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
+            material->GetState().SetBlendStateMode(EBlendState_Source_One);
+            material->GetState().SetBlendStateMode(EBlendState_Dest_Zero);
+            material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
 
             // base PBR
             for (auto const& x : mat.values)
@@ -971,12 +1027,14 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                     if (key == "baseColorTexture")
                     {
                         material->GetBasePBR().SetBaseColorTexture(ionTextureManger().GetTexture(textureIndexToTextureName[param.TextureIndex()]));
+                        continue;
                     }
 
                     //the texture contain Metallic and Roughness in 2 different channel, red and green
                     if (key == "metallicRoughnessTexture")
                     {
                         material->GetBasePBR().SetMetalRoughnessTexture(ionTextureManger().GetTexture(textureIndexToTextureName[param.TextureIndex()]));
+                        continue;
                     }
                 }
 
@@ -985,17 +1043,20 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                     if (key == "baseColorFactor")   // this is a vector, because is the diffuse of the not metal
                     {
                         material->GetBasePBR().SetBaseColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2], (ionFloat)param.ColorFactor()[3]);
+                        continue;
                     }
 
                     // these 2 are metal factors, so is the color is the specific measured reflectance value at normal incidence (F0)
                     if (key == "roughnessFactor")
                     {
                         material->GetBasePBR().SetRoughnessFactor((ionFloat)param.Factor());
+                        continue;
                     }
 
                     if (key == "metallicFactor")
                     {
                         material->GetBasePBR().SetMetallicFactor((ionFloat)param.Factor());
+                        continue;
                     }
                 }
             }
@@ -1010,16 +1071,19 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                     if (key == "normalTexture")
                     {
                         material->GetAdvancePBR().SetNormalTexture(ionTextureManger().GetTexture(textureIndexToTextureName[param.TextureIndex()]));
+                        continue;
                     }
 
                     if (key == "occlusionTexture")
                     {
                         material->GetAdvancePBR().SetOcclusionTexture(ionTextureManger().GetTexture(textureIndexToTextureName[param.TextureIndex()]));
+                        continue;
                     }
 
                     if (key == "emissiveTexture")
                     {
                         material->GetAdvancePBR().SetEmissiveTexture(ionTextureManger().GetTexture(textureIndexToTextureName[param.TextureIndex()]));
+                        continue;
                     }
                 }
 
@@ -1028,14 +1092,15 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                     if (key == "emissiveFactor")
                     {
                         material->GetAdvancePBR().SetEmissiveColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2]);
+                        continue;
                     }
                 }
 
                 if (key == "alphaMode")
                 {
-                    material->GetState().UnsetBlendStateMode(ion::EBlendState_Source_One);
-                    material->GetState().UnsetBlendStateMode(ion::EBlendState_Dest_Zero);
-                    material->GetState().UnsetBlendOperatorMode(ion::EBlendOperator_Add);
+                    material->GetState().UnsetBlendStateMode(EBlendState_Source_One);
+                    material->GetState().UnsetBlendStateMode(EBlendState_Dest_Zero);
+                    material->GetState().UnsetBlendOperatorMode(EBlendOperator_Add);
 
                     // mesh sorting for blend
                     // this could be anything, glass for instance
@@ -1057,17 +1122,20 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                     }
 
                     // is is set OPAQUE, do nothing, is the default value of rendering
+                    continue;
                 }
 
                 // if "MASK" there is this other parameter which specifies the cutoff threshold. If the alpha value is greater than or equal to the alphaCutoff value then it is rendered as fully opaque, otherwise, it is rendered as fully transparent.
                 if (key == "alphaCutoff")
                 {
                     material->GetAdvancePBR().SetAlphaCutoff((ionFloat)param.Factor());
+                    continue;
                 }
 
                 if (key == "doubleSided")
                 {
-                    material->GetState().SetCullingMode(ECullingMode_TwoSide);
+                    material->GetState().SetCullingMode(param.bool_value ? ECullingMode_TwoSide : ECullingMode_Back);
+                    continue;
                 }
             }
 
@@ -1081,18 +1149,22 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                     if (key == "specularGlossinessTexture") 
                     {
                         material->GetSpecularGlossiness().SetSpecularGlossinessTexture(ionTextureManger().GetTexture(textureIndexToTextureName[param.TextureIndex()]));
+                        continue;
                     }
                     if (key == "diffuseTexture")
                     {
                         material->GetSpecularGlossiness().SetBaseColorTexture(ionTextureManger().GetTexture(textureIndexToTextureName[param.TextureIndex()]));
+                        continue;
                     }
                     if (key == "diffuseFactor")
                     {
                         material->GetSpecularGlossiness().SetBaseColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2], (ionFloat)param.ColorFactor()[3]);
+                        continue;
                     }
                     if (mat.extPBRValues.find("specularFactor") != mat.extPBRValues.end())
                     {
                         material->GetSpecularGlossiness().SetSpecularGlossinessColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2], 1.0f);
+                        continue;
                     }
                 }
             }
@@ -1114,12 +1186,12 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
         material->GetBasePBR().SetRoughnessFactor(1.0f);
         material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
         material->GetAdvancePBR().SetAlphaCutoff(1.0f);
-        material->GetState().SetCullingMode(ion::ECullingMode_Back);
-        material->GetState().SetDepthFunctionMode(ion::EDepthFunction_Less);
-        material->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
-        material->GetState().SetBlendStateMode(ion::EBlendState_Source_One);
-        material->GetState().SetBlendStateMode(ion::EBlendState_Dest_Zero);
-        material->GetState().SetBlendOperatorMode(ion::EBlendOperator_Add);
+        material->GetState().SetCullingMode(ECullingMode_Back);
+        material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
+        material->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
+        material->GetState().SetBlendStateMode(EBlendState_Source_One);
+        material->GetState().SetBlendStateMode(EBlendState_Dest_Zero);
+        material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
     }
     
     //

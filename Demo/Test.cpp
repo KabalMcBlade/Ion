@@ -79,7 +79,7 @@ void Test_TexturedQuad(ion::ObjectHandler& _entity)
     Test_TexturedQuadEx(_entity, texture);
 }
 
-void Test_TexturedQuadEx(ion::ObjectHandler& _entity, ion::Texture* _texture)
+void Test_TexturedQuadEx(ion::ObjectHandler& _entity, const ion::Texture* _texture)
 {
     ionRenderManager().LoadPrimitive(ion::EVertexLayout_Pos_UV, ion::EPrimitiveType_Quad, _entity);
 
@@ -198,14 +198,11 @@ void Test_ColoredSphere(ion::ObjectHandler& _entity)
     _entity->GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
 }
 
-void Test_ModelPBR(ion::ObjectHandler& _entity, ion::Texture* _brdf, ion::Texture* _irradiance, ion::Texture* _prefiltered)
+void Test_ModelPBR(ion::ObjectHandler& _entity, const ion::Texture* _brdf, const ion::Texture* _irradiance, const ion::Texture* _prefiltered)
 {
     eosString damagedHelmetModelPath = ionFileSystemManager().GetModelsPath();
     damagedHelmetModelPath.append("DamagedHelmet.gltf");
     ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, _entity);
-
-    static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
-    _entity->GetTransform().SetRotation(NIX_DEG_TO_RAD(90.0f), right);
 }
 
 void Test_DrawBoundingBox(ion::ObjectHandler& _entity)
