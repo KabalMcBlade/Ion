@@ -219,7 +219,7 @@ ionBool RenderManager::IsRunning()
     return m_running;
 }
 
-Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
+const Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
 {
     Texture* brdflut = ionTextureManger().GenerateTexture(ION_BRDFLUT_TEXTURENAME, 512, 512, ETextureFormat_BRDF, ETextureFilter_Default, ETextureRepeat_Clamp);
 
@@ -306,12 +306,12 @@ Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
     return brdflut;
 }
 
-Texture* RenderManager::GetBRDF()
+const Texture* RenderManager::GetBRDF() const
 {
     return ionTextureManger().GetTexture(ION_BRDFLUT_TEXTURENAME);
 }
 
-Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera)
+const Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera)
 {
     const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(64))) + 1;
 
@@ -592,12 +592,12 @@ Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCub
     return irradiance;
 }
 
-Texture* RenderManager::GetIrradianceCubemap()
+const Texture* RenderManager::GetIrradianceCubemap() const
 {
     return ionTextureManger().GetTexture(ION_IRRADIANCE_TEXTURENAME);
 }
 
-Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera)
+const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera)
 {
     const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(512))) + 1;
 
@@ -883,9 +883,19 @@ Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _en
     return prefilteredEnvironment;
 }
 
-Texture* RenderManager::GetPrefilteredEnvironmentCubemap()
+const Texture* RenderManager::GetPrefilteredEnvironmentCubemap() const
 {
     return ionTextureManger().GetTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME);
+}
+
+const Texture* RenderManager::GenerateNullTexture()
+{
+    return ionTextureManger().GenerateTexture(ION_NULL_TEXTURENAME, 1, 1, ETextureFormat_Intensity8, ETextureFilter_Default, ETextureRepeat_Repeat, ETextureType_2D);
+}
+
+const Texture* RenderManager::GetNullTexure() const
+{
+    return ionTextureManger().GetTexture(ION_NULL_TEXTURENAME);
 }
 
 void RenderManager::AddDirectionalLight()

@@ -184,12 +184,14 @@ int main()
 
     //////////////////////////////////////////////////////////////////////////
     // Generate and load all global texture
+    ionRenderManager().GenerateNullTexture();
+
     eosString skyboxCubeMapPath = ionFileSystemManager().GetTexturesPath() + "Yokohama3.jpg";
     Texture* skyboxCubeMap = ionTextureManger().CreateTextureFromFile("Yokohama3", skyboxCubeMapPath, ETextureFilter_Default, ETextureRepeat_ClampAlpha, ETextureUsage_Skybox, ETextureType_Cubic, 1);
     
-    Texture* brdflut = nullptr;
-    Texture* irradiance = nullptr;
-    Texture* prefilteredEnvironmentMap = nullptr;
+    const Texture* brdflut = nullptr;
+    const Texture* irradiance = nullptr;
+    const Texture* prefilteredEnvironmentMap = nullptr;
     
 
     // generate brdf, irradiance and prefiltered cube map

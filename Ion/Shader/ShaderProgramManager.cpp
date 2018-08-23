@@ -553,26 +553,24 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
         {
             const Texture* image = textures[imageIndex];
 
-            if (image != nullptr)
-            {
-                VkDescriptorImageInfo & imageInfo = imageInfos[imageIndex];
-                memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
+            VkDescriptorImageInfo & imageInfo = imageInfos[imageIndex];
+            memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
 
-                imageInfo.imageLayout = image->GetLayout();
-                imageInfo.imageView = image->GetView();
-                imageInfo.sampler = image->GetSampler();
+            imageInfo.imageLayout = image->GetLayout();
+            imageInfo.imageView = image->GetView();
+            imageInfo.sampler = image->GetSampler();
 
-                ionAssertReturnVoid(image->GetView() != VK_NULL_HANDLE, "View is null!");
+            ionAssertReturnVoid(image->GetView() != VK_NULL_HANDLE, "View is null!");
 
-                VkWriteDescriptorSet & write = writes[writeIndex++];
-                memset(&write, 0, sizeof(VkWriteDescriptorSet));
-                write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                write.dstSet = descSet;
-                write.dstBinding = destBindingTexture[imageIndex++];
-                write.descriptorCount = 1;
-                write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                write.pImageInfo = &imageInfo;
-            }
+            VkWriteDescriptorSet & write = writes[writeIndex++];
+            memset(&write, 0, sizeof(VkWriteDescriptorSet));
+            write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            write.dstSet = descSet;
+            write.dstBinding = destBindingTexture[imageIndex++];
+            write.descriptorCount = 1;
+            write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            write.pImageInfo = &imageInfo;
+            
             break;
         }
         }

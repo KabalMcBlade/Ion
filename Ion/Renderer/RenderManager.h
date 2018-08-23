@@ -82,15 +82,17 @@ public:
     ionBool IsRunning();
 
     // rendering PBR helper functions:
-    Texture*    GenerateBRDF(ObjectHandler _camera);
-    Texture*    GetBRDF();
+    const Texture*    GenerateBRDF(ObjectHandler _camera);
+    const Texture*    GetBRDF() const;
 
-    Texture*    GenerateIrradianceCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera);
-    Texture*    GetIrradianceCubemap();
+    const Texture*    GenerateIrradianceCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera);
+    const Texture*    GetIrradianceCubemap() const;
 
-    Texture*    GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera);
-    Texture*    GetPrefilteredEnvironmentCubemap();
+    const Texture*    GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera);
+    const Texture*    GetPrefilteredEnvironmentCubemap() const;
 
+    const Texture*    GenerateNullTexture();
+    const Texture*    GetNullTexure() const;
 
 #ifdef ION_PBR_DEBUG
     ionFloat m_exposure;

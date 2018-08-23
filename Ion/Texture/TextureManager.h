@@ -7,6 +7,9 @@
 #include "TextureCommon.h"
 #include "Texture.h"
 
+
+#define ION_NULL_TEXTURENAME                  "NULLTEXTURE"
+
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
