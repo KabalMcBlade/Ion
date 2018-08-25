@@ -237,7 +237,6 @@ void SceneGraph::UpdateUniformBuffer(Camera* _camera, ionU32& _inOutIndex, const
         _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_projectionMatrix[8], _projection[2]);
         _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_projectionMatrix[12], _projection[3]);
 
-        // for now hard coded all parameters except camera
 
         const Vector& cameraPos = _camera->GetTransform().GetPosition();
 
