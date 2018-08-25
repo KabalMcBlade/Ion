@@ -886,72 +886,77 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
         const tinygltf::Texture& tex = model.textures[i];
 
         const tinygltf::Image& image = model.images[tex.source];
-        const tinygltf::Sampler& sampler = model.samplers[tex.sampler];
-
+  
         ETextureRepeat repeatU = ETextureRepeat_Repeat;
         ETextureRepeat repeatV = ETextureRepeat_Repeat;
         ETextureRepeat repeatW = ETextureRepeat_Repeat;
         ETextureFilter filter = ETextureFilter_Nearest;
-        if (sampler.magFilter == 9728 && sampler.minFilter == 9728)
-        {
-            filter = ETextureFilter_Nearest;
-        }
-        else if (sampler.magFilter == 9729 && sampler.minFilter == 9729)
-        {
-            filter = ETextureFilter_Linear;
-        }
-        else if (sampler.magFilter == 9728 && sampler.minFilter == 9729)
-        {
-            filter = ETextureFilter_NearestLinear;
-        }
-        else if (sampler.magFilter == 9729 && sampler.minFilter == 9728)
-        {
-            filter = ETextureFilter_LinearNearest;
-        }
-        else
-        {
-            filter = ETextureFilter_Nearest;
-        }
 
-        if (sampler.wrapS == 33071)
+        if (tex.sampler > -1)
         {
-            repeatU = ETextureRepeat_Clamp;
-        }
-        else if (sampler.wrapS == 33648)
-        {
-            repeatU = ETextureRepeat_Mirrored;
-        }
-        else
-        {
-            repeatU = ETextureRepeat_Repeat;
-        }
+            const tinygltf::Sampler& sampler = model.samplers[tex.sampler];
 
-        if (sampler.wrapT == 33071)
-        {
-            repeatV = ETextureRepeat_Clamp;
-        }
-        else if (sampler.wrapT == 33648)
-        {
-            repeatV = ETextureRepeat_Mirrored;
-        }
-        else
-        {
-            repeatV = ETextureRepeat_Repeat;
-        }
+            if (sampler.magFilter == 9728 && sampler.minFilter == 9728)
+            {
+                filter = ETextureFilter_Nearest;
+            }
+            else if (sampler.magFilter == 9729 && sampler.minFilter == 9729)
+            {
+                filter = ETextureFilter_Linear;
+            }
+            else if (sampler.magFilter == 9728 && sampler.minFilter == 9729)
+            {
+                filter = ETextureFilter_NearestLinear;
+            }
+            else if (sampler.magFilter == 9729 && sampler.minFilter == 9728)
+            {
+                filter = ETextureFilter_LinearNearest;
+            }
+            else
+            {
+                filter = ETextureFilter_Nearest;
+            }
 
-        if (sampler.wrapR == 33071)
-        {
-            repeatW = ETextureRepeat_Clamp;
-        }
-        else if (sampler.wrapR == 33648)
-        {
-            repeatW = ETextureRepeat_Mirrored;
-        }
-        else
-        {
-            repeatW = ETextureRepeat_Repeat;
-        }
+            if (sampler.wrapS == 33071)
+            {
+                repeatU = ETextureRepeat_Clamp;
+            }
+            else if (sampler.wrapS == 33648)
+            {
+                repeatU = ETextureRepeat_Mirrored;
+            }
+            else
+            {
+                repeatU = ETextureRepeat_Repeat;
+            }
 
+            if (sampler.wrapT == 33071)
+            {
+                repeatV = ETextureRepeat_Clamp;
+            }
+            else if (sampler.wrapT == 33648)
+            {
+                repeatV = ETextureRepeat_Mirrored;
+            }
+            else
+            {
+                repeatV = ETextureRepeat_Repeat;
+            }
+
+            if (sampler.wrapR == 33071)
+            {
+                repeatW = ETextureRepeat_Clamp;
+            }
+            else if (sampler.wrapR == 33648)
+            {
+                repeatW = ETextureRepeat_Mirrored;
+            }
+            else
+            {
+                repeatW = ETextureRepeat_Repeat;
+            }
+        }
+        
         if (image.uri.empty())                    // no uri, so image could be stored in binary format
         {
             eosString name = image.name.c_str();  // no filename, I just give you one
