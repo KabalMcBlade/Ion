@@ -23,21 +23,13 @@ SceneGraph::~SceneGraph()
 {
     RemoveDirectionalLightToScene();
 
-    for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
-    {
-        eosVector(ObjectHandler)& entities = iter->second;
-        entities.clear();
-    }
-    m_treeNodes.clear();
-
-    for (eosMap(ionSize, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+    for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
         eosVector(DrawSurface)& drawSurfaces = iter->second;
         drawSurfaces.clear();
     }
     m_drawSurfaces.clear();
 
-    m_nodeCountPerCamera.clear();
     m_registeredInput.clear();
 }
 
@@ -84,7 +76,7 @@ void SceneGraph::RemoveAll()
 
 void SceneGraph::UpdateAllCameraAspectRatio(const RenderCore& _renderCore)
 {
-    for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
         Camera* cam = iter->first;
 
@@ -98,9 +90,9 @@ void SceneGraph::FillCameraMapTree(const ObjectHandler& _node)
     {
         Camera* cam = dynamic_cast<Camera*>(_node.GetPtr());
 
-        if (m_treeNodes.find(cam) == m_treeNodes.end())
+        if (m_drawSurfaces.find(cam) == m_drawSurfaces.end())
         {
-            m_treeNodes.insert(std::pair<Camera*, eosVector(ObjectHandler)>(cam, eosVector(ObjectHandler)()));
+            m_drawSurfaces.insert(std::pair<Camera*, eosVector(DrawSurface)>(cam, eosVector(DrawSurface)()));
         }
     }
 
@@ -122,7 +114,7 @@ void SceneGraph::GenerateMapTree(const ObjectHandler& _node)
 {
     if (_node->GetNodeType() == ENodeType_Entity)
     {
-        for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+        for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
         {
             Camera* cam = iter->first;
 
@@ -131,13 +123,19 @@ void SceneGraph::GenerateMapTree(const ObjectHandler& _node)
                 ObjectHandler entity = _node;
 
                 // full logical entity are not valid for rendering
-                if (entity->GetMeshCount() > 0)
+                const ionU32 meshCount = entity->GetMeshCount();
+                if (meshCount > 0)
                 {
                     BoundingBox* bb = entity->GetBoundingBox();
                     m_sceneBoundingBox.Expande(bb->GetTransformed(entity->GetTransform().GetMatrix()));
 
-                    m_nodeCountPerCamera[cam->GetHash()] += entity->GetMeshCount();
-                    m_treeNodes[cam].push_back(_node);
+                    for (ionU32 i = 0; i < meshCount; i++)
+                    {
+                        DrawSurface surface;
+                        surface.m_nodeRef = entity.GetPtr();
+                        surface.m_meshIndexRef = i;
+                        m_drawSurfaces[cam].push_back(surface);
+                    }
                 }
             }
         }
@@ -170,100 +168,54 @@ void SceneGraph::Prepare()
         GenerateMapTree(node);
     }
 
-    // Update entities
-    for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
-    {
-        Camera* cam = iter->first;
-
-        m_drawSurfaces[cam->GetHash()].resize(m_nodeCountPerCamera[cam->GetHash()]);
-    }
-
     PrepareSurfaces();
+
+    SortDrawSurfaces();
 }
 
 void SceneGraph::PrepareSurfaces()
 {
-    ionU32 index = 0;
-    for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
-        index = 0;
-        const eosVector(ObjectHandler)& entities = iter->second;
-        eosVector(ObjectHandler)::const_iterator begin = entities.cbegin(), end = entities.cend(), it = begin;
+        eosVector(DrawSurface)& drawsurfaces = iter->second;
+        eosVector(DrawSurface)::iterator begin = drawsurfaces.begin(), end = drawsurfaces.end(), it = begin;
         for (; it != end; ++it)
         {
-            Camera* cam = iter->first;
-            const ObjectHandler& entity = (*it);
-            UpdateDrawSurface(cam->GetHash(), index, entity);
+            DrawSurface& drawsurface = (*it);
+
+            drawsurface.m_visible = drawsurface.m_nodeRef->IsVisible();
+            drawsurface.m_indexStart = drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetIndexStart();
+            drawsurface.m_indexCount = drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetIndexCount();
+            drawsurface.m_vertexCache = ionVertexCacheManager().AllocVertex(drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetVertexData(), drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetVertexSize(), drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetSize());
+            drawsurface.m_indexCache = ionVertexCacheManager().AllocIndex(drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetIndexData(), drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetIndexSize());
+            drawsurface.m_material = drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetMaterial();
+            drawsurface.m_sortingIndex = static_cast<ionU8>(drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetMaterial()->GetAlphaMode());
         }
     }
 }
 
-void SceneGraph::UpdateDrawSurface(ionSize _cameraHash, ionU32& _inOutIndex, const ObjectHandler& _entity)
+void SceneGraph::SortDrawSurfaces()
 {
-    const ionU32 meshCount = _entity->GetMeshCount();
-    for (ionU32 i = 0; i < meshCount; ++i)
+    for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
-        m_drawSurfaces[_cameraHash][_inOutIndex].m_visible = _entity->IsVisible();
-        m_drawSurfaces[_cameraHash][_inOutIndex].m_indexStart = _entity->GetMesh(i)->GetIndexStart();
-        m_drawSurfaces[_cameraHash][_inOutIndex].m_indexCount = _entity->GetMesh(i)->GetIndexCount();
-        m_drawSurfaces[_cameraHash][_inOutIndex].m_vertexCache = ionVertexCacheManager().AllocVertex(_entity->GetMesh(i)->GetVertexData(), _entity->GetMesh(i)->GetVertexSize(), _entity->GetMesh(i)->GetSize());
-        m_drawSurfaces[_cameraHash][_inOutIndex].m_indexCache = ionVertexCacheManager().AllocIndex(_entity->GetMesh(i)->GetIndexData(), _entity->GetMesh(i)->GetIndexSize());
-        m_drawSurfaces[_cameraHash][_inOutIndex].m_material = _entity->GetMesh(i)->GetMaterial();
+        eosVector(DrawSurface)& drawSurfaces = iter->second;
 
-        ++_inOutIndex;
-    }
-}
-
-void SceneGraph::UpdateUniformBuffer(Camera* _camera, ionU32& _inOutIndex, const Matrix& _projection, const Matrix& _view, const ObjectHandler& _entity)
-{    
-    const ionSize cameraHash = _camera->GetHash();
-    const Matrix& model = _entity->GetTransform().GetMatrixWS();
-
-    const ionU32 meshCount = _entity->GetMeshCount();
-    for (ionU32 i = 0; i < meshCount; ++i)
-    {
-        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_modelMatrix[0], model[0]);
-        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_modelMatrix[4], model[1]);
-        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_modelMatrix[8], model[2]);
-        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_modelMatrix[12], model[3]);
-
-        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_viewMatrix[0], _view[0]);
-        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_viewMatrix[4], _view[1]);
-        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_viewMatrix[8], _view[2]);
-        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_viewMatrix[12], _view[3]);
-
-        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_projectionMatrix[0], _projection[0]);
-        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_projectionMatrix[4], _projection[1]);
-        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_projectionMatrix[8], _projection[2]);
-        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_projectionMatrix[12], _projection[3]);
-
-
-        const Vector& cameraPos = _camera->GetTransform().GetPosition();
-
-        _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_mainCameraPos[0], cameraPos);
-        if (m_directionalLight.IsValid())
+        eosVector(DrawSurface)::size_type miniPos;
+        for (eosVector(DrawSurface)::size_type i = 0; i < drawSurfaces.size(); ++i)
         {
-            _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_directionalLight[0], GetDirectionalLightPtr()->GetLightDirection());
-            _mm_storeu_ps(&m_drawSurfaces[cameraHash][_inOutIndex].m_directionalLightColor[0], GetDirectionalLightPtr()->GetColor());
+            miniPos = i;
+            for (eosVector(DrawSurface)::size_type j = i + 1; j < drawSurfaces.size(); ++j)
+            {
+                if (drawSurfaces[j] < drawSurfaces[miniPos])
+                {
+                    miniPos = j;
+                }
+            }
+
+            DrawSurface temp = drawSurfaces[miniPos];
+            drawSurfaces[miniPos] = drawSurfaces[i];
+            drawSurfaces[i] = temp;
         }
-
-#ifdef ION_PBR_DEBUG
-
-        m_drawSurfaces[cameraHash][_inOutIndex].m_exposure = ionRenderManager().m_exposure;
-        m_drawSurfaces[cameraHash][_inOutIndex].m_gamma = ionRenderManager().m_gamma;
-        m_drawSurfaces[cameraHash][_inOutIndex].m_prefilteredCubeMipLevels = ionRenderManager().m_prefilteredCubeMipLevels;
-
-#else
-
-        m_drawSurfaces[cameraHash][_inOutIndex].m_exposure = 4.5f;
-        m_drawSurfaces[cameraHash][_inOutIndex].m_gamma = 2.2f;
-        m_drawSurfaces[cameraHash][_inOutIndex].m_prefilteredCubeMipLevels = 10.0f;  // I know that because I debugged my preflitered texture generation
-
-#endif // ION_PBR_DEBUG
-
-        m_drawSurfaces[cameraHash][_inOutIndex].m_visible = _entity->IsVisible();
-
-        ++_inOutIndex;
     }
 }
 
@@ -279,10 +231,8 @@ void SceneGraph::Update(ionFloat _deltaTime)
 
     // mapping
     //ionVertexCacheManager().BeginMapping();
-    ionU32 index = 0;
-    for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
-        index = 0;
         Camera* cam = iter->first;
 
         cam->UpdateView();  // here is updated the skybox either
@@ -290,12 +240,53 @@ void SceneGraph::Update(ionFloat _deltaTime)
         const Matrix& projection = cam->GetPerspectiveProjection();
         const Matrix& view = cam->GetView();
 
-        const eosVector(ObjectHandler)& entities = iter->second;
-        eosVector(ObjectHandler)::const_iterator begin = entities.cbegin(), end = entities.cend(), it = begin;
+        const Vector& cameraPos = cam->GetTransform().GetPosition();
+
+        eosVector(DrawSurface)& drawsurfaces = iter->second;
+        eosVector(DrawSurface)::iterator begin = drawsurfaces.begin(), end = drawsurfaces.end(), it = begin;
         for (; it != end; ++it)
         {
-            const ObjectHandler& entity = (*it);
-            UpdateUniformBuffer(cam, index, projection, view, entity);
+            DrawSurface& drawsurface = (*it);
+
+            const Matrix& model = drawsurface.m_nodeRef->GetTransform().GetMatrixWS();
+
+            _mm_storeu_ps(&drawsurface.m_modelMatrix[0], model[0]);
+            _mm_storeu_ps(&drawsurface.m_modelMatrix[4], model[1]);
+            _mm_storeu_ps(&drawsurface.m_modelMatrix[8], model[2]);
+            _mm_storeu_ps(&drawsurface.m_modelMatrix[12], model[3]);
+
+            _mm_storeu_ps(&drawsurface.m_viewMatrix[0], view[0]);
+            _mm_storeu_ps(&drawsurface.m_viewMatrix[4], view[1]);
+            _mm_storeu_ps(&drawsurface.m_viewMatrix[8], view[2]);
+            _mm_storeu_ps(&drawsurface.m_viewMatrix[12], view[3]);
+
+            _mm_storeu_ps(&drawsurface.m_projectionMatrix[0], projection[0]);
+            _mm_storeu_ps(&drawsurface.m_projectionMatrix[4], projection[1]);
+            _mm_storeu_ps(&drawsurface.m_projectionMatrix[8], projection[2]);
+            _mm_storeu_ps(&drawsurface.m_projectionMatrix[12], projection[3]);
+
+            _mm_storeu_ps(&drawsurface.m_mainCameraPos[0], cameraPos);
+            if (m_directionalLight.IsValid())
+            {
+                _mm_storeu_ps(&drawsurface.m_directionalLight[0], GetDirectionalLightPtr()->GetLightDirection());
+                _mm_storeu_ps(&drawsurface.m_directionalLightColor[0], GetDirectionalLightPtr()->GetColor());
+            }
+
+#ifdef ION_PBR_DEBUG
+
+            drawsurface.m_exposure = ionRenderManager().m_exposure;
+            drawsurface.m_gamma = ionRenderManager().m_gamma;
+            drawsurface.m_prefilteredCubeMipLevels = ionRenderManager().m_prefilteredCubeMipLevels;
+
+#else
+
+            drawsurface.m_exposure = 4.5f;
+            drawsurface.m_gamma = 2.2f;
+            drawsurface.m_prefilteredCubeMipLevels = 10.0f;  // I know that because I debugged my preflitered texture generation
+
+#endif // ION_PBR_DEBUG
+
+            drawsurface.m_visible = drawsurface.m_nodeRef->IsVisible();
         }
     }
     //ionVertexCacheManager().EndMapping();
@@ -303,7 +294,7 @@ void SceneGraph::Update(ionFloat _deltaTime)
 
 void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _width, ionU32 _height)
 {
-    for (eosMap(Camera*, eosVector(ObjectHandler))::iterator iter = m_treeNodes.begin(); iter != m_treeNodes.end(); ++iter)
+    for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
         Camera* cam = iter->first;
 
@@ -314,7 +305,7 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
 
         cam->RenderSkybox(_renderCore);
 
-        const eosVector(DrawSurface)& surfaces = m_drawSurfaces[cam->GetHash()];
+        const eosVector(DrawSurface)& surfaces = iter->second;
 
         eosVector(DrawSurface)::const_iterator begin = surfaces.cbegin(), end = surfaces.cend(), it = begin;
         for (; it != end; ++it)

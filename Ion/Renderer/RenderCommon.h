@@ -889,6 +889,7 @@ typedef ionU64 VertexCacheHandler;
 //////////////////////////////////////////////////////////////////////////
 
 class Material;
+class Node;
 struct DrawSurface final
 {
     ionFloat            m_modelMatrix[16];
@@ -897,15 +898,17 @@ struct DrawSurface final
     ionFloat            m_mainCameraPos[4];
     ionFloat            m_directionalLight[4];
     ionFloat            m_directionalLightColor[4];
+    ionU64              m_extraGLState;
     ionFloat            m_exposure;
     ionFloat            m_gamma;
     ionFloat            m_prefilteredCubeMipLevels;
-    ionU64              m_extraGLState;
     ionU32              m_indexStart;
     ionU32              m_indexCount;
+    ionU32              m_meshIndexRef; // index of the mesh inside the m_nodeRef meshes array
     VertexCacheHandler  m_vertexCache;
     VertexCacheHandler  m_indexCache;
     VertexCacheHandler  m_jointCache;
+    Node*         m_nodeRef;
     const Material*     m_material;
     ionU8               m_sortingIndex; // 0 = opaque, 1 = mask, 2 = blend
     ionBool             m_visible;
@@ -925,16 +928,19 @@ struct DrawSurface final
         m_jointCache = 0;
         m_extraGLState = 0;
         m_material = nullptr;
+        m_nodeRef = nullptr;
         m_visible = true;
         m_exposure = 1.0f;
         m_gamma = 1.0f;
         m_prefilteredCubeMipLevels = 1.0f;
         m_sortingIndex = 0;
+        m_meshIndexRef = 0;
     }
 
     ~DrawSurface()
     {
         m_material = nullptr;
+        m_nodeRef = nullptr;
     }
 
     /*DrawSurface& operator=(DrawSurface other)

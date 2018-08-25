@@ -60,17 +60,14 @@ private:
     void FillCameraMapTree(const ObjectHandler& _node);
     void GenerateMapTree(const ObjectHandler& _node);
 
-    void UpdateDrawSurface(ionSize _cameraHash, ionU32& _inOutIndex, const ObjectHandler& _entity);
-    void UpdateUniformBuffer(Camera* _camera, ionU32& _inOutIndex, const Matrix& _projection, const Matrix& _view, const ObjectHandler& _entity);
+    void SortDrawSurfaces();
 
 private:
-    BoundingBox                             m_sceneBoundingBox;
-    ObjectHandler                           m_directionalLight;
-    eosVector(ObjectHandler)                m_nodes;
-    eosMap(Camera*, eosVector(ObjectHandler))  m_treeNodes;
-    eosMap(ionSize, eosVector(DrawSurface)) m_drawSurfaces;
-    eosMap(ionSize, ionU32)                 m_nodeCountPerCamera;
-    eosVector(ObjectHandler)                   m_registeredInput;
+    BoundingBox                                 m_sceneBoundingBox;
+    ObjectHandler                               m_directionalLight;
+    eosVector(ObjectHandler)                    m_nodes;
+    eosMap(Camera*, eosVector(DrawSurface))     m_drawSurfaces;
+    eosVector(ObjectHandler)                    m_registeredInput;
 };
 
 ION_NAMESPACE_END
