@@ -221,6 +221,14 @@ float convertMetallic(vec3 diffuse, vec3 specular, float maxSpecular) {
 
 void main()
 {
+	if (material.alphaMask == 1.0f)
+	{
+		if (texture(albedoMap, inUV).a < material.alphaMaskCutoff)
+		{
+			discard;
+		}
+	}
+	
 	float perceptualRoughness;
 	float metallic;
 	vec3 diffuseColor;

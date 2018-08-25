@@ -943,7 +943,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
             material->GetBasePBR().SetRoughnessFactor(1.0f);
             material->GetBasePBR().SetMetallicFactor(1.0f);
             material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
-            material->GetAdvancePBR().SetAlphaCutoff(1.0f);
+            material->GetAdvancePBR().SetAlphaCutoff(0.5f);
 
             material->GetState().SetCullingMode(ECullingMode_Back);
             material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
@@ -1057,8 +1057,8 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                     {
                         material->SetAlphaMode(EAlphaMode_Mask);
 
-                        material->GetState().SetBlendStateMode(EBlendState_SourceBlend_Source_Alpha);
-                        material->GetState().SetBlendStateMode(EBlendState_DestBlend_One_Minus_Source_Alpha);
+                        material->GetState().SetBlendStateMode(EBlendState_SourceBlend_One);
+                        material->GetState().SetBlendStateMode(EBlendState_DestBlend_Zero);
                         material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
                         continue;
                     }
@@ -1131,7 +1131,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
         material->GetBasePBR().SetMetallicFactor(1.0f);
         material->GetBasePBR().SetRoughnessFactor(1.0f);
         material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
-        material->GetAdvancePBR().SetAlphaCutoff(1.0f);
+        material->GetAdvancePBR().SetAlphaCutoff(0.5f);
         material->GetState().SetCullingMode(ECullingMode_Back);
         material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
         material->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
