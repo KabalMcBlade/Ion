@@ -32,7 +32,7 @@ LoaderGLTF::~LoaderGLTF()
 }
 
 // for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
-void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const Matrix& _parentMatrix, ObjectHandler& _entityHandle, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign)
+void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, ObjectHandler& _entityHandle, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign)
 {
     Vector position(0.0f, 0.0f, 0.0f, 1.0f);
     Quaternion rotation;
@@ -74,17 +74,14 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
     _entityHandle->GetTransform().SetPosition(position);
     _entityHandle->GetTransform().SetRotation(rotation);
     _entityHandle->GetTransform().SetScale(scale);
-    
-    Matrix localNodeMatrix = _entityHandle->GetTransform().GetMatrix();    
-    _entityHandle->GetTransform().SetMatrixWS(_parentMatrix * localNodeMatrix);
 
     // calculate matrix for all children if any
     for (ionSize i = 0; i < _node.children.size(); ++i)
     {
-        Entity* child = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+        Entity* child = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE, _model.nodes[_node.children[i]].name.c_str());
         ObjectHandler childHandle(child);
         child->AttachToParent(_entityHandle);
-        LoadNode(_model.nodes[_node.children[i]], _model, localNodeMatrix, childHandle, _textureIndexToTextureName, _materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+        LoadNode(_model.nodes[_node.children[i]], _model, childHandle, _textureIndexToTextureName, _materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
     }
     
     // NOTE IMPORTANT!!!
@@ -325,7 +322,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     Vertex vert;
 
                     Vector pos((&bufferPos[v * 3])[0], ((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2], 1.0f);
-                    pos = localNodeMatrix * pos;
 
                     if (_generateNormalWhenMissing || _generateTangentWhenMissing)
                     {
@@ -352,9 +348,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
 
                         // if no normal, after all iteration the normalToBeTangent will be empty, so we will know how to do
                     }
-                    normal = localNodeMatrix * normal;
-
-
                     vert.SetNormal(normal);
 
                     Vector tangent;
@@ -366,7 +359,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
                     {
                         tangent = VectorHelper::Set(0.0f, 0.0f, 0.0f, 1.0f);
                     }
-                    tangent = localNodeMatrix * tangent;
                     vert.SetTangent(tangent);
 
                     if (bufferTexCoordsFloat0 != nullptr)
@@ -1052,6 +1044,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                     if (param.string_value == "BLEND")
                     {
                         material->SetAlphaMode(EAlphaMode_Blend);
+
                         material->GetState().SetBlendStateMode(EBlendState_Source_One_Minus_Source_Alpha);
                         material->GetState().SetBlendStateMode(EBlendState_Dest_One);
                         material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
@@ -1062,6 +1055,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                     if (param.string_value == "MASK")
                     {
                         material->SetAlphaMode(EAlphaMode_Mask);
+
                         material->GetState().SetBlendStateMode(EBlendState_Source_Source_Alpha);
                         material->GetState().SetBlendStateMode(EBlendState_Dest_One_Minus_Source_Alpha);
                         material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
@@ -1081,9 +1075,11 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
 
                 if (key == "doubleSided")
                 {
-                    //material->GetState().SetRasterizationMode(ERasterization_Face_Clockwise);
-
-                    material->GetState().SetCullingMode(param.bool_value ? ECullingMode_TwoSide : ECullingMode_Back);
+                    if (param.bool_value)
+                    {
+                        material->GetState().UnsetCullingMode(ECullingMode_Back);
+                        material->GetState().SetCullingMode(ECullingMode_TwoSide);
+                    }
                     continue;
                 }
             }
@@ -1151,7 +1147,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
     if (nodeCount == 1)
     {
         const tinygltf::Node node = model.nodes[scene.nodes[0]];
-        LoadNode(node, model, _entity->GetTransform().GetMatrixWS(), _entity, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+        LoadNode(node, model, _entity, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
     }
     else
     {
@@ -1159,10 +1155,10 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
         {
             const tinygltf::Node node = model.nodes[scene.nodes[i]];
 
-            Entity* child = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+            Entity* child = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE, node.name.c_str());
             ObjectHandler childHandle(child);
 
-            LoadNode(node, model, _entity->GetTransform().GetMatrixWS(), childHandle, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+            LoadNode(node, model, childHandle, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
 
             child->AttachToParent(_entity);
         }
