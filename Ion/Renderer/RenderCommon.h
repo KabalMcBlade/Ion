@@ -900,13 +900,14 @@ struct DrawSurface final
     ionFloat            m_exposure;
     ionFloat            m_gamma;
     ionFloat            m_prefilteredCubeMipLevels;
+    ionU64              m_extraGLState;
     ionU32              m_indexStart;
     ionU32              m_indexCount;
     VertexCacheHandler  m_vertexCache;
     VertexCacheHandler  m_indexCache;
     VertexCacheHandler  m_jointCache;
-    ionU64              m_extraGLState;
     const Material*     m_material;
+    ionU8               m_sortingIndex; // 0 = opaque, 1 = mask, 2 = blend
     ionBool             m_visible;
 
     DrawSurface()
@@ -928,14 +929,44 @@ struct DrawSurface final
         m_exposure = 1.0f;
         m_gamma = 1.0f;
         m_prefilteredCubeMipLevels = 1.0f;
+        m_sortingIndex = 0;
     }
 
     ~DrawSurface()
     {
         m_material = nullptr;
     }
+
+    /*DrawSurface& operator=(DrawSurface other)
+    { 
+        std::swap(m_modelMatrix, other.m_modelMatrix);
+        std::swap(m_viewMatrix, other.m_viewMatrix);
+        std::swap(m_projectionMatrix, other.m_projectionMatrix);
+        std::swap(m_mainCameraPos, other.m_mainCameraPos);
+        std::swap(m_directionalLight, other.m_directionalLight);
+        std::swap(m_directionalLightColor, other.m_directionalLightColor);
+
+        std::swap(m_exposure, other.m_exposure);
+        std::swap(m_gamma, other.m_gamma);
+        std::swap(m_prefilteredCubeMipLevels, other.m_prefilteredCubeMipLevels);
+        std::swap(m_extraGLState, other.m_extraGLState);
+        std::swap(m_indexStart, other.m_indexStart);
+        std::swap(m_indexCount, other.m_indexCount);
+        std::swap(m_vertexCache, other.m_vertexCache);
+        std::swap(m_indexCache, other.m_indexCache);
+        std::swap(m_jointCache, other.m_jointCache);
+        std::swap(m_material, other.m_material);
+
+        std::swap(m_sortingIndex, other.m_sortingIndex);
+        std::swap(m_visible, other.m_visible);
+
+        return *this;
+    }*/
+     
+    ionBool operator <(const DrawSurface& _other) const
+    {
+        return (m_sortingIndex < _other.m_sortingIndex);
+    }
 };
-
-
 
 ION_NAMESPACE_END

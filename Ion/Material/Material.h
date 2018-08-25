@@ -165,11 +165,12 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-enum EAlphaMode
+// order is important, check the m_sortingIndex in the DrawSurface 
+enum EAlphaMode : ionU8
 {
     EAlphaMode_Opaque = 0,
-    EAlphaMode_Blend,
-    EAlphaMode_Mask
+    EAlphaMode_Mask,
+    EAlphaMode_Blend
 };
 
 class ION_DLL Material
