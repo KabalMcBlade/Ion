@@ -73,7 +73,6 @@ void Node::Update(ionFloat _deltaTime)
     {
         OnUpdate(_deltaTime);
 
-        Matrix worldTransform;
         if (m_parent != nullptr)
         {
             m_transform.SetMatrixWS(m_parent->GetTransform().GetMatrixWS() * m_transform.GetMatrix());

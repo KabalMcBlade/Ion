@@ -50,7 +50,6 @@ private:
 
     Matrix m_matrixWS;
     Matrix m_matrix;
-    Matrix m_matrixInverse;
     Vector m_position;
     Vector m_scale;
     Quaternion m_rotation;
