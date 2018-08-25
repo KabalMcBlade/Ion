@@ -70,15 +70,13 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, const 
             scale = Vector((ionFloat)_node.scale[0], (ionFloat)_node.scale[1], (ionFloat)_node.scale[2]);
         }
     }
-
+    
     _entityHandle->GetTransform().SetPosition(position);
     _entityHandle->GetTransform().SetRotation(rotation);
     _entityHandle->GetTransform().SetScale(scale);
-
-    Matrix localNodeMatrix = _entityHandle->GetTransform().GetMatrix();
-    _entityHandle->GetTransform().SetMatrixWS(_parentMatrix * localNodeMatrix);
     
-
+    Matrix localNodeMatrix = _entityHandle->GetTransform().GetMatrix();    
+    _entityHandle->GetTransform().SetMatrixWS(_parentMatrix * localNodeMatrix);
 
     // calculate matrix for all children if any
     for (ionSize i = 0; i < _node.children.size(); ++i)
@@ -1057,6 +1055,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                         material->GetState().SetBlendStateMode(EBlendState_Source_One_Minus_Source_Alpha);
                         material->GetState().SetBlendStateMode(EBlendState_Dest_One);
                         material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
+                        continue;
                     }
 
                     // this would like leaves or grass
@@ -1066,6 +1065,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                         material->GetState().SetBlendStateMode(EBlendState_Source_Source_Alpha);
                         material->GetState().SetBlendStateMode(EBlendState_Dest_One_Minus_Source_Alpha);
                         material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
+                        continue;
                     }
 
                     // is is set OPAQUE, do nothing, is the default value of rendering
@@ -1081,6 +1081,8 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
 
                 if (key == "doubleSided")
                 {
+                    //material->GetState().SetRasterizationMode(ERasterization_Face_Clockwise);
+
                     material->GetState().SetCullingMode(param.bool_value ? ECullingMode_TwoSide : ECullingMode_Back);
                     continue;
                 }
@@ -1143,14 +1145,29 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
     
     //
     // 3. Load all meshes..
-    Matrix parent;
     const tinygltf::Scene &scene = model.scenes[model.defaultScene];
-    for (ionSize i = 0; i < scene.nodes.size(); ++i)
-    {
-        const tinygltf::Node node = model.nodes[scene.nodes[i]];
+    const ionSize nodeCount = scene.nodes.size();
 
-        LoadNode(node, model, parent, _entity, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+    if (nodeCount == 1)
+    {
+        const tinygltf::Node node = model.nodes[scene.nodes[0]];
+        LoadNode(node, model, _entity->GetTransform().GetMatrixWS(), _entity, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
     }
+    else
+    {
+        for (ionSize i = 0; i < nodeCount; ++i)
+        {
+            const tinygltf::Node node = model.nodes[scene.nodes[i]];
+
+            Entity* child = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+            ObjectHandler childHandle(child);
+
+            LoadNode(node, model, _entity->GetTransform().GetMatrixWS(), childHandle, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+
+            child->AttachToParent(_entity);
+        }
+    }
+
 
     return true;
 }
