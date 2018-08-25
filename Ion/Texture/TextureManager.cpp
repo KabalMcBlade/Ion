@@ -60,7 +60,24 @@ void TextureManager::Shutdown()
     m_hashTexture.clear();
 }
 
-Texture* TextureManager::CreateTextureFromFile(const eosString& _name, const eosString& _path, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/)
+VkSamplerAddressMode TextureManager::ConvertAddressMode(ETextureRepeat _repeat)
+{
+    switch (_repeat)
+    {
+    case ETextureRepeat_Repeat:         return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    case ETextureRepeat_Clamp:          return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    case ETextureRepeat_ClampZero:      return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    case ETextureRepeat_ClampAlpha:     return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    case ETextureRepeat_Mirrored:       return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+    case ETextureRepeat_MirroredClamp:  return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+    case ETextureRepeat_Custom:
+    case ETextureRepeat_NoSampler:
+    default:                            
+        return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    }
+}
+
+Texture* TextureManager::CreateTextureFromFile(const eosString& _name, const eosString& _path, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Repeat*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/, ETextureRepeat _customRepeatU /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatV /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatW /*= ETextureRepeat_Repeat*/)
 {
     if (_name.empty() || _path.empty())
     {
@@ -81,7 +98,9 @@ Texture* TextureManager::CreateTextureFromFile(const eosString& _name, const eos
     texture->m_optFilter = _filter;
     texture->m_optRepeat = _repeat;
     texture->m_optTextureType = _type;
-
+    texture->m_optCustomRepeat[0] = ConvertAddressMode(_customRepeatU);
+    texture->m_optCustomRepeat[1] = ConvertAddressMode(_customRepeatV);
+    texture->m_optCustomRepeat[2] = ConvertAddressMode(_customRepeatW);
     texture->m_maxAnisotropy = _maxAnisotrpy;
 
     if (texture->CreateFromFile(_path))
@@ -94,7 +113,7 @@ Texture* TextureManager::CreateTextureFromFile(const eosString& _name, const eos
     }
 }
 
-Texture* TextureManager::CreateTextureFromBuffer(const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Clamp*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/)
+Texture* TextureManager::CreateTextureFromBuffer(const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat /*= ETextureRepeat_Repeat*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/, ETextureRepeat _customRepeatU /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatV /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatW /*= ETextureRepeat_Repeat*/)
 {
     if (_name.empty())
     {
@@ -115,7 +134,9 @@ Texture* TextureManager::CreateTextureFromBuffer(const eosString& _name, ionU32 
     texture->m_optFilter = _filter;
     texture->m_optRepeat = _repeat;
     texture->m_optTextureType = _type;
-
+    texture->m_optCustomRepeat[0] = ConvertAddressMode(_customRepeatU);
+    texture->m_optCustomRepeat[1] = ConvertAddressMode(_customRepeatV);
+    texture->m_optCustomRepeat[2] = ConvertAddressMode(_customRepeatW);
     texture->m_maxAnisotropy = _maxAnisotrpy;
 
     if (texture->CreateFromBuffer(_width, _height, _component, _buffer, _bufferSize))
@@ -128,7 +149,7 @@ Texture* TextureManager::CreateTextureFromBuffer(const eosString& _name, ionU32 
     }
 }
 
-Texture* TextureManager::GenerateTexture(const eosString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat/*= ETextureRepeat_Clamp*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _numLevel /*= 1*/, ionU32 _maxAnisotrpy /*= 1*/)
+Texture* TextureManager::GenerateTexture(const eosString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureFilter _filter /*= ETextureFilter_Default*/, ETextureRepeat _repeat/*= ETextureRepeat_Repeat*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _numLevel /*= 1*/, ionU32 _maxAnisotrpy /*= 1*/, ETextureRepeat _customRepeatU /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatV /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatW /*= ETextureRepeat_Repeat*/)
 {
     if (_name.empty())
     {
@@ -147,6 +168,9 @@ Texture* TextureManager::GenerateTexture(const eosString& _name, ionU32 _width, 
 
     texture->m_maxAnisotropy = _maxAnisotrpy;
     texture->m_optFilter = _filter;
+    texture->m_optCustomRepeat[0] = ConvertAddressMode(_customRepeatU);
+    texture->m_optCustomRepeat[1] = ConvertAddressMode(_customRepeatV);
+    texture->m_optCustomRepeat[2] = ConvertAddressMode(_customRepeatW);
     if (texture->GenerateTexture(_width, _height, _format, _repeat, _type, _numLevel))
     {
         return texture;

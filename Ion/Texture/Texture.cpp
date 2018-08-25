@@ -78,7 +78,7 @@ void Texture::UploadTextureBuffer(const ionU8* _buffer, ionU32 _component, ionU3
     }
 }
 
-ionBool Texture::LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer)
+ionBool Texture::LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer)
 {
     m_width = _width;
     m_height = _height;
@@ -565,7 +565,7 @@ ionBool Texture::CreateFromFile(const eosString& _path)
     return true;
 }
 
-ionBool Texture::CreateFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer, VkDeviceSize _bufferSize)
+ionBool Texture::CreateFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer, VkDeviceSize _bufferSize)
 {
     if (!LoadTextureFromBuffer( _width, _height, _component, _buffer))
     {
@@ -851,6 +851,16 @@ ionBool Texture::CreateSampler()
         createInfo.magFilter = VK_FILTER_NEAREST;
         createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
         break;
+    case ETextureFilter_LinearNearest:
+        createInfo.minFilter = VK_FILTER_LINEAR;
+        createInfo.magFilter = VK_FILTER_NEAREST;
+        createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        break;
+    case ETextureFilter_NearestLinear:
+        createInfo.minFilter = VK_FILTER_NEAREST;
+        createInfo.magFilter = VK_FILTER_LINEAR;
+        createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+        break;
     default:
         ionAssertReturnValue(false, "Texture filter not supported", false);
     }
@@ -892,6 +902,12 @@ ionBool Texture::CreateSampler()
         createInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
         createInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
         createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+        break;
+    case ETextureRepeat_Custom:
+        createInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+        createInfo.addressModeU = m_optCustomRepeat[0];
+        createInfo.addressModeV = m_optCustomRepeat[1];
+        createInfo.addressModeW = m_optCustomRepeat[2];
         break;
     default:
         ionAssertReturnValue(false, "Texture repeat mode not supported", false);

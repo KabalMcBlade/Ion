@@ -881,11 +881,80 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
 
     //////////////////////////////////////////////////////////////////////////
     // 1. Load all the texture inside the texture manager
-    for (ionSize i = 0; i < model.images.size(); ++i)
+    for (ionSize i = 0; i < model.textures.size(); ++i)
     {
-        if (model.images[i].uri.empty())                    // no uri, so image could be stored in binary format
+        const tinygltf::Texture& tex = model.textures[i];
+
+        const tinygltf::Image& image = model.images[tex.source];
+        const tinygltf::Sampler& sampler = model.samplers[tex.sampler];
+
+        ETextureRepeat repeatU = ETextureRepeat_Repeat;
+        ETextureRepeat repeatV = ETextureRepeat_Repeat;
+        ETextureRepeat repeatW = ETextureRepeat_Repeat;
+        ETextureFilter filter = ETextureFilter_Nearest;
+        if (sampler.magFilter == 9728 && sampler.minFilter == 9728)
         {
-            eosString name = model.images[i].name.c_str();  // no filename, I just give you one
+            filter = ETextureFilter_Nearest;
+        }
+        else if (sampler.magFilter == 9729 && sampler.minFilter == 9729)
+        {
+            filter = ETextureFilter_Linear;
+        }
+        else if (sampler.magFilter == 9728 && sampler.minFilter == 9729)
+        {
+            filter = ETextureFilter_NearestLinear;
+        }
+        else if (sampler.magFilter == 9729 && sampler.minFilter == 9728)
+        {
+            filter = ETextureFilter_LinearNearest;
+        }
+        else
+        {
+            filter = ETextureFilter_Nearest;
+        }
+
+        if (sampler.wrapS == 33071)
+        {
+            repeatU = ETextureRepeat_Clamp;
+        }
+        else if (sampler.wrapS == 33648)
+        {
+            repeatU = ETextureRepeat_Mirrored;
+        }
+        else
+        {
+            repeatU = ETextureRepeat_Repeat;
+        }
+
+        if (sampler.wrapT == 33071)
+        {
+            repeatV = ETextureRepeat_Clamp;
+        }
+        else if (sampler.wrapT == 33648)
+        {
+            repeatV = ETextureRepeat_Mirrored;
+        }
+        else
+        {
+            repeatV = ETextureRepeat_Repeat;
+        }
+
+        if (sampler.wrapR == 33071)
+        {
+            repeatW = ETextureRepeat_Clamp;
+        }
+        else if (sampler.wrapR == 33648)
+        {
+            repeatW = ETextureRepeat_Mirrored;
+        }
+        else
+        {
+            repeatW = ETextureRepeat_Repeat;
+        }
+
+        if (image.uri.empty())                    // no uri, so image could be stored in binary format
+        {
+            eosString name = image.name.c_str();  // no filename, I just give you one
             if (name.empty())
             {
                 eosString val = std::to_string(i).c_str();
@@ -894,11 +963,11 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
 
             textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, name.c_str()));
 
-            ionTextureManger().CreateTextureFromBuffer(name, model.images[i].width, model.images[i].height, model.images[i].component, &model.images[i].image[0], model.images[i].image.size(), ETextureFilter_Nearest, ETextureRepeat_Repeat, ETextureUsage_RGBA, ETextureType_2D);
+            ionTextureManger().CreateTextureFromBuffer(name, image.width, image.height, image.component, &image.image[0], image.image.size(), filter, ETextureRepeat_Custom, ETextureUsage_RGBA, ETextureType_2D, 1U, repeatU, repeatV, repeatW);
         }
         else
         {
-            eosString val = model.images[i].uri.c_str();
+            eosString val = image.uri.c_str();
             eosString path = dir + backslash + val;
             eosString filename;
 
@@ -916,7 +985,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
 
             textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, filename.c_str()));
 
-            ionTextureManger().CreateTextureFromFile(filename, path);
+            ionTextureManger().CreateTextureFromFile(filename, path, filter, ETextureRepeat_Custom, ETextureUsage_RGBA, ETextureType_2D, 1U, repeatU, repeatV, repeatW);
         }
     }
 

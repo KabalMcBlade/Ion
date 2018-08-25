@@ -64,7 +64,11 @@ enum ETextureFormat
  enum ETextureFilter
  {
      ETextureFilter_Linear,
-     ETextureFilter_Nearest,    
+     ETextureFilter_Nearest, 
+
+     ETextureFilter_LinearNearest,      // min and max
+     ETextureFilter_NearestLinear,      // min and max
+
      ETextureFilter_Default,         // Using this filtering, the TextureOptions::m_numLevels will be computed by width and height, and the filtering will be set as ETextureFilter_Linear
      ETextureFilter_NoSampler       // is used with the ETextureRepeat_NoSampler, the sampler is not created for the texture, otherwise just use default value for this filter
  };
@@ -77,6 +81,7 @@ enum ETextureFormat
      ETextureRepeat_ClampAlpha,    // guarantee 0 alpha edge for projected textures
      ETextureRepeat_Mirrored,
      ETextureRepeat_MirroredClamp,
+     ETextureRepeat_Custom,         // this one let the user manually set all U,V and W
      ETextureRepeat_NoSampler       // is used with the ETextureFilter_NoSampler, the sampler is not created for the texture, otherwise just use default value for this filter
  };
 

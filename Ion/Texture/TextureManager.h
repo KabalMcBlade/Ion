@@ -36,9 +36,9 @@ public:
     void        SetSamplerAnysotropy(ionBool _samplerAnysotrpy) { m_samplerAnisotropy = _samplerAnysotrpy; }
     ionBool     GetSamplerAnysotropy() const { return m_samplerAnisotropy; }
 
-    Texture*    CreateTextureFromFile(const eosString& _name, const eosString& _path, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureUsage _usage = ETextureUsage_RGBA, ETextureType _type = ETextureType_2D, ionU32 _maxAnisotrpy = 1);
-    Texture*    CreateTextureFromBuffer(const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureUsage _usage = ETextureUsage_RGBA, ETextureType _type = ETextureType_2D, ionU32 _maxAnisotrpy = 1);
-    Texture*    GenerateTexture(const eosString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Clamp, ETextureType _type = ETextureType_2D, ionU32 _numLevel = 1, ionU32 _maxAnisotrpy = 1);
+    Texture*    CreateTextureFromFile(const eosString& _name, const eosString& _path, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Repeat, ETextureUsage _usage = ETextureUsage_RGBA, ETextureType _type = ETextureType_2D, ionU32 _maxAnisotrpy = 1, ETextureRepeat _customRepeatU = ETextureRepeat_Repeat, ETextureRepeat _customRepeatV = ETextureRepeat_Repeat, ETextureRepeat _customRepeatW = ETextureRepeat_Repeat);
+    Texture*    CreateTextureFromBuffer(const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Repeat, ETextureUsage _usage = ETextureUsage_RGBA, ETextureType _type = ETextureType_2D, ionU32 _maxAnisotrpy = 1, ETextureRepeat _customRepeatU = ETextureRepeat_Repeat, ETextureRepeat _customRepeatV = ETextureRepeat_Repeat, ETextureRepeat _customRepeatW = ETextureRepeat_Repeat);
+    Texture*    GenerateTexture(const eosString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Repeat, ETextureType _type = ETextureType_2D, ionU32 _numLevel = 1, ionU32 _maxAnisotrpy = 1, ETextureRepeat _customRepeatU = ETextureRepeat_Repeat, ETextureRepeat _customRepeatV = ETextureRepeat_Repeat, ETextureRepeat _customRepeatW = ETextureRepeat_Repeat);
     void        GenerateMipMaps(Texture* _texture);
 
     Texture*    GetTexture(const eosString& _name) const;
@@ -51,6 +51,8 @@ public:
     const ETextureSamplesPerBit& GetMainSamplePerBits() const { return m_mainSamplesPerBit; }
 
 private:
+    VkSamplerAddressMode ConvertAddressMode(ETextureRepeat _repeat);
+
     Texture*    CreateTexture(VkDevice _vkDevice, const eosString& _name);
     void        DestroyTexture(Texture* _texture);
     void        DestroyTexture(ionSize _hash);          // this one actually destroy/delete the texture!

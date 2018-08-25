@@ -39,7 +39,7 @@ private:
     friend class TextureManager;
 
     ionBool CreateFromFile(const eosString& _path);
-    ionBool CreateFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer, VkDeviceSize _bufferSize);
+    ionBool CreateFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer, VkDeviceSize _bufferSize);
     ionBool Create();
 
     ionBool Save(const eosString& _path) const;
@@ -59,7 +59,7 @@ private:
     ionBool LoadCubeTextureFromFile(const eosString& _path);
     ionBool LoadCubeTextureFromFiles(const eosVector(eosString)& paths);
 
-    ionBool LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _buffer);
+    ionBool LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer);
 
     ionU32 BitsPerFormat(ETextureFormat _format) const;
     void GenerateOptions();
@@ -91,6 +91,7 @@ private:
     ETextureRepeat          m_optRepeat;
     ETextureType            m_optTextureType;
     ETextureFormat          m_optFormat;
+    VkSamplerAddressMode    m_optCustomRepeat[3]; //u,v,w == s,t,r // custom repeat
 
     ionU32                  m_width;
     ionU32                  m_height;            // not needed for cube maps, actually.. it is a cube and so.. all same width :)
