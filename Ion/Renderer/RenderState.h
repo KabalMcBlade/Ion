@@ -148,25 +148,25 @@ enum ECullingMode : ionU64
 
 enum EBlendState : ionU64
 {
-    EBlendState_Source_One = 0 << 0,
-    EBlendState_Source_Zero = 1 << 0,
-    EBlendState_Source_Dest_Color = 2 << 0,
-    EBlendState_Source_One_Minus_Dest_Color = 3 << 0,
-    EBlendState_Source_Source_Alpha = 4 << 0,
-    EBlendState_Source_One_Minus_Source_Alpha = 5 << 0,
-    EBlendState_Source_Dest_Alpha = 6 << 0,
-    EBlendState_Source_One_Minus_Dest_Alpha = 7 << 0,
-    EBlendState_Source_Bits = 7 << 0,
+    EBlendState_SourceBlend_One = 0 << 0,
+    EBlendState_SourceBlend_Zero = 1 << 0,
+    EBlendState_SourceBlend_Dest_Color = 2 << 0,
+    EBlendState_SourceBlend_One_Minus_Dest_Color = 3 << 0,
+    EBlendState_SourceBlend_Source_Alpha = 4 << 0,
+    EBlendState_SourceBlend_One_Minus_Source_Alpha = 5 << 0,
+    EBlendState_SourceBlend_Dest_Alpha = 6 << 0,
+    EBlendState_SourceBlend_One_Minus_Dest_Alpha = 7 << 0,
+    EBlendState_SourceBlend_Bits = 7 << 0,
 
-    EBlendState_Dest_Zero = 0 << 3,
-    EBlendState_Dest_One = 1 << 3,
-    EBlendState_Dest_Source_Color = 2 << 3,
-    EBlendState_Dest_One_Minus_Source_Color = 3 << 3,
-    EBlendState_Dest_Source_Alpha = 4 << 3,
-    EBlendState_Dest_One_Minus_Source_Alpha = 5 << 3,
-    EBlendState_Dest_Dest_Alpha = 6 << 3,
-    EBlendState_Dest_One_Minus_Dest_Alpha = 7 << 3,
-    EBlendState_Dest_Bits = 7 << 3
+    EBlendState_DestBlend_Zero = 0 << 3,
+    EBlendState_DestBlend_One = 1 << 3,
+    EBlendState_DestBlend_Source_Color = 2 << 3,
+    EBlendState_DestBlend_One_Minus_Source_Color = 3 << 3,
+    EBlendState_DestBlend_Source_Alpha = 4 << 3,
+    EBlendState_DestBlend_One_Minus_Source_Alpha = 5 << 3,
+    EBlendState_DestBlend_Dest_Alpha = 6 << 3,
+    EBlendState_DestBlend_One_Minus_Dest_Alpha = 7 << 3,
+    EBlendState_DestBlend_Bits = 7 << 3
 };
 
 enum EBlendOperator : ionU64

@@ -520,29 +520,29 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
     VkPipelineColorBlendAttachmentState colorBlendAttachmentState = {};
     {
         VkBlendFactor srcFactor = VK_BLEND_FACTOR_ONE;
-        switch (_stateBits & EBlendState_Source_Bits)
+        switch (_stateBits & EBlendState_SourceBlend_Bits)
         {
-        case EBlendState_Source_Zero:                    srcFactor = VK_BLEND_FACTOR_ZERO; break;
-        case EBlendState_Source_One:                    srcFactor = VK_BLEND_FACTOR_ONE; break;
-        case EBlendState_Source_Dest_Color:                srcFactor = VK_BLEND_FACTOR_DST_COLOR; break;
-        case EBlendState_Source_One_Minus_Dest_Color:    srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR; break;
-        case EBlendState_Source_Source_Alpha:            srcFactor = VK_BLEND_FACTOR_SRC_ALPHA; break;
-        case EBlendState_Source_One_Minus_Source_Alpha:    srcFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; break;
-        case EBlendState_Source_Dest_Alpha:                srcFactor = VK_BLEND_FACTOR_DST_ALPHA; break;
-        case EBlendState_Source_One_Minus_Dest_Alpha:    srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; break;
+        case EBlendState_SourceBlend_Zero:                    srcFactor = VK_BLEND_FACTOR_ZERO; break;
+        case EBlendState_SourceBlend_One:                    srcFactor = VK_BLEND_FACTOR_ONE; break;
+        case EBlendState_SourceBlend_Dest_Color:                srcFactor = VK_BLEND_FACTOR_DST_COLOR; break;
+        case EBlendState_SourceBlend_One_Minus_Dest_Color:    srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR; break;
+        case EBlendState_SourceBlend_Source_Alpha:            srcFactor = VK_BLEND_FACTOR_SRC_ALPHA; break;
+        case EBlendState_SourceBlend_One_Minus_Source_Alpha:    srcFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; break;
+        case EBlendState_SourceBlend_Dest_Alpha:                srcFactor = VK_BLEND_FACTOR_DST_ALPHA; break;
+        case EBlendState_SourceBlend_One_Minus_Dest_Alpha:    srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; break;
         }
 
         VkBlendFactor dstFactor = VK_BLEND_FACTOR_ZERO;
-        switch (_stateBits & EBlendState_Dest_Bits)
+        switch (_stateBits & EBlendState_DestBlend_Bits)
         {
-        case EBlendState_Dest_Zero:                        dstFactor = VK_BLEND_FACTOR_ZERO; break;
-        case EBlendState_Dest_One:                        dstFactor = VK_BLEND_FACTOR_ONE; break;
-        case EBlendState_Dest_Source_Color:                dstFactor = VK_BLEND_FACTOR_SRC_COLOR; break;
-        case EBlendState_Dest_One_Minus_Source_Color:    dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR; break;
-        case EBlendState_Dest_Source_Alpha:                dstFactor = VK_BLEND_FACTOR_SRC_ALPHA; break;
-        case EBlendState_Dest_One_Minus_Source_Alpha:    dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; break;
-        case EBlendState_Dest_Dest_Alpha:                dstFactor = VK_BLEND_FACTOR_DST_ALPHA; break;
-        case EBlendState_Dest_One_Minus_Dest_Alpha:        dstFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; break;
+        case EBlendState_DestBlend_Zero:                        dstFactor = VK_BLEND_FACTOR_ZERO; break;
+        case EBlendState_DestBlend_One:                        dstFactor = VK_BLEND_FACTOR_ONE; break;
+        case EBlendState_DestBlend_Source_Color:                dstFactor = VK_BLEND_FACTOR_SRC_COLOR; break;
+        case EBlendState_DestBlend_One_Minus_Source_Color:    dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR; break;
+        case EBlendState_DestBlend_Source_Alpha:                dstFactor = VK_BLEND_FACTOR_SRC_ALPHA; break;
+        case EBlendState_DestBlend_One_Minus_Source_Alpha:    dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; break;
+        case EBlendState_DestBlend_Dest_Alpha:                dstFactor = VK_BLEND_FACTOR_DST_ALPHA; break;
+        case EBlendState_DestBlend_One_Minus_Dest_Alpha:        dstFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; break;
         }
 
         VkBlendOp blendOp = VK_BLEND_OP_ADD;

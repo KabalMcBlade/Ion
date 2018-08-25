@@ -948,8 +948,8 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
             material->GetState().SetCullingMode(ECullingMode_Back);
             material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
             material->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
-            material->GetState().SetBlendStateMode(EBlendState_Source_One);
-            material->GetState().SetBlendStateMode(EBlendState_Dest_Zero);
+            material->GetState().SetBlendStateMode(EBlendState_SourceBlend_One);
+            material->GetState().SetBlendStateMode(EBlendState_DestBlend_Zero);
             material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
 
             // base PBR
@@ -1035,8 +1035,8 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
 
                 if (key == "alphaMode")
                 {
-                    material->GetState().UnsetBlendStateMode(EBlendState_Source_One);
-                    material->GetState().UnsetBlendStateMode(EBlendState_Dest_Zero);
+                    material->GetState().UnsetBlendStateMode(EBlendState_SourceBlend_One);
+                    material->GetState().UnsetBlendStateMode(EBlendState_DestBlend_Zero);
                     material->GetState().UnsetBlendOperatorMode(EBlendOperator_Add);
 
                     // mesh sorting for blend
@@ -1045,9 +1045,10 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                     {
                         material->SetAlphaMode(EAlphaMode_Blend);
 
-                        material->GetState().SetBlendStateMode(EBlendState_Source_One_Minus_Source_Alpha);
-                        material->GetState().SetBlendStateMode(EBlendState_Dest_One);
+                        material->GetState().SetBlendStateMode(EBlendState_SourceBlend_Source_Alpha);
+                        material->GetState().SetBlendStateMode(EBlendState_DestBlend_One_Minus_Source_Alpha);
                         material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
+
                         continue;
                     }
 
@@ -1056,8 +1057,8 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
                     {
                         material->SetAlphaMode(EAlphaMode_Mask);
 
-                        material->GetState().SetBlendStateMode(EBlendState_Source_Source_Alpha);
-                        material->GetState().SetBlendStateMode(EBlendState_Dest_One_Minus_Source_Alpha);
+                        material->GetState().SetBlendStateMode(EBlendState_SourceBlend_Source_Alpha);
+                        material->GetState().SetBlendStateMode(EBlendState_DestBlend_One_Minus_Source_Alpha);
                         material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
                         continue;
                     }
@@ -1134,8 +1135,8 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
         material->GetState().SetCullingMode(ECullingMode_Back);
         material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
         material->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
-        material->GetState().SetBlendStateMode(EBlendState_Source_One);
-        material->GetState().SetBlendStateMode(EBlendState_Dest_Zero);
+        material->GetState().SetBlendStateMode(EBlendState_SourceBlend_One);
+        material->GetState().SetBlendStateMode(EBlendState_DestBlend_Zero);
         material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
     }
     
