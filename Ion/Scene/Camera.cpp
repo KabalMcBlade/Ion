@@ -80,7 +80,7 @@ Matrix Camera::PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionF
         0.0f,               0.0f,        (_zNear * _zFar) / (_zNear - _zFar),   0.0f
     );
 
-    return perspective;
+    return perspective; 
 }
 
 Matrix Camera::OrthographicProjectionMatrix(ionFloat _left, ionFloat _right, ionFloat _bottom, ionFloat _top, ionFloat _zNear, ionFloat _zFar)
@@ -115,17 +115,16 @@ void Camera::SetCameraType(ECameraType _type)
 
 void Camera::UpdateView()
 {
-    Vector position = GetTransform().GetPosition();
-    Matrix rotation = GetTransform().GetRotation().ToMatrix();
-    Matrix translate; translate = translate.Translate(position);
+    Matrix rotM = GetTransform().GetRotation().ToMatrix();
+    Matrix transM = GetTransform().GetMatrix();
 
     if (m_type == ECameraType::ECameraType_LookAt)
     {
-        m_view = translate * rotation;
+        m_view = transM * rotM;
     }
     else
     {
-        m_view = rotation * translate;
+        m_view = rotM * transM;
     }
 
     m_frustum.Update(m_projection, m_view);
