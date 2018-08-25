@@ -25,7 +25,7 @@ public:
 
     ~Transform();
 
-    void SetMatrixWS(const Matrix& _parentMatrix) { m_matrixWS = _parentMatrix; }
+    void SetMatrixWS(const Matrix& _matrixWS) { m_matrixWS = _matrixWS; }
 
     const Matrix& GetMatrixWS() const;
     const Matrix& GetMatrix();
