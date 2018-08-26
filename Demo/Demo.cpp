@@ -260,7 +260,7 @@ int main()
     MainCamera* camera = eosNew(MainCamera, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler cameraHandle(camera);
     camera->SetCameraType(ion::Camera::ECameraType::ECameraType_LookAt);
-    camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
+    camera->SetPerspectiveProjection(45.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 256.0f);
     camera->GetTransform().SetPosition(cameraPos);
     camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
     camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);

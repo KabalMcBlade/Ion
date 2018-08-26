@@ -22,12 +22,14 @@ At the beginning you have to select the test, from 1 to 5 are generated primitiv
 
 The controls in this demo test are:
 * Hold left mouse button in order to rotate the object
-* Hold right mouse button in order to pan right or left and up or down the camera
+* Hold right mouse button in order to pan right or left and up or down the object
 * Use the mouse wheel to go toward or far away the object
 * Press R to auto rotate the model
 * Press B to toggle a fancy bounding box
 
-For the PBR test there are other control, but you can read directly on the console shell
+To Debug PBR (this works just with the 7th test for now because is the only one using the PBR shader)
+* Press 1, 2 or 3 to change the active value between esposure, gamma or prefiltered cube mip levels
+* Press Q or Z to increment or decrement the selected values
 
 
 ## Important
@@ -39,7 +41,7 @@ Most of the code has been studied and inspired by:
 		- Buffers, caches and the initialization and setup of Vulkan and rendering backend core loop
 - Sascha Willems (https://www.saschawillems.de/)
 	- GitHub: https://github.com/SaschaWillems
-		- Shaders and rendering tecnniques
+		- BRDFLUT, Irradiance, EnvironmentPrefiltered maps generation and shaders
 
 
 ## LICENSE

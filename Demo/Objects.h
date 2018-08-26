@@ -18,6 +18,7 @@ public:
     virtual void OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime) override;
 
 private:
+    ionFloat m_movementSpeed;
     ionFloat m_mouseSensitivity;
 
     ionBool m_rotating;
@@ -48,7 +49,6 @@ public:
     void SetParameters(ionFloat _movementSpeed, ionFloat _mouseSensitivity);
 
 public:
-    virtual void OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime) override;
     virtual void OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime) override;
 
 #ifdef ION_PBR_DEBUG
