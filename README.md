@@ -15,7 +15,7 @@ I'm not planning to do a x86 version
 This is a screenshot about a first test on PBR render, maybe I need a more "brighty" and "shiny" skybox to generate maps from and set some different material parameters.
 
 Using the DamagedHelmet supplied with this demo (for the license raed the end of this file)
-<img src="./Screenshots/Screenshot1.png>
+<img src="./Screenshots/Screenshot1.png">
 
 Another PBR test (model NOT supplied by this demo, but you can download from https://sketchfab.com)
 <img src="./Screenshots/Screenshot2.png">
