@@ -461,7 +461,7 @@ VkStencilOpState ShaderProgramHelper::GetStencilOpState(ionU64 _stencilStateBits
     return state;
 }
 
-VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render, VkRenderPass _renderPass, EVertexLayout _vertexLayoutType, VkPipelineLayout _pipelineLayout, ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationControlShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationEvaluatorShader /*= VK_NULL_HANDLE*/, VkShaderModule _geometryShader /*= VK_NULL_HANDLE*/)
+VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render, VkRenderPass _renderPass, VkPrimitiveTopology _topology, EVertexLayout _vertexLayoutType, VkPipelineLayout _pipelineLayout, ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationControlShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationEvaluatorShader /*= VK_NULL_HANDLE*/, VkShaderModule _geometryShader /*= VK_NULL_HANDLE*/)
 {
     if (_vertexShader == VK_NULL_HANDLE)
     {
@@ -478,7 +478,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
 
     VkPipelineInputAssemblyStateCreateInfo assemblyInputState = {};
     assemblyInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    assemblyInputState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    assemblyInputState.topology = _topology;
     
     VkPipelineRasterizationStateCreateInfo rasterizationState = {};
     rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;

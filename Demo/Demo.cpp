@@ -376,9 +376,9 @@ int main()
     DirectionalLight* directionalLight = ionRenderManager().GetDirectionalLight();
 
 
-    const Vector lightDir(0.0f, 0.0f, 10.0f, 1.0f);
+    const Vector lightDir(0.0f, 0.0f, 1.0f, 1.0f);
     const Vector lightCol(1.0f, 1.0f, 1.0f, 1.0f);
-    const Vector lightRotEuler(75.0f, 40.0f, 0.0f, 1.0f);
+    const Vector lightRotEuler(NIX_DEG_TO_RAD(145.0f), NIX_DEG_TO_RAD(45.0f), 0.0f, 1.0f);
     Quaternion lightRot; lightRot.SetFromEuler(lightRotEuler);
 
     directionalLight->GetTransform().SetRotation(lightRot);

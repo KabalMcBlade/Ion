@@ -25,7 +25,9 @@
 
 
 #define ION_PBR_SHADER_NAME    "pbr"
-
+#define ION_LAMBERT_SHADER_NAME    "Lambert"
+#define ION_DIFFUSE_SHADER_NAME    "Diffuse"
+#define ION_DIFFUSENORMAL_SHADER_NAME    "DiffuseNormal"
 
 #define ION_PBR_DEBUG
 

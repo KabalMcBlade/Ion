@@ -202,6 +202,15 @@ public:
     ionBool Create();
     void Destroy();
 
+    void SetAsLambert() { m_isLambert = true; }
+    const ionBool IsLambert() const { return m_isLambert; }
+
+    void SetAsDiffuseNormal() { m_isDiffuseNormal = true; }
+    const ionBool IsDiffuseNormal() const { return m_isDiffuseNormal; }
+
+    void SetAsDiffuse() { m_isDiffuse = true; }
+    const ionBool IsDiffuse() const { return m_isDiffuse; }
+
     void SetUsingSpecularGloss(ionBool _specularGlossiness) { m_useGlossiness = _specularGlossiness; }
     const ionBool IsUsingSpecularGlossiness() const { return m_useGlossiness; }
 
@@ -248,6 +257,11 @@ public:
     const ShaderLayoutDef& GetFragmentShaderLayout() const { return m_fragmentShaderLayout; }
     const ShaderLayoutDef& GetComputeShaderLayout() const { return m_computeShaderLayout; }
 
+    //
+    // Special
+    void SetTopology(VkPrimitiveTopology _topology) { m_topology = _topology; }
+    VkPrimitiveTopology GetTopology() const { return m_topology; }
+
 private:
     eosString       m_name;
 
@@ -264,6 +278,8 @@ private:
 
     ConstantsBindingDef m_constants;
 
+    VkPrimitiveTopology m_topology;
+
     EVertexLayout   m_vertexLayout;
     EAlphaMode      m_alphaMode;
 
@@ -275,6 +291,9 @@ private:
     ionS32          m_tessellationEvaluationIndex;
     ionS32          m_geometryIndex;
 
+    ionBool         m_isDiffuseNormal;
+    ionBool         m_isDiffuse;
+    ionBool         m_isLambert;
     ionBool         m_useGlossiness;       // the default render pipeline is PBR, but if the texture are not found, this became true and use the specular glossiness, so it is just a fallback!
     ionBool         m_useJoint;
     ionBool         m_useSkinning;

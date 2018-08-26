@@ -14,7 +14,21 @@ I'm not planning to do a x86 version
 
 This is a screenshot about a first test on PBR render, maybe I need a more "brighty" and "shiny" skybox to generate maps from and set some different material parameters.
 
-<img src="./Screenshots/FirstTest.jpg">
+Using the DamagedHelmet supplied with this demo (for the license raed the end of this file)
+<img src="./Screenshots/Screenshot1.jpg">
+
+Another PBR test (model NOT supplied by this demo, but you can download from https://sketchfab.com)
+<img src="./Screenshots/Screenshot2.jpg">
+
+Another PBR test (model NOT supplied by this demo, but you can download from https://sketchfab.com)
+In this case I have exagerate the PBR settings (See controls below)
+<img src="./Screenshots/Screenshot3.jpg">
+
+Instead this screenshot has taken from a NOT PBR model, to test the capabilities of my renderer to swap to the "closest" material if Physical settings are not supplied
+(Again this mode is NOT supplied by this demo, but you can download from https://sketchfab.com)
+<img src="./Screenshots/Screenshot4_NoPBR.jpg">
+
+
 
 ## Controls
 
@@ -27,6 +41,12 @@ The controls in this demo test are:
 * Press R to auto rotate the model
 * Press B to toggle a fancy bounding box
 * Press A and S to increase or decrease the scale respectively
+
+Pressing the key L, you can change the control from the model to the light
+In this case, toggling the L key you will have:
+* Hold left mouse button in order to rotate the light
+* Hold right mouse button in order to change the direction of the light from right or left and up or down
+* Use the mouse wheel in order to change the direction of the light in forward
 
 To Debug PBR (this works just with the 7th test for now because is the only one using the PBR shader)
 You need to have defined ION_PBR_DEBUG (by default is defined)

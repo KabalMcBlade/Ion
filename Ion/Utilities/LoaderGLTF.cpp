@@ -612,176 +612,372 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
             {
                 Material* material = ionMaterialManger().GetMaterial(_materialIndexToMaterialName[primitive.material]);
 
-                enum ESettingType
+                switch (primitive.mode)
                 {
-                    ESettingType_Base = 0,
-                    ESettingType_Physical,
-                    ESettingType_Normal,
-                    ESettingType_Occlusion,
-                    ESettingType_Emissive,
-
-                    ESettingType_Count
-                };
-
-                ionFloat constantTexturesSettings[ESettingType_Count];
-                for (ionU32 constantCounter = 0; constantCounter < ESettingType_Count; ++constantCounter)
-                {
-                    constantTexturesSettings[constantCounter] = 1.0f;
+                case TINYGLTF_MODE_POINTS:
+                    material->SetTopology(VK_PRIMITIVE_TOPOLOGY_POINT_LIST);
+                    break;
+                case TINYGLTF_MODE_LINE:
+                    material->SetTopology(VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
+                    break;
+                case TINYGLTF_MODE_LINE_LOOP:
+                    material->SetTopology(VK_PRIMITIVE_TOPOLOGY_LINE_STRIP);
+                    break;
+                case TINYGLTF_MODE_TRIANGLES:
+                    material->SetTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+                    break;
+                case TINYGLTF_MODE_TRIANGLE_STRIP:
+                    material->SetTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+                    break;
+                case TINYGLTF_MODE_TRIANGLE_FAN:
+                    material->SetTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
+                    break;
+                default:
+                    material->SetTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+                    break;
                 }
 
+                if (material->IsValidPBR() || material->IsValidSpecularGlossiness())
                 {
-                    //
-                    UniformBinding uniformVertex;
-                    uniformVertex.m_bindingIndex = 0;
-                    uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-                    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-                    uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-                    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-                    uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-                    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-
-                    //
-                    UniformBinding uniformFragment;
-                    uniformFragment.m_bindingIndex = 1;
-                    uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-                    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-                    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-                    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-                    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-                    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-                    uniformFragment.m_parameters.push_back(ION_EXPOSURE_FLOAT_PARAM);
-                    uniformFragment.m_type.push_back(EUniformParameterType_Float);
-                    uniformFragment.m_parameters.push_back(ION_GAMMA_FLOAT_PARAM);
-                    uniformFragment.m_type.push_back(EUniformParameterType_Float);
-                    uniformFragment.m_parameters.push_back(ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM);
-                    uniformFragment.m_type.push_back(EUniformParameterType_Float);
-
-                    //
-                    SamplerBinding samplerIrradiance;
-                    samplerIrradiance.m_bindingIndex = 2;
-                    samplerIrradiance.m_texture = ionRenderManager().GetIrradianceCubemap();
-
-                    SamplerBinding prefilteredMap;
-                    prefilteredMap.m_bindingIndex = 3;
-                    prefilteredMap.m_texture = ionRenderManager().GetPrefilteredEnvironmentCubemap();
-
-                    SamplerBinding samplerBRDFLUT;
-                    samplerBRDFLUT.m_bindingIndex = 4;
-                    samplerBRDFLUT.m_texture = ionRenderManager().GetBRDF();
-
-                    //
-                    ionBool usingSpecularGlossiness = material->IsUsingSpecularGlossiness();
-
-                    //
-                    SamplerBinding albedoMap;
-                    albedoMap.m_bindingIndex = 5;
-                    albedoMap.m_texture = usingSpecularGlossiness ? material->GetSpecularGlossiness().GetBaseColorTexture() : material->GetBasePBR().GetBaseColorTexture();
-                    if (albedoMap.m_texture == nullptr)
+                    enum ESettingType
                     {
-                        constantTexturesSettings[ESettingType_Base] = 0.0f;
-                        albedoMap.m_texture = ionRenderManager().GetNullTexure();
+                        ESettingType_Base = 0,
+                        ESettingType_Physical,
+                        ESettingType_Normal,
+                        ESettingType_Occlusion,
+                        ESettingType_Emissive,
+
+                        ESettingType_Count
+                    };
+
+                    ionFloat constantTexturesSettings[ESettingType_Count];
+                    for (ionU32 constantCounter = 0; constantCounter < ESettingType_Count; ++constantCounter)
+                    {
+                        constantTexturesSettings[constantCounter] = 1.0f;
                     }
 
-                    SamplerBinding normalMap;
-                    normalMap.m_bindingIndex = 6;
-                    normalMap.m_texture = material->GetAdvancePBR().GetNormalTexture();
-                    if (normalMap.m_texture == nullptr)
                     {
-                        constantTexturesSettings[ESettingType_Normal] = 0.0f;
-                        normalMap.m_texture = ionRenderManager().GetNullTexure();
+                        //
+                        UniformBinding uniformVertex;
+                        uniformVertex.m_bindingIndex = 0;
+                        uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                        uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                        uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+
+                        //
+                        UniformBinding uniformFragment;
+                        uniformFragment.m_bindingIndex = 1;
+                        uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                        uniformFragment.m_parameters.push_back(ION_EXPOSURE_FLOAT_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Float);
+                        uniformFragment.m_parameters.push_back(ION_GAMMA_FLOAT_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Float);
+                        uniformFragment.m_parameters.push_back(ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Float);
+
+                        //
+                        SamplerBinding samplerIrradiance;
+                        samplerIrradiance.m_bindingIndex = 2;
+                        samplerIrradiance.m_texture = ionRenderManager().GetIrradianceCubemap();
+
+                        SamplerBinding prefilteredMap;
+                        prefilteredMap.m_bindingIndex = 3;
+                        prefilteredMap.m_texture = ionRenderManager().GetPrefilteredEnvironmentCubemap();
+
+                        SamplerBinding samplerBRDFLUT;
+                        samplerBRDFLUT.m_bindingIndex = 4;
+                        samplerBRDFLUT.m_texture = ionRenderManager().GetBRDF();
+
+                        //
+                        ionBool usingSpecularGlossiness = material->IsUsingSpecularGlossiness();
+
+                        //
+                        SamplerBinding albedoMap;
+                        albedoMap.m_bindingIndex = 5;
+                        albedoMap.m_texture = usingSpecularGlossiness ? material->GetSpecularGlossiness().GetBaseColorTexture() : material->GetBasePBR().GetBaseColorTexture();
+                        if (albedoMap.m_texture == nullptr)
+                        {
+                            constantTexturesSettings[ESettingType_Base] = 0.0f;
+                            albedoMap.m_texture = ionRenderManager().GetNullTexure();
+                        }
+
+                        SamplerBinding normalMap;
+                        normalMap.m_bindingIndex = 6;
+                        normalMap.m_texture = material->GetAdvancePBR().GetNormalTexture();
+                        if (normalMap.m_texture == nullptr)
+                        {
+                            constantTexturesSettings[ESettingType_Normal] = 0.0f;
+                            normalMap.m_texture = ionRenderManager().GetNullTexure();
+                        }
+
+                        SamplerBinding aoMap;
+                        aoMap.m_bindingIndex = 7;
+                        aoMap.m_texture = material->GetAdvancePBR().GetOcclusionTexture();
+                        if (aoMap.m_texture == nullptr)
+                        {
+                            constantTexturesSettings[ESettingType_Occlusion] = 0.0f;
+                            aoMap.m_texture = ionRenderManager().GetNullTexure();
+                        }
+
+                        SamplerBinding physicalDescriptorMap;
+                        physicalDescriptorMap.m_bindingIndex = 8;
+                        physicalDescriptorMap.m_texture = usingSpecularGlossiness ? material->GetSpecularGlossiness().GetSpecularGlossinessTexture() : material->GetBasePBR().GetMetalRoughnessTexture();
+                        if (physicalDescriptorMap.m_texture == nullptr)
+                        {
+                            constantTexturesSettings[ESettingType_Physical] = 0.0f;
+                            physicalDescriptorMap.m_texture = ionRenderManager().GetNullTexure();
+                        }
+
+                        SamplerBinding emissiveMap;
+                        emissiveMap.m_bindingIndex = 9;
+                        emissiveMap.m_texture = material->GetAdvancePBR().GetEmissiveTexture();
+                        if (emissiveMap.m_texture == nullptr)
+                        {
+                            constantTexturesSettings[ESettingType_Emissive] = 0.0f;
+                            emissiveMap.m_texture = ionRenderManager().GetNullTexure();
+                        }
+
+                        // set the shaders layout
+                        ShaderLayoutDef vertexLayout;
+                        vertexLayout.m_uniforms.push_back(uniformVertex);
+
+                        ShaderLayoutDef fragmentLayout;
+                        fragmentLayout.m_uniforms.push_back(uniformFragment);
+                        fragmentLayout.m_samplers.push_back(samplerIrradiance);
+                        fragmentLayout.m_samplers.push_back(prefilteredMap);
+                        fragmentLayout.m_samplers.push_back(samplerBRDFLUT);
+                        fragmentLayout.m_samplers.push_back(albedoMap);
+                        fragmentLayout.m_samplers.push_back(normalMap);
+                        fragmentLayout.m_samplers.push_back(aoMap);
+                        fragmentLayout.m_samplers.push_back(physicalDescriptorMap);
+                        fragmentLayout.m_samplers.push_back(emissiveMap);
+
+                        //
+                        ConstantsBindingDef constants;
+                        constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
+                        constants.m_values.push_back(material->GetAdvancePBR().GetEmissiveColor()[0]);
+                        constants.m_values.push_back(material->GetAdvancePBR().GetEmissiveColor()[1]);
+                        constants.m_values.push_back(material->GetAdvancePBR().GetEmissiveColor()[2]);
+                        constants.m_values.push_back(material->GetAdvancePBR().GetEmissiveColor()[3]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[0]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[1]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[2]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[3]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[0]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[1]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[2]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[3]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[0]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[1]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[2]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[3]);
+                        constants.m_values.push_back(usingSpecularGlossiness);
+                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Base]);
+                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Physical]);
+                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Normal]);
+                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Occlusion]);
+                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Emissive]);
+                        constants.m_values.push_back(material->GetBasePBR().GetMetallicFactor());
+                        constants.m_values.push_back(material->GetBasePBR().GetRoughnessFactor());
+                        constants.m_values.push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
+                        constants.m_values.push_back(material->GetAdvancePBR().GetAlphaCutoff());
+
+                        material->SetVertexShaderLayout(vertexLayout);
+                        material->SetFragmentShaderLayout(fragmentLayout);
+                        material->SetVertexLayout(ionMesh->GetLayout());
+                        material->SetConstantsShaders(constants);
+
+                        ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+                        ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Fragment);
+
+                        material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
                     }
-
-                    SamplerBinding aoMap;
-                    aoMap.m_bindingIndex = 7;
-                    aoMap.m_texture = material->GetAdvancePBR().GetOcclusionTexture();
-                    if (aoMap.m_texture == nullptr)
-                    {
-                        constantTexturesSettings[ESettingType_Occlusion] = 0.0f;
-                        aoMap.m_texture = ionRenderManager().GetNullTexure();
-                    }
-
-                    SamplerBinding physicalDescriptorMap;
-                    physicalDescriptorMap.m_bindingIndex = 8;
-                    physicalDescriptorMap.m_texture = usingSpecularGlossiness ? material->GetSpecularGlossiness().GetSpecularGlossinessTexture() : material->GetBasePBR().GetMetalRoughnessTexture();
-                    if (physicalDescriptorMap.m_texture == nullptr)
-                    {
-                        constantTexturesSettings[ESettingType_Physical] = 0.0f;
-                        physicalDescriptorMap.m_texture = ionRenderManager().GetNullTexure();
-                    }
-
-                    SamplerBinding emissiveMap;
-                    emissiveMap.m_bindingIndex = 9;
-                    emissiveMap.m_texture = material->GetAdvancePBR().GetEmissiveTexture();
-                    if (emissiveMap.m_texture == nullptr)
-                    {
-                        constantTexturesSettings[ESettingType_Emissive] = 0.0f;
-                        emissiveMap.m_texture = ionRenderManager().GetNullTexure();
-                    }
-
-                    // set the shaders layout
-                    ShaderLayoutDef vertexLayout;
-                    vertexLayout.m_uniforms.push_back(uniformVertex);
-
-                    ShaderLayoutDef fragmentLayout;
-                    fragmentLayout.m_uniforms.push_back(uniformFragment);
-                    fragmentLayout.m_samplers.push_back(samplerIrradiance);
-                    fragmentLayout.m_samplers.push_back(prefilteredMap);
-                    fragmentLayout.m_samplers.push_back(samplerBRDFLUT);
-                    fragmentLayout.m_samplers.push_back(albedoMap);
-                    fragmentLayout.m_samplers.push_back(normalMap);
-                    fragmentLayout.m_samplers.push_back(aoMap);
-                    fragmentLayout.m_samplers.push_back(physicalDescriptorMap);
-                    fragmentLayout.m_samplers.push_back(emissiveMap);
-
-                    //
-                    ConstantsBindingDef constants;
-                    constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-                    constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
-                    constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
-                    constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
-                    constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
-                    constants.m_values.push_back(material->GetAdvancePBR().GetEmissiveColor()[0]);
-                    constants.m_values.push_back(material->GetAdvancePBR().GetEmissiveColor()[1]);
-                    constants.m_values.push_back(material->GetAdvancePBR().GetEmissiveColor()[2]);
-                    constants.m_values.push_back(material->GetAdvancePBR().GetEmissiveColor()[3]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[0]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[1]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[2]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[3]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[0]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[1]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[2]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[3]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[0]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[1]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[2]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[3]);
-                    constants.m_values.push_back(usingSpecularGlossiness);
-                    constants.m_values.push_back(constantTexturesSettings[ESettingType_Base]);
-                    constants.m_values.push_back(constantTexturesSettings[ESettingType_Physical]);
-                    constants.m_values.push_back(constantTexturesSettings[ESettingType_Normal]);
-                    constants.m_values.push_back(constantTexturesSettings[ESettingType_Occlusion]);
-                    constants.m_values.push_back(constantTexturesSettings[ESettingType_Emissive]);
-                    constants.m_values.push_back(material->GetBasePBR().GetMetallicFactor());
-                    constants.m_values.push_back(material->GetBasePBR().GetRoughnessFactor());
-                    constants.m_values.push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
-                    constants.m_values.push_back(material->GetAdvancePBR().GetAlphaCutoff());
-
-                    material->SetVertexShaderLayout(vertexLayout);
-                    material->SetFragmentShaderLayout(fragmentLayout);
-                    material->SetVertexLayout(ionMesh->GetLayout());
-                    material->SetConstantsShaders(constants);
-
-                    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
-                    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Fragment);
-
-                    material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
                 }
-                //else
+                else
                 {
-                    // fallback here!
-                    // such a lambert or something like that
-                    // TODO
+                    if (material->IsDiffuseNormal())
+                    {
+                        //
+                        UniformBinding uniformVertex;
+                        uniformVertex.m_bindingIndex = 0;
+                        uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                        uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                        uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+
+                        //
+                        UniformBinding uniformFragment;
+                        uniformFragment.m_bindingIndex = 1;
+                        uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+
+                        //
+                        SamplerBinding albedoMap;
+                        albedoMap.m_bindingIndex = 2;
+                        albedoMap.m_texture = material->GetBasePBR().GetBaseColorTexture();
+
+                        SamplerBinding normalMap;
+                        normalMap.m_bindingIndex = 3;
+                        normalMap.m_texture = material->GetAdvancePBR().GetNormalTexture();
+
+
+                        // set the shaders layout
+                        ShaderLayoutDef vertexLayout;
+                        vertexLayout.m_uniforms.push_back(uniformVertex);
+
+                        ShaderLayoutDef fragmentLayout;
+                        fragmentLayout.m_uniforms.push_back(uniformFragment);
+                        fragmentLayout.m_samplers.push_back(albedoMap);
+                        fragmentLayout.m_samplers.push_back(normalMap);
+
+                        //
+                        ConstantsBindingDef constants;
+                        constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
+                        constants.m_values.push_back(material->GetBasePBR().GetMetallicFactor());
+                        constants.m_values.push_back(material->GetBasePBR().GetRoughnessFactor());
+                        constants.m_values.push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
+                        constants.m_values.push_back(material->GetAdvancePBR().GetAlphaCutoff());
+
+                        material->SetVertexShaderLayout(vertexLayout);
+                        material->SetFragmentShaderLayout(fragmentLayout);
+                        material->SetVertexLayout(ionMesh->GetLayout());
+                        material->SetConstantsShaders(constants);
+
+                        ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+                        ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_DIFFUSENORMAL_SHADER_NAME, EShaderStage_Fragment);
+
+                        material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+                    }
+                    else if (material->IsDiffuse())
+                    {
+                        //
+                        UniformBinding uniformVertex;
+                        uniformVertex.m_bindingIndex = 0;
+                        uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                        uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                        uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+
+                        //
+                        UniformBinding uniformFragment;
+                        uniformFragment.m_bindingIndex = 1;
+                        uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+
+                        //
+                        SamplerBinding albedoMap;
+                        albedoMap.m_bindingIndex = 2;
+                        albedoMap.m_texture = material->GetBasePBR().GetBaseColorTexture();
+
+                        // set the shaders layout
+                        ShaderLayoutDef vertexLayout;
+                        vertexLayout.m_uniforms.push_back(uniformVertex);
+
+                        ShaderLayoutDef fragmentLayout;
+                        fragmentLayout.m_uniforms.push_back(uniformFragment);
+                        fragmentLayout.m_samplers.push_back(albedoMap);
+
+                        //
+                        ConstantsBindingDef constants;
+                        constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
+                        constants.m_values.push_back(material->GetBasePBR().GetMetallicFactor());
+                        constants.m_values.push_back(material->GetBasePBR().GetRoughnessFactor());
+                        constants.m_values.push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
+                        constants.m_values.push_back(material->GetAdvancePBR().GetAlphaCutoff());
+
+                        material->SetVertexShaderLayout(vertexLayout);
+                        material->SetFragmentShaderLayout(fragmentLayout);
+                        material->SetVertexLayout(ionMesh->GetLayout());
+                        material->SetConstantsShaders(constants);
+
+                        ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+                        ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_DIFFUSE_SHADER_NAME, EShaderStage_Fragment);
+
+                        material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+                    }
+                    else
+                    {
+                        // Lambert
+
+                        //
+                        UniformBinding uniformVertex;
+                        uniformVertex.m_bindingIndex = 0;
+                        uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                        uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                        uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+
+                        //
+                        UniformBinding uniformFragment;
+                        uniformFragment.m_bindingIndex = 1;
+                        uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+
+                        // set the shaders layout
+                        ShaderLayoutDef vertexLayout;
+                        vertexLayout.m_uniforms.push_back(uniformVertex);
+
+                        ShaderLayoutDef fragmentLayout;
+                        fragmentLayout.m_uniforms.push_back(uniformFragment);
+
+                        //
+                        ConstantsBindingDef constants;
+                        constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
+                        constants.m_values.push_back(material->GetBasePBR().GetMetallicFactor());
+                        constants.m_values.push_back(material->GetBasePBR().GetRoughnessFactor());
+
+                        material->SetVertexShaderLayout(vertexLayout);
+                        material->SetFragmentShaderLayout(fragmentLayout);
+                        material->SetVertexLayout(ionMesh->GetLayout());
+                        material->SetConstantsShaders(constants);
+
+                        ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+                        ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_LAMBERT_SHADER_NAME, EShaderStage_Fragment);
+
+                        material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+                    }
                 }
 
                 //
@@ -789,7 +985,34 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
             }
             else
             {
-                ionMesh->SetMaterial(ionMaterialManger().GetMaterial("Default"));
+                Material* material = ionMaterialManger().GetMaterial("Default");
+
+                switch (primitive.mode)
+                {
+                case TINYGLTF_MODE_POINTS:
+                    material->SetTopology(VK_PRIMITIVE_TOPOLOGY_POINT_LIST);
+                    break;
+                case TINYGLTF_MODE_LINE:
+                    material->SetTopology(VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
+                    break;
+                case TINYGLTF_MODE_LINE_LOOP:
+                    material->SetTopology(VK_PRIMITIVE_TOPOLOGY_LINE_STRIP);
+                    break;
+                case TINYGLTF_MODE_TRIANGLES:
+                    material->SetTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+                    break;
+                case TINYGLTF_MODE_TRIANGLE_STRIP:
+                    material->SetTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP);
+                    break;
+                case TINYGLTF_MODE_TRIANGLE_FAN:
+                    material->SetTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
+                    break;
+                default:
+                    material->SetTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+                    break;
+                }
+
+                ionMesh->SetMaterial(material);
             }
         }
 
@@ -1199,6 +1422,33 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
             if (material->GetBasePBR().GetMetalRoughnessTexture() == nullptr && material->GetSpecularGlossiness().GetSpecularGlossinessTexture() != nullptr)
             {
                 material->SetUsingSpecularGloss(true);
+            }
+
+            // If no texture at all, this material is "promoted" to lambertian
+            if (!material->IsUsingSpecularGlossiness())
+            {
+                if (material->GetBasePBR().GetMetalRoughnessTexture() == nullptr && material->GetBasePBR().GetBaseColorTexture() == nullptr &&
+                    material->GetAdvancePBR().GetNormalTexture() == nullptr && material->GetAdvancePBR().GetEmissiveTexture() == nullptr && material->GetAdvancePBR().GetOcclusionTexture() == nullptr)
+                {
+                    material->SetAsLambert();
+                }
+            }
+
+            // maybe it is a bump mapping or simple diffuse ?
+            if (!material->IsUsingSpecularGlossiness() && !material->IsLambert())
+            {
+                if (material->GetBasePBR().GetBaseColorTexture() != nullptr && material->GetAdvancePBR().GetNormalTexture() != nullptr) // diffuse + normal
+                {
+                    material->SetAsDiffuseNormal();
+                }
+                else if (material->GetBasePBR().GetBaseColorTexture() != nullptr) // diffuse
+                {
+                    material->SetAsDiffuse();
+                }
+                else // otherwise fallback to lambert
+                {
+                    material->SetAsLambert();
+                }
             }
         }
     }

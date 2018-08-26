@@ -336,7 +336,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
 
     _material->GetShaders(vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
 
-    VkPipeline pipeline = shaderProgram.GetPipeline(_render, _renderPass, _stateBits,
+    VkPipeline pipeline = shaderProgram.GetPipeline(_render, _renderPass, _stateBits, _material->GetTopology(),
         m_shaders[vertexShaderIndex].m_shaderModule,
         fragmentShaderIndex != -1 ? m_shaders[fragmentShaderIndex].m_shaderModule : VK_NULL_HANDLE,
         tessellationControlIndex != -1 ? m_shaders[tessellationControlIndex].m_shaderModule : VK_NULL_HANDLE,
