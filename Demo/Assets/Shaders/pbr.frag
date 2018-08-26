@@ -7,6 +7,7 @@
 layout (location = 0) in vec3 inWorldPos;
 layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inUV;
+layout (location = 3) in vec4 inColor;
 
 
 layout (binding = 1) uniform UBOParams 
@@ -264,38 +265,56 @@ void main()
 		// The albedo may be defined from a base texture or a flat color
 		if (material.hasBaseColorTexture == 1.0f) 
 		{
+			baseColor = SRGBtoLINEAR(texture(albedoMap, inUV))* baseColorFactor;
+		} 
+		else 
+		{
+			baseColor = baseColorFactor;
+		}
+		
+		baseColor = baseColor * inColor;
+	}
+	else if (material.usingSpecularGlossiness == PBR_SPECULAR_GLOSINESS)
+	{
+		const float epsilon = 1e-6;
+		vec3 specular;
+
+		// Values from specular glossiness workflow are converted to metallic roughness
+		if (material.hasPhysicalDescriptorTexture == 1.0f)
+		{
+			perceptualRoughness = 1.0 - texture(physicalDescriptorMap, inUV).a;
+			specular = SRGBtoLINEAR(texture(physicalDescriptorMap, inUV)).rgb;
+		} 
+		else
+		{
+			perceptualRoughness = 0.0;
+			specular = vec3(1.0, 1.0, 1.0);
+		}
+
+		const vec4 baseColorFactor = vec4(material.baseColorFactorR, material.baseColorFactorG, material.baseColorFactorB, material.baseColorFactorA);
+		// The albedo may be defined from a base texture or a flat color
+		if (material.hasBaseColorTexture == 1.0f) 
+		{
 			baseColor = SRGBtoLINEAR(texture(albedoMap, inUV)) * baseColorFactor;
 		} 
 		else 
 		{
 			baseColor = baseColorFactor;
 		}
-	}
-	else if (material.usingSpecularGlossiness == PBR_SPECULAR_GLOSINESS)
-	{
-		// Values from specular glossiness workflow are converted to metallic roughness
-		if (material.hasPhysicalDescriptorTexture == 1.0f) {
-			perceptualRoughness = 1.0 - texture(physicalDescriptorMap, inUV).a;
-		} else {
-			perceptualRoughness = 0.0;
-		}
-
-		const float epsilon = 1e-6;
-
-		vec4 diffuse = SRGBtoLINEAR(texture(albedoMap, inUV));
-		vec3 specular = SRGBtoLINEAR(texture(physicalDescriptorMap, inUV)).rgb;
+		
+		baseColor = baseColor * inColor;
 
 		float maxSpecular = max(max(specular.r, specular.g), specular.b);
 
 		// Convert metallic value from specular glossiness inputs
-		metallic = convertMetallic(diffuse.rgb, specular, maxSpecular);
+		metallic = convertMetallic(baseColor.rgb, specular, maxSpecular);
 
 		const vec4 diffuseFactor = vec4(material.diffuseFactorR, material.diffuseFactorG, material.diffuseFactorB, material.diffuseFactorA);
 		const vec4 specularFactor = vec4(material.specularFactorR, material.specularFactorG, material.specularFactorB, material.specularFactorA);
 		
-		vec3 baseColorDiffusePart = diffuse.rgb * ((1.0 - maxSpecular) / (1 - c_MinRoughness) / max(1 - metallic, epsilon)) * diffuseFactor.rgb;
+		vec3 baseColorDiffusePart = baseColor.rgb * ((1.0 - maxSpecular) / (1 - c_MinRoughness) / max(1 - metallic, epsilon)) * diffuseFactor.rgb;
 		vec3 baseColorSpecularPart = specular - (vec3(c_MinRoughness) * (1 - metallic) * (1 / max(metallic, epsilon))) * specularFactor.rgb;
-		baseColor = vec4(mix(baseColorDiffusePart, baseColorSpecularPart, metallic * metallic), diffuse.a);
+		baseColor = vec4(mix(baseColorDiffusePart, baseColorSpecularPart, metallic * metallic), baseColor.a);
 	}
 
 	diffuseColor = baseColor.rgb * (vec3(1.0) - f0);

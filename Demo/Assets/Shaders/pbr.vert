@@ -22,6 +22,7 @@ layout (binding = 0) uniform UBO
 layout (location = 0) out vec3 outWorldPos;
 layout (location = 1) out vec3 outNormal;
 layout (location = 2) out vec2 outUV;
+layout (location = 3) out vec4 outColor;
 
 out gl_PerVertex
 {
@@ -34,5 +35,6 @@ void main()
 	outWorldPos = locPos;
 	outNormal = normalize(inNormal.xyz);
 	outUV = inTexCoord0;
+	outColor = inColor;
 	gl_Position =  ubo.proj * ubo.view * vec4(outWorldPos, 1.0);
 }
