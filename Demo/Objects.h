@@ -46,8 +46,6 @@ public:
     MainCamera();
     virtual ~MainCamera();
 
-    void SetParameters(ionFloat _movementSpeed, ionFloat _mouseSensitivity);
-
 public:
     virtual void OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime) override;
 
@@ -61,8 +59,4 @@ private:
     };
     EPBRDebugType m_pbrDebug;
 #endif
-
-private:
-    ionFloat m_movementSpeed;
-    ionFloat m_mouseSensitivity;
 };

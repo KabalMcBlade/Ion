@@ -265,7 +265,6 @@ int main()
     camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
     camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
     camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
-    camera->SetParameters(10.0f, 0.05f);
 
     //////////////////////////////////////////////////////////////////////////
     // Create SkyBox

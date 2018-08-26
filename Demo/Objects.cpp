@@ -165,7 +165,7 @@ void BoundingBoxEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState
 //////////////////////////////////////////////////////////////////////////
 // CAMERA
 
-MainCamera::MainCamera() : Camera("FPS Camera"), m_movementSpeed(1.0f), m_mouseSensitivity(0.05f)
+MainCamera::MainCamera() : Camera("Main Camera")
 {
 #ifdef ION_PBR_DEBUG
     m_pbrDebug = EPBRDebugType_Exposure;
@@ -175,12 +175,6 @@ MainCamera::MainCamera() : Camera("FPS Camera"), m_movementSpeed(1.0f), m_mouseS
 MainCamera::~MainCamera()
 {
 
-}
-
-void MainCamera::SetParameters(ionFloat _movementSpeed, ionFloat _mouseSensitivity)
-{
-    m_movementSpeed = _movementSpeed;
-    m_mouseSensitivity = _mouseSensitivity;
 }
 
 void MainCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime)
