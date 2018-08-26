@@ -30,7 +30,7 @@ Instead this screenshot has taken from a NOT PBR model, to test the capabilities
 
 
 
-## Controls
+## Demo Controls
 
 At the beginning you have to select the test, from 1 to 5 are generated primitives, 6 is to see the BRDFlut texture in a quad and the 7 is the DamageHelmet PBR test.
 
