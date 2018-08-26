@@ -35,13 +35,11 @@ To Debug PBR (this works just with the 7th test for now because is the only one 
 ## Important
 
 As I wrote before, this is made to learn something about this API.
-Most of the code has been studied and inspired by:
+From the following persons, I got my inspiration
 - Dustin Land (https://www.fasterthan.life/) 
 	- GitHub: https://github.com/DustinHLand
-		- Buffers, caches and the initialization and setup of Vulkan and rendering backend core loop
 - Sascha Willems (https://www.saschawillems.de/)
 	- GitHub: https://github.com/SaschaWillems
-		- BRDFLUT, Irradiance, EnvironmentPrefiltered maps generation and shaders
 
 
 ## LICENSE
