@@ -163,112 +163,35 @@ int main()
         window.SetInputMode(true, true);
         rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
     }
-
-    
-    Material* skyboxMaterial = ionMaterialManger().CreateMaterial("SkyBox", 0u);
-    ionS32 skyboxVertexShaderIndex = -1;
-    ionS32 skyboxFragmentShaderIndex = -1;
-
-    
-    //////////////////////////////////////////////////////////////////////////
-
-    //static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
-    //static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
-    //static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
-
-
-    Vector cameraPos(0.0f, 0.0f, -3.0f, 0.0f);
-    Vector entityPos(0.0f, 0.0f, 0.0f, 0.0f);
-
-    //////////////////////////////////////////////////////////////////////////
+ 
 
     //////////////////////////////////////////////////////////////////////////
     // Generate and load all global texture
-    ionRenderManager().GenerateNullTexture();
-
-    eosString skyboxCubeMapPath = ionFileSystemManager().GetTexturesPath() + "Yokohama3.jpg";
-    Texture* skyboxCubeMap = ionTextureManger().CreateTextureFromFile("Yokohama3", skyboxCubeMapPath, ETextureFilter_Default, ETextureRepeat_ClampAlpha, ETextureUsage_Skybox, ETextureType_Cubic, 1);
+    const Texture* nullTextureMap = ionRenderManager().GenerateNullTexture();
+    const Texture* skyboxCubeMap = ionTextureManger().CreateTextureFromFile("Yokohama3", ionFileSystemManager().GetTexturesPath() + "Yokohama3.jpg", ETextureFilter_Default, ETextureRepeat_ClampAlpha, ETextureUsage_Skybox, ETextureType_Cubic, 1);
     
-    const Texture* brdflut = nullptr;
-    const Texture* irradiance = nullptr;
-    const Texture* prefilteredEnvironmentMap = nullptr;
-    
+    Material* skyboxMaterial = ionMaterialManger().CreateMaterial("SkyBox", 0u);
 
-    // generate brdf, irradiance and prefiltered cube map
-    {
-        //
-        Camera* cameraPtr = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE);
-        ObjectHandler camera(cameraPtr);
-        cameraPtr->SetCameraType(ion::Camera::ECameraType::ECameraType_LookAt);
-        cameraPtr->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
-        cameraPtr->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
-        cameraPtr->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
+    ionS32 skyboxVertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Vertex);
+    ionS32 skyboxFragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Fragment);
 
-        Skybox* skyboxPtr = cameraPtr->AddSkybox();
-        skyboxPtr->SetMaterial(skyboxMaterial);
-        skyboxMaterial->GetBasePBR().SetBaseColorTexture(skyboxCubeMap);
 
-        // one uniform structure bound in the index 0 in the shader stage
-        ion::UniformBinding uniform;
-        uniform.m_bindingIndex = 0;
-        uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-        uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
-        uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-        uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
-        uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-        uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
-
-        // one sampler bound in the index 1 in the shader stage
-        ion::SamplerBinding sampler;
-        sampler.m_bindingIndex = 1;
-        sampler.m_texture = skyboxMaterial->GetBasePBR().GetBaseColorTexture();
-
-        // constants
-        ConstantsBindingDef constants;
-        constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-        constants.m_values.push_back(4.5f);
-        constants.m_values.push_back(2.2f);
-
-        // set the shaders layout
-        ion::ShaderLayoutDef vertexLayout;
-        vertexLayout.m_uniforms.push_back(uniform);
-
-        ion::ShaderLayoutDef fragmentLayout;
-        fragmentLayout.m_samplers.push_back(sampler);
-
-        skyboxMaterial->SetVertexShaderLayout(vertexLayout);
-        skyboxMaterial->SetFragmentShaderLayout(fragmentLayout);
-
-        skyboxVertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Vertex);
-        skyboxFragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Fragment);
-
-        skyboxMaterial->SetVertexLayout(skyboxPtr->GetVertexLayout());
-        skyboxMaterial->SetConstantsShaders(constants);
-        skyboxMaterial->SetShaders(skyboxVertexShaderIndex, skyboxFragmentShaderIndex);
-        skyboxMaterial->GetState().SetCullingMode(ECullingMode_Front);
-        skyboxMaterial->GetState().SetDepthFunctionMode(EDepthFunction_Less);
-        skyboxMaterial->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
-
-        // generation
-        brdflut = ionRenderManager().GenerateBRDF(camera);
-        irradiance = ionRenderManager().GenerateIrradianceCubemap(skyboxMaterial->GetBasePBR().GetBaseColorTexture(), camera);
-        prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(skyboxMaterial->GetBasePBR().GetBaseColorTexture(), camera);
-    }
-    
     //////////////////////////////////////////////////////////////////////////
     // Create Camera
+    static const Vector cameraPos(0.0f, 0.0f, -3.0f, 0.0f);
+
     MainCamera* camera = eosNew(MainCamera, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler cameraHandle(camera);
     camera->SetCameraType(ion::Camera::ECameraType::ECameraType_LookAt);
     camera->SetPerspectiveProjection(45.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 1000.0f);
-    camera->GetTransform().SetPosition(cameraPos);
     camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
     camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
     camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
+    camera->GetTransform().SetPosition(cameraPos);
+
 
     //////////////////////////////////////////////////////////////////////////
     // Create SkyBox
-
     Skybox* skyboxPtr = camera->AddSkybox();
     skyboxPtr->SetMaterial(skyboxMaterial);
     skyboxMaterial->GetBasePBR().SetBaseColorTexture(skyboxCubeMap);
@@ -301,23 +224,36 @@ int main()
     ion::ShaderLayoutDef fragmentLayout;
     fragmentLayout.m_samplers.push_back(sampler);
 
+    skyboxMaterial->SetVertexShaderLayout(vertexLayout);
+    skyboxMaterial->SetFragmentShaderLayout(fragmentLayout);
     skyboxMaterial->SetVertexLayout(skyboxPtr->GetVertexLayout());
     skyboxMaterial->SetConstantsShaders(constants);
     skyboxMaterial->SetShaders(skyboxVertexShaderIndex, skyboxFragmentShaderIndex);
+
+    // check here
+    skyboxMaterial->GetState().SetCullingMode(ECullingMode_Front);
+    skyboxMaterial->GetState().SetDepthFunctionMode(EDepthFunction_Less);
+    skyboxMaterial->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
+
+
+    //////////////////////////////////////////////////////////////////////////
+    // Continue texture generation
+    const Texture* brdflut = ionRenderManager().GenerateBRDF(camera);
+    const Texture* irradiance = ionRenderManager().GenerateIrradianceCubemap(camera);
+    const Texture* prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(camera);
 
     
     //////////////////////////////////////////////////////////////////////////
     // Create Entity to render
     RotatingEntity* test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE, "GameEntity");
     ObjectHandler testHandle(test);
-    test->GetTransform().SetPosition(entityPos);
+
 
     //////////////////////////////////////////////////////////////////////////
     //
     //  EXECUTE THE CHOSEN TEST
     //
     //////////////////////////////////////////////////////////////////////////
-
     switch(choice)
     {
     case 1:

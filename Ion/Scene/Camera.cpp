@@ -147,6 +147,11 @@ Skybox* Camera::AddSkybox()
     return m_skybox;
 }
 
+Skybox* Camera::GetSkybox()
+{
+    return m_skybox;
+}
+
 void Camera::RemoveSkybox()
 {
     if (m_skybox != nullptr)

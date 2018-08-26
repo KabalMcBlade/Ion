@@ -7,6 +7,7 @@
 
 #include "../Scene/Entity.h"
 #include "../Scene/DirectionalLight.h"
+#include "../Scene/Skybox.h"
 
 #include "../Geometry/Mesh.h"
 #include "../Geometry/PrimitiveFactory.h"
@@ -311,7 +312,7 @@ const Texture* RenderManager::GetBRDF() const
     return ionTextureManger().GetTexture(ION_BRDFLUT_TEXTURENAME);
 }
 
-const Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera)
+const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
 {
     const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(64))) + 1;
 
@@ -371,7 +372,7 @@ const Texture* RenderManager::GenerateIrradianceCubemap(const Texture* _environm
     //
     SamplerBinding sampler;
     sampler.m_bindingIndex = 1;
-    sampler.m_texture = _environmentCubeMap;
+    sampler.m_texture = cameraPtr->GetSkybox()->GetMaterial()->GetBasePBR().GetBaseColorTexture();
 
     //
     ConstantsBindingDef constants;
@@ -597,7 +598,7 @@ const Texture* RenderManager::GetIrradianceCubemap() const
     return ionTextureManger().GetTexture(ION_IRRADIANCE_TEXTURENAME);
 }
 
-const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera)
+const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandler _camera)
 {
     const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(512))) + 1;
 
@@ -662,7 +663,7 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(const Textur
    
     SamplerBinding sampler;
     sampler.m_bindingIndex = 2;
-    sampler.m_texture = _environmentCubeMap;
+    sampler.m_texture = cameraPtr->GetSkybox()->GetMaterial()->GetBasePBR().GetBaseColorTexture();
 
     //
     ConstantsBindingDef constants;

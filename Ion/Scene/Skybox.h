@@ -31,6 +31,7 @@ public:
     static EVertexLayout GetVertexLayout() { return EVertexLayout_Pos; }
 
     void SetMaterial(Material* _material);
+    Material* GetMaterial();
 
     void UpdateUniformBuffer(const Matrix& _projection, const Matrix& _view, const Matrix& _model);
     void Draw(RenderCore& _renderCore);

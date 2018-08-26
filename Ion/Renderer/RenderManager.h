@@ -87,10 +87,10 @@ public:
     const Texture*    GenerateBRDF(ObjectHandler _camera);
     const Texture*    GetBRDF() const;
 
-    const Texture*    GenerateIrradianceCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera);
+    const Texture*    GenerateIrradianceCubemap(ObjectHandler _camera);
     const Texture*    GetIrradianceCubemap() const;
 
-    const Texture*    GeneratePrefilteredEnvironmentCubemap(const Texture* _environmentCubeMap, ObjectHandler _camera);
+    const Texture*    GeneratePrefilteredEnvironmentCubemap(ObjectHandler _camera);
     const Texture*    GetPrefilteredEnvironmentCubemap() const;
 
     const Texture*    GenerateNullTexture();

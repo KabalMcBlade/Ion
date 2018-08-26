@@ -100,6 +100,11 @@ void Skybox::SetMaterial(Material* _material)
     m_drawSurface.m_material = m_mesh->GetMaterial();
 }
 
+Material* Skybox::GetMaterial()
+{
+    return m_mesh->GetMaterial();
+}
+
 void Skybox::UpdateUniformBuffer(const Matrix& _projection, const Matrix& _view, const Matrix& _model)
 {
     _mm_storeu_ps(&m_drawSurface.m_modelMatrix[0], _model[0]);

@@ -47,6 +47,7 @@ public:
     const Frustum& GetFrustum() const { return m_frustum; }
 
     Skybox* AddSkybox();
+    Skybox* GetSkybox();
     void RemoveSkybox();
 
     void RenderSkybox(RenderCore& _renderCore);
