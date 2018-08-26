@@ -26,8 +26,10 @@ The controls in this demo test are:
 * Use the mouse wheel to go toward or far away the object
 * Press R to auto rotate the model
 * Press B to toggle a fancy bounding box
+* Press A and S to increase or decrease the scale respectively
 
 To Debug PBR (this works just with the 7th test for now because is the only one using the PBR shader)
+You need to have defined ION_PBR_DEBUG (by default is defined)
 * Press 1, 2 or 3 to change the active value between esposure, gamma or prefiltered cube mip levels
 * Press Q or Z to increment or decrement the selected values
 
@@ -35,7 +37,7 @@ To Debug PBR (this works just with the 7th test for now because is the only one 
 ## Important
 
 As I wrote before, this is made to learn something about this API.
-From the following persons, I got my inspiration
+I got my inspiration from the following persons and their code
 - Dustin Land (https://www.fasterthan.life/) 
 	- GitHub: https://github.com/DustinHLand
 - Sascha Willems (https://www.saschawillems.de/)
