@@ -14,6 +14,8 @@
 #include "../Shader/ShaderProgramManager.h"
 #include "../Core/FileSystemManager.h"
 
+#include "../Scene/Camera.h"
+
 #define TINYGLTF_IMPLEMENTATION
 // #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
 #include "../Dependencies/Miscellaneous/tiny_gltf.h"
@@ -802,7 +804,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
 }
 
 
-ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, ionBool _generateNormalWhenMissing /*= false*/, ionBool _generateTangentWhenMissing /*= false*/, ionBool _setBitangentSign /*= false*/)
+ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, ObjectHandler& _entity, ionBool _generateNormalWhenMissing /*= false*/, ionBool _generateTangentWhenMissing /*= false*/, ionBool _setBitangentSign /*= false*/)
 {
     //
     eosString dir;
@@ -1239,6 +1241,15 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, ObjectHandler& _entity, io
         }
     }
 
+    //
+    // 4. camera set, for now just one and perspective
+    if (model.cameras.size() > 0)
+    {
+        if (model.cameras[0].type == "perspective")
+        {
+            _camToUpdatePtr->SetPerspectiveProjection(NIX_RAD_TO_DEG(model.cameras[0].perspective.yfov), model.cameras[0].perspective.aspectRatio, model.cameras[0].perspective.znear, model.cameras[0].perspective.zfar);
+        }
+    }
 
     return true;
 }

@@ -13,13 +13,14 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+class Camera;
 class LoaderGLTF final
 {
 public:
     LoaderGLTF();
     ~LoaderGLTF();
 
-    ionBool Load(const eosString& _fileName, ObjectHandler& _entity, ionBool _generateNormalWhenMissing = false, ionBool _generateTangentWhenMissing = false, ionBool _setBitangentSign = false);
+    ionBool Load(const eosString& _fileName, Camera* _camToUpdatePtr, ObjectHandler& _entity, ionBool _generateNormalWhenMissing = false, ionBool _generateTangentWhenMissing = false, ionBool _setBitangentSign = false);
 };
 
 

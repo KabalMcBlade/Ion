@@ -340,7 +340,7 @@ int main()
         Test_TexturedQuadEx(testHandle, ionRenderManager().GetBRDF());
         break;
     case 7:
-        Test_ModelPBR(testHandle, brdflut, irradiance, prefilteredEnvironmentMap);
+        Test_ModelPBR(testHandle, camera, brdflut, irradiance, prefilteredEnvironmentMap);
         break;
     default:
         std::cout << "Any valid choose made, will run the Colored Triangle test" << std::endl;
