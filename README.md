@@ -15,18 +15,18 @@ I'm not planning to do a x86 version
 This is a screenshot about a first test on PBR render, maybe I need a more "brighty" and "shiny" skybox to generate maps from and set some different material parameters.
 
 Using the DamagedHelmet supplied with this demo (for the license raed the end of this file)
-<img src="./Screenshots/Screenshot1.jpg">
+<img src="./Screenshots/Screenshot1.png>
 
 Another PBR test (model NOT supplied by this demo, but you can download from https://sketchfab.com)
-<img src="./Screenshots/Screenshot2.jpg">
+<img src="./Screenshots/Screenshot2.png">
 
 Another PBR test (model NOT supplied by this demo, but you can download from https://sketchfab.com)
 In this case I have exagerate the PBR settings (See controls below)
-<img src="./Screenshots/Screenshot3.jpg">
+<img src="./Screenshots/Screenshot3.png">
 
 Instead this screenshot has taken from a NOT PBR model, to test the capabilities of my renderer to swap to the "closest" material if Physical settings are not supplied
 (Again this mode is NOT supplied by this demo, but you can download from https://sketchfab.com)
-<img src="./Screenshots/Screenshot4_NoPBR.jpg">
+<img src="./Screenshots/Screenshot4_NoPBR.png">
 
 
 
