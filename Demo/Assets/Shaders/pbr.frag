@@ -47,6 +47,10 @@ layout (push_constant) uniform Material {
 	float specularFactorG;
 	float specularFactorB;
 	float specularFactorA;
+	float glossinessFactorR;
+	float glossinessFactorG;
+	float glossinessFactorB;
+	float glossinessFactorA;
 	float usingSpecularGlossiness;
 	float hasBaseColorTexture;
 	float hasPhysicalDescriptorTexture;
@@ -311,9 +315,10 @@ void main()
 
 		const vec4 diffuseFactor = vec4(material.diffuseFactorR, material.diffuseFactorG, material.diffuseFactorB, material.diffuseFactorA);
 		const vec4 specularFactor = vec4(material.specularFactorR, material.specularFactorG, material.specularFactorB, material.specularFactorA);
+		const vec4 glossinessFactor = vec4(material.glossinessFactorR, material.glossinessFactorG, material.glossinessFactorB, material.glossinessFactorA);
 		
 		vec3 baseColorDiffusePart = baseColor.rgb * ((1.0 - maxSpecular) / (1 - c_MinRoughness) / max(1 - metallic, epsilon)) * diffuseFactor.rgb;
-		vec3 baseColorSpecularPart = specular - (vec3(c_MinRoughness) * (1 - metallic) * (1 / max(metallic, epsilon))) * specularFactor.rgb;
+		vec3 baseColorSpecularPart = specular - (vec3(c_MinRoughness) * (1 - metallic) * (1 / max(metallic, epsilon))) * specularFactor.rgb * glossinessFactor.rgb;
 		baseColor = vec4(mix(baseColorDiffusePart, baseColorSpecularPart, metallic * metallic), baseColor.a);
 	}
 

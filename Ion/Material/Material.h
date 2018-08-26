@@ -137,29 +137,49 @@ public:
     }
 
 
-    void GetSpecularGlossinessColor(ionFloat& _r, ionFloat& _g, ionFloat& _b, ionFloat& _a) const
+    void GetGlossinessColor(ionFloat& _r, ionFloat& _g, ionFloat& _b, ionFloat& _a) const
     {
-        _r = m_specularGlossinessColor[0];
-        _g = m_specularGlossinessColor[1];
-        _b = m_specularGlossinessColor[2];
-        _a = m_specularGlossinessColor[3];
+        _r = m_glossinessColor[0];
+        _g = m_glossinessColor[1];
+        _b = m_glossinessColor[2];
+        _a = m_glossinessColor[3];
     }
-    const ionFloat* GetSpecularGlossinessColor() const { return &m_specularGlossinessColor[0]; }
+    const ionFloat* GetGlossinessColor() const { return &m_glossinessColor[0]; }
 
-    void SetSpecularGlossinessColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
+    void SetGlossinessColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
     {
-        m_specularGlossinessColor[0] = _r;
-        m_specularGlossinessColor[1] = _g;
-        m_specularGlossinessColor[2] = _b;
-        m_specularGlossinessColor[3] = _a;
+        m_glossinessColor[0] = _r;
+        m_glossinessColor[1] = _g;
+        m_glossinessColor[2] = _b;
+        m_glossinessColor[3] = _a;
     }
+
+
+    void GetSpecularColor(ionFloat& _r, ionFloat& _g, ionFloat& _b, ionFloat& _a) const
+    {
+        _r = m_specularColor[0];
+        _g = m_specularColor[1];
+        _b = m_specularColor[2];
+        _a = m_specularColor[3];
+    }
+    const ionFloat* GetSpecularColor() const { return &m_specularColor[0]; }
+
+    void SetSpecularColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
+    {
+        m_specularColor[0] = _r;
+        m_specularColor[1] = _g;
+        m_specularColor[2] = _b;
+        m_specularColor[3] = _a;
+    }
+
 
 private:
     const Texture*    m_baseColorTexture;
     const Texture*    m_specularGlossiness;
 
     ionFloat    m_baseColor[4];
-    ionFloat    m_specularGlossinessColor[4];
+    ionFloat    m_glossinessColor[4];
+    ionFloat    m_specularColor[4];
 };
 
 

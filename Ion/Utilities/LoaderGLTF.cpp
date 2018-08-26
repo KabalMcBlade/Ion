@@ -748,21 +748,17 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
                     constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[1]);
                     constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[2]);
                     constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[3]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularGlossinessColor()[0]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularGlossinessColor()[1]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularGlossinessColor()[2]);
-                    constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularGlossinessColor()[3]);
+                    constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[0]);
+                    constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[1]);
+                    constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[2]);
+                    constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[3]);
+                    constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[0]);
+                    constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[1]);
+                    constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[2]);
+                    constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[3]);
                     constants.m_values.push_back(usingSpecularGlossiness);
-                    if (usingSpecularGlossiness)
-                    {
-                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Base]);
-                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Physical]);
-                    }
-                    else
-                    {
-                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Base]);
-                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Physical]);
-                    }
+                    constants.m_values.push_back(constantTexturesSettings[ESettingType_Base]);
+                    constants.m_values.push_back(constantTexturesSettings[ESettingType_Physical]);
                     constants.m_values.push_back(constantTexturesSettings[ESettingType_Normal]);
                     constants.m_values.push_back(constantTexturesSettings[ESettingType_Occlusion]);
                     constants.m_values.push_back(constantTexturesSettings[ESettingType_Emissive]);
@@ -1020,6 +1016,9 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
             material->GetBasePBR().SetMetallicFactor(1.0f);
             material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
             material->GetAdvancePBR().SetAlphaCutoff(0.5f);
+            material->GetSpecularGlossiness().SetBaseColor(1.0f, 1.0f, 1.0f, 1.0f);
+            material->GetSpecularGlossiness().SetGlossinessColor(1.0f, 1.0f, 1.0f, 1.0f);
+            material->GetSpecularGlossiness().SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 
             material->GetState().SetCullingMode(ECullingMode_Back);
             material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
@@ -1183,9 +1182,14 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
                         material->GetSpecularGlossiness().SetBaseColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2], (ionFloat)param.ColorFactor()[3]);
                         continue;
                     }
-                    if (mat.extPBRValues.find("specularFactor") != mat.extPBRValues.end())
+                    if (key == "glossinessFactor")
                     {
-                        material->GetSpecularGlossiness().SetSpecularGlossinessColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2], 1.0f);
+                        material->GetSpecularGlossiness().SetGlossinessColor((ionFloat)param.Factor(), (ionFloat)param.Factor(), (ionFloat)param.Factor(), 1.0f);
+                        continue;
+                    }
+                    if (key == "specularFactor")
+                    {
+                        material->GetSpecularGlossiness().SetSpecularColor((ionFloat)param.ColorFactor()[0], (ionFloat)param.ColorFactor()[1], (ionFloat)param.ColorFactor()[2], 1.0f);
                         continue;
                     }
                 }

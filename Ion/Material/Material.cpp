@@ -56,10 +56,10 @@ SpecularGlossiness::SpecularGlossiness() :
     m_baseColor[2] = 1.0f;
     m_baseColor[3] = 1.0f;
 
-    m_specularGlossinessColor[0] = 1.0f;
-    m_specularGlossinessColor[1] = 1.0f;
-    m_specularGlossinessColor[2] = 1.0f;
-    m_specularGlossinessColor[3] = 1.0f;
+    m_glossinessColor[0] = 1.0f;
+    m_glossinessColor[1] = 1.0f;
+    m_glossinessColor[2] = 1.0f;
+    m_glossinessColor[3] = 1.0f;
 }
 
 SpecularGlossiness::~SpecularGlossiness()
