@@ -10,6 +10,4 @@ void Test_TexturedQuadEx(ion::ObjectHandler& _entity, const ion::Texture* _textu
 void Test_ColoredCube(ion::ObjectHandler& _entity);
 void Test_ColoredSphere(ion::ObjectHandler& _entity);
 
-void Test_ModelPBR(ion::ObjectHandler& _entity, ion::Camera* _camToUpdate, const ion::Texture* _brdf, const ion::Texture* _irradiance, const ion::Texture* _prefiltered);
-
 void Test_DrawBoundingBox(ion::ObjectHandler& _entity);

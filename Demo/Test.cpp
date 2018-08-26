@@ -198,12 +198,6 @@ void Test_ColoredSphere(ion::ObjectHandler& _entity)
     _entity->GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(ion::EStencilFrontFunction_LesserOrEqual);
 }
 
-void Test_ModelPBR(ion::ObjectHandler& _entity, ion::Camera* _camToUpdate, const ion::Texture* _brdf, const ion::Texture* _irradiance, const ion::Texture* _prefiltered)
-{
-    eosString damagedHelmetModelPath = ionFileSystemManager().GetModelsPath();
-    damagedHelmetModelPath.append("DamagedHelmet.gltf");
-    ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, _camToUpdate, _entity);
-}
 
 void Test_DrawBoundingBox(ion::ObjectHandler& _entity)
 {
