@@ -26,19 +26,6 @@ private:
 };
 
 
-class BoundingBoxEntity : public ion::Entity
-{
-public:
-    BoundingBoxEntity();
-    BoundingBoxEntity(const eosString & _name);
-    virtual ~BoundingBoxEntity();
-
-    virtual void OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime) override;
-
-private:
-    ionBool m_waitForAction;
-};
-
 //////////////////////////////////////////////////////////////////////////
 // CAMERA
 class MainCamera : public ion::Camera

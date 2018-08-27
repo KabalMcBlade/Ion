@@ -68,7 +68,6 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
     }
 }
 
-
 void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime)
 {
     if (!MainCamera::m_toggleLightRotation)
@@ -136,50 +135,6 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
             pos += dir * velocity;
 
             GetTransform().SetPosition(pos);
-        }
-    }
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-
-BoundingBoxEntity::BoundingBoxEntity() : m_waitForAction(false)
-{
-}
-
-BoundingBoxEntity::BoundingBoxEntity(const eosString & _name) : Entity(_name), m_waitForAction(false)
-{
-}
-
-BoundingBoxEntity::~BoundingBoxEntity()
-{
-}
-
-void BoundingBoxEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime)
-{
-    if (_keyboardState.m_state == ion::EKeyboardState_Down)
-    {
-        if (_keyboardState.m_key == ion::EKeyboardKey_B)
-        {
-            if (!m_waitForAction)
-            {
-                if (IsVisible())
-                {
-                    SetVisible(false);
-                }
-                else
-                {
-                    SetVisible(true);
-                }
-                m_waitForAction = true;
-            }
-        }
-    }
-    else if (_keyboardState.m_state == ion::EKeyboardState_Up)
-    {
-        if (_keyboardState.m_key == ion::EKeyboardKey_B)
-        {
-            m_waitForAction = false;
         }
     }
 }

@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="App\CommandLineParser.h" />
     <ClInclude Include="App\Mode.h" />
     <ClInclude Include="App\Window.h" />
     <ClInclude Include="Core\CoreDefs.h" />
@@ -238,6 +239,7 @@
     <ClInclude Include="Wrapper\Memory.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App\CommandLineParser.cpp" />
     <ClCompile Include="App\Window.cpp" />
     <ClCompile Include="Core\FileSystemManager.cpp" />
     <ClCompile Include="Dependencies\Eos\Eos\MemoryManager.cpp" />

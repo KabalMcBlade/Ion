@@ -32,14 +32,39 @@ Instead this screenshot has taken from a NOT PBR model, to test the capabilities
 
 ## Demo Controls
 
-At the beginning you have to select the test, from 1 to 5 are generated primitives, 6 is to see the BRDFlut texture in a quad and the 7 is the DamageHelmet PBR test.
+The demo uses command line (or from VS command line argument under the property of the demo project) in order to render.
+The demo in fact is a GLTF viewer at the moment, because I'm using it for render purpose only.
+
+General (ION engine) command line arguments:
+* -width
+	* set the width size of the window
+* -height
+	* set the height size of the window
+* -fullscreen
+	* set fullscreen (true or false)
+* -showcursor
+	* show mouse cursor (true or false)
+
+For instance:	-width 1024 -height 768 -fullscreen true
+
+
+Demo command line arguments:
+* -model
+	* load a model, if -usepath IS NOT DEFINED, the model MUST be only the filename and MUST be inside the Assets/Models demo folder
+* -primitive
+	* load primitives (quad, triangle, cube, sphere)
+* -usepath
+	* if -usepath is set, you need to specified the fullpath of the model file and can be everywhere 
+
+For instance:	-model DamagedHelmet.gltf
+Or:				-usepath -model C:\Users\MyUser\Downloads\DamagedHelmet\DamagedHelmet.gltf
+
 
 The controls in this demo test are:
 * Hold left mouse button in order to rotate the object
 * Hold right mouse button in order to pan right or left and up or down the object
 * Use the mouse wheel to go toward or far away the object
 * Press R to auto rotate the model
-* Press B to toggle a fancy bounding box
 * Press A and S to increase or decrease the scale respectively
 
 Pressing the key L, you can change the control from the model to the light

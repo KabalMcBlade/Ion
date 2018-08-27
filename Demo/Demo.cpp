@@ -6,7 +6,6 @@
 #include "../Ion/Ion.h"
 
 #include "Objects.h"
-#include "Test.h"
 
 //////////////////////////////////////////////////////////////////////////
 // COMMON MEMORY
@@ -115,55 +114,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-int main()
+int main(int argc, char **argv)
 {
     InitializeAllocators(ALL_HEAP_MEMORY, ALL_LINEAR_MEMORY, ALL_STACK_MEMORY, MAX_STACK_MEMORY_BLOCK);
     InitializeVulkanAllocators(VULKAN_COMMAND_MEMORY_MB, VULKAN_OBJECT_MEMORY_MB, VULKAN_CACHE_MEMORY_MB, VULKAN_DEVICE_MEMORY_MB, VULKAN_INSTANCE_MEMORY_MB, VULKAN_GPU_MEMORY_MB);
     InitializeManagers();
 
-    //////////////////////////////////////////////////////////////////////////
-    //
-    //  CHOOSE TEST
-    //
-    //////////////////////////////////////////////////////////////////////////
-
-    ionS32 choice = 0;
-
-    std::cout << "Choose the test to run" << std::endl;
-    std::cout << "1 - Colored Triangle" << std::endl;
-    std::cout << "2 - Colored Quad" << std::endl;
-    std::cout << "3 - Texture Quad" << std::endl;
-    std::cout << "4 - Colored Cube" << std::endl;
-    std::cout << "5 - Colored Sphere" << std::endl;
-    std::cout << "6 - Show BRDF Lookup Texture" << std::endl;
-    std::cout << "7 - Model GLTF using PBR (NEED A WHILE TO LOAD!)" << std::endl;
-    std::cout << "Selection: ";
-
-    std::cin >> choice;
-
-    std::cout << std::endl;
-
-    //////////////////////////////////////////////////////////////////////////
-    //
-    //
-    //////////////////////////////////////////////////////////////////////////
-
-
     ION_SCOPE_BEGIN
 
-
     ionFileSystemManager().Init("Assets", "Shaders", "Textures", "Models");
-
 
     ionBool rendererInitialized = false;
     Window window;
 
-    if (window.Create(WndProc, L"Ion Demo", DEMO_WIDTH, DEMO_HEIGHT, false, false))
+    window.GetCommandLineParse().AddWithValue<eosString>("-model", false);
+    window.GetCommandLineParse().AddWithValue<eosString>("-primitive", false);
+    window.GetCommandLineParse().Add("-usepath", false);
+
+    if (!window.ParseCommandLine(argc, argv))
+    {
+        return false;
+    }
+
+    if (window.Create(WndProc, L"Ion Demo - GLTF Viewer"))
     {
         window.SetInputMode(true, true);
-        rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), DEMO_WIDTH, DEMO_HEIGHT, false, ION_VULKAN_VALIDATION_LAYER, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
+        rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), window.GetWidth(), window.GetHeight(), window.IsFullscreen(), ION_VULKAN_VALIDATION_LAYER, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
     }
- 
 
     //////////////////////////////////////////////////////////////////////////
     // Generate and load all global texture
@@ -174,7 +151,6 @@ int main()
 
     ionS32 skyboxVertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Vertex);
     ionS32 skyboxFragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Fragment);
-
 
     //////////////////////////////////////////////////////////////////////////
     // Create Camera
@@ -188,7 +164,6 @@ int main()
     camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
     camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
     camera->GetTransform().SetPosition(cameraPos);
-
 
     //////////////////////////////////////////////////////////////////////////
     // Create SkyBox
@@ -235,7 +210,6 @@ int main()
     skyboxMaterial->GetState().SetDepthFunctionMode(EDepthFunction_Less);
     skyboxMaterial->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
 
-
     //////////////////////////////////////////////////////////////////////////
     // Continue texture generation
     const Texture* brdflut = ionRenderManager().GenerateBRDF(camera);
@@ -243,60 +217,57 @@ int main()
     const Texture* prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(camera);
 
     
+
     //////////////////////////////////////////////////////////////////////////
     // Create Entity to render
     RotatingEntity* test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE, "GameEntity");
     ObjectHandler testHandle(test);
 
-
-    //////////////////////////////////////////////////////////////////////////
-    //
-    //  EXECUTE THE CHOSEN TEST
-    //
-    //////////////////////////////////////////////////////////////////////////
-    switch(choice)
+    if (window.GetCommandLineParse().HasValue("-model"))
     {
-    case 1:
-        Test_ColoredTriangle(testHandle);
-        break;
-    case 2:
-        Test_ColoredQuad(testHandle);
-        break;
-    case 3:
-        Test_TexturedQuad(testHandle);
-        break;
-    case 4:
-        Test_ColoredCube(testHandle);
-        break;
-    case 5:
-        Test_ColoredSphere(testHandle);
-        break;
-    case 6:
-        Test_TexturedQuadEx(testHandle, ionRenderManager().GetBRDF());
-        break;
-    case 7:
+        const eosString modelVar = window.GetCommandLineParse().GetValue<eosString>("-model");
+        eosString model;
+        if (window.GetCommandLineParse().IsSet("-usepath"))
         {
-            const eosString damagedHelmetModelPath = ionFileSystemManager().GetModelsPath() + "DamagedHelmet.gltf";
-            ionRenderManager().LoadModelFromFile(damagedHelmetModelPath, camera, testHandle);
-            break;
+            model = modelVar;
         }
-    default:
-        std::cout << "Any valid choose made, will run the Colored Triangle test" << std::endl;
-        Test_ColoredTriangle(testHandle);
-        break;
+        else
+        {
+            model = ionFileSystemManager().GetModelsPath() + modelVar;
+        }
+        
+        ionRenderManager().LoadModelFromFile(model, camera, testHandle);
     }
-    
-    BoundingBoxEntity* boundingBox = eosNew(BoundingBoxEntity, ION_MEMORY_ALIGNMENT_SIZE, "BoundingBox");
-    ObjectHandler boundingBoxHandle(boundingBox);
-
-    BoundingBox bbTransformed = test->GetBoundingBox()->GetTransformed(test->GetTransform().GetMatrix());
-
-    boundingBox->GetTransform().SetPosition(bbTransformed.GetCenter());
-    boundingBox->GetTransform().SetScale(bbTransformed.GetSize());
-    
-    Test_DrawBoundingBox(boundingBoxHandle);
-    
-    boundingBox->AttachToParent(testHandle);
+    else if (window.GetCommandLineParse().HasValue("-primitive"))
+    {
+        const eosString primitive = window.GetCommandLineParse().GetValue<eosString>("-primitive");
+        if (primitive == "triangle")
+        {
+            ionRenderManager().LoadTriangle(testHandle);
+        }
+        else if (primitive == "quad")
+        {
+            ionRenderManager().LoadQuad(testHandle);
+        }
+        else if (primitive == "cube")
+        {
+            ionRenderManager().LoadCube(testHandle);
+        }
+        else if (primitive == "sphere")
+        {
+            ionRenderManager().LoadSphere(testHandle);
+        }
+        else
+        {
+            std::cout << "primitive is not valid: use -primitive [triangle, quad, cube, sphere]" << std::endl;
+            std::cout << "Will be generate a simple triangle now" << std::endl;
+            ionRenderManager().LoadTriangle(testHandle);
+        }
+    }
+    else
+    {
+        std::cout << "model or primitive does not supply: use -model \"modelname\" or -primitive [triangle, quad, cube, sphere]" << std::endl;
+    }
 
     //////////////////////////////////////////////////////////////////////////
     //
@@ -308,7 +279,6 @@ int main()
     
     // then set the active node will receive the input
     ionRenderManager().RegisterToInput(cameraHandle);
-    ionRenderManager().RegisterToInput(boundingBoxHandle);
     ionRenderManager().RegisterToInput(testHandle);
 
     ionRenderManager().AddDirectionalLight();
@@ -323,18 +293,18 @@ int main()
     directionalLight->GetTransform().SetRotation(lightRot);
     directionalLight->SetDirection(lightDir);
     directionalLight->SetColor(lightCol);
-    
+
     if (rendererInitialized)
     {
         window.Loop();
     }
-    
+
     ionRenderManager().Shutdown();
 
     ionFileSystemManager().Shutdown();
 
     ION_SCOPE_END
-        
+
     ShutdownManagers();
     ShutdownVulkanAllocators();
     ShutdownAllocators();

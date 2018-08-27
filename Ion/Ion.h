@@ -69,4 +69,5 @@
 #include "Wrapper/Memory.h"
 
 #include "App/Mode.h"
+#include "App/CommandLineParser.h"
 #include "App/Window.h"

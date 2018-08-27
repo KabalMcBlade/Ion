@@ -1045,6 +1045,14 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
         dir = _filePath.substr(0, _filePath.find_last_of('/'));
     }
 
+    if (dir.empty())
+    {
+        if (_filePath.find_last_of('\\') != std::string::npos)
+        {
+            dir = _filePath.substr(0, _filePath.find_last_of('\\'));
+        }
+    }
+
     ionAssertReturnValue(!dir.empty(), "Path invalid", false);
 
     //

@@ -7,6 +7,7 @@
 #include "../Core/CoreDefs.h"
 
 #include "Mode.h"
+#include "CommandLineParser.h"
 
 #define ION_KEY_ESCAPE      WM_USER + 1
 
@@ -30,13 +31,22 @@ public:
     Window();
     ~Window();
 
-    ionBool        Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _showCursor /*= true*/);
-    ionBool        Loop();
+    ionBool ParseCommandLine(ionS32 &argc, char **argv);
+
+    ionBool Create(WNDPROC _wndproc, const eosTString& _name);
+    ionBool Loop();
 
     const HINSTANCE& GetInstance() const { return m_instance; }
     const HWND& GetHandle() const { return m_handle; }
 
     void SetInputMode(ionBool _clipToClient = false, ionBool _cursorDisabled = false, HCURSOR _cursor = nullptr);
+
+    ionS32 GetWidth() const { return m_width; }
+    ionS32 GetHeight() const { return m_height; }
+    ionBool IsFullscreen() const { return m_fullScreen; }
+    ionBool IsCursorVisible() const { return m_showCursor; }
+
+    CommandLineParser& GetCommandLineParse() { return m_commandLineParse; }
 
 private:
     void MouseClick(ionU32 _indexButton, ionBool _state);
@@ -51,16 +61,18 @@ private:
     void KeyboardReset();
 
 private:
-    eosTString      m_name;
-    MouseState      m_mouse;
-    KeyboardState   m_keyboard;
-    HINSTANCE       m_instance;
-    HWND            m_handle;
-    ionS32          m_width;
-    ionS32          m_height;
-    ECursorMode     m_cursorMode;
-    ionBool         m_fullScreen;
-    ionBool         m_skipNextMouseMove;
+    eosTString          m_name;
+    MouseState          m_mouse;
+    KeyboardState       m_keyboard;
+    HINSTANCE           m_instance;
+    HWND                m_handle;
+    CommandLineParser   m_commandLineParse;
+    ionS32              m_width;
+    ionS32              m_height;
+    ECursorMode         m_cursorMode;
+    ionBool             m_fullScreen;
+    ionBool             m_showCursor;
+    ionBool             m_skipNextMouseMove;
 };
 
 ION_NAMESPACE_END

@@ -8,6 +8,11 @@ ION_NAMESPACE_BEGIN
 
 ///
 
+#define ION_WND_PARAM_WIDTH         "-width"
+#define ION_WND_PARAM_HEIGHT        "-height"
+#define ION_WND_PARAM_FULLSCREEN    "-fullscreen"
+#define ION_WND_PARAM_SHOWCURSOR    "-showcursor"
+
 MouseState::MouseState() 
 {
     m_buttons[0].IsPressed = false;
@@ -45,7 +50,11 @@ KeyboardState::~KeyboardState()
 
 Window::Window() : m_instance(), m_handle(), m_skipNextMouseMove(false)
 {
-
+    // mandatory opions
+    m_commandLineParse.AddWithValueAndDefault(ION_WND_PARAM_WIDTH, true, 800);
+    m_commandLineParse.AddWithValueAndDefault(ION_WND_PARAM_HEIGHT, true, 600);
+    m_commandLineParse.AddWithValueAndDefault(ION_WND_PARAM_FULLSCREEN, true, false);
+    m_commandLineParse.AddWithValueAndDefault(ION_WND_PARAM_SHOWCURSOR, true, false);
 }
 
 Window::~Window()
@@ -61,12 +70,19 @@ Window::~Window()
     }
 }
 
-ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _showCursor /*= true*/)
+// I split the function so if client need to add custom command line it can
+ionBool Window::ParseCommandLine(ionS32 &argc, char **argv)
+{
+    return m_commandLineParse.Parse(argc, argv);
+}
+
+ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name)
 {
     m_name = _name;
-    m_width = _width;
-    m_height = _height;
-    m_fullScreen = _fullScreen;
+    m_width = m_commandLineParse.GetValue<ionS32>(ION_WND_PARAM_WIDTH);
+    m_height = m_commandLineParse.GetValue<ionS32>(ION_WND_PARAM_HEIGHT);
+    m_fullScreen = m_commandLineParse.GetValue<ionBool>(ION_WND_PARAM_FULLSCREEN);
+    m_showCursor = m_commandLineParse.GetValue<ionBool>(ION_WND_PARAM_SHOWCURSOR);
 
     m_instance = GetModuleHandle(nullptr);
 
@@ -156,7 +172,7 @@ ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name, ionU32 _width,
         return false;
     }
 
-    ShowCursor(_showCursor);
+    ShowCursor(m_showCursor);
     ShowWindow(m_handle, SW_SHOW);  //SW_SHOWNORMAL
     UpdateWindow(m_handle);
     SetForegroundWindow(m_handle);
