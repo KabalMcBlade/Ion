@@ -276,7 +276,6 @@ void SceneGraph::Update(ionFloat _deltaTime)
             drawsurface.m_exposure = ionRenderManager().m_exposure;
             drawsurface.m_gamma = ionRenderManager().m_gamma;
 #else
-
             drawsurface.m_exposure = 4.5f;
             drawsurface.m_gamma = 2.2f;
 #endif // ION_PBR_DEBUG
