@@ -273,18 +273,15 @@ void SceneGraph::Update(ionFloat _deltaTime)
             }
 
 #ifdef ION_PBR_DEBUG
-
             drawsurface.m_exposure = ionRenderManager().m_exposure;
             drawsurface.m_gamma = ionRenderManager().m_gamma;
-            drawsurface.m_prefilteredCubeMipLevels = ionRenderManager().m_prefilteredCubeMipLevels;
-
 #else
 
             drawsurface.m_exposure = 4.5f;
             drawsurface.m_gamma = 2.2f;
-            drawsurface.m_prefilteredCubeMipLevels = 10.0f;  // I know that because I debugged my preflitered texture generation
-
 #endif // ION_PBR_DEBUG
+
+            drawsurface.m_prefilteredCubeMipLevels = ionRenderManager().m_prefilteredCubeMipLevels;
 
             drawsurface.m_visible = drawsurface.m_nodeRef->IsVisible();
         }

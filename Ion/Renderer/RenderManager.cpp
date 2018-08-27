@@ -56,8 +56,8 @@ RenderManager::RenderManager() : m_deltaTime(0.0f), m_running(false)
 #ifdef ION_PBR_DEBUG
     m_exposure = 4.5f;
     m_gamma = 2.2f;
-    m_prefilteredCubeMipLevels = 10.0f;
 #endif // ION_PBR_DEBUG
+    m_prefilteredCubeMipLevels = 10.0f;
 }
 
 RenderManager::~RenderManager()
@@ -944,7 +944,7 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
     //
     ConstantsBindingDef constants;
     constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-    constants.m_values.push_back(32.0f);
+    constants.m_values.push_back(m_prefilteredCubeMipLevels);
 
 
     ShaderLayoutDef vertexLayout;

@@ -309,8 +309,6 @@ int main(int argc, char **argv)
     ShutdownVulkanAllocators();
     ShutdownAllocators();
 
-    getchar();
-
     return 0;
 }
 

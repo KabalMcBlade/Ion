@@ -104,8 +104,8 @@ public:
 #ifdef ION_PBR_DEBUG
     ionFloat m_exposure;
     ionFloat m_gamma;
-    ionFloat m_prefilteredCubeMipLevels;
 #endif // ION_PBR_DEBUG
+    ionFloat m_prefilteredCubeMipLevels;
 
 private:
     RenderManager(const RenderManager& _Orig) = delete;
