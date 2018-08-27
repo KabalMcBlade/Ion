@@ -35,7 +35,9 @@ Instead this screenshot has taken from a NOT PBR model, to test the capabilities
 The demo uses command line (or from VS command line argument under the property of the demo project) in order to render.
 The demo in fact is a GLTF viewer at the moment, because I'm using it for render purpose only.
 
-General (ION engine) command line arguments:
+
+#### Command lines (ION General)
+
 * -width
 	* set the width size of the window
 * -height
@@ -48,7 +50,8 @@ General (ION engine) command line arguments:
 For instance:	-width 1024 -height 768 -fullscreen true
 
 
-Demo command line arguments:
+#### Command lines (Demo)
+
 * -model
 	* load a model, if -usepath IS NOT DEFINED, the model MUST be only the filename and MUST be inside the Assets/Models demo folder
 * -primitive
@@ -57,8 +60,9 @@ Demo command line arguments:
 	* if -usepath is set, you need to specified the fullpath of the model file and can be everywhere 
 
 For instance:	-model DamagedHelmet.gltf
-Or:				-usepath -model C:\Users\MyUser\Downloads\DamagedHelmet\DamagedHelmet.gltf
+Or: -usepath -model C:\Users\MyUser\Downloads\DamagedHelmet\DamagedHelmet.gltf
 
+#### Controls
 
 The controls in this demo test are:
 * Hold left mouse button in order to rotate the object
