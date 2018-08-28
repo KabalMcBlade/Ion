@@ -10,39 +10,39 @@
 //////////////////////////////////////////////////////////////////////////
 // COMMON MEMORY
 
-#define MEMORY_1_MB                 1048576
-#define MEMORY_4_MB                 MEMORY_1_MB * 4
-#define MEMORY_8_MB                 MEMORY_4_MB * 2
-#define MEMORY_16_MB                MEMORY_8_MB * 2
-#define MEMORY_32_MB                MEMORY_16_MB * 2
-#define MEMORY_64_MB                MEMORY_32_MB * 2
-#define MEMORY_128_MB               MEMORY_64_MB * 2
-#define MEMORY_256_MB               MEMORY_128_MB * 2
-#define MEMORY_512_MB               MEMORY_256_MB * 2
+#define MEMORY_1_MB                 1048576U
+#define MEMORY_4_MB                 MEMORY_1_MB * 4U
+#define MEMORY_8_MB                 MEMORY_4_MB * 2U
+#define MEMORY_16_MB                MEMORY_8_MB * 2U
+#define MEMORY_32_MB                MEMORY_16_MB * 2U
+#define MEMORY_64_MB                MEMORY_32_MB * 2U
+#define MEMORY_128_MB               MEMORY_64_MB * 2U
+#define MEMORY_256_MB               MEMORY_128_MB * 2U
+#define MEMORY_512_MB               MEMORY_256_MB * 2U
+#define MEMORY_1024_MB              MEMORY_512_MB * 2U
 
-#define STL_MAX_HEAP_MEMORY         MEMORY_256_MB
-#define STL_MAX_STACK_MEMORY_SIZE   MEMORY_8_MB
-#define STL_MAX_LINEAR_MEMORY       MEMORY_8_MB
+#define STL_MAX_HEAP_MEMORY         MEMORY_1024_MB
+#define STL_MAX_STACK_MEMORY_SIZE   MEMORY_1_MB
+#define STL_MAX_LINEAR_MEMORY       MEMORY_1_MB
 
 
-#define MAX_STACK_MEMORY_BLOCK      128
-#define ALL_HEAP_MEMORY             STL_MAX_HEAP_MEMORY + (MEMORY_512_MB)
-#define ALL_LINEAR_MEMORY           STL_MAX_LINEAR_MEMORY + (MEMORY_32_MB)
+#define MAX_STACK_MEMORY_BLOCK      2
+#define ALL_HEAP_MEMORY             STL_MAX_HEAP_MEMORY + (MEMORY_1024_MB)
+#define ALL_LINEAR_MEMORY           STL_MAX_LINEAR_MEMORY
 #define ALL_STACK_MEMORY            STL_MAX_STACK_MEMORY_SIZE
 
 
 //////////////////////////////////////////////////////////////////////////
 // VULKAN MEMORY
 
-// just for sample and just to stress :D
-#define MEMORY_1_MB                 1048576        
+// just for sample and just to stress :D     
 #define VULKAN_BASE_MEMORY_MB       MEMORY_1_MB
 
-#define VULKAN_COMMAND_MEMORY_MB    VULKAN_BASE_MEMORY_MB * 8
-#define VULKAN_OBJECT_MEMORY_MB     VULKAN_BASE_MEMORY_MB * 8
-#define VULKAN_CACHE_MEMORY_MB      VULKAN_BASE_MEMORY_MB * 8
-#define VULKAN_DEVICE_MEMORY_MB     VULKAN_BASE_MEMORY_MB * 32
-#define VULKAN_INSTANCE_MEMORY_MB   VULKAN_BASE_MEMORY_MB * 32
+#define VULKAN_COMMAND_MEMORY_MB    VULKAN_BASE_MEMORY_MB
+#define VULKAN_OBJECT_MEMORY_MB     VULKAN_BASE_MEMORY_MB
+#define VULKAN_CACHE_MEMORY_MB      VULKAN_BASE_MEMORY_MB
+#define VULKAN_DEVICE_MEMORY_MB     VULKAN_BASE_MEMORY_MB
+#define VULKAN_INSTANCE_MEMORY_MB   VULKAN_BASE_MEMORY_MB * 8
 
 #define VULKAN_GPU_MEMORY_MB        VULKAN_BASE_MEMORY_MB * 32
 
@@ -276,7 +276,7 @@ int main(int argc, char **argv)
     // first full the scene graph
     ionRenderManager().AddToSceneGraph(cameraHandle);
     ionRenderManager().AddToSceneGraph(testHandle);
-    
+
     // then set the active node will receive the input
     ionRenderManager().RegisterToInput(cameraHandle);
     ionRenderManager().RegisterToInput(testHandle);
@@ -285,13 +285,11 @@ int main(int argc, char **argv)
     DirectionalLight* directionalLight = ionRenderManager().GetDirectionalLight();
 
 
-    const Vector lightDir(0.0f, 0.0f, 1.0f, 1.0f);
     const Vector lightCol(1.0f, 1.0f, 1.0f, 1.0f);
-    const Vector lightRotEuler(NIX_DEG_TO_RAD(145.0f), NIX_DEG_TO_RAD(45.0f), 0.0f, 1.0f);
+    const Vector lightRotEuler(NIX_DEG_TO_RAD(145.0f), NIX_DEG_TO_RAD(45.0f), 0.0f, 0.0f);
     Quaternion lightRot; lightRot.SetFromEuler(lightRotEuler);
 
     directionalLight->GetTransform().SetRotation(lightRot);
-    directionalLight->SetDirection(lightDir);
     directionalLight->SetColor(lightCol);
 
     if (rendererInitialized)

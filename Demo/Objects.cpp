@@ -148,12 +148,11 @@ MainCamera::MainCamera() : Camera("Main Camera"), m_mouseSensitivity(0.05f), m_m
 #ifdef ION_PBR_DEBUG
     m_pbrDebug = EPBRDebugType_Exposure;
 #endif
-    std::cout << "Control applied to the object" << std::endl;
+    std::cout << std::endl << "Control applied to the object" << std::endl;
 }
 
 MainCamera::~MainCamera()
 {
-
 }
 
 void MainCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime)
@@ -180,42 +179,7 @@ void MainCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _delt
 
             currRot = currRot * prevRot;
 
-            std::cout << "Light rotation: "; currRot.Print();
-
             directionalLight->GetTransform().SetRotation(currRot);
-        }
-
-        if (_mouseState.m_buttons[1].IsPressed)
-        {
-            static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
-            static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
-
-            ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
-            ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
-
-            xOffset *= m_mouseSensitivity;
-            yOffset *= m_mouseSensitivity;
-
-            Vector dir = directionalLight->GetDirection();
-
-            dir += right * xOffset + up * yOffset;
-
-            std::cout << "Light direction: "; dir.Print();
-
-            directionalLight->SetDirection(dir);
-        }
-
-        if (_mouseState.m_wheel.m_wasMoved)
-        {
-            static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
-
-            Vector dir = directionalLight->GetDirection();
-
-            dir += forward * _mouseState.m_wheel.m_distance;
-
-            std::cout << "Light direction: "; dir.Print();
-
-            directionalLight->SetDirection(dir);
         }
     }
 }

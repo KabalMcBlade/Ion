@@ -807,177 +807,90 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
                 }
                 else
                 {
-                    if (material->IsDiffuseNormal())
+                    enum ESettingType
                     {
-                        //
-                        UniformBinding uniformVertex;
-                        uniformVertex.m_bindingIndex = 0;
-                        uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-                        uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-                        uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                        ESettingType_Base = 0,
+                        ESettingType_Normal,
 
-                        //
-                        UniformBinding uniformFragment;
-                        uniformFragment.m_bindingIndex = 1;
-                        uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                        ESettingType_Count
+                    };
 
-                        //
-                        SamplerBinding albedoMap;
-                        albedoMap.m_bindingIndex = 2;
-                        albedoMap.m_texture = material->GetBasePBR().GetBaseColorTexture();
-
-                        SamplerBinding normalMap;
-                        normalMap.m_bindingIndex = 3;
-                        normalMap.m_texture = material->GetAdvancePBR().GetNormalTexture();
-
-
-                        // set the shaders layout
-                        ShaderLayoutDef vertexLayout;
-                        vertexLayout.m_uniforms.push_back(uniformVertex);
-
-                        ShaderLayoutDef fragmentLayout;
-                        fragmentLayout.m_uniforms.push_back(uniformFragment);
-                        fragmentLayout.m_samplers.push_back(albedoMap);
-                        fragmentLayout.m_samplers.push_back(normalMap);
-
-                        //
-                        ConstantsBindingDef constants;
-                        constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-                        constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
-                        constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
-                        constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
-                        constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
-                        constants.m_values.push_back(material->GetBasePBR().GetMetallicFactor());
-                        constants.m_values.push_back(material->GetBasePBR().GetRoughnessFactor());
-                        constants.m_values.push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
-                        constants.m_values.push_back(material->GetAdvancePBR().GetAlphaCutoff());
-
-                        material->SetVertexShaderLayout(vertexLayout);
-                        material->SetFragmentShaderLayout(fragmentLayout);
-                        material->SetVertexLayout(ionMesh->GetLayout());
-                        material->SetConstantsShaders(constants);
-
-                        ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
-                        ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_DIFFUSENORMAL_SHADER_NAME, EShaderStage_Fragment);
-
-                        material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
-                    }
-                    else if (material->IsDiffuse())
+                    ionFloat constantTexturesSettings[ESettingType_Count];
+                    for (ionU32 constantCounter = 0; constantCounter < ESettingType_Count; ++constantCounter)
                     {
-                        //
-                        UniformBinding uniformVertex;
-                        uniformVertex.m_bindingIndex = 0;
-                        uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-                        uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-                        uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-
-                        //
-                        UniformBinding uniformFragment;
-                        uniformFragment.m_bindingIndex = 1;
-                        uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-
-                        //
-                        SamplerBinding albedoMap;
-                        albedoMap.m_bindingIndex = 2;
-                        albedoMap.m_texture = material->GetBasePBR().GetBaseColorTexture();
-
-                        // set the shaders layout
-                        ShaderLayoutDef vertexLayout;
-                        vertexLayout.m_uniforms.push_back(uniformVertex);
-
-                        ShaderLayoutDef fragmentLayout;
-                        fragmentLayout.m_uniforms.push_back(uniformFragment);
-                        fragmentLayout.m_samplers.push_back(albedoMap);
-
-                        //
-                        ConstantsBindingDef constants;
-                        constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-                        constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
-                        constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
-                        constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
-                        constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
-                        constants.m_values.push_back(material->GetBasePBR().GetMetallicFactor());
-                        constants.m_values.push_back(material->GetBasePBR().GetRoughnessFactor());
-                        constants.m_values.push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
-                        constants.m_values.push_back(material->GetAdvancePBR().GetAlphaCutoff());
-
-                        material->SetVertexShaderLayout(vertexLayout);
-                        material->SetFragmentShaderLayout(fragmentLayout);
-                        material->SetVertexLayout(ionMesh->GetLayout());
-                        material->SetConstantsShaders(constants);
-
-                        ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
-                        ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_DIFFUSE_SHADER_NAME, EShaderStage_Fragment);
-
-                        material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+                        constantTexturesSettings[constantCounter] = 1.0f;
                     }
-                    else
+
+                    //
+                    UniformBinding uniformVertex;
+                    uniformVertex.m_bindingIndex = 0;
+                    uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
+                    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                    uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
+                    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                    uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
+                    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+
+                    //
+                    UniformBinding uniformFragment;
+                    uniformFragment.m_bindingIndex = 1;
+                    uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
+                    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
+                    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
+                    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+
+                    //
+                    SamplerBinding albedoMap;
+                    albedoMap.m_bindingIndex = 2;
+                    albedoMap.m_texture = material->GetBasePBR().GetBaseColorTexture();
+                    if (albedoMap.m_texture == nullptr)
                     {
-                        // Lambert
-
-                        //
-                        UniformBinding uniformVertex;
-                        uniformVertex.m_bindingIndex = 0;
-                        uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-                        uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-                        uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-
-                        //
-                        UniformBinding uniformFragment;
-                        uniformFragment.m_bindingIndex = 1;
-                        uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-
-                        // set the shaders layout
-                        ShaderLayoutDef vertexLayout;
-                        vertexLayout.m_uniforms.push_back(uniformVertex);
-
-                        ShaderLayoutDef fragmentLayout;
-                        fragmentLayout.m_uniforms.push_back(uniformFragment);
-
-                        //
-                        ConstantsBindingDef constants;
-                        constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-                        constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
-                        constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
-                        constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
-                        constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
-                        constants.m_values.push_back(material->GetBasePBR().GetMetallicFactor());
-                        constants.m_values.push_back(material->GetBasePBR().GetRoughnessFactor());
-
-                        material->SetVertexShaderLayout(vertexLayout);
-                        material->SetFragmentShaderLayout(fragmentLayout);
-                        material->SetVertexLayout(ionMesh->GetLayout());
-                        material->SetConstantsShaders(constants);
-
-                        ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
-                        ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_LAMBERT_SHADER_NAME, EShaderStage_Fragment);
-
-                        material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+                        constantTexturesSettings[ESettingType_Base] = 0.0f;
+                        albedoMap.m_texture = ionRenderManager().GetNullTexure();
                     }
+
+                    SamplerBinding normalMap;
+                    normalMap.m_bindingIndex = 3;
+                    normalMap.m_texture = material->GetAdvancePBR().GetNormalTexture();
+                    if (normalMap.m_texture == nullptr)
+                    {
+                        constantTexturesSettings[ESettingType_Normal] = 0.0f;
+                        normalMap.m_texture = ionRenderManager().GetNullTexure();
+                    }
+
+
+                    // set the shaders layout
+                    ShaderLayoutDef vertexLayout;
+                    vertexLayout.m_uniforms.push_back(uniformVertex);
+
+                    ShaderLayoutDef fragmentLayout;
+                    fragmentLayout.m_uniforms.push_back(uniformFragment);
+                    fragmentLayout.m_samplers.push_back(albedoMap);
+                    fragmentLayout.m_samplers.push_back(normalMap);
+
+                    //
+                    ConstantsBindingDef constants;
+                    constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
+                    constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
+                    constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
+                    constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
+                    constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
+                    constants.m_values.push_back(constantTexturesSettings[ESettingType_Base]);
+                    constants.m_values.push_back(constantTexturesSettings[ESettingType_Normal]);
+                    constants.m_values.push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
+                    constants.m_values.push_back(material->GetAdvancePBR().GetAlphaCutoff());
+
+                    material->SetVertexShaderLayout(vertexLayout);
+                    material->SetFragmentShaderLayout(fragmentLayout);
+                    material->SetVertexLayout(ionMesh->GetLayout());
+                    material->SetConstantsShaders(constants);
+
+                    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+                    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_DIFFUSE_LIGHT_SHADER_NAME, EShaderStage_Fragment);
+
+                    material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
                 }
 
                 //
@@ -1432,31 +1345,10 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
                 material->SetUsingSpecularGloss(true);
             }
 
-            // If no texture at all, this material is "promoted" to lambertian
+            // If no texture at all, this material is "promoted" to diffuse light
             if (!material->IsUsingSpecularGlossiness())
             {
-                if (material->GetBasePBR().GetMetalRoughnessTexture() == nullptr && material->GetBasePBR().GetBaseColorTexture() == nullptr &&
-                    material->GetAdvancePBR().GetNormalTexture() == nullptr && material->GetAdvancePBR().GetEmissiveTexture() == nullptr && material->GetAdvancePBR().GetOcclusionTexture() == nullptr)
-                {
-                    material->SetAsLambert();
-                }
-            }
-
-            // maybe it is a bump mapping or simple diffuse ?
-            if (!material->IsUsingSpecularGlossiness() && !material->IsLambert())
-            {
-                if (material->GetBasePBR().GetBaseColorTexture() != nullptr && material->GetAdvancePBR().GetNormalTexture() != nullptr) // diffuse + normal
-                {
-                    material->SetAsDiffuseNormal();
-                }
-                else if (material->GetBasePBR().GetBaseColorTexture() != nullptr) // diffuse
-                {
-                    material->SetAsDiffuse();
-                }
-                else // otherwise fallback to lambert
-                {
-                    material->SetAsLambert();
-                }
+                material->SetAsDiffuseLight();
             }
         }
     }

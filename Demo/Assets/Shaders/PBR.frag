@@ -15,16 +15,48 @@ layout (binding = 1) uniform UBOParams
 	vec4 mainCameraPos;
 	vec4 directionalLight;
 	vec4 directionalLightColor;
+	float exposure;
+	float gamma;
+	float prefilteredCubeMipLevels;
 } uboParams;
 
-layout (binding = 2) uniform sampler2D albedoMap;
-layout (binding = 3) uniform sampler2D normalMap;
+layout (binding = 2) uniform samplerCube samplerIrradiance;
+layout (binding = 3) uniform samplerCube prefilteredMap;
+layout (binding = 4) uniform sampler2D samplerBRDFLUT;
+
+layout (binding = 5) uniform sampler2D albedoMap;
+layout (binding = 6) uniform sampler2D normalMap;
+layout (binding = 7) uniform sampler2D aoMap;
+layout (binding = 8) uniform sampler2D physicalDescriptorMap;
+layout (binding = 9) uniform sampler2D emissiveMap;
 
 layout (push_constant) uniform Material {
 	float baseColorFactorR;
 	float baseColorFactorG;
 	float baseColorFactorB;
 	float baseColorFactorA;
+	float emissiveFactorR;
+	float emissiveFactorG;
+	float emissiveFactorB;
+	float emissiveFactorA;
+	float diffuseFactorR;
+	float diffuseFactorG;
+	float diffuseFactorB;
+	float diffuseFactorA;
+	float specularFactorR;
+	float specularFactorG;
+	float specularFactorB;
+	float specularFactorA;
+	float glossinessFactorR;
+	float glossinessFactorG;
+	float glossinessFactorB;
+	float glossinessFactorA;
+	float usingSpecularGlossiness;
+	float hasBaseColorTexture;
+	float hasPhysicalDescriptorTexture;
+	float hasNormalTexture;	
+	float hasOcclusionTexture;	
+	float hasEmissiveTexture;
 	float metallicFactor;	
 	float roughnessFactor;	
 	float alphaMask;	
@@ -55,8 +87,29 @@ struct PBRInfo
 const float M_PI = 3.141592653589793;
 const float c_MinRoughness = 0.04;
 
+const float PBR_METALLIC_ROUGHNESS = 0.0;
+const float PBR_SPECULAR_GLOSINESS = 1.0f;
 
 #define MANUAL_SRGB 1
+
+vec3 Uncharted2Tonemap(vec3 color)
+{
+	float A = 0.15;
+	float B = 0.50;
+	float C = 0.10;
+	float D = 0.20;
+	float E = 0.02;
+	float F = 0.30;
+	float W = 11.2;
+	return ((color*(A*color+C*B)+D*E)/(color*(A*color+B)+D*F))-E/F;
+}
+
+vec4 tonemap(vec4 color)
+{
+	vec3 outcol = Uncharted2Tonemap(color.rgb * uboParams.exposure);
+	outcol = outcol * (1.0f / Uncharted2Tonemap(vec3(11.2f)));	
+	return vec4(pow(outcol, vec3(1.0f / uboParams.gamma)), color.a);
+}
 
 vec4 SRGBtoLINEAR(vec4 srgbIn)
 {
@@ -93,7 +146,29 @@ vec3 getNormal()
 	return normalize(TBN * tangentNormal);
 }
 
+// Calculation of the lighting contribution from an optional Image Based Light source.
+// Precomputed Environment Maps are required uniform inputs and are computed as outlined in [1].
+// See our README.md on Environment Maps [3] for additional discussion.
+vec3 getIBLContribution(PBRInfo pbrInputs, vec3 n, vec3 reflection)
+{
+	float lod = (pbrInputs.perceptualRoughness * uboParams.prefilteredCubeMipLevels);
+	// retrieve a scale and bias to F0. See [1], Figure 3
+	vec3 brdf = (texture(samplerBRDFLUT, vec2(pbrInputs.NdotV, 1.0 - pbrInputs.perceptualRoughness))).rgb;
+	vec3 diffuseLight = SRGBtoLINEAR(tonemap(texture(samplerIrradiance, n))).rgb;
 
+	vec3 specularLight = SRGBtoLINEAR(tonemap(textureLod(prefilteredMap, reflection, lod))).rgb;
+
+	vec3 diffuse = diffuseLight * pbrInputs.diffuseColor;
+	vec3 specular = specularLight * (pbrInputs.specularColor * brdf.x + brdf.y);
+
+	const vec2 u_ScaleIBLAmbient = vec2(1.0f);
+
+	// For presentation, this allows us to disable IBL terms
+	diffuse *= u_ScaleIBLAmbient.x;
+	specular *= u_ScaleIBLAmbient.y;
+
+	return diffuse + specular;
+}
 
 // Basic Lambertian diffuse
 // Implementation from Lambert's Photometria https://archive.org/details/lambertsphotome00lambgoog
@@ -135,6 +210,20 @@ float microfacetDistribution(PBRInfo pbrInputs)
 	return roughnessSq / (M_PI * f * f);
 }
 
+// Gets metallic factor from specular glossiness workflow inputs 
+float convertMetallic(vec3 diffuse, vec3 specular, float maxSpecular) {
+	float perceivedDiffuse = sqrt(0.299 * diffuse.r * diffuse.r + 0.587 * diffuse.g * diffuse.g + 0.114 * diffuse.b * diffuse.b);
+	float perceivedSpecular = sqrt(0.299 * specular.r * specular.r + 0.587 * specular.g * specular.g + 0.114 * specular.b * specular.b);
+	if (perceivedSpecular < c_MinRoughness) {
+		return 0.0;
+	}
+	float a = c_MinRoughness;
+	float b = perceivedDiffuse * (1.0 - maxSpecular) / (1.0 - c_MinRoughness) + perceivedSpecular - 2.0 * c_MinRoughness;
+	float c = c_MinRoughness - perceivedSpecular;
+	float D = max(b * b - 4.0 * a * c, 0.0);
+	return clamp((-b + sqrt(D)) / (2.0 * a), 0.0, 1.0);
+}
+
 void main()
 {
 	if (material.alphaMask == 1.0f)
@@ -145,18 +234,95 @@ void main()
 		}
 	}
 	
-	float perceptualRoughness = material.roughnessFactor;
-	float metallic = material.metallicFactor;
+	float perceptualRoughness;
+	float metallic;
+	vec3 diffuseColor;
+	vec4 baseColor;
 
 	vec3 f0 = vec3(0.04);
+	
+	
+	if (material.usingSpecularGlossiness == PBR_METALLIC_ROUGHNESS) 
+	{
+		// Metallic and Roughness material properties are packed together
+		// In glTF, these factors can be specified by fixed scalar values
+		// or from a metallic-roughness map
+		perceptualRoughness = material.roughnessFactor;
+		metallic = material.metallicFactor;
+		if (material.hasPhysicalDescriptorTexture == 1.0f)
+		{
+			// Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
+			// This layout intentionally reserves the 'r' channel for (optional) occlusion map data
+			vec4 mrSample = texture(physicalDescriptorMap, inUV);
+			perceptualRoughness = mrSample.g * perceptualRoughness;
+			metallic = mrSample.b * metallic;
+		} 
+		else
+		{
+			perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
+			metallic = clamp(metallic, 0.0, 1.0);
+		}
+		// Roughness is authored as perceptual roughness; as is convention,
+		// convert to material roughness by squaring the perceptual roughness [2].
 
-	const vec4 baseColorFactor = vec4(material.baseColorFactorR, material.baseColorFactorG, material.baseColorFactorB, material.baseColorFactorA);
+		const vec4 baseColorFactor = vec4(material.baseColorFactorR, material.baseColorFactorG, material.baseColorFactorB, material.baseColorFactorA);
+		// The albedo may be defined from a base texture or a flat color
+		if (material.hasBaseColorTexture == 1.0f) 
+		{
+			baseColor = SRGBtoLINEAR(texture(albedoMap, inUV))* baseColorFactor;
+		} 
+		else 
+		{
+			baseColor = baseColorFactor;
+		}
+		
+		baseColor = baseColor * inColor;
+	}
+	else if (material.usingSpecularGlossiness == PBR_SPECULAR_GLOSINESS)
+	{
+		const float epsilon = 1e-6;
+		vec3 specular;
 
-	vec4  baseColor = SRGBtoLINEAR(texture(albedoMap, inUV))* baseColorFactor;
-	baseColor = baseColor * inColor;
+		// Values from specular glossiness workflow are converted to metallic roughness
+		if (material.hasPhysicalDescriptorTexture == 1.0f)
+		{
+			perceptualRoughness = 1.0 - texture(physicalDescriptorMap, inUV).a;
+			specular = SRGBtoLINEAR(texture(physicalDescriptorMap, inUV)).rgb;
+		} 
+		else
+		{
+			perceptualRoughness = 0.0;
+			specular = vec3(1.0, 1.0, 1.0);
+		}
 
+		const vec4 baseColorFactor = vec4(material.baseColorFactorR, material.baseColorFactorG, material.baseColorFactorB, material.baseColorFactorA);
+		// The albedo may be defined from a base texture or a flat color
+		if (material.hasBaseColorTexture == 1.0f) 
+		{
+			baseColor = SRGBtoLINEAR(texture(albedoMap, inUV)) * baseColorFactor;
+		} 
+		else 
+		{
+			baseColor = baseColorFactor;
+		}
+		
+		baseColor = baseColor * inColor;
 
-	vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
+		float maxSpecular = max(max(specular.r, specular.g), specular.b);
+
+		// Convert metallic value from specular glossiness inputs
+		metallic = convertMetallic(baseColor.rgb, specular, maxSpecular);
+
+		const vec4 diffuseFactor = vec4(material.diffuseFactorR, material.diffuseFactorG, material.diffuseFactorB, material.diffuseFactorA);
+		const vec4 specularFactor = vec4(material.specularFactorR, material.specularFactorG, material.specularFactorB, material.specularFactorA);
+		const vec4 glossinessFactor = vec4(material.glossinessFactorR, material.glossinessFactorG, material.glossinessFactorB, material.glossinessFactorA);
+		
+		vec3 baseColorDiffusePart = baseColor.rgb * ((1.0 - maxSpecular) / (1 - c_MinRoughness) / max(1 - metallic, epsilon)) * diffuseFactor.rgb;
+		vec3 baseColorSpecularPart = specular - (vec3(c_MinRoughness) * (1 - metallic) * (1 / max(metallic, epsilon))) * specularFactor.rgb * glossinessFactor.rgb;
+		baseColor = vec4(mix(baseColorDiffusePart, baseColorSpecularPart, metallic * metallic), baseColor.a);
+	}
+
+	diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
 	diffuseColor *= 1.0 - metallic;
 		
 	float alphaRoughness = perceptualRoughness * perceptualRoughness;
@@ -172,7 +338,7 @@ void main()
 	vec3 specularEnvironmentR0 = specularColor.rgb;
 	vec3 specularEnvironmentR90 = vec3(1.0, 1.0, 1.0) * reflectance90;
 
-	vec3 n = getNormal();
+	vec3 n = (material.hasNormalTexture == 1.0f) ? getNormal() : normalize(inNormal);
 	vec3 v = normalize(uboParams.mainCameraPos.xyz - inWorldPos);    // Vector from surface point to camera
 	vec3 l = normalize(uboParams.directionalLight.xyz);     // Vector from surface point to light
 	vec3 h = normalize(l+v);                        // Half vector between both l and v
@@ -210,6 +376,22 @@ void main()
 	vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
 	// Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
 	vec3 color = NdotL * uboParams.directionalLightColor.rgb * (diffuseContrib + specContrib);
+
+	// Calculate lighting contribution from image based lighting source (IBL)
+	color += getIBLContribution(pbrInputs, n, reflection);
+
+	const float u_OcclusionStrength = 1.0f;
+	// Apply optional PBR terms for additional (optional) shading
+	if (material.hasOcclusionTexture == 1.0f) {
+		float ao = texture(aoMap, inUV).r;
+		color = mix(color, color * ao, u_OcclusionStrength);
+	}
+
+	const vec4 emissiveColorFactor = vec4(material.emissiveFactorR, material.emissiveFactorG, material.emissiveFactorB, material.emissiveFactorA);
+	if (material.hasEmissiveTexture == 1.0f) {
+		vec3 emissive = SRGBtoLINEAR(texture(emissiveMap, inUV)).rgb * emissiveColorFactor.rgb;
+		color += emissive;
+	}
 
 	const vec4 u_ScaleFGDSpec = vec4(0.0f);
 	const vec4 u_ScaleDiffBaseMR = vec4(0.0f);

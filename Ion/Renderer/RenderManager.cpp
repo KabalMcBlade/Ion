@@ -124,6 +124,9 @@ void RenderManager::GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _typ
     case EPrimitiveType_Cube:
         PrimitiveFactory::GenerateCube(_layout, _entity);
         break;
+    case EPrimitiveType_Piramid:
+        PrimitiveFactory::GeneratePiramid(_layout, _entity);
+        break;
     case EPrimitiveType_Sphere:
         PrimitiveFactory::GenerateSphere(_layout, _entity);
         break;
@@ -134,223 +137,57 @@ void RenderManager::LoadTriangle(ObjectHandler& _entity)
 {
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Triangle, _entity);
 
-    ion::Material* material = ionMaterialManger().CreateMaterial("ION#Triangle", 0u);
+    Material* material = ionMaterialManger().CreateMaterial("ION#Triangle", 0u);
     _entity->GetMesh(0)->SetMaterial(material);
 
-    material->GetBasePBR().SetBaseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    material->GetBasePBR().SetMetallicFactor(1.0f);
-    material->GetBasePBR().SetRoughnessFactor(1.0f);
-    material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
-    material->GetAdvancePBR().SetAlphaCutoff(0.5f);
+    LoadCommonMaterialForIntegratedPrimitive(_entity, material);
 
-    // Lambert
-    //
-    UniformBinding uniformVertex;
-    uniformVertex.m_bindingIndex = 0;
-    uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-    uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-    uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-
-    //
-    UniformBinding uniformFragment;
-    uniformFragment.m_bindingIndex = 1;
-    uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-
-    // set the shaders layout
-    ShaderLayoutDef vertexLayout;
-    vertexLayout.m_uniforms.push_back(uniformVertex);
-
-    ShaderLayoutDef fragmentLayout;
-    fragmentLayout.m_uniforms.push_back(uniformFragment);
-
-    //
-    ConstantsBindingDef constants;
-    constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
-    constants.m_values.push_back(material->GetBasePBR().GetMetallicFactor());
-    constants.m_values.push_back(material->GetBasePBR().GetRoughnessFactor());
-
-    material->SetVertexShaderLayout(vertexLayout);
-    material->SetFragmentShaderLayout(fragmentLayout);
-    material->SetVertexLayout(_entity->GetMesh(0)->GetLayout());
-    material->SetConstantsShaders(constants);
-
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_LAMBERT_SHADER_NAME, EShaderStage_Fragment);
-
-    material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
-
+    material->GetState().UnsetCullingMode(ECullingMode_Back);
     material->GetState().SetCullingMode(ECullingMode_TwoSide);
-    material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
-    material->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
-    material->GetState().SetBlendStateMode(EBlendState_SourceBlend_One);
-    material->GetState().SetBlendStateMode(EBlendState_DestBlend_Zero);
-    material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
 }
 
 void RenderManager::LoadQuad(ObjectHandler& _entity)
 {
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Quad, _entity);
 
-    ion::Material* material = ionMaterialManger().CreateMaterial("ION#Quad", 0u);
+    Material* material = ionMaterialManger().CreateMaterial("ION#Quad", 0u);
     _entity->GetMesh(0)->SetMaterial(material);
 
-    material->GetBasePBR().SetBaseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    material->GetBasePBR().SetMetallicFactor(1.0f);
-    material->GetBasePBR().SetRoughnessFactor(1.0f);
-    material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
-    material->GetAdvancePBR().SetAlphaCutoff(0.5f);
+    LoadCommonMaterialForIntegratedPrimitive(_entity, material);
 
-    // Lambert
-    //
-    UniformBinding uniformVertex;
-    uniformVertex.m_bindingIndex = 0;
-    uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-    uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-    uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-
-    //
-    UniformBinding uniformFragment;
-    uniformFragment.m_bindingIndex = 1;
-    uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-
-    // set the shaders layout
-    ShaderLayoutDef vertexLayout;
-    vertexLayout.m_uniforms.push_back(uniformVertex);
-
-    ShaderLayoutDef fragmentLayout;
-    fragmentLayout.m_uniforms.push_back(uniformFragment);
-
-    //
-    ConstantsBindingDef constants;
-    constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
-    constants.m_values.push_back(material->GetBasePBR().GetMetallicFactor());
-    constants.m_values.push_back(material->GetBasePBR().GetRoughnessFactor());
-
-    material->SetVertexShaderLayout(vertexLayout);
-    material->SetFragmentShaderLayout(fragmentLayout);
-    material->SetVertexLayout(_entity->GetMesh(0)->GetLayout());
-    material->SetConstantsShaders(constants);
-
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_LAMBERT_SHADER_NAME, EShaderStage_Fragment);
-
-    material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
-
+    material->GetState().UnsetCullingMode(ECullingMode_Back);
     material->GetState().SetCullingMode(ECullingMode_TwoSide);
-    material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
-    material->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
-    material->GetState().SetBlendStateMode(EBlendState_SourceBlend_One);
-    material->GetState().SetBlendStateMode(EBlendState_DestBlend_Zero);
-    material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
 }
 
 void RenderManager::LoadCube(ObjectHandler& _entity)
 {
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Cube, _entity);
 
-    ion::Material* material = ionMaterialManger().CreateMaterial("ION#Cube", 0u);
+    Material* material = ionMaterialManger().CreateMaterial("ION#Cube", 0u);
     _entity->GetMesh(0)->SetMaterial(material);
 
-    material->GetBasePBR().SetBaseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    material->GetBasePBR().SetMetallicFactor(1.0f);
-    material->GetBasePBR().SetRoughnessFactor(1.0f);
-    material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
-    material->GetAdvancePBR().SetAlphaCutoff(0.5f);
-
-    // Lambert
-    //
-    UniformBinding uniformVertex;
-    uniformVertex.m_bindingIndex = 0;
-    uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-    uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-    uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
-
-    //
-    UniformBinding uniformFragment;
-    uniformFragment.m_bindingIndex = 1;
-    uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
-
-    // set the shaders layout
-    ShaderLayoutDef vertexLayout;
-    vertexLayout.m_uniforms.push_back(uniformVertex);
-
-    ShaderLayoutDef fragmentLayout;
-    fragmentLayout.m_uniforms.push_back(uniformFragment);
-
-    //
-    ConstantsBindingDef constants;
-    constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
-    constants.m_values.push_back(material->GetBasePBR().GetMetallicFactor());
-    constants.m_values.push_back(material->GetBasePBR().GetRoughnessFactor());
-
-    material->SetVertexShaderLayout(vertexLayout);
-    material->SetFragmentShaderLayout(fragmentLayout);
-    material->SetVertexLayout(_entity->GetMesh(0)->GetLayout());
-    material->SetConstantsShaders(constants);
-
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_LAMBERT_SHADER_NAME, EShaderStage_Fragment);
-
-    material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
-
-    material->GetState().SetCullingMode(ECullingMode_Back);
-    material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
-    material->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
-    material->GetState().SetBlendStateMode(EBlendState_SourceBlend_One);
-    material->GetState().SetBlendStateMode(EBlendState_DestBlend_Zero);
-    material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
+    LoadCommonMaterialForIntegratedPrimitive(_entity, material);
 }
 
 void RenderManager::LoadSphere(ObjectHandler& _entity)
 {
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Sphere, _entity);
 
-    ion::Material* material = ionMaterialManger().CreateMaterial("ION#Sphere", 0u);
+    Material* material = ionMaterialManger().CreateMaterial("ION#Sphere", 0u);
     _entity->GetMesh(0)->SetMaterial(material);
 
-    material->GetBasePBR().SetBaseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    material->GetBasePBR().SetMetallicFactor(1.0f);
-    material->GetBasePBR().SetRoughnessFactor(1.0f);
-    material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
-    material->GetAdvancePBR().SetAlphaCutoff(0.5f);
+    LoadCommonMaterialForIntegratedPrimitive(_entity, material);
+}
 
-    // Lambert
+void RenderManager::LoadCommonMaterialForIntegratedPrimitive(ObjectHandler& _entity, Material* _material)
+{
+    _material->GetBasePBR().SetBaseColor(1.0f, 1.0f, 1.0f, 1.0f);
+    _material->GetBasePBR().SetMetallicFactor(1.0f);
+    _material->GetBasePBR().SetRoughnessFactor(1.0f);
+    _material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
+    _material->GetAdvancePBR().SetAlphaCutoff(0.5f);
+
+
     //
     UniformBinding uniformVertex;
     uniformVertex.m_bindingIndex = 0;
@@ -371,39 +208,53 @@ void RenderManager::LoadSphere(ObjectHandler& _entity)
     uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
     uniformFragment.m_type.push_back(EUniformParameterType_Vector);
 
+    //
+    SamplerBinding albedoMap;
+    albedoMap.m_bindingIndex = 2;
+    albedoMap.m_texture = ionRenderManager().GetNullTexure();
+
+    SamplerBinding normalMap;
+    normalMap.m_bindingIndex = 3;
+    normalMap.m_texture = ionRenderManager().GetNullTexure();
+
+
     // set the shaders layout
     ShaderLayoutDef vertexLayout;
     vertexLayout.m_uniforms.push_back(uniformVertex);
 
     ShaderLayoutDef fragmentLayout;
     fragmentLayout.m_uniforms.push_back(uniformFragment);
+    fragmentLayout.m_samplers.push_back(albedoMap);
+    fragmentLayout.m_samplers.push_back(normalMap);
 
     //
     ConstantsBindingDef constants;
     constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
-    constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
-    constants.m_values.push_back(material->GetBasePBR().GetMetallicFactor());
-    constants.m_values.push_back(material->GetBasePBR().GetRoughnessFactor());
+    constants.m_values.push_back(_material->GetBasePBR().GetColor()[0]);
+    constants.m_values.push_back(_material->GetBasePBR().GetColor()[1]);
+    constants.m_values.push_back(_material->GetBasePBR().GetColor()[2]);
+    constants.m_values.push_back(_material->GetBasePBR().GetColor()[3]);
+    constants.m_values.push_back(0.0f);
+    constants.m_values.push_back(0.0f);
+    constants.m_values.push_back(_material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
+    constants.m_values.push_back(_material->GetAdvancePBR().GetAlphaCutoff());
 
-    material->SetVertexShaderLayout(vertexLayout);
-    material->SetFragmentShaderLayout(fragmentLayout);
-    material->SetVertexLayout(_entity->GetMesh(0)->GetLayout());
-    material->SetConstantsShaders(constants);
+    _material->SetVertexShaderLayout(vertexLayout);
+    _material->SetFragmentShaderLayout(fragmentLayout);
+    _material->SetVertexLayout(_entity->GetMesh(0)->GetLayout());
+    _material->SetConstantsShaders(constants);
 
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_LAMBERT_SHADER_NAME, EShaderStage_Fragment);
+    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_DIFFUSE_LIGHT_SHADER_NAME, EShaderStage_Fragment);
 
-    material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+    _material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-    material->GetState().SetCullingMode(ECullingMode_Back);
-    material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
-    material->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
-    material->GetState().SetBlendStateMode(EBlendState_SourceBlend_One);
-    material->GetState().SetBlendStateMode(EBlendState_DestBlend_Zero);
-    material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
+    _material->GetState().SetCullingMode(ECullingMode_Back);
+    _material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
+    _material->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
+    _material->GetState().SetBlendStateMode(EBlendState_SourceBlend_One);
+    _material->GetState().SetBlendStateMode(EBlendState_DestBlend_Zero);
+    _material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
 }
 
 void RenderManager::AddToSceneGraph(ObjectHandler _node)

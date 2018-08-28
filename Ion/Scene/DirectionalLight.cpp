@@ -14,24 +14,17 @@ DirectionalLight::DirectionalLight() :  Node(ION_BASE_DIRECTIONAL_LIGHT)
 {
     m_nodeType = ENodeType_DirectionalLight;
     m_color = VectorHelper::GetOne();
-    m_direction = VectorHelper::Get0001();
 }
 
 DirectionalLight::DirectionalLight(const eosString & _name) : Node(_name)
 {
     m_nodeType = ENodeType_DirectionalLight;
     m_color = VectorHelper::GetOne();
-    m_direction = VectorHelper::Get0001();
 }
 
 DirectionalLight::~DirectionalLight()
 {
 
-}
-
-void DirectionalLight::SetDirection(ionFloat _x, ionFloat _y, ionFloat _z)
-{
-    m_direction = Vector(_x, _y, _z, 1.0f);
 }
 
 void DirectionalLight::SetColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
@@ -41,7 +34,8 @@ void DirectionalLight::SetColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat 
 
 Vector DirectionalLight::GetLightDirection() const
 {
-    return GetTransform().GetRotation() * m_direction;
+    static const Vector forward(0.0f, 0.0f, 1.0, 0.0f);
+    return GetTransform().GetRotation().Conjugate() * forward;
 }
 
 

@@ -19,12 +19,9 @@ public:
     explicit DirectionalLight(const eosString & _name);
     virtual ~DirectionalLight();
 
-    void SetDirection(const Vector& _dir) { m_direction = _dir; }
-    void SetDirection(ionFloat _x, ionFloat _y, ionFloat _z);
     void SetColor(const Vector& _color) { m_color = _color; }
     void SetColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a);
 
-    const Vector& GetDirection() const { return m_direction; }
     const Vector& GetColor() const { return m_color; }
 
     Vector GetLightDirection() const;
@@ -34,7 +31,6 @@ private:
     DirectionalLight& operator = (const DirectionalLight&) = delete;
 
 private:
-    Vector m_direction;
     Vector m_color;
 };
 

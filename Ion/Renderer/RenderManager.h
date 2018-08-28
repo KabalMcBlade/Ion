@@ -24,10 +24,8 @@
 #include "../App/Mode.h"
 
 
-#define ION_PBR_SHADER_NAME    "pbr"
-#define ION_LAMBERT_SHADER_NAME    "Lambert"
-#define ION_DIFFUSE_SHADER_NAME    "Diffuse"
-#define ION_DIFFUSENORMAL_SHADER_NAME    "DiffuseNormal"
+#define ION_PBR_SHADER_NAME    "PBR"
+#define ION_DIFFUSE_LIGHT_SHADER_NAME    "DiffuseLight"
 
 #define ION_PBR_DEBUG
 
@@ -113,6 +111,8 @@ private:
 
     void Update(ionFloat _deltaTime);
     void Frame();
+
+    void LoadCommonMaterialForIntegratedPrimitive(ObjectHandler& _entity, Material* _material);
 
 private:
     RenderCore  m_renderCore;
