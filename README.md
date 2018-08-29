@@ -69,7 +69,7 @@ The controls in this demo test are:
 * Hold right mouse button in order to pan right or left and up or down the object
 * Use the mouse wheel to go toward or far away the object
 * Press R to auto rotate the model
-* Hold key A increase x 10 the wheel speed of the mouse
+* Hold key A increase x 10 the wheel speed of the mouse and S to increase x 100
 
 Pressing the key L, you can change the control from the model to the light
 In this case, toggling the L key you will have:

@@ -48,7 +48,7 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
             m_rotating = !m_rotating;
         }
 
-        if (_keyboardState.m_key == ion::EKeyboardKey_A)
+        if (_keyboardState.m_key == ion::EKeyboardKey_A || _keyboardState.m_key == ion::EKeyboardKey_S)
         {
             m_incresingWheelSpeed = 1.0f;
         }
@@ -59,6 +59,10 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
         if (_keyboardState.m_key == ion::EKeyboardKey_A)
         {
             m_incresingWheelSpeed = 10.0f;
+        }
+        if (_keyboardState.m_key == ion::EKeyboardKey_S)
+        {
+            m_incresingWheelSpeed = 100.0f;
         }
     }
 }
