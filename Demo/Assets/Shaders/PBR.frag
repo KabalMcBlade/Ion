@@ -214,7 +214,8 @@ float microfacetDistribution(PBRInfo pbrInputs)
 float convertMetallic(vec3 diffuse, vec3 specular, float maxSpecular) {
 	float perceivedDiffuse = sqrt(0.299 * diffuse.r * diffuse.r + 0.587 * diffuse.g * diffuse.g + 0.114 * diffuse.b * diffuse.b);
 	float perceivedSpecular = sqrt(0.299 * specular.r * specular.r + 0.587 * specular.g * specular.g + 0.114 * specular.b * specular.b);
-	if (perceivedSpecular < c_MinRoughness) {
+	if (perceivedSpecular < c_MinRoughness) 
+	{
 		return 0.0;
 	}
 	float a = c_MinRoughness;
@@ -382,15 +383,21 @@ void main()
 
 	const float u_OcclusionStrength = 1.0f;
 	// Apply optional PBR terms for additional (optional) shading
-	if (material.hasOcclusionTexture == 1.0f) {
+	if (material.hasOcclusionTexture == 1.0f) 
+	{
 		float ao = texture(aoMap, inUV).r;
 		color = mix(color, color * ao, u_OcclusionStrength);
 	}
 
 	const vec4 emissiveColorFactor = vec4(material.emissiveFactorR, material.emissiveFactorG, material.emissiveFactorB, material.emissiveFactorA);
-	if (material.hasEmissiveTexture == 1.0f) {
+	if (material.hasEmissiveTexture == 1.0f) 
+	{
 		vec3 emissive = SRGBtoLINEAR(texture(emissiveMap, inUV)).rgb * emissiveColorFactor.rgb;
 		color += emissive;
+	}
+	else
+	{
+		color += emissiveColorFactor.rgb;
 	}
 
 	const vec4 u_ScaleFGDSpec = vec4(0.0f);
