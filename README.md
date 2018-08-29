@@ -69,13 +69,11 @@ The controls in this demo test are:
 * Hold right mouse button in order to pan right or left and up or down the object
 * Use the mouse wheel to go toward or far away the object
 * Press R to auto rotate the model
-* Press A and S to increase or decrease the scale respectively
+* Hold key A increase x 10 the wheel speed of the mouse
 
 Pressing the key L, you can change the control from the model to the light
 In this case, toggling the L key you will have:
 * Hold left mouse button in order to rotate the light
-* Hold right mouse button in order to change the direction of the light from right or left and up or down
-* Use the mouse wheel in order to change the direction of the light in forward
 
 To Debug PBR (this works just with the 7th test for now because is the only one using the PBR shader)
 You need to have defined ION_PBR_DEBUG (by default is defined)

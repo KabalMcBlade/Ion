@@ -7,12 +7,12 @@ ionBool MainCamera::m_toggleLightRotation = false;
 //////////////////////////////////////////////////////////////////////////
 // ENTITIES
 
-RotatingEntity::RotatingEntity() : m_rotating(false), m_mouseSensitivity(0.05f), m_movementSpeed(10.0f), m_scale(1.0f)
+RotatingEntity::RotatingEntity() : m_rotating(false), m_mouseSensitivity(0.05f), m_movementSpeed(10.0f), m_incresingWheelSpeed(1.0f)
 {
 
 }
 
-RotatingEntity::RotatingEntity(const eosString & _name) : Entity(_name), m_rotating(false), m_mouseSensitivity(0.05f), m_movementSpeed(10.0f), m_scale(1.0f)
+RotatingEntity::RotatingEntity(const eosString & _name) : Entity(_name), m_rotating(false), m_mouseSensitivity(0.05f), m_movementSpeed(10.0f), m_incresingWheelSpeed(1.0f)
 {
 }
 
@@ -37,8 +37,6 @@ void RotatingEntity::OnUpdate(ionFloat _deltaTime)
 
         GetTransform().SetRotation(currRot);
     }
-
-    m_scale = VectorHelper::ExtractElement_0(GetTransform().GetScale());
 }
 
 void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime)
@@ -49,22 +47,19 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
         {
             m_rotating = !m_rotating;
         }
+
+        if (_keyboardState.m_key == ion::EKeyboardKey_A)
+        {
+            m_incresingWheelSpeed = 1.0f;
+        }
     }
 
     if (_keyboardState.m_state == ion::EKeyboardState_Down)
     {
         if (_keyboardState.m_key == ion::EKeyboardKey_A)
         {
-            m_scale += 0.0001f;
-            m_scale = std::min(m_scale, std::numeric_limits<nixFloat>::max());
+            m_incresingWheelSpeed = 10.0f;
         }
-        if (_keyboardState.m_key == ion::EKeyboardKey_S)
-        {
-            m_scale -= 0.0001f;
-            m_scale = std::max(0.0f, m_scale);
-        }
-
-        GetTransform().SetScale(m_scale);
     }
 }
 
@@ -123,7 +118,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
         {
             static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
 
-            ionFloat velocity = m_movementSpeed * _deltaTime;
+            ionFloat velocity = m_movementSpeed * m_incresingWheelSpeed * _deltaTime;
 
             const Quaternion& orientation = GetTransform().GetRotation();
 

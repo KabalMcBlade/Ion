@@ -124,9 +124,6 @@ void RenderManager::GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _typ
     case EPrimitiveType_Cube:
         PrimitiveFactory::GenerateCube(_layout, _entity);
         break;
-    case EPrimitiveType_Piramid:
-        PrimitiveFactory::GeneratePiramid(_layout, _entity);
-        break;
     case EPrimitiveType_Sphere:
         PrimitiveFactory::GenerateSphere(_layout, _entity);
         break;

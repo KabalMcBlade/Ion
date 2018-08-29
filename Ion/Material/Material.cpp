@@ -82,8 +82,6 @@ Material::Material(const eosString& _name) :
     m_useGlossiness(false),
     m_alphaMode(EAlphaMode_Opaque),
     m_isDiffuseLight(false),
-    m_isDiffuseNormal(false),
-    m_isDiffuse(false),
     m_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
 {
 }

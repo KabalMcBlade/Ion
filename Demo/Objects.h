@@ -20,7 +20,7 @@ public:
 private:
     ionFloat m_movementSpeed;
     ionFloat m_mouseSensitivity;
-    ionFloat m_scale;
+    ionFloat m_incresingWheelSpeed;
 
     ionBool m_rotating;
 };
