@@ -667,7 +667,7 @@ ionBool Texture::Create()
     }
 }
 
-ionU32 Texture::BitsPerFormat(ETextureFormat _format) const
+ionU32 Texture::BitsPerFormat(ETextureFormat _format)
 {
     switch (_format) 
     {
@@ -679,7 +679,7 @@ ionU32 Texture::BitsPerFormat(ETextureFormat _format) const
     case ETextureFormat_Alpha:              return 8;
     case ETextureFormat_Luminance8:         return 8;
     case ETextureFormat_Intensity8:         return 8;
-    case ETextureFormat_HDR:                return 64;//48;
+    case ETextureFormat_HDR:                return 128; //64;//48;
     case ETextureFormat_BRDF:               return 32;
     case ETextureFormat_Depth:              return 32;  // should be 24, but it works with 32
     case ETextureFormat_Irradiance:             return 128;
@@ -763,7 +763,7 @@ VkFormat Texture::GetVulkanFormatFromTextureFormat(ETextureFormat _format)
     case ETextureFormat_Luminance8: return VK_FORMAT_R8_UNORM;
     case ETextureFormat_Intensity8: return VK_FORMAT_R8_UNORM;
     case ETextureFormat_RGB565: return VK_FORMAT_R8G8B8_UNORM;      // fall back on this format
-    case ETextureFormat_HDR: return VK_FORMAT_R16G16B16A16_SFLOAT;
+    case ETextureFormat_HDR: return VK_FORMAT_R32G32B32A32_SFLOAT;// VK_FORMAT_R16G16B16A16_SFLOAT;
     case ETextureFormat_BRDF: return VK_FORMAT_R16G16_SFLOAT;
     case ETextureFormat_Depth: return ionTextureManger().GetDepthFormat(); //VK_FORMAT_R8G8B8_UNORM;
     case ETextureFormat_Irradiance: return VK_FORMAT_R32G32B32A32_SFLOAT;

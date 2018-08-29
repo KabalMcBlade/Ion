@@ -27,6 +27,7 @@
 #include "Texture/TextureCommon.h"
 #include "Texture/Texture.h"
 #include "Texture/TextureManager.h"
+#include "Texture/CubemapHelper.h"
 
 #include "Material/MaterialState.h"
 #include "Material/Material.h"

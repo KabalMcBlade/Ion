@@ -35,6 +35,8 @@ public:
     ionU32 GetComponent() const { return BitsPerFormat(m_optFormat) / 8; }
     ionU32 GetSize() const { return m_width * m_height * GetComponent(); }
 
+    static ionU32 BitsPerFormat(ETextureFormat _format);
+
 private:
     friend class TextureManager;
 
@@ -61,7 +63,6 @@ private:
 
     ionBool LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer);
 
-    ionU32 BitsPerFormat(ETextureFormat _format) const;
     void GenerateOptions();
 
     void UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _height, const ionU8* _buffer, ionU32 _index = 0 /* index of texture for cube-map, 0 by default */);

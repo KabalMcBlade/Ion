@@ -221,6 +221,7 @@
     <ClInclude Include="Renderer\VertexBufferObject.h" />
     <ClInclude Include="Renderer\VertexCacheManager.h" />
     <ClInclude Include="Scene\Entity.h" />
+    <ClInclude Include="Texture\CubemapHelper.h" />
     <ClInclude Include="Texture\Texture.h" />
     <ClInclude Include="Texture\TextureManager.h" />
     <ClInclude Include="Texture\TextureCommon.h" />
@@ -288,6 +289,7 @@
     <ClCompile Include="Scene\Node.cpp" />
     <ClCompile Include="Scene\Transform.cpp" />
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="Texture\CubemapHelper.cpp" />
     <ClCompile Include="Texture\Texture.cpp" />
     <ClCompile Include="Texture\TextureManager.cpp" />
     <ClCompile Include="Utilities\LoaderGLTF.cpp" />
