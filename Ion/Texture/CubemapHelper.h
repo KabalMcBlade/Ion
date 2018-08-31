@@ -24,31 +24,35 @@ public:
     ionBool Load(const eosString& _path, ETextureFormat _format);
     void    Unload();
 
-    ionBool ConvertToTexture(Texture* _output);
+    ionBool Convert();
+
+    ionU32 GetSizePerFace() const { return m_bufferSizePerFace; }
+    ETextureFormat GetFormat() const { return m_format; }       // redundant but for completeness
 
 private:
     void Clear();
 
+    void CopyBufferRegion(const void* _source, void* _dest, ionU32 _sourceImageWidth, ionU32 _component, ionU32 _bpp, ionU32 _destSize, ionU32 _x, ionU32 _y);
+    ionU32 CalculateMipMapPerFace(ionU32 _width, ionU32 _height);
+
     ionBool IsLatLong();
-    ionBool IsHStrip();
-    ionBool IsVStrip();
     ionBool IsCubeCross();
 
-    ionBool CubemapFromCross(Texture* _output);
-    ionBool CubemapFromLatLong(Texture* _output);
-    ionBool CubemapFromStrip(Texture* _output);
+    ionBool CubemapFromCross();
+    ionBool CubemapFromLatLong();
 
 private:
     ionS32 m_width;
     ionS32 m_height;
     ionS32 m_component;
-    ionU32 m_size;
-    ionU32 m_numLevels;
+    ionU32 m_numLevels;     // may not have sense :D
     ETextureFormat m_format;
     void* m_buffer;
-    ionU8* m_originalBufferBytes;
-    ionU16* m_originalBufferShorts;
-    ionFloat* m_originalBufferFloats;
+
+    // output
+    ionU32 m_sizePerFace;
+    ionU32 m_bufferSizePerFace;
+    ionU32 m_numLevelsPerFace;
 };
 
 
