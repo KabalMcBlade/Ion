@@ -26,20 +26,29 @@ public:
 
     ionBool Convert();
 
-    ionU32 GetSizePerFace() const { return m_bufferSizePerFace; }
+    ionS32 GetComponent() const { return m_component; }
+    ionU32 GetBufferSizePerFace() const { return m_bufferSizePerFace; }
     ETextureFormat GetFormat() const { return m_format; }       // redundant but for completeness
+
+    ionU32 GetSizePerFace() const { return m_sizePerFace; }
+    ionU32 GetNumLevelPerFace() const { return m_numLevelsPerFace; }
+    const void* GetBufferPerFace(ionU32 _index) const { return m_output[_index]; }
+    
 
 private:
     void Clear();
 
-    void CopyBufferRegion(const void* _source, void* _dest, ionU32 _sourceImageWidth, ionU32 _component, ionU32 _bpp, ionU32 _destSize, ionU32 _x, ionU32 _y);
+    void CopyBufferRegion(const void* _source, void* _dest, ionU32 _sourceImageWidth, ionU32 _component, ionU32 _bppPerChannel, ionU32 _destSize, ionU32 _x, ionU32 _y);
     ionU32 CalculateMipMapPerFace(ionU32 _width, ionU32 _height);
 
+    void GenerateCubemapFromCrossVertical(const void* _source, void* _dest[6], ionU32 _bpp);
+    void GenerateCubemapFromCrossHorizontal(const void* _source, void* _dest[6], ionU32 _bpp);
+        
     ionBool IsLatLong();
     ionBool IsCubeCross();
 
-    ionBool CubemapFromCross();
-    ionBool CubemapFromLatLong();
+    void CubemapFromCross();
+    void CubemapFromLatLong();
 
 private:
     ionS32 m_width;
@@ -53,6 +62,7 @@ private:
     ionU32 m_sizePerFace;
     ionU32 m_bufferSizePerFace;
     ionU32 m_numLevelsPerFace;
+    void* m_output[6];
 };
 
 

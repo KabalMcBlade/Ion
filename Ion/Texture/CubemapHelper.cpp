@@ -53,6 +53,13 @@ ionBool CubemapHelper::Load(const eosString& _path, ETextureFormat _format)
 void CubemapHelper::Unload()
 {
     stbi_image_free(m_buffer);
+    for (ionU32 i = 0; i < 6; ++i)
+    {
+        if (m_output[i] != nullptr)
+        {
+            eosDeleteRaw(m_output[i]);
+        }
+    }
     Clear();
 }
 
@@ -67,6 +74,10 @@ void CubemapHelper::Clear()
     m_sizePerFace = 0;
     m_bufferSizePerFace = 0;
     m_numLevelsPerFace = 0;
+    for (ionU32 i = 0; i < 6; ++i)
+    {
+        m_output[i] = nullptr;
+    }
 }
 
 ionU32 CubemapHelper::CalculateMipMapPerFace(ionU32 _width, ionU32 _height)
@@ -110,30 +121,112 @@ ionBool CubemapHelper::Convert()
 {
     if (IsCubeCross())
     {
-        return CubemapFromCross();
+        CubemapFromCross();
+        return true;
     }
     else if (IsLatLong())
     {
-        return CubemapFromLatLong();
+        CubemapFromLatLong();
+        return true;
     }
     else
     {
-        return false;
+        ionAssertReturnValue(false, "Format not supported: Cubemap generation only from Cross or LatLong!", false);
     }
 }
 
-void CubemapHelper::CopyBufferRegion(const void* _source, void* _dest, ionU32 _sourceImageWidth, ionU32 _component, ionU32 _bpp, ionU32 _destSize, ionU32 _x, ionU32 _y)
+void CubemapHelper::CopyBufferRegion(const void* _source, void* _dest, ionU32 _sourceImageWidth, ionU32 _component, ionU32 _bppPerChannel, ionU32 _destSize, ionU32 _x, ionU32 _y)
 {
     const ionU8* sourceFace = (const ionU8*)_source;
     ionU8* destFace = (ionU8*)_dest;
-    ionU32 perChannel = _bpp / 32;
     for (ionU32 i = 0; i < _destSize; ++i)  // _destSize is the height but because we are in "cube map" width and height are the same
     {
-        CopyBuffer(&destFace[i * _destSize * _component * perChannel], &sourceFace[(i + _y) * _sourceImageWidth * _component * perChannel + (_x * _component * perChannel)], _destSize * _component * perChannel);
+        CopyBuffer(&destFace[i * _destSize * _component * _bppPerChannel], &sourceFace[(i + _y) * _sourceImageWidth * _component * _bppPerChannel + (_x * _component * _bppPerChannel)], _destSize * _component * _bppPerChannel);
     }
 }
 
-ionBool CubemapHelper::CubemapFromCross()
+void CubemapHelper::GenerateCubemapFromCrossVertical(const void* _source, void* _dest[6], ionU32 _bpp)
+{
+    const ionU32 perChannel = _bpp / 32;
+
+    // right
+    _dest[0] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_source, _dest[0], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace * 2, m_sizePerFace);
+
+    // left
+    _dest[1] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_source, _dest[1], m_width, m_component, perChannel, m_sizePerFace, 0, m_sizePerFace);
+
+    // top
+    _dest[2] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_source, _dest[2], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace, 0);
+
+    // bottom
+    _dest[3] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_source, _dest[3], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace, m_sizePerFace * 2);
+
+    // front
+    _dest[4] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_source, _dest[4], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace, m_sizePerFace);
+
+    // back
+    _dest[5] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+
+    // here I need to read from bottom to top and  right to left....
+    const ionU8* sourceFace = (const ionU8*)_source;
+    ionU8* destFace = (ionU8*)(_dest[5]);
+    ionU32 _x = m_sizePerFace, _y = m_sizePerFace * 3;
+    for (ionS32 i = (m_sizePerFace - 1), j = 0; i >= 0; --i, ++j)
+    {
+        CopyBuffer(&(destFace)[j * m_sizePerFace * m_component * perChannel], &sourceFace[(i + _y) * m_width * m_component * perChannel + (_x * m_component * perChannel)], m_sizePerFace * m_component * perChannel);
+    }
+    for (ionU32 y = 0; y < m_sizePerFace; ++y)
+    {
+        for (ionU32 x = 0; x < m_sizePerFace / 2; ++x)
+        {
+            for (ionS32 c = 0; c < m_component; ++c)
+            {
+                for (ionU32 b = 0; b < perChannel; ++b)
+                {
+                    ionU8 swap = destFace[(m_sizePerFace * m_component * y) + (x * m_component) + (c * perChannel) + b];
+                    destFace[(m_sizePerFace * m_component * y) + (x * m_component) + (c * perChannel) + b] = destFace[(m_sizePerFace * m_component * y) + (((m_sizePerFace - x) * m_component) - m_component) + (c * perChannel) + b];
+                    destFace[(m_sizePerFace * m_component * y) + (((m_sizePerFace - x) * m_component) - m_component) + (c * perChannel) + b] = swap;
+                }
+            }
+        }
+    }
+}
+
+void CubemapHelper::GenerateCubemapFromCrossHorizontal(const void* _source, void* _dest[6], ionU32 _bpp)
+{
+    const ionU32 perChannel = _bpp / 32;
+
+    // right
+    _dest[0] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_source, _dest[0], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace * 2, m_sizePerFace);
+
+    // left
+    _dest[1] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_source, _dest[1], m_width, m_component, perChannel, m_sizePerFace, 0, m_sizePerFace);
+
+    // top
+    _dest[2] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_source, _dest[2], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace, 0);
+
+    // bottom
+    _dest[3] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_source, _dest[3], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace, m_sizePerFace * 2);
+
+    // front
+    _dest[4] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_source, _dest[4], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace, m_sizePerFace);
+
+    // back
+    _dest[5] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    CopyBufferRegion(_source, _dest[5], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace * 3, m_sizePerFace);
+}
+
+void CubemapHelper::CubemapFromCross()
 {
     const ionBool isVertical = (m_width / 3 == m_height / 4) && (m_width % 3 == 0) && (m_height % 4 == 0);
     const ionBool isHorizontal = !isVertical;
@@ -142,19 +235,19 @@ ionBool CubemapHelper::CubemapFromCross()
     {
         m_sizePerFace = m_width / 3;
         m_numLevelsPerFace = CalculateMipMapPerFace(m_sizePerFace, m_sizePerFace);
+        GenerateCubemapFromCrossVertical(m_buffer, m_output, Texture::BitsPerFormat(m_format));
     }
     else
     {
         m_sizePerFace = m_width / 4;
         m_numLevelsPerFace = CalculateMipMapPerFace(m_sizePerFace, m_sizePerFace);
+        GenerateCubemapFromCrossHorizontal(m_buffer, m_output, Texture::BitsPerFormat(m_format));
     }
-
-    return false;
 }
 
-ionBool CubemapHelper::CubemapFromLatLong()
+void CubemapHelper::CubemapFromLatLong()
 {
-    return false;
+
 }
 
 

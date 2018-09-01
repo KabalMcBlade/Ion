@@ -69,11 +69,6 @@ private:
 
     void GenerateMipMaps();
 
-    void CopyBufferRegion(const ionU8* _source, ionU32 _sourceWidth, ionU32 _sourceHeight, ionU32 _sourceComponentCount, ionU8* _dest, ionU32 _destWidth, ionU32 _destHeight, ionU32 _x, ionU32 _y);
-    ionBool GenerateCubemapFromCross(const ionU8* _buffer, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _outBuffers[6]);
-    void GenerateCubemapFromCrossVertical(const ionU8* _buffer, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _outBuffers[6]);
-    void GenerateCubemapFromCrossHorizontal(const ionU8* _buffer, ionU32 _width, ionU32 _height, ionU32 _component, ionU8* _outBuffers[6]);
-
     void UploadTextureBuffer(const ionU8* _buffer, ionU32 _component, ionU32 _index = 0 /* index of texture for cube-map, 0 by default */);
 
 private:
