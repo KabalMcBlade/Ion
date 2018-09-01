@@ -45,7 +45,6 @@ private:
 public:
     static ionBool m_toggleLightRotation;
 
-#ifdef ION_PBR_DEBUG
 private:
     enum EPBRDebugType
     {
@@ -54,5 +53,4 @@ private:
         EPBRDebugType_PrefilteredCubeMipLevels
     };
     EPBRDebugType m_pbrDebug;
-#endif
 };

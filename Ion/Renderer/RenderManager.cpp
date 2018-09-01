@@ -53,10 +53,8 @@ RenderManager *RenderManager::s_instance = nullptr;
 
 RenderManager::RenderManager() : m_deltaTime(0.0f), m_running(false)
 {
-#ifdef ION_PBR_DEBUG
-    m_exposure = 4.5f;
-    m_gamma = 2.2f;
-#endif // ION_PBR_DEBUG
+    m_exposure = 4.0f;
+    m_gamma = 2.0f;
     m_prefilteredCubeMipLevels = 10.0f;
 }
 
@@ -573,14 +571,8 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
             vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
         }
 
-        // TODO: find the proper rotation order!
-        eosVector(Quaternion) rotations;
-        rotations.push_back(Quaternion(0.0f, -0.707f, 0.0f, 0.707f));    // right in camera poi
-        rotations.push_back(Quaternion(0.0f, 0.707f, 0.0f, 0.707f));     // left in camera poi
-        rotations.push_back(Quaternion(-0.707f, 0.0f, 0.0f, 0.707f));    // up in camera poi
-        rotations.push_back(Quaternion(0.707f, 0.0f, 0.0f, 0.707f));    // down in camera poi
-        rotations.push_back(Quaternion(0.0f, 1.0f, 0.0f, 0.0f));    // rear in camera poi
-        rotations.push_back(Quaternion());                              // front in camera poi
+        ionFloat yawRot[6] = { 0.0f, 90.0f, 90.0f, 90.0f, 90.0f, 0.0f };
+        ionFloat pitchRot[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 90.0f, -180.0f };
 
         for (ionU32 m = 0; m < mipMapsLevel; ++m)
         {
@@ -589,11 +581,15 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
                 cameraPtr->SetViewport(m_renderCore, cmdBuffer, 0, 0, static_cast<ionS32>(irradiance->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(irradiance->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
 
                 cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(irradiance->GetWidth()), static_cast<ionU32>(irradiance->GetHeight()));
-
-                // rotate the camera here
-                cameraPtr->GetTransform().SetRotation(rotations[f]);
-                //cameraPtr->Update(0.0f);
+ 
+                const Quaternion& prevRot = cameraPtr->GetTransform().GetRotation();
+                Matrix rotationMatrix;  rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(yawRot[f]), NIX_DEG_TO_RAD(pitchRot[f]), NIX_DEG_TO_RAD(0.0f));
+                Quaternion currRot;     currRot.SetFromMatrix(rotationMatrix);
+                currRot = currRot * prevRot;
+                cameraPtr->GetTransform().SetRotation(currRot);
+                cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
+
 
                 // draw irradiance
                 {
@@ -862,13 +858,8 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
             vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
         }
 
-        eosVector(Quaternion) rotations;
-        rotations.push_back(Quaternion(0.0f, -0.707f, 0.0f, 0.707f));    // right in camera poi
-        rotations.push_back(Quaternion(0.0f, 0.707f, 0.0f, 0.707f));     // left in camera poi
-        rotations.push_back(Quaternion(-0.707f, 0.0f, 0.0f, 0.707f));    // up in camera poi
-        rotations.push_back(Quaternion(0.707f, 0.0f, 0.0f, 0.707f));    // down in camera poi
-        rotations.push_back(Quaternion(0.0f, 1.0f, 0.0f, 0.0f));    // rear in camera poi
-        rotations.push_back(Quaternion());                              // front in camera poi
+        ionFloat yawRot[6] = { 0.0f, 90.0f, 90.0f, 90.0f, 90.0f, 0.0f };
+        ionFloat pitchRot[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 90.0f, -180.0f };
 
         for (ionU32 m = 0; m < mipMapsLevel; ++m)
         {
@@ -878,9 +869,12 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
 
                 cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(prefilteredEnvironment->GetWidth()), static_cast<ionU32>(prefilteredEnvironment->GetHeight()));
 
-                // rotate the camera here
-                cameraPtr->GetTransform().SetRotation(rotations[f]);
-                //cameraPtr->Update(0.0f);
+                const Quaternion& prevRot = cameraPtr->GetTransform().GetRotation();
+                Matrix rotationMatrix;  rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(yawRot[f]), NIX_DEG_TO_RAD(pitchRot[f]), NIX_DEG_TO_RAD(0.0f));
+                Quaternion currRot;     currRot.SetFromMatrix(rotationMatrix);
+                currRot = currRot * prevRot;
+                cameraPtr->GetTransform().SetRotation(currRot);
+                cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
 
                 // draw prefilteredEnvironment

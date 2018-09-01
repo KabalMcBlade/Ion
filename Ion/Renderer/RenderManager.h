@@ -27,7 +27,6 @@
 #define ION_PBR_SHADER_NAME    "PBR"
 #define ION_DIFFUSE_LIGHT_SHADER_NAME    "DiffuseLight"
 
-#define ION_PBR_DEBUG
 
 EOS_USING_NAMESPACE
 
@@ -99,10 +98,8 @@ public:
     const Texture*    GenerateNullTexture();
     const Texture*    GetNullTexure() const;
 
-#ifdef ION_PBR_DEBUG
     ionFloat m_exposure;
     ionFloat m_gamma;
-#endif // ION_PBR_DEBUG
     ionFloat m_prefilteredCubeMipLevels;
 
 private:

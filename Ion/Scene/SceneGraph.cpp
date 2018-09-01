@@ -272,14 +272,8 @@ void SceneGraph::Update(ionFloat _deltaTime)
                 _mm_storeu_ps(&drawsurface.m_directionalLightColor[0], GetDirectionalLightPtr()->GetColor());
             }
 
-#ifdef ION_PBR_DEBUG
             drawsurface.m_exposure = ionRenderManager().m_exposure;
             drawsurface.m_gamma = ionRenderManager().m_gamma;
-#else
-            drawsurface.m_exposure = 4.5f;
-            drawsurface.m_gamma = 2.2f;
-#endif // ION_PBR_DEBUG
-
             drawsurface.m_prefilteredCubeMipLevels = ionRenderManager().m_prefilteredCubeMipLevels;
 
             drawsurface.m_visible = drawsurface.m_nodeRef->IsVisible();

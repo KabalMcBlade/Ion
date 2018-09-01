@@ -145,7 +145,7 @@ int main(int argc, char **argv)
     //////////////////////////////////////////////////////////////////////////
     // Generate and load all global texture
     const Texture* nullTextureMap = ionRenderManager().GenerateNullTexture();
-    const Texture* skyboxCubeMap = ionTextureManger().CreateTextureFromFile("Yokohama3", ionFileSystemManager().GetTexturesPath() + "Yokohama3.jpg", ETextureFilter_Default, ETextureRepeat_ClampAlpha, ETextureUsage_Skybox, ETextureType_Cubic, 1);
+    const Texture* skyboxCubeMap = ionTextureManger().CreateTextureFromFile("misty_pines_4k", ionFileSystemManager().GetTexturesPath() + "misty_pines_4k.hdr", ETextureFilter_Default, ETextureRepeat_ClampAlpha, ETextureUsage_SkyboxHDR, ETextureType_Cubic, 1);
     
     Material* skyboxMaterial = ionMaterialManger().CreateMaterial("SkyBox", 0u);
 
@@ -216,7 +216,6 @@ int main(int argc, char **argv)
     const Texture* irradiance = ionRenderManager().GenerateIrradianceCubemap(camera);
     const Texture* prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(camera);
 
-    
 
     //////////////////////////////////////////////////////////////////////////
     // Create Entity to render

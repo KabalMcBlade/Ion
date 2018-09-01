@@ -144,9 +144,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
 MainCamera::MainCamera() : Camera("Main Camera"), m_mouseSensitivity(0.05f), m_movementSpeed(10.0f)
 {
-#ifdef ION_PBR_DEBUG
     m_pbrDebug = EPBRDebugType_Exposure;
-#endif
     std::cout << std::endl << "Control applied to the object" << std::endl;
 }
 
@@ -187,7 +185,6 @@ void MainCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFl
 {
     if (_keyboardState.m_state == ion::EKeyboardState_Down)
     {
-#ifdef ION_PBR_DEBUG
         if (_keyboardState.m_key == ion::EKeyboardKey_Q)
         {
             switch (m_pbrDebug)
@@ -228,7 +225,6 @@ void MainCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFl
                 break;
             }
         }
-#endif
     }
 
     if (_keyboardState.m_state == ion::EKeyboardState_Up)
@@ -251,8 +247,6 @@ void MainCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFl
                 std::cout << "Control applied to the object" << std::endl;
             }
         }
-
-#ifdef ION_PBR_DEBUG
         else if (_keyboardState.m_key == ion::EKeyboardKey_N1)
         {
             m_pbrDebug = EPBRDebugType_Exposure;
@@ -268,7 +262,6 @@ void MainCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFl
             m_pbrDebug = EPBRDebugType_PrefilteredCubeMipLevels;
             std::cout << "Active PBR Debug: Prefiltered Cube Mip Levels - Current level is " << ionRenderManager().m_prefilteredCubeMipLevels << std::endl;
         }
-#endif
     }
 }
 

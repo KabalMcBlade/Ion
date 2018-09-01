@@ -76,7 +76,6 @@ In this case, toggling the L key you will have:
 * Hold left mouse button in order to rotate the light
 
 To Debug PBR (this works just with the 7th test for now because is the only one using the PBR shader)
-You need to have defined ION_PBR_DEBUG (by default is defined)
 * Press 1, 2 or 3 to change the active value between esposure, gamma or prefiltered cube mip levels
 * Press Q or Z to increment or decrement the selected values
 
@@ -102,6 +101,7 @@ I got my inspiration from the following persons and their code
 	- **tiny_gltf.h** is under MIT License
 
 - Assets:
+	- **misty_pines_4k.hdr** is under CC0 license (https://creativecommons.org/publicdomain/zero/1.0/) and was downloaded from here https://hdrihaven.com/hdri/?c=morning-afternoon&h=misty_pines
 	- **Yokohama3** is under Creative Commons Attribution 3.0 Unported License http://creativecommons.org/licenses/by/3.0/
 	- **Damaged Helmet** is under a Creative Commons Attribution-NonCommercial license: https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0/DamagedHelmet
 

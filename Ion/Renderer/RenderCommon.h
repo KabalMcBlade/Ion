@@ -930,9 +930,9 @@ struct DrawSurface final
         m_material = nullptr;
         m_nodeRef = nullptr;
         m_visible = true;
-        m_exposure = 1.0f;
-        m_gamma = 1.0f;
-        m_prefilteredCubeMipLevels = 1.0f;
+        m_exposure = 4.0f;
+        m_gamma = 2.0f;
+        m_prefilteredCubeMipLevels = 10.0f;
         m_sortingIndex = 0;
         m_meshIndexRef = 0;
     }
