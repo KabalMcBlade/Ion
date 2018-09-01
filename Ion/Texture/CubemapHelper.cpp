@@ -38,10 +38,12 @@ ionBool CubemapHelper::Load(const eosString& _path, ETextureFormat _format)
 
     if (stbi_is_hdr(_path.c_str()))
     {
+        m_isHDR = true;
         m_buffer = stbi_loadf(_path.c_str(), &m_width, &m_height, &m_component, 0);
     }
     else
     {
+        m_isHDR = false;
         m_buffer = stbi_load(_path.c_str(), &m_width, &m_height, &m_component, 0);
     }
 
@@ -78,6 +80,7 @@ void CubemapHelper::Clear()
     m_sizePerFace = 0;
     m_bufferSizePerFace = 0;
     m_numLevelsPerFace = 0;
+    m_isHDR = false;
     for (ionU32 i = 0; i < 6; ++i)
     {
         m_output[i] = nullptr;
@@ -254,73 +257,6 @@ ionS32 CubemapHelper::Clamp(ionS32 _n, ionS32 _lower, ionS32 _upper)
     return std::max(_lower, std::min(_n, _upper));
 }
 
-void CubemapHelper::GenerateFaceFromLatLong(const void* _source, void* _dest, ionU32 _bppPerChannel, ionU32 _faceIndex)
-{
-    const ionU8* sourceBuffer = (const ionU8*)_source;
-    ionU8* destFace = (ionU8*)_dest;
-
-    const ionFloat faceWidthSc = (ionFloat)(2.0f / m_sizePerFace);
-
-    for (ionU32 i = 0; i < m_sizePerFace; ++i) 
-    {
-        for (ionU32 j = 0; j < m_sizePerFace; ++j)
-        {
-            ionFloat x = 0.0f;
-            ionFloat y = 0.0f;
-            ionFloat z = 0.0f;
-
-            const ionFloat a = faceWidthSc * j;
-            const ionFloat b = faceWidthSc * i;
-
-            switch (_faceIndex)
-            {
-            case 0: x = 1.0f - a; y = 1.0f;     z = 1.0f - b; break; // right
-            case 1: x = a - 1.0f; y = -1.0f;    z = 1.0f - b; break; // left
-            case 2: x = b - 1.0f; y = a - 1.0f; z = 1.0f;     break; // top
-            case 3: x = 1.0f - b; y = a - 1.0f; z = -1.0f;    break; // bottom
-            case 4: x = 1.0f;     y = a - 1.0f; z = 1.0f - b; break; // front
-            case 5: x = -1.0f;    y = 1.0f - a; z = 1.0f - b; break; // back
-            }
-
-            const ionFloat theta = std::atan2(y, x);
-            const ionFloat rad = std::sqrt(x * x + y * y);
-            const ionFloat phi = std::atan2(z, rad);
-
-            const ionFloat uf = 2.0f * (m_width / 4) * (theta + MathHelper::kPI) / MathHelper::kPI;
-            const ionFloat vf = 2.0f * (m_width / 4) * (MathHelper::kHalfPI - phi) / MathHelper::kPI;
-            const ionU32 ui = (ionU32)std::floorf(uf);
-            const ionU32 vi = (ionU32)std::floorf(vf);
-
-            {
-                const ionU32 destIndex = (j + i * m_sizePerFace) << 2;
-                const ionU32 sourceIndex = (((ionU32)ui % m_width) + m_width * Clamp(vi, 0, m_height - 1)) << 2;
-
-                destFace[destIndex + 0] = sourceBuffer[sourceIndex + 0];
-                destFace[destIndex + 1] = sourceBuffer[sourceIndex + 1];
-                destFace[destIndex + 2] = sourceBuffer[sourceIndex + 2];
-                destFace[destIndex + 3] = sourceBuffer[sourceIndex + 3];
-            }
-        }
-    }
-}
-
-void CubemapHelper::GenerateCubemapFromLatLong(const void* _source, void* _dest[6], ionU32 _bpp)
-{
-    const ionU32 perChannel = _bpp / 32;
-
-    _dest[0] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, 1);
-    _dest[1] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, 1);
-    _dest[2] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, 1);
-    _dest[3] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, 1);
-    _dest[4] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, 1);
-    _dest[5] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, 1);
-
-    for (ionU32 i = 0; i < 6; ++i)
-    {
-        GenerateFaceFromLatLong(_source, _dest[i], perChannel, i);
-    }
-}
-
 void CubemapHelper::CubemapFromLatLong()
 {
     m_sizePerFace = 1 << std::lround(std::log(m_width / 4) / std::log(2));
@@ -335,25 +271,44 @@ void CubemapHelper::CubemapFromLatLong()
 
         void* rgba = eosNewRaw(m_width * m_height * m_component * bppPerChannel, ION_MEMORY_ALIGNMENT_SIZE);
 
-        ionU8* rgbaConverter = (ionU8*)rgba;
-        const ionU8* rgb = (const ionU8*)m_buffer;
-        for (ionSize i = 0; i < m_width * m_height; ++i)
+        if (m_isHDR)
         {
-            for (ionS32 j = 0; j < 3; ++j)
+            ionFloat* rgbaConverter = (ionFloat*)rgba;
+            const ionFloat* rgb = (const ionFloat*)m_buffer;
+            for (ionSize i = 0; i < m_width * m_height; ++i)
             {
-                rgbaConverter[j] = rgb[j];
+                for (ionS32 j = 0; j < 3; ++j)
+                {
+                    rgbaConverter[j] = rgb[j];
+                }
+                rgbaConverter += 4;
+                rgb += 3;
             }
-            rgbaConverter += 4;
-            rgb += 3;
-        }
 
-        GenerateCubemapFromLatLong(rgba, m_output, Texture::BitsPerFormat(m_format));
+            GenerateCubemapFromLatLong<ionFloat>(rgba, m_output, Texture::BitsPerFormat(m_format));
+        }
+        else
+        {
+            ionU8* rgbaConverter = (ionU8*)rgba;
+            const ionU8* rgb = (const ionU8*)m_buffer;
+            for (ionSize i = 0; i < m_width * m_height; ++i)
+            {
+                for (ionS32 j = 0; j < 3; ++j)
+                {
+                    rgbaConverter[j] = rgb[j];
+                }
+                rgbaConverter += 4;
+                rgb += 3;
+            }
+
+            GenerateCubemapFromLatLong<ionU8>(rgba, m_output, Texture::BitsPerFormat(m_format));
+        }
 
         eosDeleteRaw(rgba);
     }
     else
     {
-        GenerateCubemapFromLatLong(m_buffer, m_output, Texture::BitsPerFormat(m_format));
+        GenerateCubemapFromLatLong<ionU8>(m_buffer, m_output, Texture::BitsPerFormat(m_format));
     }
 }
 
