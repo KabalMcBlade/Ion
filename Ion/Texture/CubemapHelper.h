@@ -43,7 +43,11 @@ private:
 
     void GenerateCubemapFromCrossVertical(const void* _source, void* _dest[6], ionU32 _bpp);
     void GenerateCubemapFromCrossHorizontal(const void* _source, void* _dest[6], ionU32 _bpp);
-        
+    void GenerateCubemapFromLatLong(const void* _source, void* _dest[6], ionU32 _bpp);
+    void GenerateFaceFromLatLong(const void* _source, void* _dest, ionU32 _bppPerChannel, ionU32 _faceIndex);
+   
+    ionS32 Clamp(ionS32 _n, ionS32 _lower, ionS32 _upper);
+
     ionBool IsLatLong();
     ionBool IsCubeCross();
 
@@ -63,6 +67,9 @@ private:
     ionU32 m_bufferSizePerFace;
     ionU32 m_numLevelsPerFace;
     void* m_output[6];
+
+    // special flag
+    ionBool m_conversionForced;
 };
 
 
