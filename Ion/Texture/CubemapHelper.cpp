@@ -295,13 +295,10 @@ void CubemapHelper::GenerateFaceFromLatLong(const void* _source, void* _dest, io
                 const ionU32 destIndex = (j + i * m_sizePerFace) << 2;
                 const ionU32 sourceIndex = (((ionU32)ui % m_width) + m_width * Clamp(vi, 0, m_height - 1)) << 2;
 
-                //destFace[destIndex + 0] = sourceBuffer[sourceIndex + 0];
-                //destFace[destIndex + 1] = sourceBuffer[sourceIndex + 1];
-                //destFace[destIndex + 2] = sourceBuffer[sourceIndex + 2];
-                //destFace[destIndex + 3] = sourceBuffer[sourceIndex + 3];
-                //CopyBuffer(&destFace[destIndex], &sourceBuffer[sourceIndex], m_component * _bppPerChannel);
-                //CopyBuffer(destFace + destIndex, sourceBuffer, sourceIndex * m_component * _bppPerChannel);
-                //memcpy(destFace + destIndex, sourceBuffer, sourceIndex * m_component * _bppPerChannel);
+                destFace[destIndex + 0] = sourceBuffer[sourceIndex + 0];
+                destFace[destIndex + 1] = sourceBuffer[sourceIndex + 1];
+                destFace[destIndex + 2] = sourceBuffer[sourceIndex + 2];
+                destFace[destIndex + 3] = sourceBuffer[sourceIndex + 3];
             }
         }
     }
@@ -329,24 +326,26 @@ void CubemapHelper::CubemapFromLatLong()
     m_sizePerFace = 1 << std::lround(std::log(m_width / 4) / std::log(2));
     m_numLevelsPerFace = CalculateMipMapPerFace(m_sizePerFace, m_sizePerFace);
 
-    // I need to convert to rgba if is not from source
+    // I need to convert to rgba if is not from source right here
     if (m_component == 3)
     {
+        m_component = 4;
+
         ionU32 bppPerChannel = Texture::BitsPerFormat(m_format) / 32;
 
-        ionU8* rgba = (ionU8*)eosNewRaw(m_width * m_height * 4 * bppPerChannel, ION_MEMORY_ALIGNMENT_SIZE);
+        void* rgba = eosNewRaw(m_width * m_height * m_component * bppPerChannel, ION_MEMORY_ALIGNMENT_SIZE);
+
+        ionU8* rgbaConverter = (ionU8*)rgba;
         const ionU8* rgb = (const ionU8*)m_buffer;
         for (ionSize i = 0; i < m_width * m_height; ++i)
         {
             for (ionS32 j = 0; j < 3; ++j)
             {
-                rgba[j] = rgb[j];
+                rgbaConverter[j] = rgb[j];
             }
-            rgba += 4;
+            rgbaConverter += 4;
             rgb += 3;
         }
-
-        m_component = 4;
 
         GenerateCubemapFromLatLong(rgba, m_output, Texture::BitsPerFormat(m_format));
 
