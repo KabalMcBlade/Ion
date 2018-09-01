@@ -45,36 +45,6 @@ ionBool CubemapHelper::Load(const eosString& _path, ETextureFormat _format)
         m_buffer = stbi_load(_path.c_str(), &m_width, &m_height, &m_component, 0);
     }
 
-    /*
-    if (m_component == 3)
-    {
-        m_conversionForced = true;
-
-        ionU32 bppPerChannel = Texture::BitsPerFormat(m_format) / 32;
-
-        ionU8* rgba = (ionU8*)eosNewRaw(m_width * m_height * 4 * bppPerChannel, ION_MEMORY_ALIGNMENT_SIZE);
-        const ionU8* rgb = (const ionU8*)m_buffer;
-        for (ionSize i = 0; i < m_width * m_height; ++i)
-        {
-            for (ionS32 j = 0; j < 3; ++j)
-            {
-                rgba[j] = rgb[j];
-            }
-            rgba += 4;
-            rgb += 3;
-        }
-
-
-
-        stbi_image_free(m_buffer);
-        m_buffer = nullptr;
-
-        m_buffer = rgba;
-
-        m_component = 4;
-    }
-    */
-    
     m_numLevels = CalculateMipMapPerFace(m_width, m_height);
 
     return (m_buffer != nullptr);
@@ -82,15 +52,11 @@ ionBool CubemapHelper::Load(const eosString& _path, ETextureFormat _format)
 
 void CubemapHelper::Unload()
 {
-    if (!m_conversionForced && m_buffer != nullptr)
+    if (m_buffer != nullptr)
     {
         stbi_image_free(m_buffer);
     }
-    if (m_conversionForced && m_buffer != nullptr)
-    {
-        eosDeleteRaw(m_buffer);
-    }
-    
+
     for (ionU32 i = 0; i < 6; ++i)
     {
         if (m_output[i] != nullptr)
@@ -103,7 +69,6 @@ void CubemapHelper::Unload()
 
 void CubemapHelper::Clear()
 {
-    m_conversionForced = false;
     m_width = 0;
     m_height = 0;
     m_component = 0;
@@ -331,7 +296,7 @@ void CubemapHelper::GenerateFaceFromLatLong(const void* _source, void* _dest, io
                 const ionU32 sourceIndex = (((ionU32)ui % m_width) + m_width * Clamp(vi, 0, m_height - 1)) << 2;
 
                 //destFace[destIndex + 0] = sourceBuffer[sourceIndex + 0];
-                //destFace[destIndex + 1] = sourceFace[sourceIndex + 1];
+                //destFace[destIndex + 1] = sourceBuffer[sourceIndex + 1];
                 //destFace[destIndex + 2] = sourceBuffer[sourceIndex + 2];
                 //destFace[destIndex + 3] = sourceBuffer[sourceIndex + 3];
                 //CopyBuffer(&destFace[destIndex], &sourceBuffer[sourceIndex], m_component * _bppPerChannel);
@@ -363,7 +328,34 @@ void CubemapHelper::CubemapFromLatLong()
 {
     m_sizePerFace = 1 << std::lround(std::log(m_width / 4) / std::log(2));
     m_numLevelsPerFace = CalculateMipMapPerFace(m_sizePerFace, m_sizePerFace);
-    GenerateCubemapFromLatLong(m_buffer, m_output, Texture::BitsPerFormat(m_format));
+
+    // I need to convert to rgba if is not from source
+    if (m_component == 3)
+    {
+        ionU32 bppPerChannel = Texture::BitsPerFormat(m_format) / 32;
+
+        ionU8* rgba = (ionU8*)eosNewRaw(m_width * m_height * 4 * bppPerChannel, ION_MEMORY_ALIGNMENT_SIZE);
+        const ionU8* rgb = (const ionU8*)m_buffer;
+        for (ionSize i = 0; i < m_width * m_height; ++i)
+        {
+            for (ionS32 j = 0; j < 3; ++j)
+            {
+                rgba[j] = rgb[j];
+            }
+            rgba += 4;
+            rgb += 3;
+        }
+
+        m_component = 4;
+
+        GenerateCubemapFromLatLong(rgba, m_output, Texture::BitsPerFormat(m_format));
+
+        eosDeleteRaw(rgba);
+    }
+    else
+    {
+        GenerateCubemapFromLatLong(m_buffer, m_output, Texture::BitsPerFormat(m_format));
+    }
 }
 
 

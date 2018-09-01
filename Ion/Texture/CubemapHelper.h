@@ -67,9 +67,6 @@ private:
     ionU32 m_bufferSizePerFace;
     ionU32 m_numLevelsPerFace;
     void* m_output[6];
-
-    // special flag
-    ionBool m_conversionForced;
 };
 
 
