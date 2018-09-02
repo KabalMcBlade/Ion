@@ -21,10 +21,10 @@ Another PBR test (model NOT supplied by this demo, but you can download from htt
 <img src="./Screenshots/Screenshot2.png">
 
 Another PBR test (model NOT supplied by this demo, but you can download from https://sketchfab.com)
-In this case I have exagerate the PBR settings (See controls below)
+In this case I have changed the PBR settings (See controls below)
 <img src="./Screenshots/Screenshot3.png">
 
-Instead this screenshot has taken from a NOT PBR model, to test the capabilities of my renderer to swap to the "closest" material if Physical settings are not supplied
+Instead this screenshot has taken from a NOT PBR model, instead of using the unlit suggest from KHR setting in GLTF model, I used my own diffuse light shader to bypass
 (Again this mode is NOT supplied by this demo, but you can download from https://sketchfab.com)
 <img src="./Screenshots/Screenshot4_NoPBR.png">
 
