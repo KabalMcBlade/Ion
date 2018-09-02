@@ -1339,16 +1339,16 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
                 }
             }
 
-            // Check if PBR is not present and if so fall back to specular glossiness
-            if (material->GetBasePBR().GetMetalRoughnessTexture() == nullptr && material->GetSpecularGlossiness().GetSpecularGlossinessTexture() != nullptr)
+            if (!material->IsValidPBR())
             {
-                material->SetUsingSpecularGloss(true);
-            }
-
-            // If no texture at all, this material is "promoted" to diffuse light
-            if (!material->IsUsingSpecularGlossiness())
-            {
-                material->SetAsDiffuseLight();
+                if (material->IsValidSpecularGlossiness())
+                {
+                    material->SetUsingSpecularGloss(true);
+                }
+                else
+                {
+                    material->SetAsDiffuseLight();
+                }
             }
         }
     }

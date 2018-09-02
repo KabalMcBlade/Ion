@@ -395,10 +395,7 @@ void main()
 		vec3 emissive = SRGBtoLINEAR(texture(emissiveMap, inUV)).rgb * emissiveColorFactor.rgb;
 		color += emissive;
 	}
-	else
-	{
-		color += emissiveColorFactor.rgb;
-	}
+
 
 	const vec4 u_ScaleFGDSpec = vec4(0.0f);
 	const vec4 u_ScaleDiffBaseMR = vec4(0.0f);

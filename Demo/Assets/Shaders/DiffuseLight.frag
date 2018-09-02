@@ -43,6 +43,8 @@ void main()
 		}
 	}
 	
+	const float alpha = texture(albedoMap, inUV).a;
+	
 	const vec4 baseColorFactor = vec4(material.baseColorFactorR, material.baseColorFactorG, material.baseColorFactorB, material.baseColorFactorA);
 	
 	const vec3 norm = normalize(inNormal);
@@ -82,5 +84,5 @@ void main()
 	}
         
     vec3 result = ambient + diffuse + specular;
-    outColor = vec4(result, 1.0);
+    outColor = vec4(result, alpha);
 }
