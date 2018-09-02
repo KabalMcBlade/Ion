@@ -212,9 +212,15 @@ int main(int argc, char **argv)
 
     //////////////////////////////////////////////////////////////////////////
     // Continue texture generation
-    const Texture* brdflut = ionRenderManager().GenerateBRDF(camera);
-    const Texture* irradiance = ionRenderManager().GenerateIrradianceCubemap(camera);
-    const Texture* prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(camera);
+    const Texture* brdflut = ionRenderManager().GenerateBRDF(cameraHandle);
+    const Texture* irradiance = ionRenderManager().GenerateIrradianceCubemap(cameraHandle);
+    const Texture* prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(cameraHandle);
+
+    // reset camera pos after cubemap generations
+    const Quaternion identity;
+    camera->GetTransform().SetRotation(identity);
+    camera->Update(0.0f);
+    camera->UpdateView();
 
 
     //////////////////////////////////////////////////////////////////////////

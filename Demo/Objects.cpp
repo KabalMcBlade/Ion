@@ -52,6 +52,18 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
         {
             m_incresingWheelSpeed = 1.0f;
         }
+
+        if (_keyboardState.m_key == ion::EKeyboardKey_U)
+        {
+            Vector scale = GetTransform().GetScale() / 10.0f;
+            GetTransform().SetScale(scale);
+        }
+
+        if (_keyboardState.m_key == ion::EKeyboardKey_I)
+        {
+            Vector scale = GetTransform().GetScale() * 10.0f;
+            GetTransform().SetScale(scale);
+        }
     }
 
     if (_keyboardState.m_state == ion::EKeyboardState_Down)
@@ -87,7 +99,6 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
             Quaternion currRot;
             currRot.SetFromMatrix(rotationMatrix);
 
-
             currRot = currRot * prevRot;
 
             GetTransform().SetRotation(currRot);
@@ -106,11 +117,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
             ionFloat velocity = m_movementSpeed * _deltaTime;
 
-            const Quaternion& orientation = GetTransform().GetRotation();
-
             Vector dir = right * xOffset + up * yOffset;
-            dir = dir * orientation;
-
             Vector pos = GetTransform().GetPosition();
 
             pos += dir * velocity;
@@ -124,11 +131,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
             ionFloat velocity = m_movementSpeed * m_incresingWheelSpeed * _deltaTime;
 
-            const Quaternion& orientation = GetTransform().GetRotation();
-
             Vector dir = forward * _mouseState.m_wheel.m_distance;
-            dir = dir * orientation;
-
             Vector pos = GetTransform().GetPosition();
 
             pos += dir * velocity;
