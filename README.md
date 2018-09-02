@@ -65,20 +65,21 @@ Or: -usepath -model C:\Users\MyUser\Downloads\DamagedHelmet\DamagedHelmet.gltf
 #### Controls
 
 The controls in this demo test are:
-* Hold left mouse button in order to rotate the object
-* Hold right mouse button in order to pan right or left and up or down the object
-* Use the mouse wheel to go toward or far away the object
-* Press R to auto rotate the model
-* Hold key A increase x 10 the wheel speed of the mouse and S to increase x 100
-* Press U will decrease the scale by 10, press I will increase the scale by 10
+* If you move the mouse without press any button, your rotate the camera, otherwise the action is on the object
+* Hold **left mouse button** in order to rotate the object
+* Hold **right mouse button** in order to pan right or left and up or down the object
+* Use the **mouse wheel** to go toward or far away the object
+* Press **R** to auto rotate the model
+* Hold key **G** increase x 10 the wheel speed of the mouse and **H** to increase x 100
+* Press **U** will decrease the scale by 10, press **I** will increase the scale by 10
 
-Pressing the key L, you can change the control from the model to the light
-In this case, toggling the L key you will have:
-* Hold left mouse button in order to rotate the light
+Pressing the key **L**, you can change the control from the model to the light
+In this case, toggling the **L** key you will have:
+* Hold **left mouse button** in order to rotate the light
 
-To Debug PBR (this works just with the 7th test for now because is the only one using the PBR shader)
-* Press 1, 2 or 3 to change the active value between esposure, gamma or prefiltered cube mip levels
-* Press Q or Z to increment or decrement the selected values
+To Debug PBR
+* Press **1**, **2** or **3** to change the active value between esposure, gamma or prefiltered cube mip levels
+* Press **Q** or **Z** to increment or decrement the selected values
 
 
 ## Important

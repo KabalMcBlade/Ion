@@ -115,16 +115,19 @@ void Camera::SetCameraType(ECameraType _type)
 
 void Camera::UpdateView()
 {
-    Matrix rotM = GetTransform().GetRotation().ToMatrix();
-    Matrix transM = GetTransform().GetMatrix();
+    static const Matrix identity;
+
+    const Matrix scale = identity.Scale(GetTransform().GetScale());
+    const Matrix rotate = GetTransform().GetRotation().ToMatrix();
+    const Matrix translate = identity.Translate(GetTransform().GetPosition());
 
     if (m_type == ECameraType::ECameraType_LookAt)
     {
-        m_view = transM * rotM;
+        m_view = rotate * translate * scale;
     }
     else
     {
-        m_view = rotM * transM;
+        m_view = scale * translate * rotate;
     }
 
     m_frustum.Update(m_projection, m_view);
@@ -133,7 +136,7 @@ void Camera::UpdateView()
     {
         const Matrix& model = GetTransform().GetMatrixWS();
 
-        m_skybox->UpdateUniformBuffer(m_projection, m_view, model);
+        m_skybox->UpdateUniformBuffer(m_projection, m_view, identity);
     }
 }
 

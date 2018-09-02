@@ -48,7 +48,7 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
             m_rotating = !m_rotating;
         }
 
-        if (_keyboardState.m_key == ion::EKeyboardKey_A || _keyboardState.m_key == ion::EKeyboardKey_S)
+        if (_keyboardState.m_key == ion::EKeyboardKey_G || _keyboardState.m_key == ion::EKeyboardKey_H)
         {
             m_incresingWheelSpeed = 1.0f;
         }
@@ -68,11 +68,11 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
 
     if (_keyboardState.m_state == ion::EKeyboardState_Down)
     {
-        if (_keyboardState.m_key == ion::EKeyboardKey_A)
+        if (_keyboardState.m_key == ion::EKeyboardKey_G)
         {
             m_incresingWheelSpeed = 10.0f;
         }
-        if (_keyboardState.m_key == ion::EKeyboardKey_S)
+        if (_keyboardState.m_key == ion::EKeyboardKey_H)
         {
             m_incresingWheelSpeed = 100.0f;
         }
@@ -145,7 +145,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 //////////////////////////////////////////////////////////////////////////
 // CAMERA
 
-MainCamera::MainCamera() : Camera("Main Camera"), m_mouseSensitivity(0.05f), m_movementSpeed(10.0f)
+MainCamera::MainCamera() : Camera("Main Camera"), m_mouseSensitivity(0.05f), m_movementSpeed(0.001f)
 {
     m_pbrDebug = EPBRDebugType_Exposure;
     std::cout << std::endl << "Control applied to the object" << std::endl;
@@ -180,6 +180,29 @@ void MainCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _delt
             currRot = currRot * prevRot;
 
             directionalLight->GetTransform().SetRotation(currRot);
+        }
+    }
+    else
+    {
+        if (!_mouseState.m_buttons[0].IsPressed && !_mouseState.m_buttons[1].IsPressed && !_mouseState.m_wheel.m_wasMoved)
+        {
+            ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
+            ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
+
+            xOffset *= m_mouseSensitivity;
+            yOffset *= m_mouseSensitivity;
+
+            const Quaternion& prevRot = GetTransform().GetRotation();
+
+            Matrix rotationMatrix;
+            rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(xOffset), NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(0.0f));
+
+            Quaternion currRot;
+            currRot.SetFromMatrix(rotationMatrix);
+
+            currRot = currRot * prevRot;
+
+            GetTransform().SetRotation(currRot);
         }
     }
 }
