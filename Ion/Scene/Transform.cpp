@@ -52,10 +52,13 @@ const Matrix& Transform::GetMatrix()
 {
     if (m_dirty)
     {
-        m_matrix = Matrix();
-        m_matrix = m_matrix.Translate(m_position);
-        m_matrix = m_matrix * m_rotation.ToMatrix();
-        m_matrix = m_matrix.Scale(m_scale);
+        static const Matrix identity;
+
+        Matrix scale = identity.Scale(m_scale);
+        Matrix rotate = m_rotation.ToMatrix();
+        Matrix translate = identity.Translate(m_position);
+
+        m_matrix = scale * rotate * translate;
 
         m_dirty = false;
     }
