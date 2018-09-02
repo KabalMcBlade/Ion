@@ -571,8 +571,13 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
             vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
         }
 
-        ionFloat yawRot[6] = { 0.0f, 90.0f, 90.0f, 90.0f, 90.0f, 0.0f };
-        ionFloat pitchRot[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 90.0f, -180.0f };
+        eosVector(Quaternion) rotations;
+        rotations.push_back(Quaternion(0.0f, 0.707f, 0.0f, 0.707f));
+        rotations.push_back(Quaternion(0.0f, -0.707f, 0.0f, 0.707f));
+        rotations.push_back(Quaternion(0.707f, 0.0f, 0.0f, 0.707f));
+        rotations.push_back(Quaternion(-0.707f, 0.0f, 0.0f, 0.707f));
+        rotations.push_back(Quaternion());
+        rotations.push_back(Quaternion(0.0f, 1.0f, 0.0f, 0.0f));
 
         for (ionU32 m = 0; m < mipMapsLevel; ++m)
         {
@@ -582,14 +587,9 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
 
                 cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(irradiance->GetWidth()), static_cast<ionU32>(irradiance->GetHeight()));
  
-                const Quaternion& prevRot = cameraPtr->GetTransform().GetRotation();
-                Matrix rotationMatrix;  rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(yawRot[f]), NIX_DEG_TO_RAD(pitchRot[f]), NIX_DEG_TO_RAD(0.0f));
-                Quaternion currRot;     currRot.SetFromMatrix(rotationMatrix);
-                currRot = currRot * prevRot;
-                cameraPtr->GetTransform().SetRotation(currRot);
+                cameraPtr->GetTransform().SetRotation(rotations[f]);
                 cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
-
 
                 // draw irradiance
                 {
@@ -858,8 +858,13 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
             vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
         }
 
-        ionFloat yawRot[6] = { 0.0f, 90.0f, 90.0f, 90.0f, 90.0f, 0.0f };
-        ionFloat pitchRot[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 90.0f, -180.0f };
+        eosVector(Quaternion) rotations;
+        rotations.push_back(Quaternion(0.0f, 0.707f, 0.0f, 0.707f));
+        rotations.push_back(Quaternion(0.0f, -0.707f, 0.0f, 0.707f));
+        rotations.push_back(Quaternion(0.707f, 0.0f, 0.0f, 0.707f));
+        rotations.push_back(Quaternion(-0.707f, 0.0f, 0.0f, 0.707f));
+        rotations.push_back(Quaternion()); 
+        rotations.push_back(Quaternion(0.0f, 1.0f, 0.0f, 0.0f));
 
         for (ionU32 m = 0; m < mipMapsLevel; ++m)
         {
@@ -869,11 +874,7 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
 
                 cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(prefilteredEnvironment->GetWidth()), static_cast<ionU32>(prefilteredEnvironment->GetHeight()));
 
-                const Quaternion& prevRot = cameraPtr->GetTransform().GetRotation();
-                Matrix rotationMatrix;  rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(yawRot[f]), NIX_DEG_TO_RAD(pitchRot[f]), NIX_DEG_TO_RAD(0.0f));
-                Quaternion currRot;     currRot.SetFromMatrix(rotationMatrix);
-                currRot = currRot * prevRot;
-                cameraPtr->GetTransform().SetRotation(currRot);
+                cameraPtr->GetTransform().SetRotation(rotations[f]);
                 cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
 
