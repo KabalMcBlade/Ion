@@ -308,7 +308,14 @@ void CubemapHelper::CubemapFromLatLong()
     }
     else
     {
-        GenerateCubemapFromLatLong<ionU8>(m_buffer, m_output, Texture::BitsPerFormat(m_format));
+        if (m_isHDR)
+        {
+            GenerateCubemapFromLatLong<ionFloat>(m_buffer, m_output, Texture::BitsPerFormat(m_format));
+        }
+        else
+        {
+            GenerateCubemapFromLatLong<ionU8>(m_buffer, m_output, Texture::BitsPerFormat(m_format));
+        }
     }
 }
 
