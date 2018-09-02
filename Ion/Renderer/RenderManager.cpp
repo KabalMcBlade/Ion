@@ -53,8 +53,8 @@ RenderManager *RenderManager::s_instance = nullptr;
 
 RenderManager::RenderManager() : m_deltaTime(0.0f), m_running(false)
 {
-    m_exposure = 4.0f;
-    m_gamma = 2.0f;
+    m_exposure = 4.5f;
+    m_gamma = 2.2f;
     m_prefilteredCubeMipLevels = 10.0f;
 }
 
