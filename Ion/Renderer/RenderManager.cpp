@@ -387,7 +387,7 @@ const Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
         clearValues.resize(1);
         clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
 
-        cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(brdflut->GetWidth()), static_cast<ionU32>(brdflut->GetHeight()));
+        cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, 0, 0, static_cast<ionU32>(brdflut->GetWidth()), static_cast<ionU32>(brdflut->GetHeight()));
         
         cameraPtr->SetViewport(m_renderCore, cmdBuffer, 0, 0, brdflut->GetWidth(), brdflut->GetHeight());
         cameraPtr->SetScissor(m_renderCore, cmdBuffer, 0, 0, brdflut->GetWidth(), brdflut->GetHeight());
@@ -585,7 +585,7 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
             {
                 cameraPtr->SetViewport(m_renderCore, cmdBuffer, 0, 0, static_cast<ionS32>(irradiance->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(irradiance->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
 
-                cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(irradiance->GetWidth()), static_cast<ionU32>(irradiance->GetHeight()));
+                cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, 0, 0, static_cast<ionU32>(irradiance->GetWidth()), static_cast<ionU32>(irradiance->GetHeight()));
  
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
                 cameraPtr->Update(0.0f);
@@ -872,7 +872,7 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
             {
                 cameraPtr->SetViewport(m_renderCore, cmdBuffer, 0, 0, static_cast<ionS32>(prefilteredEnvironment->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(prefilteredEnvironment->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
 
-                cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, static_cast<ionU32>(prefilteredEnvironment->GetWidth()), static_cast<ionU32>(prefilteredEnvironment->GetHeight()));
+                cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, 0, 0, static_cast<ionU32>(prefilteredEnvironment->GetWidth()), static_cast<ionU32>(prefilteredEnvironment->GetHeight()));
 
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
                 cameraPtr->Update(0.0f);

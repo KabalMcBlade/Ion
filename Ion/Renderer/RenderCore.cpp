@@ -1464,7 +1464,7 @@ ionBool RenderCore::StartFrame()
     return true;
 }
 
-void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionU32 _width, ionU32 _height)
+void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionS32 _offsetX, ionS32 _offsetY, ionU32 _width, ionU32 _height)
 {
     VkRenderPassBeginInfo renderPassBeginInfo = {};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -1472,15 +1472,15 @@ void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameB
     renderPassBeginInfo.framebuffer = _frameBuffer;
     renderPassBeginInfo.renderArea.extent.width = _width;
     renderPassBeginInfo.renderArea.extent.height = _height;
-    renderPassBeginInfo.renderArea.offset.x = 0;
-    renderPassBeginInfo.renderArea.offset.y = 0;
+    renderPassBeginInfo.renderArea.offset.x = _offsetX;
+    renderPassBeginInfo.renderArea.offset.y = _offsetY;
     renderPassBeginInfo.clearValueCount = static_cast<ionU32>(_clearValues.size());
     renderPassBeginInfo.pClearValues = _clearValues.data();
 
     vkCmdBeginRenderPass(_commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
-void RenderCore::StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue)
+void RenderCore::StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue, ionS32 _offsetX, ionS32 _offsetY, ionU32 _width, ionU32 _height)
 {
     ionAssertReturnVoid(_clearDepthValue >= 0.0f && _clearDepthValue <= 1.0f, "Clear depth must be between 0 and 1!");
     ionAssertReturnVoid(_clearRed >= 0.0f && _clearRed <= 1.0f, "Clear red must be between 0 and 1!");
@@ -1502,7 +1502,7 @@ void RenderCore::StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilV
         clearValues[1].depthStencil = { _clearDepthValue, _clearStencilValue };
     }
 
-    StartRenderPass(m_vkRenderPass, m_vkFrameBuffers[m_currentSwapIndex], m_vkCommandBuffers[m_currentSwapIndex], clearValues, m_vkSwapchainExtent.width, m_vkSwapchainExtent.height);
+    StartRenderPass(m_vkRenderPass, m_vkFrameBuffers[m_currentSwapIndex], m_vkCommandBuffers[m_currentSwapIndex], clearValues, _offsetX, _offsetY, _width, _height);
 }
 
 void RenderCore::EndRenderPass(VkCommandBuffer _commandBuffer)

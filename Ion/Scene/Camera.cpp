@@ -264,12 +264,26 @@ void Camera::SetScissor(RenderCore& _renderCore, ionS32 _x, ionS32 _y, ionS32 _w
 
 void Camera::StartRenderPass(RenderCore& _renderCore)
 {
-    _renderCore.StartRenderPass(m_clearDepthValue, m_clearStencilValue, m_clearRed, m_clearGreen, m_clearBlue);
+    _renderCore.StartRenderPass(m_clearDepthValue, m_clearStencilValue, m_clearRed, m_clearGreen, m_clearBlue, m_offsetX, m_offsetY, m_width, m_height);
 }
 
 void Camera::EndRenderPass(RenderCore& _renderCore)
 {
     _renderCore.EndRenderPass();
+}
+
+void Camera::ComputeRenderWidthHeight(ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height)
+{
+    const ionFloat x = static_cast<ionFloat>(_x);
+    const ionFloat y = static_cast<ionFloat>(_y);
+    const ionFloat width = static_cast<ionFloat>(_width);
+    const ionFloat height = static_cast<ionFloat>(_height);
+
+    m_offsetX = static_cast<ionS32>(Lerp(x, width, m_viewPortX));
+    m_width = static_cast<ionU32>(Lerp(x, width, m_viewPortWidth));
+
+    m_offsetY = static_cast<ionS32>(Lerp(y, height, m_viewPortY));
+    m_height = static_cast<ionU32>(Lerp(y, height, m_viewPortHeight));
 }
 
 void Camera::SetViewport(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height)
@@ -304,9 +318,9 @@ void Camera::SetScissor(RenderCore& _renderCore, VkCommandBuffer _commandBuffer,
     _renderCore.SetScissor(_commandBuffer, static_cast<ionS32>(newX), static_cast<ionS32>(newY), static_cast<ionS32>(newWidth), static_cast<ionS32>(newHeight));
 }
 
-void Camera::StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionU32 _width, ionU32 _height)
+void Camera::StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionS32 _offsetX, ionS32 _offsetY, ionU32 _width, ionU32 _height)
 {
-    _renderCore.StartRenderPass(_renderPass, _frameBuffer, _commandBuffer, _clearValues, _width, _height);
+    _renderCore.StartRenderPass(_renderPass, _frameBuffer, _commandBuffer, _clearValues, _offsetX, _offsetY, _width, _height);
 }
 
 void Camera::EndRenderPass(RenderCore& _renderCore, VkCommandBuffer _commandBuffer)

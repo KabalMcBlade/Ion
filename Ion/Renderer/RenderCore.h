@@ -34,7 +34,7 @@ public:
 
     ionBool StartFrame();
     void    EndFrame();
-    void    StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue);
+    void    StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue, ionS32 _offsetX, ionS32 _offsetY, ionU32 _width, ionU32 _height);
     void    EndRenderPass();
     void    SetDefaultState();
     void    SetState(ionU64 _stateBits);
@@ -60,7 +60,7 @@ public:
     VkRenderPass CreateTexturedRenderPass(Texture* _texture, VkImageLayout _finalLayout);
     VkFramebuffer CreateTexturedFrameBuffer(VkRenderPass _renderPass, Texture* _texture);
 
-    void StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionU32 _width, ionU32 _height);
+    void StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionS32 _offsetX, ionS32 _offsetY, ionU32 _width, ionU32 _height);
     void EndRenderPass(VkCommandBuffer _commandBuffer);
 
     void SetScissor(VkCommandBuffer _commandBuffer, ionS32 _leftX, ionS32 _bottomY, ionU32 _width, ionU32 _height);

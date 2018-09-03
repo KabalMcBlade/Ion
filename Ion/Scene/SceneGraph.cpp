@@ -288,6 +288,8 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
     {
         Camera* cam = iter->first;
 
+        cam->ComputeRenderWidthHeight(_x, _y, _width, _height);
+
         cam->StartRenderPass(_renderCore);
 
         cam->SetViewport(_renderCore, _x, _y, _width, _height);

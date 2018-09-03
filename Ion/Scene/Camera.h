@@ -46,6 +46,12 @@ public:
 
     const Frustum& GetFrustum() const { return m_frustum; }
 
+    ionU32 GetRenderOffsetX() const { return m_offsetX; }
+    ionU32 GetRenderOffsetY() const{ return m_offsetY; }
+    ionU32 GetRenderWidth() const { return m_width; }
+    ionU32 GetRenderHeight() const { return m_height; }
+
+
     Skybox* AddSkybox();
     Skybox* GetSkybox();
     void RemoveSkybox();
@@ -64,15 +70,16 @@ public:
 
     //////////////////////////////////////////////////////////////////////////
     // Render
-
     void SetViewport(RenderCore& _renderCore, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
     void SetScissor(RenderCore& _renderCore, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
     void StartRenderPass(RenderCore& _renderCore);
     void EndRenderPass(RenderCore& _renderCore);
 
+    void ComputeRenderWidthHeight(ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
+
     void SetViewport(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
     void SetScissor(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
-    void StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionU32 _width, ionU32 _height);
+    void StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionS32 _offsetX, ionS32 _offsetY, ionU32 _width, ionU32 _height);
     void EndRenderPass(RenderCore& _renderCore, VkCommandBuffer _commandBuffer);
 
 public:
@@ -92,6 +99,11 @@ private:
     Skybox* m_skybox;
 
     ECameraType m_type;
+
+    ionU32   m_offsetX;
+    ionU32   m_offsetY;
+    ionU32   m_width;
+    ionU32   m_height;
 
     ionFloat m_fov;
     ionFloat m_zNear;
