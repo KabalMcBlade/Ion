@@ -92,4 +92,50 @@ void Node::Update(ionFloat _deltaTime)
     }
 }
 
+// all these methods set from "this" parenting object to all their children in cascade
+void Node::SetActive(ionBool _isActive)
+{
+    m_active = _isActive;
+
+    eosVector(ObjectHandler)::const_iterator begin = GetChildIteratorBegin(), end = GetChildIteratorEnd(), it = begin;
+    for (; it != end; ++it)
+    {
+        (*it)->SetActive(_isActive);
+    }
+}
+
+void Node::SetVisible(ionBool _isVisible) 
+{
+    m_visible = _isVisible; 
+
+    eosVector(ObjectHandler)::const_iterator begin = GetChildIteratorBegin(), end = GetChildIteratorEnd(), it = begin;
+    for (; it != end; ++it)
+    {
+        (*it)->SetVisible(_isVisible);
+    }
+}
+
+void Node::AddToRenderLayer(ENodeRenderLayer _layer)
+{
+    m_renderLayer |= _layer; 
+
+    eosVector(ObjectHandler)::const_iterator begin = GetChildIteratorBegin(), end = GetChildIteratorEnd(), it = begin;
+    for (; it != end; ++it)
+    {
+        (*it)->AddToRenderLayer(_layer);
+    }
+}
+
+void Node::RemoveFromRenderLayer(ENodeRenderLayer _layer)
+{
+    m_renderLayer &= ~_layer; 
+
+    eosVector(ObjectHandler)::const_iterator begin = GetChildIteratorBegin(), end = GetChildIteratorEnd(), it = begin;
+    for (; it != end; ++it)
+    {
+        (*it)->RemoveFromRenderLayer(_layer);
+    }
+}
+
+
 ION_NAMESPACE_END

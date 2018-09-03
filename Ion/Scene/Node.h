@@ -80,17 +80,18 @@ public:
     // USER CALLS
 
     void SetName(const eosString & _name);
-    void SetActive(ionBool _isActive) { m_active = _isActive; }
+    void SetActive(ionBool _isActive);
     ionBool IsActive() { return m_active; }
 
-    void SetVisible(ionBool _isVisible) { m_visible = _isVisible; }
+    void SetVisible(ionBool _isVisible);
     ionBool IsVisible() { return m_visible; }
 
     void AttachToParent(ObjectHandler& _parent);
     void DetachFromParent();
 
-    void AddToRenderLayer(ENodeRenderLayer _layer) { m_renderLayer |= _layer; }
-    void RemoveFromRenderLayer(ENodeRenderLayer _layer) { m_renderLayer &= ~_layer; }
+    void AddToRenderLayer(ENodeRenderLayer _layer);
+    void RemoveFromRenderLayer(ENodeRenderLayer _layer);
+
     ionU32 GetRenderLayer() { return m_renderLayer; }
     ionBool IsInRenderLayer(ionU32 _layers) { return (m_renderLayer & _layers) != 0; }
     ionBool IsInRenderLayer(ENodeRenderLayer _layer) { return (m_renderLayer & static_cast<ionU32>(_layer)) != 0; }
