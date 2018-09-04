@@ -224,47 +224,49 @@ void Camera::SetRenderPassParameters(ionFloat _clearDepthValue /* = 1.0f*/, ionU
     m_clearBlue = _clearBlue;
 }
 
-
 ionFloat Lerp(ionFloat v0, ionFloat v1, ionFloat t)
 {
     return (1.0f - t) * v0 + t * v1;
 }
 
-void Camera::SetViewport(RenderCore& _renderCore, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height)
+void Camera::ConputeRenderAreaViewportScissor(ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height)
 {
     const ionFloat x = static_cast<ionFloat>(_x);
     const ionFloat y = static_cast<ionFloat>(_y);
     const ionFloat width = static_cast<ionFloat>(_width);
     const ionFloat height = static_cast<ionFloat>(_height);
 
-    const ionFloat newX = Lerp(x, width, m_viewPortX);
-    const ionFloat newWidth = Lerp(x, width, m_viewPortWidth);
+    m_renderArea.offset.x = _x;
+    m_renderArea.offset.y = _y;
+    m_renderArea.extent.width = _width;
+    m_renderArea.extent.height = _height;
 
-    const ionFloat newY = Lerp(y, height, m_viewPortY);
-    const ionFloat newHeight = Lerp(y, height, m_viewPortHeight);
+    m_scissor.offset.x = static_cast<ionS32>(Lerp(x, width, m_scissorX));
+    m_scissor.offset.y = static_cast<ionS32>(Lerp(y, height, m_scissorY));
+    m_scissor.extent.width = static_cast<ionU32>(Lerp(x, width, m_scissorWidth));
+    m_scissor.extent.height = static_cast<ionU32>(Lerp(y, height, m_scissorHeight));
 
-    _renderCore.SetViewport(newX, newY, newWidth, newHeight, m_minDepth, m_maxDepth);
+    m_viewport.x = Lerp(x, width, m_viewPortX);
+    m_viewport.y = Lerp(y, height, m_viewPortY);
+    m_viewport.width = Lerp(x, width, m_viewPortWidth);
+    m_viewport.height = Lerp(y, height, m_viewPortHeight);
+    m_viewport.minDepth = m_minDepth;
+    m_viewport.maxDepth = m_maxDepth;
 }
 
-void Camera::SetScissor(RenderCore& _renderCore, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height)
+void Camera::SetViewport(RenderCore& _renderCore)
 {
-    const ionFloat x = static_cast<ionFloat>(_x);
-    const ionFloat y = static_cast<ionFloat>(_y);
-    const ionFloat width = static_cast<ionFloat>(_width);
-    const ionFloat height = static_cast<ionFloat>(_height);
+    _renderCore.SetViewport(m_viewport);
+}
 
-    const ionFloat newX = Lerp(x, width, m_scissorX);
-    const ionFloat newWidth = Lerp(x, width, m_scissorWidth);
-
-    const ionFloat newY = Lerp(y, height, m_scissorY);
-    const ionFloat newHeight = Lerp(y, height, m_scissorHeight);
-
-    _renderCore.SetScissor(static_cast<ionS32>(newX), static_cast<ionS32>(newY), static_cast<ionS32>(newWidth), static_cast<ionS32>(newHeight));
+void Camera::SetScissor(RenderCore& _renderCore)
+{
+    _renderCore.SetScissor(m_scissor);
 }
 
 void Camera::StartRenderPass(RenderCore& _renderCore)
 {
-    _renderCore.StartRenderPass(m_clearDepthValue, m_clearStencilValue, m_clearRed, m_clearGreen, m_clearBlue, m_offsetX, m_offsetY, m_width, m_height);
+    _renderCore.StartRenderPass(m_clearDepthValue, m_clearStencilValue, m_clearRed, m_clearGreen, m_clearBlue, m_renderArea);
 }
 
 void Camera::EndRenderPass(RenderCore& _renderCore)
@@ -272,55 +274,19 @@ void Camera::EndRenderPass(RenderCore& _renderCore)
     _renderCore.EndRenderPass();
 }
 
-void Camera::ComputeRenderWidthHeight(ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height)
+void Camera::SetViewport(RenderCore& _renderCore, VkCommandBuffer _commandBuffer)
 {
-    const ionFloat x = static_cast<ionFloat>(_x);
-    const ionFloat y = static_cast<ionFloat>(_y);
-    const ionFloat width = static_cast<ionFloat>(_width);
-    const ionFloat height = static_cast<ionFloat>(_height);
-
-    m_offsetX = static_cast<ionS32>(Lerp(x, width, m_viewPortX));
-    m_width = static_cast<ionU32>(Lerp(x, width, m_viewPortWidth));
-
-    m_offsetY = static_cast<ionS32>(Lerp(y, height, m_viewPortY));
-    m_height = static_cast<ionU32>(Lerp(y, height, m_viewPortHeight));
+    _renderCore.SetViewport(_commandBuffer, m_viewport);
 }
 
-void Camera::SetViewport(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height)
+void Camera::SetScissor(RenderCore& _renderCore, VkCommandBuffer _commandBuffer)
 {
-    const ionFloat x = static_cast<ionFloat>(_x);
-    const ionFloat y = static_cast<ionFloat>(_y);
-    const ionFloat width = static_cast<ionFloat>(_width);
-    const ionFloat height = static_cast<ionFloat>(_height);
-
-    const ionFloat newX = Lerp(x, width, m_viewPortX);
-    const ionFloat newWidth = Lerp(x, width, m_viewPortWidth);
-
-    const ionFloat newY = Lerp(y, height, m_viewPortY);
-    const ionFloat newHeight = Lerp(y, height, m_viewPortHeight);
-
-    _renderCore.SetViewport(_commandBuffer, newX, newY, newWidth, newHeight, m_minDepth, m_maxDepth);
+    _renderCore.SetScissor(_commandBuffer, m_scissor);
 }
 
-void Camera::SetScissor(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height)
+void Camera::StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues)
 {
-    const ionFloat x = static_cast<ionFloat>(_x);
-    const ionFloat y = static_cast<ionFloat>(_y);
-    const ionFloat width = static_cast<ionFloat>(_width);
-    const ionFloat height = static_cast<ionFloat>(_height);
-
-    const ionFloat newX = Lerp(x, width, m_scissorX);
-    const ionFloat newWidth = Lerp(x, width, m_scissorWidth);
-
-    const ionFloat newY = Lerp(y, height, m_scissorY);
-    const ionFloat newHeight = Lerp(y, height, m_scissorHeight);
-
-    _renderCore.SetScissor(_commandBuffer, static_cast<ionS32>(newX), static_cast<ionS32>(newY), static_cast<ionS32>(newWidth), static_cast<ionS32>(newHeight));
-}
-
-void Camera::StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionS32 _offsetX, ionS32 _offsetY, ionU32 _width, ionU32 _height)
-{
-    _renderCore.StartRenderPass(_renderPass, _frameBuffer, _commandBuffer, _clearValues, _offsetX, _offsetY, _width, _height);
+    _renderCore.StartRenderPass(_renderPass, _frameBuffer, _commandBuffer, _clearValues, m_renderArea);
 }
 
 void Camera::EndRenderPass(RenderCore& _renderCore, VkCommandBuffer _commandBuffer)

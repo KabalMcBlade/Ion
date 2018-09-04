@@ -46,12 +46,6 @@ public:
 
     const Frustum& GetFrustum() const { return m_frustum; }
 
-    ionU32 GetRenderOffsetX() const { return m_offsetX; }
-    ionU32 GetRenderOffsetY() const{ return m_offsetY; }
-    ionU32 GetRenderWidth() const { return m_width; }
-    ionU32 GetRenderHeight() const { return m_height; }
-
-
     Skybox* AddSkybox();
     Skybox* GetSkybox();
     void RemoveSkybox();
@@ -67,19 +61,19 @@ public:
     void SetScissorParameters(ionFloat _x = 0.0f, ionFloat _y = 0.0f, ionFloat _width = 1.0f, ionFloat _height = 1.0f);
     void SetRenderPassParameters(ionFloat _clearDepthValue = 1.0f, ionU8 _clearStencilValue = 0, ionFloat _clearRed = 1.0f, ionFloat _clearGreen = 1.0f, ionFloat _clearBlue = 1.0f);
 
+    void ConputeRenderAreaViewportScissor(ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
 
     //////////////////////////////////////////////////////////////////////////
     // Render
-    void SetViewport(RenderCore& _renderCore, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
-    void SetScissor(RenderCore& _renderCore, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
+    void SetViewport(RenderCore& _renderCore);
+    void SetScissor(RenderCore& _renderCore);
     void StartRenderPass(RenderCore& _renderCore);
     void EndRenderPass(RenderCore& _renderCore);
 
-    void ComputeRenderWidthHeight(ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
 
-    void SetViewport(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
-    void SetScissor(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, ionS32 _x, ionS32 _y, ionS32 _width, ionS32 _height);
-    void StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionS32 _offsetX, ionS32 _offsetY, ionU32 _width, ionU32 _height);
+    void SetViewport(RenderCore& _renderCore, VkCommandBuffer _commandBuffer);
+    void SetScissor(RenderCore& _renderCore, VkCommandBuffer _commandBuffer);
+    void StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues);
     void EndRenderPass(RenderCore& _renderCore, VkCommandBuffer _commandBuffer);
 
 public:
@@ -100,10 +94,9 @@ private:
 
     ECameraType m_type;
 
-    ionU32   m_offsetX;
-    ionU32   m_offsetY;
-    ionU32   m_width;
-    ionU32   m_height;
+    VkRect2D m_renderArea;
+    VkRect2D m_scissor;
+    VkViewport m_viewport;
 
     ionFloat m_fov;
     ionFloat m_zNear;

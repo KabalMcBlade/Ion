@@ -288,12 +288,11 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
     {
         Camera* cam = iter->first;
 
-        cam->ComputeRenderWidthHeight(_x, _y, _width, _height);
-
+        cam->ConputeRenderAreaViewportScissor(_x, _y, _width, _height);
         cam->StartRenderPass(_renderCore);
 
-        cam->SetViewport(_renderCore, _x, _y, _width, _height);
-        cam->SetScissor(_renderCore, _x, _y, _width, _height);
+        cam->SetViewport(_renderCore);
+        cam->SetScissor(_renderCore);
 
         cam->RenderSkybox(_renderCore);
 

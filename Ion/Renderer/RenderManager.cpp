@@ -387,10 +387,11 @@ const Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
         clearValues.resize(1);
         clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
 
-        cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, 0, 0, static_cast<ionU32>(brdflut->GetWidth()), static_cast<ionU32>(brdflut->GetHeight()));
-        
-        cameraPtr->SetViewport(m_renderCore, cmdBuffer, 0, 0, brdflut->GetWidth(), brdflut->GetHeight());
-        cameraPtr->SetScissor(m_renderCore, cmdBuffer, 0, 0, brdflut->GetWidth(), brdflut->GetHeight());
+        cameraPtr->ConputeRenderAreaViewportScissor(0, 0, brdflut->GetWidth(), brdflut->GetHeight());
+        cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues);
+
+        cameraPtr->SetViewport(m_renderCore, cmdBuffer);
+        cameraPtr->SetScissor(m_renderCore, cmdBuffer);
 
         const Matrix& projection = cameraPtr->GetPerspectiveProjection();
         const Matrix& view = cameraPtr->GetView();
@@ -548,8 +549,9 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
         clearValues.resize(1);
         clearValues[0].color = { { 0.0f, 0.0f, 0.2f, 0.0f } };
 
-        cameraPtr->SetViewport(m_renderCore, cmdBuffer, 0, 0, irradiance->GetWidth(), irradiance->GetHeight());
-        cameraPtr->SetScissor(m_renderCore, cmdBuffer, 0, 0, irradiance->GetWidth(), irradiance->GetHeight());
+        cameraPtr->ConputeRenderAreaViewportScissor(0, 0, irradiance->GetWidth(), irradiance->GetHeight());
+        cameraPtr->SetViewport(m_renderCore, cmdBuffer);
+        cameraPtr->SetScissor(m_renderCore, cmdBuffer);
 
 
         // Swap
@@ -583,10 +585,12 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
         {
             for (ionU32 f = 0; f < 6; ++f)
             {
-                cameraPtr->SetViewport(m_renderCore, cmdBuffer, 0, 0, static_cast<ionS32>(irradiance->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(irradiance->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
-
-                cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, 0, 0, static_cast<ionU32>(irradiance->GetWidth()), static_cast<ionU32>(irradiance->GetHeight()));
+                cameraPtr->ConputeRenderAreaViewportScissor(0, 0, static_cast<ionS32>(irradiance->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(irradiance->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
+                cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues);
  
+                cameraPtr->SetViewport(m_renderCore, cmdBuffer);
+                cameraPtr->SetScissor(m_renderCore, cmdBuffer);
+
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
                 cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
@@ -835,8 +839,9 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
         clearValues.resize(1);
         clearValues[0].color = { { 0.0f, 0.0f, 0.2f, 0.0f } };
 
-        cameraPtr->SetViewport(m_renderCore, cmdBuffer, 0, 0, prefilteredEnvironment->GetWidth(), prefilteredEnvironment->GetHeight());
-        cameraPtr->SetScissor(m_renderCore, cmdBuffer, 0, 0, prefilteredEnvironment->GetWidth(), prefilteredEnvironment->GetHeight());
+        cameraPtr->ConputeRenderAreaViewportScissor(0, 0, prefilteredEnvironment->GetWidth(), prefilteredEnvironment->GetHeight());
+        cameraPtr->SetViewport(m_renderCore, cmdBuffer);
+        cameraPtr->SetScissor(m_renderCore, cmdBuffer);
 
 
         // Swap
@@ -870,9 +875,11 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
         {
             for (ionU32 f = 0; f < 6; ++f)
             {
-                cameraPtr->SetViewport(m_renderCore, cmdBuffer, 0, 0, static_cast<ionS32>(prefilteredEnvironment->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(prefilteredEnvironment->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
+                cameraPtr->ConputeRenderAreaViewportScissor(0, 0, static_cast<ionS32>(prefilteredEnvironment->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(prefilteredEnvironment->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
+                cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues);
 
-                cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues, 0, 0, static_cast<ionU32>(prefilteredEnvironment->GetWidth()), static_cast<ionU32>(prefilteredEnvironment->GetHeight()));
+                cameraPtr->SetViewport(m_renderCore, cmdBuffer);
+                cameraPtr->SetScissor(m_renderCore, cmdBuffer);
 
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
                 cameraPtr->Update(0.0f);

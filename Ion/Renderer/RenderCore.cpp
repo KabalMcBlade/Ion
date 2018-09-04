@@ -1464,23 +1464,20 @@ ionBool RenderCore::StartFrame()
     return true;
 }
 
-void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionS32 _offsetX, ionS32 _offsetY, ionU32 _width, ionU32 _height)
+void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, const VkRect2D& _renderArea)
 {
     VkRenderPassBeginInfo renderPassBeginInfo = {};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassBeginInfo.renderPass = _renderPass;
     renderPassBeginInfo.framebuffer = _frameBuffer;
-    renderPassBeginInfo.renderArea.extent.width = _width;
-    renderPassBeginInfo.renderArea.extent.height = _height;
-    renderPassBeginInfo.renderArea.offset.x = _offsetX;
-    renderPassBeginInfo.renderArea.offset.y = _offsetY;
+    renderPassBeginInfo.renderArea = _renderArea;
     renderPassBeginInfo.clearValueCount = static_cast<ionU32>(_clearValues.size());
     renderPassBeginInfo.pClearValues = _clearValues.data();
 
     vkCmdBeginRenderPass(_commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
-void RenderCore::StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue, ionS32 _offsetX, ionS32 _offsetY, ionU32 _width, ionU32 _height)
+void RenderCore::StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue, const VkRect2D& _renderArea)
 {
     ionAssertReturnVoid(_clearDepthValue >= 0.0f && _clearDepthValue <= 1.0f, "Clear depth must be between 0 and 1!");
     ionAssertReturnVoid(_clearRed >= 0.0f && _clearRed <= 1.0f, "Clear red must be between 0 and 1!");
@@ -1502,7 +1499,7 @@ void RenderCore::StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilV
         clearValues[1].depthStencil = { _clearDepthValue, _clearStencilValue };
     }
 
-    StartRenderPass(m_vkRenderPass, m_vkFrameBuffers[m_currentSwapIndex], m_vkCommandBuffers[m_currentSwapIndex], clearValues, _offsetX, _offsetY, _width, _height);
+    StartRenderPass(m_vkRenderPass, m_vkFrameBuffers[m_currentSwapIndex], m_vkCommandBuffers[m_currentSwapIndex], clearValues, _renderArea);
 }
 
 void RenderCore::EndRenderPass(VkCommandBuffer _commandBuffer)
@@ -1601,6 +1598,26 @@ void RenderCore::SetState(ionU64 _stateBits)
     // m_stateBits |= ERasterization_View_Specular;
 }
 
+void RenderCore::SetScissor(VkCommandBuffer _commandBuffer, const VkRect2D& _scissor)
+{
+    vkCmdSetScissor(_commandBuffer, 0, 1, &_scissor);
+}
+
+void RenderCore::SetViewport(VkCommandBuffer _commandBuffer, const VkViewport& _viewport)
+{
+    vkCmdSetViewport(_commandBuffer, 0, 1, &_viewport);
+}
+
+void RenderCore::SetScissor(const VkRect2D& _scissor)
+{
+    SetScissor(m_vkCommandBuffers[m_currentSwapIndex], _scissor);
+}
+
+void RenderCore::SetViewport(const VkViewport& _viewport)
+{
+    SetViewport(m_vkCommandBuffers[m_currentSwapIndex], _viewport);
+}
+
 void RenderCore::SetScissor(VkCommandBuffer _commandBuffer, ionS32 _leftX, ionS32 _bottomY, ionU32 _width, ionU32 _height)
 {
     VkRect2D scissor;
@@ -1608,7 +1625,7 @@ void RenderCore::SetScissor(VkCommandBuffer _commandBuffer, ionS32 _leftX, ionS3
     scissor.offset.y = _bottomY;
     scissor.extent.width = _width;
     scissor.extent.height = _height;
-    vkCmdSetScissor(_commandBuffer, 0, 1, &scissor);
+    SetScissor(_commandBuffer, scissor);
 }
 
 void RenderCore::SetViewport(VkCommandBuffer _commandBuffer, ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth)
@@ -1620,7 +1637,7 @@ void RenderCore::SetViewport(VkCommandBuffer _commandBuffer, ionFloat _leftX, io
     viewport.height = _height;
     viewport.minDepth = _minDepth;
     viewport.maxDepth = _maxDepth;
-    vkCmdSetViewport(_commandBuffer, 0, 1, &viewport);
+    SetViewport(_commandBuffer, viewport);
 }
 
 void RenderCore::SetScissor(ionS32 _leftX, ionS32 _bottomY, ionU32 _width, ionU32 _height)

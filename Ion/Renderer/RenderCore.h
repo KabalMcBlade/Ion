@@ -34,12 +34,14 @@ public:
 
     ionBool StartFrame();
     void    EndFrame();
-    void    StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue, ionS32 _offsetX, ionS32 _offsetY, ionU32 _width, ionU32 _height);
+    void    StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue, const VkRect2D& _renderArea);
     void    EndRenderPass();
     void    SetDefaultState();
     void    SetState(ionU64 _stateBits);
     void    SetScissor(ionS32 _leftX, ionS32 _bottomY, ionU32 _width, ionU32 _height);
     void    SetViewport(ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth);
+    void    SetScissor(const VkRect2D& _scissor);
+    void    SetViewport(const VkViewport& _viewport);
     void    SetPolygonOffset(ionFloat _scale, ionFloat _bias);
     void    SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax);
     void    CopyFrameBuffer(Texture* _texture, VkImage _srcImage);
@@ -60,12 +62,14 @@ public:
     VkRenderPass CreateTexturedRenderPass(Texture* _texture, VkImageLayout _finalLayout);
     VkFramebuffer CreateTexturedFrameBuffer(VkRenderPass _renderPass, Texture* _texture);
 
-    void StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, ionS32 _offsetX, ionS32 _offsetY, ionU32 _width, ionU32 _height);
+    void StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, const VkRect2D& _renderArea);
     void EndRenderPass(VkCommandBuffer _commandBuffer);
 
+    void SetScissor(VkCommandBuffer _commandBuffer, const VkRect2D& _scissor);
+    void SetViewport(VkCommandBuffer _commandBuffer, const VkViewport& _viewport);
     void SetScissor(VkCommandBuffer _commandBuffer, ionS32 _leftX, ionS32 _bottomY, ionU32 _width, ionU32 _height);
     void SetViewport(VkCommandBuffer _commandBuffer, ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth);
-    
+
     void    DestroyFrameBuffer(VkFramebuffer _frameBuffer);
     void    DestroyRenderPass(VkRenderPass _renderPass);
 
