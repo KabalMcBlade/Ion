@@ -236,11 +236,6 @@ void Camera::ConputeRenderAreaViewportScissor(ionS32 _x, ionS32 _y, ionS32 _widt
     const ionFloat width = static_cast<ionFloat>(_width);
     const ionFloat height = static_cast<ionFloat>(_height);
 
-    m_renderArea.offset.x = _x;
-    m_renderArea.offset.y = _y;
-    m_renderArea.extent.width = _width;
-    m_renderArea.extent.height = _height;
-
     m_scissor.offset.x = static_cast<ionS32>(Lerp(x, width, m_scissorX));
     m_scissor.offset.y = static_cast<ionS32>(Lerp(y, height, m_scissorY));
     m_scissor.extent.width = static_cast<ionU32>(Lerp(x, width, m_scissorWidth));
@@ -252,6 +247,11 @@ void Camera::ConputeRenderAreaViewportScissor(ionS32 _x, ionS32 _y, ionS32 _widt
     m_viewport.height = Lerp(y, height, m_viewPortHeight);
     m_viewport.minDepth = m_minDepth;
     m_viewport.maxDepth = m_maxDepth;
+
+    m_renderArea.offset.x = static_cast<ionS32>(m_viewport.x);
+    m_renderArea.offset.y = static_cast<ionS32>(m_viewport.y);
+    m_renderArea.extent.width = static_cast<ionU32>(m_viewport.width);
+    m_renderArea.extent.height = static_cast<ionU32>(m_viewport.height);
 }
 
 void Camera::SetViewport(RenderCore& _renderCore)
