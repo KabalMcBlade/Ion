@@ -46,6 +46,22 @@ NIX_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 
+enum EFrameStatus
+{
+    EFrameStatus_Success = 0,
+    EFrameStatus_NeedUpdate,
+    EFrameStatus_Error
+};
+
+enum EFramebufferLoad
+{
+    EFramebufferLoad_Load = 0,
+    EFramebufferLoad_Clear,
+    EFramebufferLoad_Undefined
+};
+
+
+
 enum EShaderStage 
 {
     EShaderStage_Vertex             = 0b00000000,

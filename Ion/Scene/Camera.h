@@ -8,6 +8,8 @@
 #include "Entity.h"
 #include "../Geometry/Frustum.h"
 
+#include "../Renderer/RenderCommon.h"
+
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
 
@@ -25,8 +27,8 @@ public:
         ECameraType_FirstPerson
     };
     
-    explicit Camera();
-    explicit Camera(const eosString & _name);
+    explicit Camera(ionBool _clearBackground = true);
+    explicit Camera(const eosString & _name, ionBool _clearBackground = true);
     virtual ~Camera();
 
     void SetCameraType(ECameraType _type);
@@ -45,6 +47,8 @@ public:
     const Matrix& GetView() const { return m_view; }
 
     const Frustum& GetFrustum() const { return m_frustum; }
+
+    const VkRenderPass& GetRenderPass() const { return m_vkRenderPass; }
 
     Skybox* AddSkybox();
     Skybox* GetSkybox();
@@ -81,12 +85,22 @@ public:
     static Matrix OrthographicProjectionMatrix(ionFloat _left, ionFloat _right, ionFloat _bottom, ionFloat _top, ionFloat _zNear, ionFloat _zFar);
 
 private:
+    friend class RenderManager;
+
+    void CreateRenderPassAndFrameBuffers(RenderCore& _renderCore);
+    void DestroyRenderPassAndFrameBuffers(RenderCore& _renderCore);
+    void RecreateRenderPassAndFrameBuffers(RenderCore& _renderCore);
+
     Camera(const Camera& _Orig) = delete;
     Camera& operator = (const Camera&) = delete;
 
 private:
     Matrix  m_projection;
     Matrix  m_view;
+
+    // render pass and framebuffer depending on camera type
+    VkRenderPass                m_vkRenderPass;
+    eosVector(VkFramebuffer)    m_vkFrameBuffers;
 
     Frustum m_frustum;
 
@@ -119,6 +133,9 @@ private:
     ionFloat m_clearRed;
     ionFloat m_clearGreen;
     ionFloat m_clearBlue;
+
+    EFramebufferLoad m_framebufferLoadType;
+
     ionU8    m_clearStencilValue;
 };
 

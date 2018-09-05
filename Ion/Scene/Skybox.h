@@ -34,7 +34,7 @@ public:
     Material* GetMaterial();
 
     void UpdateUniformBuffer(const Matrix& _projection, const Matrix& _view, const Matrix& _model);
-    void Draw(RenderCore& _renderCore);
+    void Draw(VkRenderPass _renderPass, RenderCore& _renderCore);
     void CustomDraw(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, VkRenderPass _renderPass);
 
 private:

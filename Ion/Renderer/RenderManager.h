@@ -68,9 +68,13 @@ public:
 
     void    AddDirectionalLight();
     void    RemoveDirectionalLight();
-     DirectionalLight*   GetDirectionalLight();
+    DirectionalLight*   GetDirectionalLight();
 
+    // NOTE: for now call the following 3 functions just BEFORE start your application and after.
+    // This because the scene graph at the moment is not updated at runtime, so will take not effect (or worst side effect)
     void    AddToSceneGraph(ObjectHandler _node);
+    void    RemoveFromSceneGraph(ObjectHandler _node);
+    void    RemoveAllSceneGraph();
 
     void    Resize(ionS32& _outNewWidth, ionS32 _outNewHeight);
     void    Prepare();
@@ -108,6 +112,8 @@ private:
 
     void Update(ionFloat _deltaTime);
     void Frame();
+
+    void Recreate();
 
     void LoadCommonMaterialForIntegratedPrimitive(ObjectHandler& _entity, Material* _material);
 

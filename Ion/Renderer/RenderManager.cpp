@@ -254,14 +254,66 @@ void RenderManager::LoadCommonMaterialForIntegratedPrimitive(ObjectHandler& _ent
 
 void RenderManager::AddToSceneGraph(ObjectHandler _node)
 {
+    // A camera has the render pass and the frames buffer
+    // So create them!
+    if (_node->GetNodeType() == ENodeType_Camera)
+    {
+        Camera* camera = dynamic_cast<Camera*>(_node.GetPtr());
+        camera->CreateRenderPassAndFrameBuffers(m_renderCore);
+    }
+
     m_sceneGraph.AddToScene(_node);
+}
+
+void RenderManager::RemoveFromSceneGraph(ObjectHandler _node)
+{
+    // A camera has the render pass and the frames buffer
+    // So destroy them!
+    if (_node->GetNodeType() == ENodeType_Camera)
+    {
+        Camera* camera = dynamic_cast<Camera*>(_node.GetPtr());
+        camera->DestroyRenderPassAndFrameBuffers(m_renderCore);
+    }
+
+    m_sceneGraph.RemoveFromScene(_node);
+}
+
+void RenderManager::RemoveAllSceneGraph()
+{
+    eosVector(ObjectHandler)::const_iterator begin = m_sceneGraph.GetNodeBegin(), end = m_sceneGraph.GetNodeEnd(), it = begin;
+    for (; it != end; ++it)
+    {
+        if ((*it)->GetNodeType() == ENodeType_Camera)
+        {
+            Camera* camera = dynamic_cast<Camera*>((*it).GetPtr());
+            camera->DestroyRenderPassAndFrameBuffers(m_renderCore);
+        }
+    }
+
+    m_sceneGraph.RemoveAll();
+}
+
+void RenderManager::Recreate()
+{
+    m_renderCore.Recreate();
+
+    eosVector(ObjectHandler)::const_iterator begin = m_sceneGraph.GetNodeBegin(), end = m_sceneGraph.GetNodeEnd(), it = begin;
+    for (; it != end; ++it)
+    {
+        if ((*it)->GetNodeType() == ENodeType_Camera)
+        {
+            Camera* camera = dynamic_cast<Camera*>((*it).GetPtr());
+            camera->RecreateRenderPassAndFrameBuffers(m_renderCore);
+        }
+    }
+
+    m_sceneGraph.UpdateAllCameraAspectRatio(m_renderCore);
+
 }
 
 void RenderManager::Resize(ionS32& _outNewWidth, ionS32 _outNewHeight)
 {
-    m_renderCore.Recreate();
-    m_sceneGraph.UpdateAllCameraAspectRatio(m_renderCore);
-
+    Recreate();
 
     _outNewWidth = m_renderCore.GetWidth();
     _outNewHeight = m_renderCore.GetHeight();
@@ -304,11 +356,43 @@ void RenderManager::Frame()
     const ionU32 width = m_renderCore.GetWidth();
     const ionU32 height = m_renderCore.GetHeight();
 
-    if (m_renderCore.StartFrame())
+    EFrameStatus endFrameStatus = EFrameStatus_Success;
+    EFrameStatus startFrameStatus = m_renderCore.StartFrame();
+    
+    //////////////////////////////////////////////////////////////////////////
+    switch(startFrameStatus)
+    {
+    case EFrameStatus_Success:
     {
         m_sceneGraph.Render(m_renderCore, 0, 0, width, height);
+        endFrameStatus = m_renderCore.EndFrame();
+    }
+    break;
 
-        m_renderCore.EndFrame();
+    case EFrameStatus_NeedUpdate:
+        Recreate();
+    break;
+
+    case EFrameStatus_Error:
+    default:
+        ionAssertReturnVoid(false, "Start frame status error!");
+        break;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    switch (endFrameStatus)
+    {
+    case EFrameStatus_Success:
+    break;
+
+    case EFrameStatus_NeedUpdate:
+        Recreate();
+    break;
+
+    case EFrameStatus_Error:
+    default:
+        ionAssertReturnVoid(false, "End frame status error!");
+        break;
     }
 }
 

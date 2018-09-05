@@ -32,9 +32,9 @@ public:
     void    Recreate();
     void    Clear();
 
-    ionBool StartFrame();
-    void    EndFrame();
-    void    StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue, const VkRect2D& _renderArea);
+    EFrameStatus StartFrame();
+    EFrameStatus EndFrame();
+    void    StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue, const VkRect2D& _renderArea);
     void    EndRenderPass();
     void    SetDefaultState();
     void    SetState(ionU64 _stateBits);
@@ -46,7 +46,7 @@ public:
     void    SetDepthBoundsTest(ionFloat _zMin, ionFloat _zMax);
     void    CopyFrameBuffer(Texture* _texture, VkImage _srcImage);
     void    CopyFrameBuffer(Texture* _texture);
-    void    Draw(const DrawSurface& _surface);
+    void    Draw(VkRenderPass _renderPass, const DrawSurface& _surface);
     
     //////////////////////////////////////////////////////////////////////////
     // Support function for custom purpose
@@ -70,8 +70,8 @@ public:
     void SetScissor(VkCommandBuffer _commandBuffer, ionS32 _leftX, ionS32 _bottomY, ionU32 _width, ionU32 _height);
     void SetViewport(VkCommandBuffer _commandBuffer, ionFloat _leftX, ionFloat _bottomY, ionFloat _width, ionFloat _height, ionFloat _minDepth, ionFloat _maxDepth);
 
-    void    DestroyFrameBuffer(VkFramebuffer _frameBuffer);
-    void    DestroyRenderPass(VkRenderPass _renderPass);
+    void DestroyFrameBuffer(VkFramebuffer _frameBuffer);
+    void DestroyRenderPass(VkRenderPass _renderPass);
 
     //////////////////////////////////////////////////////////////////////////
     // Getter
@@ -88,13 +88,14 @@ public:
 
     VkFormat GetDepthFormat() const { return m_vkDepthFormat; }
 
-    const ionS32& GetGraphicFamilyIndex() const { return m_vkGraphicsFamilyIndex; }
-    const ionS32& GetPresentFamilyIndex() const { return m_vkPresentFamilyIndex; }
+    ionU32 GetCurrentSwapIndex() const { return m_currentSwapIndex; }
+
+    ionS32 GetGraphicFamilyIndex() const { return m_vkGraphicsFamilyIndex; }
+    ionS32 GetPresentFamilyIndex() const { return m_vkPresentFamilyIndex; }
 
     const GPU& GetGPU() const { return m_vkGPU; }
     const VkSampleCountFlagBits& GetSampleCount() const { return m_vkSampleCount; }
-    const ionBool& GetUsesSuperSampling() const { return m_vkSupersampling; }
-    const VkRenderPass& GetRenderPass() const { return m_vkRenderPass; }
+    ionBool GetUsesSuperSampling() const { return m_vkSupersampling; }
     const VkPipelineCache& GetPipelineCache() const { return m_vkPipelineCache; }
 
     const VertexCacheHandler& GetJointCacheHandler() const { return m_jointCacheHandler; }
@@ -102,6 +103,9 @@ public:
     ionU32 GetWidth() const { return m_width; }
     ionU32 GetHeight() const { return m_height; }
 
+    ionBool CreateRenderPass(VkRenderPass& _vkRenderPass, EFramebufferLoad _load = EFramebufferLoad_Clear);
+    ionBool CreateFrameBuffers(VkRenderPass _vkRenderPass, eosVector(VkFramebuffer)& _vkFrameBuffers);
+    void    DestroyFrameBuffers(eosVector(VkFramebuffer)& _vkFrameBuffers);
 
 private:
     RenderCore(const RenderCore& _Orig) = delete;
@@ -127,10 +131,7 @@ private:
     void    DestroySwapChain();
     ionBool CreateRenderTargets();
     void    DestroyRenderTargets();
-    ionBool CreateRenderPass();
     ionBool CreatePipelineCache();
-    ionBool CreateFrameBuffers();
-    void    DestroyFrameBuffers();
     void    CreateDebugReport();
     void    DestroyDebugReport();
 
@@ -150,7 +151,6 @@ private:
     VkPresentModeKHR            m_vkPresentMode;
     VkSampleCountFlagBits       m_vkSampleCount;
     VkFormat                    m_vkDepthFormat;
-    VkRenderPass                m_vkRenderPass;
     VkPipelineCache             m_vkPipelineCache;
     VkDebugReportCallbackEXT    m_vkDebugCallback;
     VkSemaphore                 m_vkAcquiringSemaphore;
@@ -169,7 +169,6 @@ private:
     VkImageView                 m_vkDepthStencilImageView;
 
     eosVector(VkCommandBuffer)  m_vkCommandBuffers;
-    eosVector(VkFramebuffer)    m_vkFrameBuffers;
     eosVector(VkFence)          m_vkCommandBufferFences;
     eosVector(VkImage)          m_vkSwapchainImages;
     eosVector(VkImageView)      m_vkSwapchainViews;

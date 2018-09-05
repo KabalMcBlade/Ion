@@ -868,9 +868,23 @@ void RenderCore::DestroyRenderTargets()
     }
 }
 
-ionBool RenderCore::CreateRenderPass()
+ionBool RenderCore::CreateRenderPass(VkRenderPass& _vkRenderPass, EFramebufferLoad _load /*= EFramebufferLoad_Clear*/)
 {
     const ionBool resolve = m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT;
+
+    VkAttachmentLoadOp framebufferLoad;
+    if (_load == EFramebufferLoad_Clear)
+    {
+        framebufferLoad = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    }
+    else if (_load == EFramebufferLoad_Load)
+    {
+        framebufferLoad = VK_ATTACHMENT_LOAD_OP_LOAD;
+    }
+    else
+    {
+        framebufferLoad = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    }
 
     if (resolve)
     {
@@ -880,7 +894,7 @@ ionBool RenderCore::CreateRenderPass()
         VkAttachmentDescription& colorAttachment = attachments[0];
         colorAttachment.format = m_vkSwapchainFormat;
         colorAttachment.samples = m_vkSampleCount;
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colorAttachment.loadOp = framebufferLoad;
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -964,7 +978,7 @@ ionBool RenderCore::CreateRenderPass()
         renderPassCreateInfo.dependencyCount = static_cast<ionU32>(dependencies.size());
         renderPassCreateInfo.pDependencies = dependencies.data();
 
-        VkResult result = vkCreateRenderPass(m_vkDevice, &renderPassCreateInfo, vkMemory, &m_vkRenderPass);
+        VkResult result = vkCreateRenderPass(m_vkDevice, &renderPassCreateInfo, vkMemory, &_vkRenderPass);
         ionAssertReturnValue(result == VK_SUCCESS, "Cannot create render pass!", false);
     }
     else
@@ -975,7 +989,7 @@ ionBool RenderCore::CreateRenderPass()
         VkAttachmentDescription& colorResolver = attachments[0];
         colorResolver.format = m_vkSwapchainFormat;
         colorResolver.samples = VK_SAMPLE_COUNT_1_BIT;
-        colorResolver.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colorResolver.loadOp = framebufferLoad;
         colorResolver.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorResolver.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorResolver.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -1040,7 +1054,7 @@ ionBool RenderCore::CreateRenderPass()
         renderPassCreateInfo.dependencyCount = static_cast<ionU32>(dependencies.size());
         renderPassCreateInfo.pDependencies = dependencies.data();
 
-        VkResult result = vkCreateRenderPass(m_vkDevice, &renderPassCreateInfo, vkMemory, &m_vkRenderPass);
+        VkResult result = vkCreateRenderPass(m_vkDevice, &renderPassCreateInfo, vkMemory, &_vkRenderPass);
         ionAssertReturnValue(result == VK_SUCCESS, "Cannot create render pass!", false);
     }
 
@@ -1058,7 +1072,7 @@ ionBool RenderCore::CreatePipelineCache()
     return true;
 }
 
-ionBool RenderCore::CreateFrameBuffers()
+ionBool RenderCore::CreateFrameBuffers(VkRenderPass _vkRenderPass, eosVector(VkFramebuffer)& _vkFrameBuffers)
 {
     VkImageView attachments[4] = {};
 
@@ -1076,14 +1090,15 @@ ionBool RenderCore::CreateFrameBuffers()
 
     VkFramebufferCreateInfo frameBufferCreateInfo = {};
     frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    frameBufferCreateInfo.renderPass = m_vkRenderPass;
+    frameBufferCreateInfo.renderPass = _vkRenderPass;
     frameBufferCreateInfo.attachmentCount = resolve ? 4 : 2;
     frameBufferCreateInfo.pAttachments = attachments;
     frameBufferCreateInfo.width = m_width;
     frameBufferCreateInfo.height = m_height;
     frameBufferCreateInfo.layers = 1;
 
-    m_vkFrameBuffers.resize(m_swapChainImageCount, VK_NULL_HANDLE);
+    _vkFrameBuffers.clear();
+    _vkFrameBuffers.resize(m_swapChainImageCount, VK_NULL_HANDLE);
     for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
     {
         if (resolve)
@@ -1095,7 +1110,7 @@ ionBool RenderCore::CreateFrameBuffers()
             attachments[0] = m_vkSwapchainViews[i];
         }
 
-        VkResult result = vkCreateFramebuffer(m_vkDevice, &frameBufferCreateInfo, vkMemory, &m_vkFrameBuffers[i]);
+        VkResult result = vkCreateFramebuffer(m_vkDevice, &frameBufferCreateInfo, vkMemory, &_vkFrameBuffers[i]);
         ionAssertReturnValue(result == VK_SUCCESS, "Impossible to create frame buffer.", false);
     }
 
@@ -1107,13 +1122,13 @@ void RenderCore::DestroyFrameBuffer(VkFramebuffer _frameBuffer)
     vkDestroyFramebuffer(m_vkDevice, _frameBuffer, vkMemory);
 }
 
-void RenderCore::DestroyFrameBuffers()
+void RenderCore::DestroyFrameBuffers(eosVector(VkFramebuffer)& _vkFrameBuffers)
 {
     for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
     {
-        DestroyFrameBuffer(m_vkFrameBuffers[i]);
+        DestroyFrameBuffer(_vkFrameBuffers[i]);
     }
-    m_vkFrameBuffers.clear();
+    _vkFrameBuffers.clear();
 }
 
 RenderCore::RenderCore() : m_instance(nullptr), m_window(nullptr)
@@ -1124,7 +1139,6 @@ RenderCore::RenderCore() : m_instance(nullptr), m_window(nullptr)
 
 RenderCore::~RenderCore()
 {
-    m_vkFrameBuffers.clear();
     m_vkSwapchainViews.clear();
     m_vkSwapchainImages.clear();
     m_vkCommandBufferFences.clear();
@@ -1142,7 +1156,6 @@ void RenderCore::Clear()
     m_vkGraphicsQueue = VK_NULL_HANDLE;
     m_vkPresentQueue = VK_NULL_HANDLE;
     m_vkDepthFormat = VK_FORMAT_UNDEFINED;
-    m_vkRenderPass = VK_NULL_HANDLE;
     m_vkPipelineCache = VK_NULL_HANDLE;
     m_vkSampleCount = VK_SAMPLE_COUNT_1_BIT;
     m_vkSupersampling = false;
@@ -1174,7 +1187,6 @@ void RenderCore::Clear()
     m_vkSwapchainExtent.height = m_height;
     m_vkSwapchainImages.clear();
     m_vkSwapchainViews.clear();
-    m_vkFrameBuffers.clear();
     m_currentSwapIndex = 0;
 
     m_vkCommandBuffers.clear();
@@ -1262,21 +1274,11 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
         return false;
     }
 
-    if (!CreateRenderPass())
-    {
-        return false;
-    }
-
     if (!CreatePipelineCache())
     {
         return false;
     }
  
-    if (!CreateFrameBuffers())
-    {
-        return false;
-    }
-
     ionShaderProgramManager().Init(m_vkDevice);
 
     ionVertexCacheManager().Init(m_vkDevice, m_vkGPU.m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment);
@@ -1308,14 +1310,10 @@ void RenderCore::Shutdown()
 
     ionShaderProgramManager().Shutdown();
 
-    DestroyFrameBuffers();
-
     if (m_vkPipelineCache != VK_NULL_HANDLE)
     {
         vkDestroyPipelineCache(m_vkDevice, m_vkPipelineCache, vkMemory);
     }
-
-    DestroyRenderPass(m_vkRenderPass);
 
     DestroyRenderTargets();
 
@@ -1373,17 +1371,7 @@ void RenderCore::Recreate()
 {
     vkDeviceWaitIdle(m_vkDevice);
 
-    for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
-    {
-        vkDestroyFramebuffer(m_vkDevice, m_vkFrameBuffers[i], vkMemory);
-    }
-
     vkDestroyPipelineCache(m_vkDevice, m_vkPipelineCache, vkMemory);
-
-    if (m_vkRenderPass != VK_NULL_HANDLE)
-    {
-        vkDestroyRenderPass(m_vkDevice, m_vkRenderPass, vkMemory);
-    }
 
     DestroyRenderTargets();
 
@@ -1408,9 +1396,7 @@ void RenderCore::Recreate()
     CreateSwapChain();
     CreateCommandBuffer();
     CreateRenderTargets();
-    CreateRenderPass();
     CreatePipelineCache();
-    CreateFrameBuffers();
 
     m_vkSupportBlit = true;
     VkFormatProperties formatProps;
@@ -1430,13 +1416,13 @@ void RenderCore::Recreate()
 }
 
 
-ionBool RenderCore::StartFrame()
+EFrameStatus RenderCore::StartFrame()
 {
     VkResult result = vkWaitForFences(m_vkDevice, 1, &m_vkCommandBufferFences[m_currentSwapIndex], VK_TRUE, UINT64_MAX);
-    ionAssertReturnValue(result == VK_SUCCESS, "Wait for fences failed!", false);
+    ionAssertReturnValue(result == VK_SUCCESS, "Wait for fences failed!", EFrameStatus_Error);
 
     result = vkResetCommandBuffer(m_vkCommandBuffers[m_currentSwapIndex], VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
-    ionAssertReturnValue(result == VK_SUCCESS, "Reset command buffer failed!", false);
+    ionAssertReturnValue(result == VK_SUCCESS, "Reset command buffer failed!", EFrameStatus_Error);
 
     ionStagingBufferManager().Submit();
     ionShaderProgramManager().StartFrame();
@@ -1444,13 +1430,12 @@ ionBool RenderCore::StartFrame()
     result = vkAcquireNextImageKHR(m_vkDevice, m_vkSwapchain, UINT64_MAX, m_vkAcquiringSemaphore, VK_NULL_HANDLE, &m_currentSwapIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) 
     {
-        Recreate();
-        return false;
+        return EFrameStatus_NeedUpdate;
     }
-    ionAssertReturnValue(result == VK_SUCCESS || result  == VK_SUBOPTIMAL_KHR, "vkAcquireNextImageKHR failed!", false);
+    ionAssertReturnValue(result == VK_SUCCESS || result  == VK_SUBOPTIMAL_KHR, "vkAcquireNextImageKHR failed!", EFrameStatus_Error);
 
     result = vkResetFences(m_vkDevice, 1, &m_vkCommandBufferFences[m_currentSwapIndex]);
-    ionAssertReturnValue(result == VK_SUCCESS, "Reset fences failed!", false);
+    ionAssertReturnValue(result == VK_SUCCESS, "Reset fences failed!", EFrameStatus_Error);
 
     
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
@@ -1458,10 +1443,9 @@ ionBool RenderCore::StartFrame()
     VkCommandBufferBeginInfo commandBufferBeginInfo = {};
     commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     result = vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-    ionAssertReturnValue(result == VK_SUCCESS, "vkBeginCommandBuffer failed!", false);
+    ionAssertReturnValue(result == VK_SUCCESS, "vkBeginCommandBuffer failed!", EFrameStatus_Error);
 
-
-    return true;
+    return EFrameStatus_Success;
 }
 
 void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, const VkRect2D& _renderArea)
@@ -1477,7 +1461,7 @@ void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameB
     vkCmdBeginRenderPass(_commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
-void RenderCore::StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue, const VkRect2D& _renderArea)
+void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, ionFloat _clearDepthValue, ionU8 _clearStencilValue, ionFloat _clearRed, ionFloat _clearGreen, ionFloat _clearBlue, const VkRect2D& _renderArea)
 {
     ionAssertReturnVoid(_clearDepthValue >= 0.0f && _clearDepthValue <= 1.0f, "Clear depth must be between 0 and 1!");
     ionAssertReturnVoid(_clearRed >= 0.0f && _clearRed <= 1.0f, "Clear red must be between 0 and 1!");
@@ -1499,7 +1483,7 @@ void RenderCore::StartRenderPass(ionFloat _clearDepthValue, ionU8 _clearStencilV
         clearValues[1].depthStencil = { _clearDepthValue, _clearStencilValue };
     }
 
-    StartRenderPass(m_vkRenderPass, m_vkFrameBuffers[m_currentSwapIndex], m_vkCommandBuffers[m_currentSwapIndex], clearValues, _renderArea);
+    StartRenderPass(_renderPass, _frameBuffer, m_vkCommandBuffers[m_currentSwapIndex], clearValues, _renderArea);
 }
 
 void RenderCore::EndRenderPass(VkCommandBuffer _commandBuffer)
@@ -1512,7 +1496,7 @@ void RenderCore::EndRenderPass()
     EndRenderPass(m_vkCommandBuffers[m_currentSwapIndex]);
 }
 
-void RenderCore::EndFrame()
+EFrameStatus RenderCore::EndFrame()
 {
     VkCommandBuffer commandBuffer = m_vkCommandBuffers[m_currentSwapIndex];
 
@@ -1541,7 +1525,7 @@ void RenderCore::EndFrame()
     */
 
     VkResult result = vkEndCommandBuffer(commandBuffer);
-    ionAssertReturnVoid(result == VK_SUCCESS, "vkEndCommandBuffer failed!");
+    ionAssertReturnValue(result == VK_SUCCESS, "vkEndCommandBuffer failed!", EFrameStatus_Error);
 
     ionShaderProgramManager().EndFrame();
 
@@ -1558,7 +1542,7 @@ void RenderCore::EndFrame()
     submitInfo.pWaitDstStageMask = &dstStageMask;
 
     result = vkQueueSubmit(m_vkGraphicsQueue, 1, &submitInfo, m_vkCommandBufferFences[m_currentSwapIndex]);
-    ionAssertReturnVoid(result == VK_SUCCESS, "vkQueueSubmit failed!");
+    ionAssertReturnValue(result == VK_SUCCESS, "vkQueueSubmit failed!", EFrameStatus_Error);
 
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -1571,14 +1555,16 @@ void RenderCore::EndFrame()
     result = vkQueuePresentKHR(m_vkPresentQueue, &presentInfo);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
-        Recreate();
+        return EFrameStatus_NeedUpdate;
     }
     else if (result != VK_SUCCESS)
     {
-        ionAssertReturnVoid(false, "vkQueuePresentKHR failed!");
+        ionAssertReturnValue(false, "vkQueuePresentKHR failed!", EFrameStatus_Error);
     }
 
     ++m_counter;
+
+    return EFrameStatus_Success;
 }
 
 void RenderCore::SetDefaultState()
@@ -1945,9 +1931,9 @@ void RenderCore::DrawNoBinding(VkCommandBuffer _commandBuffer, VkRenderPass _ren
 }
 
 
-void RenderCore::Draw(const DrawSurface& _surface)
+void RenderCore::Draw(VkRenderPass _renderPass, const DrawSurface& _surface)
 {
-    Draw(m_vkCommandBuffers[m_currentSwapIndex], m_vkRenderPass, _surface);
+    Draw(m_vkCommandBuffers[m_currentSwapIndex], _renderPass, _surface);
 }
 
 

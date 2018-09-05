@@ -53,6 +53,12 @@ public:
     void UpdateMouseInput(const MouseState& _mouseState, ionFloat _deltaTime);
     void UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime);
 
+    // iterators
+    eosVector(ObjectHandler) &GetNodes() { return m_nodes; };
+
+    eosVector(ObjectHandler)::const_iterator GetNodeBegin() { return m_nodes.begin(); }
+    eosVector(ObjectHandler)::const_iterator GetNodeEnd() { return m_nodes.end(); }
+
 private:
     SceneGraph(const SceneGraph& _Orig) = delete;
     SceneGraph& operator = (const SceneGraph&) = delete;

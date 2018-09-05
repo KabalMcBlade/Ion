@@ -123,10 +123,10 @@ void Skybox::UpdateUniformBuffer(const Matrix& _projection, const Matrix& _view,
     _mm_storeu_ps(&m_drawSurface.m_projectionMatrix[12], _projection[3]);
 }
 
-void Skybox::Draw(RenderCore& _renderCore)
+void Skybox::Draw(VkRenderPass _renderPass, RenderCore& _renderCore)
 {
     _renderCore.SetState(m_mesh->GetMaterial()->GetState().GetStateBits());
-    _renderCore.Draw(m_drawSurface);
+    _renderCore.Draw(_renderPass, m_drawSurface);
 }
 
 void Skybox::CustomDraw(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, VkRenderPass _renderPass)

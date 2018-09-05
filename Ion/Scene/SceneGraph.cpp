@@ -306,7 +306,7 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
             if (drawSurface.m_visible)
             {
                 _renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
-                _renderCore.Draw(drawSurface);
+                _renderCore.Draw(cam->GetRenderPass(), drawSurface);
             }
         }
 
