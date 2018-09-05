@@ -33,6 +33,33 @@ LoaderGLTF::~LoaderGLTF()
 {
 }
 
+
+void UpdateBoundingBox(const ObjectHandler& _node, BoundingBox& _mainBoundingBoxToUpdate)
+{
+    if (_node->GetNodeType() == ENodeType_Entity)
+    {
+        Entity* entity = dynamic_cast<Entity*>(_node.GetPtr());
+
+        if (entity->GetBoundingBox()->IsValid())
+        {
+            _mainBoundingBoxToUpdate.Expande(*entity->GetBoundingBox());
+        }
+    }
+
+    if (_node->GetChildren().empty())
+    {
+        return;
+    }
+
+    const eosVector(ObjectHandler)& children = _node->GetChildren();
+    eosVector(ObjectHandler)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
+    for (; it != end; ++it)
+    {
+        ObjectHandler nh = (*it);
+        UpdateBoundingBox(nh, _mainBoundingBoxToUpdate);
+    }
+}
+
 // for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
 void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, ObjectHandler& _entityHandle, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign)
 {
@@ -1396,7 +1423,11 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
     }
 
     //
-    // 4. camera set, for now just one and perspective
+    // 4. for the main bounding box: if missing create, if present expand to the maximum one
+    UpdateBoundingBox(_entity, *_entity->GetBoundingBox());
+
+    //
+    // 5. camera set, for now just one and perspective
     if (model.cameras.size() > 0)
     {
         if (model.cameras[0].type == "perspective")
