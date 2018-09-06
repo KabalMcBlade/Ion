@@ -1298,6 +1298,12 @@ void RenderCore::DestroyRenderPass(VkRenderPass _renderPass)
     }
 }
 
+void RenderCore::DestroyCommandBuffers()
+{
+    vkDeviceWaitIdle(m_vkDevice);
+    vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
+}
+
 void RenderCore::Shutdown()
 {
     vkDeviceWaitIdle(m_vkDevice);
@@ -1327,7 +1333,7 @@ void RenderCore::Shutdown()
         }
     }
 
-    vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
+    //vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
 
     if (m_vkCommandPool != VK_NULL_HANDLE)
     {

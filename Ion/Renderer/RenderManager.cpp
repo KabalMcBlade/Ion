@@ -319,6 +319,11 @@ void RenderManager::Resize(ionS32& _outNewWidth, ionS32 _outNewHeight)
     _outNewHeight = m_renderCore.GetHeight();
 }
 
+void RenderManager::PrepareToShutDown()
+{
+    m_renderCore.DestroyCommandBuffers();
+}
+
 void RenderManager::Prepare()
 {
     m_sceneGraph.Prepare();

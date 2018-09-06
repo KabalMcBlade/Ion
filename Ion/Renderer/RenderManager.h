@@ -76,6 +76,8 @@ public:
     void    RemoveFromSceneGraph(ObjectHandler _node);
     void    RemoveAllSceneGraph();
 
+    void    PrepareToShutDown();
+
     void    Resize(ionS32& _outNewWidth, ionS32 _outNewHeight);
     void    Prepare();
     void    CoreLoop();

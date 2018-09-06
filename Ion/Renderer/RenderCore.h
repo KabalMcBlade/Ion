@@ -29,6 +29,7 @@ public:
 
     ionBool Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
     void    Shutdown();
+    void    DestroyCommandBuffers();
     void    Recreate();
     void    Clear();
 

@@ -302,6 +302,7 @@ int main(int argc, char **argv)
         window.Loop();
     }
 
+    ionRenderManager().PrepareToShutDown();
     ionRenderManager().RemoveAllSceneGraph();
 
     ionRenderManager().Shutdown();
