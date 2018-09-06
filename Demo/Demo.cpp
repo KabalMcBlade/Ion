@@ -146,6 +146,43 @@ void UpdateAllShadersCascade(const ObjectHandler& _node, ionS32 _vertexShaderInd
     }
 }
 
+
+// need to start from false in order to work!
+void CheckIfAllMaterialsAreUnlit(const ObjectHandler& _node, ionBool& _areUnlit)
+{
+    if (_node->GetNodeType() == ENodeType_Entity)
+    {
+        Entity* entity = dynamic_cast<Entity*>(_node.GetPtr());
+
+        const ionU32 meshCount = entity->GetMeshCount();
+        for (ionU32 i = 0; i < meshCount; ++i)
+        {
+            ion::Material* material = entity->GetMesh(i)->GetMaterial();
+            if (material != nullptr)
+            {
+                if (material->IsUnlit())
+                {
+                    _areUnlit = true;
+                }
+            }
+        }
+    }
+
+    if (_node->GetChildren().empty())
+    {
+        return;
+    }
+
+    const eosVector(ObjectHandler)& children = _node->GetChildren();
+    eosVector(ObjectHandler)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
+    for (; it != end; ++it)
+    {
+        ObjectHandler nh = (*it);
+        CheckIfAllMaterialsAreUnlit(nh, _areUnlit);
+    }
+}
+
+
 int main(int argc, char **argv)
 {
     InitializeAllocators(ALL_HEAP_MEMORY, ALL_LINEAR_MEMORY, ALL_STACK_MEMORY, MAX_STACK_MEMORY_BLOCK);
@@ -261,38 +298,6 @@ int main(int argc, char **argv)
     ObjectHandler testHandle(test);
 
 
-
-
-    //////////////////////////////////////////////////////////////////////////
-    // Create new camera for the arrow to debug light
-
-    ion::Camera* cameraLightDebug = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE, "DebugLightCamera", false);
-    ObjectHandler cameraLightDebugHandle(cameraLightDebug);
-    cameraLightDebug->SetCameraType(ion::Camera::ECameraType::ECameraType_LookAt);
-    cameraLightDebug->SetPerspectiveProjection(45.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 100.0f);
-    cameraLightDebug->SetRenderPassParameters(1.0f, 0, 0.0f, 1.0f, 0.0f);
-    cameraLightDebug->SetViewportParameters(0.0f, 0.0f, 0.25f, 0.25f, 0.8f, 1.0f);
-    cameraLightDebug->SetScissorParameters(0.0f, 0.0f, 0.25f, 0.25f);
-    cameraLightDebug->GetTransform().SetPosition(cameraPos);
-    cameraLightDebug->RemoveFromRenderLayer(ENodeRenderLayer_Default);
-    cameraLightDebug->AddToRenderLayer(ENodeRenderLayer_1);
-
-    //
-    // Arrow for directional lighting debug
-    DirectionalLightDebugEntity* dirlLightDebugEntity = eosNew(DirectionalLightDebugEntity, ION_MEMORY_ALIGNMENT_SIZE);
-    ObjectHandler dirlLightDebugEntityHandle(dirlLightDebugEntity);
-    ionRenderManager().LoadModelFromFile(ionFileSystemManager().GetModelsPath() + "Arrow.gltf", camera, dirlLightDebugEntityHandle);
-    dirlLightDebugEntity->RemoveFromRenderLayer(ENodeRenderLayer_Default);
-    dirlLightDebugEntity->AddToRenderLayer(ENodeRenderLayer_1);
-
-    // override all shader with an unlit
-    ionS32 unlitVertexShader = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
-    ionS32 unlitFragmentShader = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_UNLIT_SHADER_NAME, EShaderStage_Fragment);
-    UpdateAllShadersCascade(dirlLightDebugEntity, unlitVertexShader, unlitFragmentShader);
-
-
-    //////////////////////////////////////////////////////////////////////////
-
     if (window.GetCommandLineParse().HasValue("-model"))
     {
         const eosString modelVar = window.GetCommandLineParse().GetValue<eosString>("-model");
@@ -339,6 +344,46 @@ int main(int argc, char **argv)
         std::cout << "model or primitive does not supply: use -model \"modelname\" or -primitive [triangle, quad, cube, sphere]" << std::endl;
     }
 
+
+    //////////////////////////////////////////////////////////////////////////
+    // Create new camera for the arrow to debug light (if need!)
+
+    ionBool areAllModelMaterialsUnlit = false;
+    CheckIfAllMaterialsAreUnlit(testHandle, areAllModelMaterialsUnlit);
+
+    Camera* cameraLightDebug = nullptr;
+    DirectionalLightDebugEntity* dirlLightDebugEntity = nullptr;
+    if (areAllModelMaterialsUnlit == false)
+    {
+        cameraLightDebug = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE, "DebugLightCamera", false);
+        cameraLightDebug->SetCameraType(ion::Camera::ECameraType::ECameraType_LookAt);
+        cameraLightDebug->SetPerspectiveProjection(45.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 100.0f);
+        cameraLightDebug->SetRenderPassParameters(1.0f, 0, 0.0f, 1.0f, 0.0f);
+        cameraLightDebug->SetViewportParameters(0.0f, 0.0f, 0.25f, 0.25f, 0.8f, 1.0f);
+        cameraLightDebug->SetScissorParameters(0.0f, 0.0f, 0.25f, 0.25f);
+        cameraLightDebug->GetTransform().SetPosition(cameraPos);
+        cameraLightDebug->RemoveFromRenderLayer(ENodeRenderLayer_Default);
+        cameraLightDebug->AddToRenderLayer(ENodeRenderLayer_1);
+
+        //
+        // Arrow for directional lighting debug
+        dirlLightDebugEntity = eosNew(DirectionalLightDebugEntity, ION_MEMORY_ALIGNMENT_SIZE);
+        dirlLightDebugEntity->RemoveFromRenderLayer(ENodeRenderLayer_Default);
+        dirlLightDebugEntity->AddToRenderLayer(ENodeRenderLayer_1);
+    }
+    ObjectHandler cameraLightDebugHandle(cameraLightDebug);
+    ObjectHandler dirlLightDebugEntityHandle(dirlLightDebugEntity);
+
+    if (areAllModelMaterialsUnlit == false)
+    {
+        ionRenderManager().LoadModelFromFile(ionFileSystemManager().GetModelsPath() + "Arrow.gltf", camera, dirlLightDebugEntityHandle);
+
+        // override all shader with an unlit
+        ionS32 unlitVertexShader = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+        ionS32 unlitFragmentShader = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_UNLIT_SHADER_NAME, EShaderStage_Fragment);
+        UpdateAllShadersCascade(dirlLightDebugEntity, unlitVertexShader, unlitFragmentShader);
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //
     //////////////////////////////////////////////////////////////////////////
@@ -346,13 +391,19 @@ int main(int argc, char **argv)
     // first full the scene graph
     ionRenderManager().AddToSceneGraph(cameraHandle);
     ionRenderManager().AddToSceneGraph(testHandle);
-    ionRenderManager().AddToSceneGraph(cameraLightDebugHandle);
-    ionRenderManager().AddToSceneGraph(dirlLightDebugEntityHandle);
+    if (areAllModelMaterialsUnlit == false)
+    {
+        ionRenderManager().AddToSceneGraph(cameraLightDebugHandle);
+        ionRenderManager().AddToSceneGraph(dirlLightDebugEntityHandle);
+    }
 
     // then set the active node will receive the input
     ionRenderManager().RegisterToInput(cameraHandle);
     ionRenderManager().RegisterToInput(testHandle);
-    ionRenderManager().RegisterToInput(dirlLightDebugEntityHandle);
+    if (areAllModelMaterialsUnlit == false)
+    {
+        ionRenderManager().RegisterToInput(dirlLightDebugEntityHandle);
+    }
 
     ionRenderManager().AddDirectionalLight();
     DirectionalLight* directionalLight = ionRenderManager().GetDirectionalLight();
@@ -365,8 +416,11 @@ int main(int argc, char **argv)
     directionalLight->GetTransform().SetRotation(lightRot);
     directionalLight->SetColor(lightCol);
 
-    // update directional lighting debug rotation
-    dirlLightDebugEntity->GetTransform().SetRotation(lightRot);
+    if (areAllModelMaterialsUnlit == false)
+    {
+        // update directional lighting debug rotation
+        dirlLightDebugEntity->GetTransform().SetRotation(lightRot);
+    }
 
     if (rendererInitialized)
     {

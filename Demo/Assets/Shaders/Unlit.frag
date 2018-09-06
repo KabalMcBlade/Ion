@@ -8,6 +8,8 @@ layout (location = 3) in vec4 inColor;
 
 layout (binding = 1) uniform UBOParams 
 {
+	vec4 mainCameraPos;
+	vec4 directionalLight;
 	vec4 directionalLightColor;
 } uboParams;
 
@@ -42,25 +44,15 @@ void main()
 	
 	const vec4 baseColorFactor = vec4(material.baseColorFactorR, material.baseColorFactorG, material.baseColorFactorB, material.baseColorFactorA);
 	
-	const vec3 norm = normalize(inNormal);
-	
 	vec3 diffuse;
-	vec3 ambient;
 	if (material.hasBaseColorTexture == 1.0) 
 	{
-		const vec3 baseColor = texture(albedoMap, inUV).rgb * baseColorFactor.rgb;
-		ambient = uboParams.directionalLightColor.rgb * baseColor;
-		
-		diffuse = baseColor * texture(albedoMap, inUV).rgb;
+		diffuse = uboParams.directionalLightColor.rgb * texture(albedoMap, inUV).rgb * baseColorFactor.rgb;
 	} 
 	else 
 	{
-		const vec3 baseColor = inColor.rgb * baseColorFactor.rgb;
-		ambient = uboParams.directionalLightColor.rgb * baseColor;
-		
-		diffuse = baseColor * inColor.rgb;
+		diffuse = uboParams.directionalLightColor.rgb * inColor.rgb * baseColorFactor.rgb;
 	}
 	
-    vec3 result = ambient + diffuse;
-    outColor = vec4(result, alpha);
+    outColor = vec4(diffuse, alpha);
 }

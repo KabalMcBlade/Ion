@@ -202,11 +202,14 @@ public:
     ionBool Create();
     void Destroy();
 
-    void SetAsDiffuseLight() { m_isDiffuseLight = true; }
+    void SetDiffuseLight(ionBool _isDiffuse) { m_isDiffuseLight = _isDiffuse; }
     const ionBool IsDiffuseLight() const { return m_isDiffuseLight; }
 
-    void SetUsingSpecularGloss(ionBool _specularGlossiness) { m_useGlossiness = _specularGlossiness; }
-    const ionBool IsUsingSpecularGlossiness() const { return m_useGlossiness; }
+    void SetUnlit(ionBool _isUnlit) { m_isUnlit = _isUnlit; }
+    const ionBool IsUnlit() const { return m_isUnlit; }
+
+    void SetSpecularGloss(ionBool _specularGlossiness) { m_useGlossiness = _specularGlossiness; }
+    const ionBool IsSpecularGlossiness() const { return m_useGlossiness; }
 
     MaterialState& GetState() { return m_state; }
     const MaterialState& GetState() const { return m_state; }
@@ -285,6 +288,7 @@ private:
     ionS32          m_tessellationEvaluationIndex;
     ionS32          m_geometryIndex;
 
+    ionBool         m_isUnlit;
     ionBool         m_isDiffuseLight;
     ionBool         m_useGlossiness;       // the default render pipeline is PBR, but if the texture are not found, this became true and use the specular glossiness, so it is just a fallback!
     ionBool         m_useJoint;

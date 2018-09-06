@@ -724,7 +724,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
                         samplerBRDFLUT.m_texture = ionRenderManager().GetBRDF();
 
                         //
-                        ionBool usingSpecularGlossiness = material->IsUsingSpecularGlossiness();
+                        ionBool usingSpecularGlossiness = material->IsSpecularGlossiness();
 
                         //
                         SamplerBinding albedoMap;
@@ -915,7 +915,17 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
                     material->SetConstantsShaders(constants);
 
                     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
-                    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_DIFFUSE_LIGHT_SHADER_NAME, EShaderStage_Fragment);
+                    ionS32 fragmentShaderIndex = 1;
+
+                    if (material->IsDiffuseLight())
+                    {
+                        fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_DIFFUSE_LIGHT_SHADER_NAME, EShaderStage_Fragment);
+                    }
+                    else
+                    {
+                        fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_UNLIT_SHADER_NAME, EShaderStage_Fragment);
+                    }
+
 
                     material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
                 }
@@ -1370,11 +1380,20 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
             {
                 if (material->IsValidSpecularGlossiness())
                 {
-                    material->SetUsingSpecularGloss(true);
+                    material->SetSpecularGloss(true);
                 }
                 else
                 {
-                    material->SetAsDiffuseLight();
+                    material->SetDiffuseLight(true);
+                    if (model.extensionsUsed.size() > 0)
+                    {
+                        if (std::find(model.extensionsUsed.begin(), model.extensionsUsed.end(), "KHR_materials_unlit") != model.extensionsUsed.end())
+                        {
+                            material->SetDiffuseLight(false);
+                            material->SetUnlit(true);
+                        }
+                    }
+                    
                 }
             }
         }
