@@ -5,6 +5,24 @@
 //////////////////////////////////////////////////////////////////////////
 // ENTITIES
 
+class DirectionalLightDebugEntity : public ion::Entity
+{
+public:
+    DirectionalLightDebugEntity();
+    virtual ~DirectionalLightDebugEntity();
+
+    virtual void OnUpdate(ionFloat _deltaTime) override;
+
+    virtual void OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime) override;
+
+private:
+    ionFloat m_mouseSensitivity;
+
+    ionBool m_rotating;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class RotatingEntity : public ion::Entity
 {
 public:

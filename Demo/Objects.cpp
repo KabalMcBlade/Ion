@@ -7,6 +7,79 @@ ionBool MainCamera::m_toggleLightRotation = false;
 //////////////////////////////////////////////////////////////////////////
 // ENTITIES
 
+
+DirectionalLightDebugEntity::DirectionalLightDebugEntity() : Entity("DirectionalLightDebugEntity"), m_mouseSensitivity(0.05f), m_rotating(false)
+{
+
+}
+
+DirectionalLightDebugEntity::~DirectionalLightDebugEntity()
+{
+
+}
+
+void DirectionalLightDebugEntity::OnUpdate(ionFloat _deltaTime)
+{
+    if (MainCamera::m_toggleLightRotation)
+    {
+        static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
+        static const Vector axis(0.0f, 1.0f, 0.0f, 0.0f);
+        static ionFloat radRotated = 0.0f;
+
+        if (m_rotating)
+        {
+            const Quaternion& prevRot = GetTransform().GetRotation();
+
+            std::random_device rd;
+            std::mt19937 e2(rd());
+            std::uniform_real_distribution<> distribution(0.0f, 90.0f);
+
+            const ionFloat x = (ionFloat)distribution(e2);
+            const ionFloat y = (ionFloat)distribution(e2);
+            const ionFloat z = (ionFloat)distribution(e2);
+
+            Vector eulerRandom(x, y, z, 1.0f);
+            Quaternion currRot; currRot.SetFromEuler(eulerRandom);
+
+            //Quaternion currRot = Quaternion(radPerFrame, axis);
+            currRot = currRot * prevRot;
+
+            GetTransform().SetRotation(currRot);
+        }
+    }
+}
+
+void DirectionalLightDebugEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime)
+{
+    if (MainCamera::m_toggleLightRotation)
+    {
+        if (_mouseState.m_buttons[0].IsPressed)
+        {
+            ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
+            ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
+
+            xOffset *= m_mouseSensitivity;
+            yOffset *= m_mouseSensitivity;
+
+            const Quaternion& prevRot = GetTransform().GetRotation();
+
+            Matrix rotationMatrix;
+            rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(xOffset), NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(0.0f));
+
+            Quaternion currRot;
+            currRot.SetFromMatrix(rotationMatrix);
+
+            currRot = currRot * prevRot;
+
+            GetTransform().SetRotation(currRot);
+        }
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+
 RotatingEntity::RotatingEntity() : m_rotating(false), m_mouseSensitivity(0.05f), m_movementSpeed(10.0f), m_incresingWheelSpeed(1.0f)
 {
 
@@ -24,57 +97,63 @@ RotatingEntity::~RotatingEntity()
 
 void RotatingEntity::OnUpdate(ionFloat _deltaTime)
 {
-    static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
-    static const Vector axis(0.0f, 1.0f, 0.0f, 0.0f);
-    static ionFloat radRotated = 0.0f;
-
-    if (m_rotating)
+    if (!MainCamera::m_toggleLightRotation)
     {
-        const Quaternion& prevRot = GetTransform().GetRotation();
+        static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
+        static const Vector axis(0.0f, 1.0f, 0.0f, 0.0f);
+        static ionFloat radRotated = 0.0f;
 
-        Quaternion currRot = Quaternion(radPerFrame, axis);
-        currRot = currRot * prevRot;
+        if (m_rotating)
+        {
+            const Quaternion& prevRot = GetTransform().GetRotation();
 
-        GetTransform().SetRotation(currRot);
+            Quaternion currRot = Quaternion(radPerFrame, axis);
+            currRot = currRot * prevRot;
+
+            GetTransform().SetRotation(currRot);
+        }
     }
 }
 
 void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime)
 {
-    if (_keyboardState.m_state == ion::EKeyboardState_Up)
+    if (!MainCamera::m_toggleLightRotation)
     {
-        if (_keyboardState.m_key == ion::EKeyboardKey_R)
+        if (_keyboardState.m_state == ion::EKeyboardState_Up)
         {
-            m_rotating = !m_rotating;
+            if (_keyboardState.m_key == ion::EKeyboardKey_R)
+            {
+                m_rotating = !m_rotating;
+            }
+
+            if (_keyboardState.m_key == ion::EKeyboardKey_G || _keyboardState.m_key == ion::EKeyboardKey_H)
+            {
+                m_incresingWheelSpeed = 1.0f;
+            }
+
+            if (_keyboardState.m_key == ion::EKeyboardKey_U)
+            {
+                Vector scale = GetTransform().GetScale() / 10.0f;
+                GetTransform().SetScale(scale);
+            }
+
+            if (_keyboardState.m_key == ion::EKeyboardKey_I)
+            {
+                Vector scale = GetTransform().GetScale() * 10.0f;
+                GetTransform().SetScale(scale);
+            }
         }
 
-        if (_keyboardState.m_key == ion::EKeyboardKey_G || _keyboardState.m_key == ion::EKeyboardKey_H)
+        if (_keyboardState.m_state == ion::EKeyboardState_Down)
         {
-            m_incresingWheelSpeed = 1.0f;
-        }
-
-        if (_keyboardState.m_key == ion::EKeyboardKey_U)
-        {
-            Vector scale = GetTransform().GetScale() / 10.0f;
-            GetTransform().SetScale(scale);
-        }
-
-        if (_keyboardState.m_key == ion::EKeyboardKey_I)
-        {
-            Vector scale = GetTransform().GetScale() * 10.0f;
-            GetTransform().SetScale(scale);
-        }
-    }
-
-    if (_keyboardState.m_state == ion::EKeyboardState_Down)
-    {
-        if (_keyboardState.m_key == ion::EKeyboardKey_G)
-        {
-            m_incresingWheelSpeed = 10.0f;
-        }
-        if (_keyboardState.m_key == ion::EKeyboardKey_H)
-        {
-            m_incresingWheelSpeed = 100.0f;
+            if (_keyboardState.m_key == ion::EKeyboardKey_G)
+            {
+                m_incresingWheelSpeed = 10.0f;
+            }
+            if (_keyboardState.m_key == ion::EKeyboardKey_H)
+            {
+                m_incresingWheelSpeed = 100.0f;
+            }
         }
     }
 }

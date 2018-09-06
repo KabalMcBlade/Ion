@@ -114,6 +114,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
+// update all shaders in the entity in cascade
+void UpdateAllShadersCascade(const ObjectHandler& _node, ionS32 _vertexShaderIndex, ionS32 _fragmentShaderIndex)
+{
+    if (_node->GetNodeType() == ENodeType_Entity)
+    {
+        Entity* entity = dynamic_cast<Entity*>(_node.GetPtr());
+
+        const ionU32 meshCount = entity->GetMeshCount();
+        for (ionU32 i = 0; i < meshCount; ++i)
+        {
+            Material* material = entity->GetMesh(i)->GetMaterial();
+            if (material != nullptr)
+            {
+                material->SetShaders(_vertexShaderIndex, _fragmentShaderIndex);
+            }
+        }
+    }
+
+    if (_node->GetChildren().empty())
+    {
+        return;
+    }
+
+    const eosVector(ObjectHandler)& children = _node->GetChildren();
+    eosVector(ObjectHandler)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
+    for (; it != end; ++it)
+    {
+        ObjectHandler nh = (*it);
+        UpdateAllShadersCascade(nh, _vertexShaderIndex, _fragmentShaderIndex);
+    }
+}
+
 int main(int argc, char **argv)
 {
     InitializeAllocators(ALL_HEAP_MEMORY, ALL_LINEAR_MEMORY, ALL_STACK_MEMORY, MAX_STACK_MEMORY_BLOCK);
@@ -122,7 +154,7 @@ int main(int argc, char **argv)
 
     ION_SCOPE_BEGIN
 
-    ionFileSystemManager().Init("Assets", "Shaders", "Textures", "Models");
+        ionFileSystemManager().Init("Assets", "Shaders", "Textures", "Models");
 
     ionBool rendererInitialized = false;
     Window window;
@@ -146,7 +178,7 @@ int main(int argc, char **argv)
     // Generate and load all global texture
     const Texture* nullTextureMap = ionRenderManager().GenerateNullTexture();
     const Texture* skyboxCubeMap = ionTextureManger().CreateTextureFromFile("misty_pines_4k", ionFileSystemManager().GetTexturesPath() + "misty_pines_4k.hdr", ETextureFilter_Default, ETextureRepeat_ClampAlpha, ETextureUsage_SkyboxHDR, ETextureType_Cubic, 1);
-    
+
     Material* skyboxMaterial = ionMaterialManger().CreateMaterial("SkyBox", 0u);
 
     ionS32 skyboxVertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Vertex);
@@ -160,8 +192,8 @@ int main(int argc, char **argv)
     ObjectHandler cameraHandle(camera);
     camera->SetCameraType(ion::Camera::ECameraType::ECameraType_LookAt);
     camera->SetPerspectiveProjection(45.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 1000.0f);
-    camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
-    camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+    camera->SetRenderPassParameters(0.7f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
+    camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.7f);
     camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
     camera->GetTransform().SetPosition(cameraPos);
 
@@ -228,6 +260,39 @@ int main(int argc, char **argv)
     RotatingEntity* test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE, "GameEntity");
     ObjectHandler testHandle(test);
 
+
+
+
+    //////////////////////////////////////////////////////////////////////////
+    // Create new camera for the arrow to debug light
+
+    ion::Camera* cameraLightDebug = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE, "DebugLightCamera", false);
+    ObjectHandler cameraLightDebugHandle(cameraLightDebug);
+    cameraLightDebug->SetCameraType(ion::Camera::ECameraType::ECameraType_LookAt);
+    cameraLightDebug->SetPerspectiveProjection(45.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 100.0f);
+    cameraLightDebug->SetRenderPassParameters(1.0f, 0, 0.0f, 1.0f, 0.0f);
+    cameraLightDebug->SetViewportParameters(0.0f, 0.0f, 0.25f, 0.25f, 0.8f, 1.0f);
+    cameraLightDebug->SetScissorParameters(0.0f, 0.0f, 0.25f, 0.25f);
+    cameraLightDebug->GetTransform().SetPosition(cameraPos);
+    cameraLightDebug->RemoveFromRenderLayer(ENodeRenderLayer_Default);
+    cameraLightDebug->AddToRenderLayer(ENodeRenderLayer_1);
+
+    //
+    // Arrow for directional lighting debug
+    DirectionalLightDebugEntity* dirlLightDebugEntity = eosNew(DirectionalLightDebugEntity, ION_MEMORY_ALIGNMENT_SIZE);
+    ObjectHandler dirlLightDebugEntityHandle(dirlLightDebugEntity);
+    ionRenderManager().LoadModelFromFile(ionFileSystemManager().GetModelsPath() + "Arrow.gltf", camera, dirlLightDebugEntityHandle);
+    dirlLightDebugEntity->RemoveFromRenderLayer(ENodeRenderLayer_Default);
+    dirlLightDebugEntity->AddToRenderLayer(ENodeRenderLayer_1);
+
+    // override all shader with an unlit
+    ionS32 unlitVertexShader = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+    ionS32 unlitFragmentShader = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_UNLIT_SHADER_NAME, EShaderStage_Fragment);
+    UpdateAllShadersCascade(dirlLightDebugEntity, unlitVertexShader, unlitFragmentShader);
+
+
+    //////////////////////////////////////////////////////////////////////////
+
     if (window.GetCommandLineParse().HasValue("-model"))
     {
         const eosString modelVar = window.GetCommandLineParse().GetValue<eosString>("-model");
@@ -240,7 +305,7 @@ int main(int argc, char **argv)
         {
             model = ionFileSystemManager().GetModelsPath() + modelVar;
         }
-        
+
         ionRenderManager().LoadModelFromFile(model, camera, testHandle);
     }
     else if (window.GetCommandLineParse().HasValue("-primitive"))
@@ -281,21 +346,27 @@ int main(int argc, char **argv)
     // first full the scene graph
     ionRenderManager().AddToSceneGraph(cameraHandle);
     ionRenderManager().AddToSceneGraph(testHandle);
+    ionRenderManager().AddToSceneGraph(cameraLightDebugHandle);
+    ionRenderManager().AddToSceneGraph(dirlLightDebugEntityHandle);
 
     // then set the active node will receive the input
     ionRenderManager().RegisterToInput(cameraHandle);
     ionRenderManager().RegisterToInput(testHandle);
+    ionRenderManager().RegisterToInput(dirlLightDebugEntityHandle);
 
     ionRenderManager().AddDirectionalLight();
     DirectionalLight* directionalLight = ionRenderManager().GetDirectionalLight();
 
 
     const Vector lightCol(1.0f, 1.0f, 1.0f, 1.0f);
-    const Vector lightRotEuler(NIX_DEG_TO_RAD(145.0f), NIX_DEG_TO_RAD(45.0f), 0.0f, 0.0f);
+    const Vector lightRotEuler(NIX_DEG_TO_RAD(-145.0f), NIX_DEG_TO_RAD(-45.0f), 0.0f, 0.0f);
     Quaternion lightRot; lightRot.SetFromEuler(lightRotEuler);
 
     directionalLight->GetTransform().SetRotation(lightRot);
     directionalLight->SetColor(lightCol);
+
+    // update directional lighting debug rotation
+    dirlLightDebugEntity->GetTransform().SetRotation(lightRot);
 
     if (rendererInitialized)
     {
@@ -311,7 +382,7 @@ int main(int argc, char **argv)
 
     ION_SCOPE_END
 
-    ShutdownManagers();
+        ShutdownManagers();
     ShutdownVulkanAllocators();
     ShutdownAllocators();
 
