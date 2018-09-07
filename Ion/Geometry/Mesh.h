@@ -367,32 +367,27 @@ private:
 };
 
 
+//////////////////////////////////////////////////////////////////////////
 
-/*
-struct Mesh
+
+struct ION_DLL MeshPrototype
 {
-    eosVector(Vertex)   m_vertexes;
-    eosVector(Index)    m_indexes;
-    VkIndexType         m_indexType;
     ionU32              m_indexStart;
     ionU32              m_indexCount;
     Material*           m_material;
 
-    Mesh()
+    MeshPrototype()
     {
-        m_indexType = VK_INDEX_TYPE_UINT32;
         m_indexStart = 0;
         m_indexCount = 0;
         m_material = nullptr;
     }
 
-    ~Mesh()
+    ~MeshPrototype()
     {
-        m_vertexes.clear();
-        m_indexes.clear();
         m_material = nullptr;
     }
 };
-*/
+
 
 ION_NAMESPACE_END
