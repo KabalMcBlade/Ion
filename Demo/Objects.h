@@ -23,6 +23,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+class MainCamera;
 class RotatingEntity : public ion::Entity
 {
 public:
@@ -35,10 +36,14 @@ public:
     virtual void OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime) override;
     virtual void OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime) override;
 
+    void SetCameraReference(MainCamera* _camera);
+
 private:
     ionFloat m_movementSpeed;
     ionFloat m_mouseSensitivity;
     ionFloat m_incresingWheelSpeed;
+
+    MainCamera* m_camera;
 
     ionBool m_rotating;
 };

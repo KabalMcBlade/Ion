@@ -95,23 +95,25 @@ RotatingEntity::~RotatingEntity()
 
 }
 
+void RotatingEntity::SetCameraReference(MainCamera* _camera)
+{
+    m_camera = _camera;
+}
+
 void RotatingEntity::OnUpdate(ionFloat _deltaTime)
 {
-    if (!MainCamera::m_toggleLightRotation)
+    static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
+    static const Vector axis(0.0f, 1.0f, 0.0f, 0.0f);
+    static ionFloat radRotated = 0.0f;
+
+    if (m_rotating)
     {
-        static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
-        static const Vector axis(0.0f, 1.0f, 0.0f, 0.0f);
-        static ionFloat radRotated = 0.0f;
+        const Quaternion& prevRot = GetTransform().GetRotation();
 
-        if (m_rotating)
-        {
-            const Quaternion& prevRot = GetTransform().GetRotation();
+        Quaternion currRot = Quaternion(radPerFrame, axis);
+        currRot = currRot * prevRot;
 
-            Quaternion currRot = Quaternion(radPerFrame, axis);
-            currRot = currRot * prevRot;
-
-            GetTransform().SetRotation(currRot);
-        }
+        GetTransform().SetRotation(currRot);
     }
 }
 
@@ -160,6 +162,10 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
 
 void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime)
 {
+    static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
+    static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
+    static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
+
     if (!MainCamera::m_toggleLightRotation)
     {
         if (_mouseState.m_buttons[0].IsPressed)
@@ -185,9 +191,6 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
         if (_mouseState.m_buttons[1].IsPressed)
         {
-            static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
-            static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
-
             ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
             ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
 
@@ -196,7 +199,11 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
             ionFloat velocity = m_movementSpeed * _deltaTime;
 
+            const Quaternion& orientation = m_camera->GetTransform().GetRotation();
+
             Vector dir = right * xOffset + up * yOffset;
+            dir = dir * orientation;
+
             Vector pos = GetTransform().GetPosition();
 
             pos += dir * velocity;
@@ -206,11 +213,13 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
         if (_mouseState.m_wheel.m_wasMoved)
         {
-            static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
-
             ionFloat velocity = m_movementSpeed * m_incresingWheelSpeed * _deltaTime;
 
+            const Quaternion& orientation = m_camera->GetTransform().GetRotation();
+
             Vector dir = forward * _mouseState.m_wheel.m_distance;
+            dir = dir * orientation;
+
             Vector pos = GetTransform().GetPosition();
 
             pos += dir * velocity;

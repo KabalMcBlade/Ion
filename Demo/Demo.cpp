@@ -44,12 +44,12 @@
 #define VULKAN_DEVICE_MEMORY_MB     VULKAN_BASE_MEMORY_MB
 #define VULKAN_INSTANCE_MEMORY_MB   VULKAN_BASE_MEMORY_MB * 8
 
-#define VULKAN_GPU_MEMORY_MB        VULKAN_BASE_MEMORY_MB * 32
+#define VULKAN_GPU_MEMORY_MB        VULKAN_BASE_MEMORY_MB * 128
 
-#define VULKAN_GPU_DEVICE_LOCAL_MB  VULKAN_BASE_MEMORY_MB * 512
-#define VULKAN_GPU_HOST_VISIBLE_MB  VULKAN_BASE_MEMORY_MB * 256
+#define VULKAN_GPU_DEVICE_LOCAL_MB  VULKAN_BASE_MEMORY_MB * 1024
+#define VULKAN_GPU_HOST_VISIBLE_MB  VULKAN_BASE_MEMORY_MB * 1024
 
-#define VULKAN_STAGING_BUFFER_MB    VULKAN_BASE_MEMORY_MB * 128
+#define VULKAN_STAGING_BUFFER_MB    VULKAN_BASE_MEMORY_MB * 512
 
 #ifdef _DEBUG
 #   define ION_VULKAN_VALIDATION_LAYER true
@@ -348,6 +348,10 @@ int main(int argc, char **argv)
     //
     //////////////////////////////////////////////////////////////////////////
 
+
+    // set camera to rotating object
+    test->SetCameraReference(camera);
+
     // first full the scene graph
     ionRenderManager().AddToSceneGraph(cameraHandle);
     ionRenderManager().AddToSceneGraph(testHandle);
@@ -363,7 +367,8 @@ int main(int argc, char **argv)
 
 
     const Vector lightCol(1.0f, 1.0f, 1.0f, 1.0f);
-    const Vector lightRotEuler(NIX_DEG_TO_RAD(-145.0f), NIX_DEG_TO_RAD(-45.0f), 0.0f, 0.0f);
+    //const Vector lightRotEuler(NIX_DEG_TO_RAD(-145.0f), NIX_DEG_TO_RAD(-45.0f), 0.0f, 0.0f);
+    const Vector lightRotEuler(NIX_DEG_TO_RAD(75.0f), NIX_DEG_TO_RAD(40.0f), 0.0f, 0.0f);
     Quaternion lightRot; lightRot.SetFromEuler(lightRotEuler);
 
     directionalLight->GetTransform().SetRotation(lightRot);
