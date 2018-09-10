@@ -28,7 +28,7 @@
 
 #define ION_VERTCACHE_STATIC        1                    // in the static set, not the per-frame set
 #define ION_VERTCACHE_SIZE_SHIFT    1
-#define ION_VERTCACHE_SIZE_MASK     0x7FFFFFF       // 128 megs 
+#define ION_VERTCACHE_SIZE_MASK     0x1FFFFFF       // 32 megs 
 #define ION_VERTCACHE_OFFSET_SHIFT  27
 #define ION_VERTCACHE_OFFSET_MASK   0xFFFFFFF       // 256 megs 
 
