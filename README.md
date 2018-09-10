@@ -50,8 +50,9 @@ For instance:	-width 1024 -height 768 -fullscreen true
 * -usepath
 	* if -usepath is set, you need to specified the fullpath of the model file and can be everywhere 
 
-For instance:	-model DamagedHelmet.gltf
-Or: -usepath -model C:\Users\MyUser\Downloads\DamagedHelmet\DamagedHelmet.gltf
+For instance:	
+* -model DamagedHelmet.gltf
+* -usepath -model C:\Users\MyUser\Downloads\DamagedHelmet\DamagedHelmet.gltf
 
 #### Controls
 
@@ -104,7 +105,7 @@ I got my inspiration from the following persons and their code
 
 I tried to reduce external dependencies to the minimum.
 All the dependencies are inside DEPENDENCIES folder.
-The main dependencies at the moment are the memory allocators for CPU and GPU, made by me (Eos and vkMemoryAllocator)
+The main dependencies at the moment are the memory allocators for CPU and GPU, made by me (Nix, Eos and vkMemoryAllocator)
 Other dependencies are single file, like json and stb_image
 
 

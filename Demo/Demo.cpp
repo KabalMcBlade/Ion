@@ -400,6 +400,8 @@ int main(int argc, char **argv)
         ionRenderManager().LoadModelFromFile(ionFileSystemManager().GetModelsPath() + "Arrow.gltf", camera, dirlLightDebugEntityHandle);
         dirlLightDebugEntity->RemoveFromRenderLayer(ENodeRenderLayer_Default);
         dirlLightDebugEntity->AddToRenderLayer(ENodeRenderLayer_1);
+        dirlLightDebugEntity->SetVisible(false);
+
 
         // override all shader with an unlit
         ionS32 unlitVertexShader = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);

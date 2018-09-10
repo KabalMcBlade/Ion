@@ -20,6 +20,11 @@ DirectionalLightDebugEntity::~DirectionalLightDebugEntity()
 
 void DirectionalLightDebugEntity::OnUpdate(ionFloat _deltaTime)
 {
+    if (MainCamera::m_toggleLightRotation != IsVisible())
+    {
+        SetVisible(MainCamera::m_toggleLightRotation);
+    }
+
     if (MainCamera::m_toggleLightRotation)
     {
         static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
