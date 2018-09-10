@@ -367,7 +367,6 @@ int main(int argc, char **argv)
 
 
     const Vector lightCol(1.0f, 1.0f, 1.0f, 1.0f);
-    //const Vector lightRotEuler(NIX_DEG_TO_RAD(-145.0f), NIX_DEG_TO_RAD(-45.0f), 0.0f, 0.0f);
     const Vector lightRotEuler(NIX_DEG_TO_RAD(75.0f), NIX_DEG_TO_RAD(40.0f), 0.0f, 0.0f);
     Quaternion lightRot; lightRot.SetFromEuler(lightRotEuler);
 
