@@ -16,24 +16,25 @@
 #include "IndexBufferObject.h"
 
 
-#define ION_VERTCACHE_INDEX_MEMORY_PER_FRAME    31 * 1024 * 1024
-#define ION_VERTCACHE_VERTEX_MEMORY_PER_FRAME   127 * 1024 * 1024
-#define ION_VERTCACHE_JOINT_MEMORY_PER_FRAME    256 * 1024
+#define ION_VERTCACHE_INDEX_MEMORY_PER_FRAME    127 * 1024 * 1024       //31 * 1024 * 1024
+#define ION_VERTCACHE_VERTEX_MEMORY_PER_FRAME   255 * 1024 * 1024       //127 * 1024 * 1024
+//#define ION_VERTCACHE_JOINT_MEMORY_PER_FRAME    256 * 1024
+#define ION_VERTCACHE_JOINT_MEMORY_PER_FRAME    0       // for now 0, I'm looking to do everything in GPU when the time comes.
 
 
-#define ION_STATIC_INDEX_MEMORY                 31 * 1024 * 1024
-#define ION_STATIC_VERTEX_MEMORY                31 * 1024 * 1024    // make sure it fits in ION_VERTCACHE_OFFSET_MASK!
+#define ION_STATIC_INDEX_MEMORY                63 * 1024 * 1024
+#define ION_STATIC_VERTEX_MEMORY               63 * 1024 * 1024  // make sure it fits in ION_VERTCACHE_OFFSET_MASK!
 
 
 #define ION_VERTCACHE_STATIC        1                    // in the static set, not the per-frame set
 #define ION_VERTCACHE_SIZE_SHIFT    1
-#define ION_VERTCACHE_SIZE_MASK     0x7fffff        // 8 megs 
+#define ION_VERTCACHE_SIZE_MASK     0xFFFFFF        // 16 megs
 #define ION_VERTCACHE_OFFSET_SHIFT  24
-#define ION_VERTCACHE_OFFSET_MASK   0x1ffffff    // 32 megs 
+#define ION_VERTCACHE_OFFSET_MASK   0x3FFFFFF       // 64 megs
 
-#define ION_VERTEX_CACHE_ALIGN      32
+#define ION_VERTEX_CACHE_ALIGN      16
 #define ION_INDEX_CACHE_ALIGN       16
-#define ION_JOINT_CACHE_ALIGN       16
+//#define ION_JOINT_CACHE_ALIGN       16
 
 
 NIX_USING_NAMESPACE
