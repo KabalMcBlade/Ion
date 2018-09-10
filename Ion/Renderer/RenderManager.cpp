@@ -1116,12 +1116,12 @@ const Texture* RenderManager::GetNullTexure() const
 
 void RenderManager::AddDirectionalLight()
 {
-    m_sceneGraph.AddDirectionalLightToScene();
+    m_sceneGraph.CreateDirectionalLightToScene();
 }
 
 void RenderManager::RemoveDirectionalLight()
 {
-    m_sceneGraph.RemoveDirectionalLightToScene();
+    m_sceneGraph.DestroyDirectionalLightToScene();
 }
 
 DirectionalLight* RenderManager::GetDirectionalLight()

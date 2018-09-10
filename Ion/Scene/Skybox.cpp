@@ -37,35 +37,35 @@ void Skybox::GenerateMesh()
         20,21,22,20,22,23 };
 
     Vector positions[24] = {
-        Vector(-1.0f, 1.0f, 1.0f, 1.0f),
-        Vector(-1.0f, -1.0f, 1.0f, 1.0f),
-        Vector(1.0f, -1.0f, 1.0f, 1.0f),
-        Vector(1.0f, 1.0f, 1.0f, 1.0f),
+        Vector(-0.5f, 0.5f, 0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(0.5f, 0.5f, 0.5f, 1.0f),
 
-        Vector(1.0f, 1.0f, -1.0f, 1.0f),
-        Vector(1.0f, -1.0f, -1.0f, 1.0f),
-        Vector(-1.0f, -1.0f, -1.0f, 1.0f),
-        Vector(-1.0f, 1.0f, -1.0f, 1.0f),
+        Vector(0.5f, 0.5f, -0.5f, 1.0f),
+        Vector(0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, 0.5f, -0.5f, 1.0f),
 
-        Vector(1.0f, 1.0f, 1.0f, 1.0f),
-        Vector(1.0f, -1.0f, 1.0f, 1.0f),
-        Vector(1.0f, -1.0f, -1.0f, 1.0f),
-        Vector(1.0f, 1.0f, -1.0f, 1.0f),
+        Vector(0.5f, 0.5f, 0.5f, 1.0f),
+        Vector(0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(0.5f, 0.5f, -0.5f, 1.0f),
 
-        Vector(-1.0f, 1.0f, -1.0f, 1.0f),
-        Vector(-1.0f, 1.0f, 1.0f, 1.0f),
-        Vector(1.0f, 1.0f, 1.0f, 1.0f),
-        Vector(1.0f, 1.0f, -1.0f, 1.0f),
+        Vector(-0.5f, 0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, 0.5f, 0.5f, 1.0f),
+        Vector(0.5f, 0.5f, 0.5f, 1.0f),
+        Vector(0.5f, 0.5f, -0.5f, 1.0f),
 
-        Vector(-1.0f, 1.0f, -1.0f, 1.0f),
-        Vector(-1.0f, -1.0f, -1.0f, 1.0f),
-        Vector(-1.0f, -1.0f, 1.0f, 1.0f),
-        Vector(-1.0f, 1.0f, 1.0f, 1.0f),
+        Vector(-0.5f, 0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(-0.5f, 0.5f, 0.5f, 1.0f),
 
-        Vector(-1.0f, -1.0f, 1.0f, 1.0f),
-        Vector(-1.0f, -1.0f, -1.0f, 1.0f),
-        Vector(1.0f, -1.0f, -1.0f, 1.0f),
-        Vector(1.0f, -1.0f, 1.0f, 1.0f)
+        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(0.5f, -0.5f, 0.5f, 1.0f)
     };
 
     eosVector(VertexPlain) vertices;

@@ -21,7 +21,7 @@ SceneGraph::SceneGraph()
 
 SceneGraph::~SceneGraph()
 {
-    RemoveDirectionalLightToScene();
+    DestroyDirectionalLightToScene();
 
     for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
@@ -33,7 +33,7 @@ SceneGraph::~SceneGraph()
     m_registeredInput.clear();
 }
 
-void SceneGraph::AddDirectionalLightToScene()
+void SceneGraph::CreateDirectionalLightToScene()
 {
     if (!m_directionalLight.IsValid())
     {
@@ -41,7 +41,7 @@ void SceneGraph::AddDirectionalLightToScene()
     }
 }
 
-void SceneGraph::RemoveDirectionalLightToScene()
+void SceneGraph::DestroyDirectionalLightToScene()
 {
     if (m_directionalLight.IsValid())
     {

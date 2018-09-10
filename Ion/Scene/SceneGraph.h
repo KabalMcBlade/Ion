@@ -29,8 +29,8 @@ public:
 
     const BoundingBox& GetBoundingBox() { return m_sceneBoundingBox; }
 
-    void AddDirectionalLightToScene();
-    void RemoveDirectionalLightToScene();
+    void CreateDirectionalLightToScene();
+    void DestroyDirectionalLightToScene();
     ObjectHandler& GetDirectionalLight();
     DirectionalLight* GetDirectionalLightPtr();
 
