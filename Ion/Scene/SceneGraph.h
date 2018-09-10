@@ -53,6 +53,11 @@ public:
     void UpdateMouseInput(const MouseState& _mouseState, ionFloat _deltaTime);
     void UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime);
 
+    // Utilities
+    ObjectHandler GetObjectByName(const eosString& _name);
+    ObjectHandler GetObjectByHash(ionSize _hash);
+    ObjectHandler GetObjectByID(ionU32 _id);
+
     // iterators
     eosVector(ObjectHandler) &GetNodes() { return m_nodes; };
 
@@ -67,6 +72,10 @@ private:
     void GenerateMapTree(const ObjectHandler& _node);
 
     void SortDrawSurfaces();
+
+    // Utilities
+    ObjectHandler GetObjectByHash(ObjectHandler& _node, ionSize _hash);
+    ObjectHandler GetObjectByID(ObjectHandler& _node, ionU32 _id);
 
 private:
     BoundingBox                                 m_sceneBoundingBox;

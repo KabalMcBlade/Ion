@@ -345,4 +345,82 @@ void SceneGraph::UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFlo
     }
 }
 
+ObjectHandler SceneGraph::GetObjectByHash(ObjectHandler& _node, ionSize _hash)
+{
+    if (_node->GetHash() == _hash)
+    {
+        return _node;
+    }
+
+    eosVector(ObjectHandler)::iterator begin = _node->GetChildIteratorBegin(), end = _node->GetChildIteratorEnd(), it = begin;
+    for (; it != end; ++it)
+    {
+        ObjectHandler& node = *(it);
+        return GetObjectByHash(node, _hash);
+    }
+
+    static ObjectHandler empty;
+    return empty;
+}
+
+ObjectHandler SceneGraph::GetObjectByID(ObjectHandler& _node, ionU32 _id)
+{
+    if (_node->GetNodeIndex() == _id)
+    {
+        return _node;
+    }
+
+    eosVector(ObjectHandler)::iterator begin = _node->GetChildIteratorBegin(), end = _node->GetChildIteratorEnd(), it = begin;
+    for (; it != end; ++it)
+    {
+        ObjectHandler& node = *(it);
+        return GetObjectByID(node, _id);
+    }
+
+    static ObjectHandler empty;
+    return empty;
+}
+
+ObjectHandler SceneGraph::GetObjectByName(const eosString& _name)
+{
+    const ionSize hash = std::hash<eosString>{}(_name);
+    return GetObjectByHash(hash);
+}
+
+ObjectHandler SceneGraph::GetObjectByHash(ionSize _hash)
+{
+    eosVector(ObjectHandler)::const_iterator begin = GetNodeBegin(), end = GetNodeEnd(), it = begin;
+    for (; it != end; ++it)
+    {
+        ObjectHandler node = *(it);
+
+        ObjectHandler findNode = GetObjectByHash(node, _hash);
+        if (findNode.IsValid())
+        {
+            return findNode;
+        }
+    }
+
+    static ObjectHandler empty;
+    return empty;
+}
+
+ObjectHandler SceneGraph::GetObjectByID(ionU32 _id)
+{
+    eosVector(ObjectHandler)::const_iterator begin = GetNodeBegin(), end = GetNodeEnd(), it = begin;
+    for (; it != end; ++it)
+    {
+        ObjectHandler node = *(it);
+
+        ObjectHandler findNode = GetObjectByID(node, _id);
+        if (findNode.IsValid())
+        {
+            return findNode;
+        }
+    }
+
+    static ObjectHandler empty;
+    return empty;
+}
+
 ION_NAMESPACE_END

@@ -113,8 +113,10 @@ public:
 
     eosVector(ObjectHandler) &GetChildren() { return m_children; };
 
-    eosVector(ObjectHandler)::const_iterator GetChildIteratorBegin() { return m_children.begin();}
-    eosVector(ObjectHandler)::const_iterator GetChildIteratorEnd() { return m_children.end(); }
+    eosVector(ObjectHandler)::const_iterator GetConstChildIteratorBegin() { return m_children.begin();}
+    eosVector(ObjectHandler)::const_iterator GetConstChildIteratorEnd() { return m_children.end(); }
+    eosVector(ObjectHandler)::iterator GetChildIteratorBegin() { return m_children.begin(); }
+    eosVector(ObjectHandler)::iterator GetChildIteratorEnd() { return m_children.end(); }
 
 protected:
     ENodeType    m_nodeType;

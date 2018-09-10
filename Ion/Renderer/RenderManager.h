@@ -88,6 +88,10 @@ public:
     void    RegisterToInput(const ObjectHandler& _node);
     void    UnregisterFromInput(const ObjectHandler& _node);
 
+    ObjectHandler GetObjectByName(const eosString& _name);
+    ObjectHandler GetObjectByHash(ionSize _hash);
+    ObjectHandler GetObjectByID(ionU32 _id);
+
     void    Quit();
     ionBool IsRunning();
 

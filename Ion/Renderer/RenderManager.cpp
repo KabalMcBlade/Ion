@@ -1129,4 +1129,19 @@ DirectionalLight* RenderManager::GetDirectionalLight()
     return m_sceneGraph.GetDirectionalLightPtr();
 }
 
+ObjectHandler RenderManager::GetObjectByName(const eosString& _name)
+{
+    return m_sceneGraph.GetObjectByName(_name);
+}
+
+ObjectHandler RenderManager::GetObjectByHash(ionSize _hash)
+{
+    return m_sceneGraph.GetObjectByHash(_hash);
+}
+
+ObjectHandler RenderManager::GetObjectByID(ionU32 _id)
+{
+    return m_sceneGraph.GetObjectByID(_id);
+}
+
 ION_NAMESPACE_END
