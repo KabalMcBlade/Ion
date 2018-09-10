@@ -58,26 +58,23 @@ void DirectionalLightDebugEntity::OnMouseInput(const ion::MouseState& _mouseStat
 {
     if (MainCamera::m_toggleLightRotation)
     {
-        if (_mouseState.m_buttons[0].IsPressed)
-        {
-            ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
-            ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
+        ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
+        ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
 
-            xOffset *= m_mouseSensitivity;
-            yOffset *= m_mouseSensitivity;
+        xOffset *= m_mouseSensitivity;
+        yOffset *= m_mouseSensitivity;
 
-            const Quaternion& prevRot = GetTransform().GetRotation();
+        const Quaternion& prevRot = GetTransform().GetRotation();
 
-            Matrix rotationMatrix;
-            rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(xOffset), NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(0.0f));
+        Matrix rotationMatrix;
+        rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(xOffset), NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(0.0f));
 
-            Quaternion currRot;
-            currRot.SetFromMatrix(rotationMatrix);
+        Quaternion currRot;
+        currRot.SetFromMatrix(rotationMatrix);
 
-            currRot = currRot * prevRot;
+        currRot = currRot * prevRot;
 
-            GetTransform().SetRotation(currRot);
-        }
+        GetTransform().SetRotation(currRot);
     }
 }
 
@@ -254,26 +251,23 @@ void MainCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _delt
     {
         ion::DirectionalLight* directionalLight = ionRenderManager().GetDirectionalLight();
 
-        if (_mouseState.m_buttons[0].IsPressed)
-        {
-            ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
-            ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
+        ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
+        ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
 
-            xOffset *= m_mouseSensitivity;
-            yOffset *= m_mouseSensitivity;
+        xOffset *= m_mouseSensitivity;
+        yOffset *= m_mouseSensitivity;
 
-            const Quaternion& prevRot = directionalLight->GetTransform().GetRotation();
+        const Quaternion& prevRot = directionalLight->GetTransform().GetRotation();
 
-            Matrix rotationMatrix;
-            rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(xOffset), NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(0.0f));
+        Matrix rotationMatrix;
+        rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(xOffset), NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(0.0f));
 
-            Quaternion currRot;
-            currRot.SetFromMatrix(rotationMatrix);
+        Quaternion currRot;
+        currRot.SetFromMatrix(rotationMatrix);
 
-            currRot = currRot * prevRot;
+        currRot = currRot * prevRot;
 
-            directionalLight->GetTransform().SetRotation(currRot);
-        }
+        directionalLight->GetTransform().SetRotation(currRot);
     }
     else
     {

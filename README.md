@@ -67,7 +67,7 @@ The controls in this demo test are:
 
 Pressing the key **L**, you can change the control from the model to the light
 In this case, toggling the **L** key you will have:
-* Hold **left mouse button** in order to rotate the light
+* Move the mouse without press any button in order to rotate the light
 
 To Debug PBR
 * Press **1**, **2** or **3** to change the active value between esposure, gamma or prefiltered cube mip levels
