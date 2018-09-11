@@ -1332,8 +1332,11 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
 
                 if (key == "doubleSided")
                 {
-                    material->GetState().UnsetCullingMode(ECullingMode_Back);
-                    material->GetState().SetCullingMode(ECullingMode_TwoSide);
+                    if (param.bool_value)
+                    {
+                        material->GetState().UnsetCullingMode(ECullingMode_Back);
+                        material->GetState().SetCullingMode(ECullingMode_TwoSide);
+                    }
                     continue;
                 }
             }
