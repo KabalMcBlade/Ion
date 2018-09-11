@@ -57,7 +57,10 @@ For instance:
 #### Controls
 
 The controls in this demo test are:
-* If you move the mouse without press any button, your rotate the camera, otherwise the action is on the object
+* If you move the mouse without press any button, your rotate the camera and:
+	* Press **W**,**A**,**S**,**D** to move around the camera
+
+Otherwise the action is on the object
 * Hold **left mouse button** in order to rotate the object
 * Hold **right mouse button** in order to pan right or left and up or down the object
 * Use the **mouse wheel** to go toward or far away the object

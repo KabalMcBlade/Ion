@@ -235,7 +235,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 //////////////////////////////////////////////////////////////////////////
 // CAMERA
 
-MainCamera::MainCamera() : Camera("Main Camera"), m_mouseSensitivity(0.05f), m_movementSpeed(0.001f)
+MainCamera::MainCamera() : Camera("Main Camera"), m_mouseSensitivity(0.05f), m_movementSpeed(0.001f), m_mouseNotUsed(true)
 {
     m_pbrDebug = EPBRDebugType_Exposure;
     std::cout << std::endl << "Control applied to the object" << std::endl;
@@ -247,6 +247,8 @@ MainCamera::~MainCamera()
 
 void MainCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime)
 {
+    m_mouseNotUsed = !_mouseState.m_buttons[0].IsPressed && !_mouseState.m_buttons[1].IsPressed && !_mouseState.m_wheel.m_wasMoved;
+
     if (MainCamera::m_toggleLightRotation)
     {
         ion::DirectionalLight* directionalLight = ionRenderManager().GetDirectionalLight();
@@ -271,7 +273,7 @@ void MainCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _delt
     }
     else
     {
-        if (!_mouseState.m_buttons[0].IsPressed && !_mouseState.m_buttons[1].IsPressed && !_mouseState.m_wheel.m_wasMoved)
+        if (m_mouseNotUsed)
         {
             ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
             ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
@@ -298,6 +300,37 @@ void MainCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFl
 {
     if (_keyboardState.m_state == ion::EKeyboardState_Down)
     {
+        if (m_mouseNotUsed)
+        {
+            static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
+            static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
+            static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
+
+            Vector pos = GetTransform().GetPosition();
+
+            ionFloat velocity = m_movementSpeed * _deltaTime;
+
+
+            if (_keyboardState.m_key == ion::EKeyboardKey_W)
+            {
+                pos += forward * velocity;
+            }
+            else if (_keyboardState.m_key == ion::EKeyboardKey_S)
+            {
+                pos -= forward * velocity;
+            }
+            else if (_keyboardState.m_key == ion::EKeyboardKey_D)
+            {
+                pos -= right * velocity;
+            }
+            else if (_keyboardState.m_key == ion::EKeyboardKey_A)
+            {
+                pos += right * velocity;
+            }
+
+            GetTransform().SetPosition(pos);
+        }
+
         if (_keyboardState.m_key == ion::EKeyboardKey_Q)
         {
             switch (m_pbrDebug)
