@@ -264,6 +264,7 @@
     <ClCompile Include="Geometry\BoundingBox.cpp" />
     <ClCompile Include="Geometry\Frustum.cpp" />
     <ClCompile Include="Geometry\Intersection.cpp" />
+    <ClCompile Include="Geometry\Model.cpp" />
     <ClCompile Include="Geometry\PrimitiveFactory.cpp" />
     <ClCompile Include="Geometry\Ray.cpp" />
     <ClCompile Include="Ion.cpp" />

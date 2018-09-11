@@ -15,47 +15,104 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-template<class T>
-class ION_DLL Model
+//////////////////////////////////////////////////////////////////////////
+class ION_DLL BaseModel
 {
 public:
-    void PushBackIndex(const Index& _index);
-    void PushBackVertex(const T& _vertex);
+    BaseModel();
+    virtual ~BaseModel();
 
-    const void* GetVertexData() const;
+    EVertexLayout GetLayout() const;
+
+    void PushBackMeshInfo(ionU32 _indexStart, ionU32 _indexCount, Material* _material);
+
+    void PushBackIndex(const Index& _index);
     const void* GetIndexData() const;
 
-private:
+    virtual const void* GetVertexData() const { return nullptr; }
+
+protected:
     EVertexLayout       m_layout;
 
     eosVector(Index)    m_indices;
-    eosVector(T)        m_vertices;
 
     eosVector(MeshPrototype) m_meshes;
 };
 
-template<class T>
-void Model<T>::PushBackIndex(const Index& _index)
+//////////////////////////////////////////////////////////////////////////
+class ION_DLL ModelPlain final : public BaseModel
 {
-    m_indices.push_back(_index);
-}
+public:
+    ModelPlain();
+    virtual ~ModelPlain();
 
-template<class T>
-void Model<T>::PushBackVertex(const T& _vertex)
-{
-    m_vertices.push_back(_vertex);
-}
+    void PushBackVertex(const VertexPlain& _vertex);
 
-template<class T>
-const void* Model<T>::GetVertexData() const
-{
-    return m_vertices.data();
-}
+    virtual const void* GetVertexData() const override final;
 
-template<class T>
-const void* Model<T>::GetIndexData() const
+private:
+    eosVector(VertexPlain)   m_vertices;
+};
+
+//////////////////////////////////////////////////////////////////////////
+class ION_DLL ModelColored final : public BaseModel
 {
-    return m_indices.data();
-}
+public:
+    ModelColored();
+    virtual ~ModelColored();
+
+    void PushBackVertex(const VertexColored& _vertex);
+
+    virtual const void* GetVertexData() const override final;
+
+private:
+    eosVector(VertexColored)   m_vertices;
+};
+
+//////////////////////////////////////////////////////////////////////////
+class ION_DLL ModelUV final : public BaseModel
+{
+public:
+    ModelUV();
+    virtual ~ModelUV();
+
+    void PushBackVertex(const VertexUV& _vertex);
+
+    virtual const void* GetVertexData() const override final;
+
+private:
+    eosVector(VertexUV)   m_vertices;
+};
+
+//////////////////////////////////////////////////////////////////////////
+class ION_DLL ModelSimple final : public BaseModel
+{
+public:
+    ModelSimple();
+    virtual ~ModelSimple();
+
+    void PushBackVertex(const VertexSimple& _vertex);
+
+    virtual const void* GetVertexData() const override final;
+
+private:
+    eosVector(VertexSimple)   m_vertices;
+};
+
+//////////////////////////////////////////////////////////////////////////
+class ION_DLL Model final : public BaseModel
+{
+public:
+    Model();
+    virtual ~Model();
+
+    void PushBackVertex(const Vertex& _vertex);
+
+    virtual const void* GetVertexData() const override final;
+
+private:
+    eosVector(Vertex)   m_vertices;
+};
+
 
 ION_NAMESPACE_END

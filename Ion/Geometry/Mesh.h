@@ -376,6 +376,13 @@ struct ION_DLL MeshPrototype
     ionU32              m_indexCount;
     Material*           m_material;
 
+    void Set(ionU32 _indexStart, ionU32 _indexCount, Material* _material)
+    {
+        m_indexStart = _indexStart;
+        m_indexCount = _indexCount;
+        m_material = _material;
+    }
+
     MeshPrototype()
     {
         m_indexStart = 0;

@@ -8,6 +8,7 @@
 
 #include "../Geometry/BoundingBox.h"
 #include "../Geometry/Mesh.h"
+#include "../Geometry/Model.h"
 
 EOS_USING_NAMESPACE
 
@@ -19,6 +20,17 @@ public:
     explicit Entity();
     explicit Entity(const eosString & _name);
     virtual ~Entity();
+
+    template<typename T>
+    T* AddModel()
+    {
+        m_model = eosNew(T, ION_MEMORY_ALIGNMENT_SIZE);
+        return m_model;
+    }
+
+    const BaseModel* GetModel() const { return m_model; }
+    BaseModel* GetModel() { return m_model; }
+
 
     template<typename T>
     T* AddMesh()
@@ -40,6 +52,7 @@ private:
 
 private:
     BoundingBox             m_boundingBox;
+    BaseModel*              m_model;
     eosVector(BaseMesh*)    m_meshes;    // 0 to empty entity, logic purpose only
 };
 
