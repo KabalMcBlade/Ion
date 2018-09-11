@@ -109,28 +109,28 @@ ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, Camera* _ca
     return m_loader.Load(_fileName, _camToUpdate, _entity, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
 }
 
-void RenderManager::GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _type, ObjectHandler& _entity)
+void RenderManager::GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _type, ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
     switch(_type)
     {
     case EPrimitiveType_Triangle:
-        PrimitiveFactory::GenerateTriangle(_layout, _entity);
+        PrimitiveFactory::GenerateTriangle(_layout, _entity, _r, _g, _b, _a);
         break;
     case EPrimitiveType_Quad:
-        PrimitiveFactory::GenerateQuad(_layout, _entity);
+        PrimitiveFactory::GenerateQuad(_layout, _entity, _r, _g, _b, _a);
         break;
     case EPrimitiveType_Cube:
-        PrimitiveFactory::GenerateCube(_layout, _entity);
+        PrimitiveFactory::GenerateCube(_layout, _entity, _r, _g, _b, _a);
         break;
     case EPrimitiveType_Sphere:
-        PrimitiveFactory::GenerateSphere(_layout, _entity);
+        PrimitiveFactory::GenerateSphere(_layout, _entity, _r, _g, _b, _a);
         break;
     }
 }
 
-void RenderManager::LoadTriangle(ObjectHandler& _entity)
+void RenderManager::LoadColoredTriangle(ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
-    GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Triangle, _entity);
+    GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Triangle, _entity, _r, _g, _b, _a);
 
     Material* material = ionMaterialManger().CreateMaterial("ION#Triangle", 0u);
     _entity->GetMesh(0)->SetMaterial(material);
@@ -141,9 +141,9 @@ void RenderManager::LoadTriangle(ObjectHandler& _entity)
     material->GetState().SetCullingMode(ECullingMode_TwoSide);
 }
 
-void RenderManager::LoadQuad(ObjectHandler& _entity)
+void RenderManager::LoadColoredQuad(ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
-    GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Quad, _entity);
+    GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Quad, _entity, _r, _g, _b, _a);
 
     Material* material = ionMaterialManger().CreateMaterial("ION#Quad", 0u);
     _entity->GetMesh(0)->SetMaterial(material);
@@ -154,9 +154,9 @@ void RenderManager::LoadQuad(ObjectHandler& _entity)
     material->GetState().SetCullingMode(ECullingMode_TwoSide);
 }
 
-void RenderManager::LoadCube(ObjectHandler& _entity)
+void RenderManager::LoadColoredCube(ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
-    GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Cube, _entity);
+    GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Cube, _entity, _r, _g, _b, _a);
 
     Material* material = ionMaterialManger().CreateMaterial("ION#Cube", 0u);
     _entity->GetMesh(0)->SetMaterial(material);
@@ -164,9 +164,9 @@ void RenderManager::LoadCube(ObjectHandler& _entity)
     LoadCommonMaterialForIntegratedPrimitive(_entity, material);
 }
 
-void RenderManager::LoadSphere(ObjectHandler& _entity)
+void RenderManager::LoadColoredSphere(ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
-    GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Sphere, _entity);
+    GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Sphere, _entity, _r, _g, _b, _a);
 
     Material* material = ionMaterialManger().CreateMaterial("ION#Sphere", 0u);
     _entity->GetMesh(0)->SetMaterial(material);

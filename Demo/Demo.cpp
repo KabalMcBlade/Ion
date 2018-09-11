@@ -315,28 +315,33 @@ int main(int argc, char **argv)
     }
     else if (window.GetCommandLineParse().HasValue("-primitive"))
     {
+        ionFloat r = static_cast <ionFloat>(rand()) / static_cast<ionFloat>(RAND_MAX);
+        ionFloat g = static_cast <ionFloat>(rand()) / static_cast<ionFloat>(RAND_MAX);
+        ionFloat b = static_cast <ionFloat>(rand()) / static_cast<ionFloat>(RAND_MAX);
+        ionFloat a = 1.0f;
+
         const eosString primitive = window.GetCommandLineParse().GetValue<eosString>("-primitive");
         if (primitive == "triangle")
         {
-            ionRenderManager().LoadTriangle(testHandle);
+            ionRenderManager().LoadColoredTriangle(testHandle, r, g, b, a);
         }
         else if (primitive == "quad")
         {
-            ionRenderManager().LoadQuad(testHandle);
+            ionRenderManager().LoadColoredQuad(testHandle, r, g, b, a);
         }
         else if (primitive == "cube")
         {
-            ionRenderManager().LoadCube(testHandle);
+            ionRenderManager().LoadColoredCube(testHandle, r, g, b, a);
         }
         else if (primitive == "sphere")
         {
-            ionRenderManager().LoadSphere(testHandle);
+            ionRenderManager().LoadColoredSphere(testHandle, r, g, b, a);
         }
         else
         {
             std::cout << "primitive is not valid: use -primitive [triangle, quad, cube, sphere]" << std::endl;
             std::cout << "Will be generate a simple triangle now" << std::endl;
-            ionRenderManager().LoadTriangle(testHandle);
+            ionRenderManager().LoadColoredTriangle(testHandle, r, g, b, a);
         }
     }
     else

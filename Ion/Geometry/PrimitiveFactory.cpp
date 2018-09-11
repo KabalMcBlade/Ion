@@ -22,7 +22,7 @@ ION_NAMESPACE_BEGIN
 ///
 ///            TRIANGLE
 ///
-void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _entity)
+void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
     eosVector(Index) indices;
     indices.resize(3);
@@ -69,9 +69,9 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         vertices[1].SetPosition(positions[1]);
         vertices[2].SetPosition(positions[2]);
 
-        vertices[0].SetColor(1.0f, 0.0f, 0.0f, 1.0f);
-        vertices[1].SetColor(0.0f, 1.0f, 0.0f, 1.0f);
-        vertices[2].SetColor(0.0f, 0.0f, 1.0f, 1.0f);
+        vertices[0].SetColor(_r, _g, _b, _a);
+        vertices[1].SetColor(_r, _g, _b, _a);
+        vertices[2].SetColor(_r, _g, _b, _a);
 
         mesh->PushBackVertex(vertices[0]);
         mesh->PushBackVertex(vertices[1]);
@@ -178,9 +178,9 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         vertices[1].SetNormal(normals[1]);
         vertices[2].SetNormal(normals[2]);
 
-        vertices[0].SetColor(1.0f, 0.0f, 0.0f, 1.0f);
-        vertices[1].SetColor(0.0f, 1.0f, 0.0f, 1.0f);
-        vertices[2].SetColor(0.0f, 0.0f, 1.0f, 1.0f);
+        vertices[0].SetColor(_r, _g, _b, _a);
+        vertices[1].SetColor(_r, _g, _b, _a);
+        vertices[2].SetColor(_r, _g, _b, _a);
 
         Vector tangents[3];
         GeometryHelper::CalculateTangent(positions, normals, uvuv, 3, indices.data(), 3, tangents);
@@ -230,7 +230,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
 ///
 ///            QUAD
 ///
-void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entity)
+void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
     eosVector(Index) indices;
     indices.resize(6);
@@ -283,10 +283,10 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         vertices[2].SetPosition(positions[2]);
         vertices[3].SetPosition(positions[3]);
 
-        vertices[0].SetColor(1.0f, 0.0f, 0.0f, 1.0f);
-        vertices[1].SetColor(0.0f, 1.0f, 0.0f, 1.0f);
-        vertices[2].SetColor(0.0f, 0.0f, 1.0f, 1.0f);
-        vertices[3].SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+        vertices[0].SetColor(_r, _g, _b, _a);
+        vertices[1].SetColor(_r, _g, _b, _a);
+        vertices[2].SetColor(_r, _g, _b, _a);
+        vertices[3].SetColor(_r, _g, _b, _a);
 
         mesh->PushBackVertex(vertices[0]);
         mesh->PushBackVertex(vertices[1]);
@@ -413,10 +413,10 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         vertices[2].SetTexCoordUV0(uvuv[2]);
         vertices[3].SetTexCoordUV0(uvuv[3]);
 
-        vertices[0].SetColor(1.0f, 0.0f, 0.0f, 1.0f);
-        vertices[1].SetColor(0.0f, 1.0f, 0.0f, 1.0f);
-        vertices[2].SetColor(0.0f, 0.0f, 1.0f, 1.0f);
-        vertices[3].SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+        vertices[0].SetColor(_r, _g, _b, _a);
+        vertices[1].SetColor(_r, _g, _b, _a);
+        vertices[2].SetColor(_r, _g, _b, _a);
+        vertices[3].SetColor(_r, _g, _b, _a);
 
         Vector tangents[4];
         GeometryHelper::CalculateTangent(positions, normals, uvuv, 4, indices.data(), 6, tangents);
@@ -473,7 +473,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
 ///
 ///            CUBE
 ///
-void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entity)
+void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
     eosVector(Index) indices;
     indices.resize(36);
@@ -516,39 +516,6 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         Vector(0.5f, -0.5f, -0.5f, 1.0f),
         Vector(0.5f, -0.5f, 0.5f, 1.0f)
     };
-
-    Vector colors[24] = {
-        Vector(0.0f, 0.0f, 1.0f, 1.0f),
-        Vector(0.0f, 1.0f, 1.0f, 1.0f),
-        Vector(1.0f, 0.0f, 1.0f, 1.0f),
-        Vector(1.0f, 1.0f, 1.0f, 1.0f),
-
-        Vector(1.0f, 1.0f, 1.0f, 1.0f),
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(0.0f, 1.0f, 0.0f, 1.0f),
-        Vector(0.0f, 0.0f, 1.0f, 1.0f),
-
-        Vector(0.0f, 0.0f, 1.0f, 1.0f),
-        Vector(0.0f, 1.0f, 0.0f, 1.0f),
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(0.0f, 0.0f, 0.0f, 1.0f),
-
-        Vector(0.0f, 0.0f, 0.0f, 1.0f),
-        Vector(0.0f, 1.0f, 1.0f, 1.0f),
-        Vector(1.0f, 1.0f, 0.0f, 1.0f),
-        Vector(0.0f, 1.0f, 0.0f, 1.0f),
-
-        Vector(0.0f, 1.0f, 0.0f, 1.0f),
-        Vector(0.0f, 1.0f, 1.0f, 1.0f),
-        Vector(1.0f, 1.0f, 0.0f, 1.0f),
-        Vector(1.0f, 0.0f, 1.0f, 1.0f),
-
-        Vector(1.0f, 0.0f, 1.0f, 1.0f),
-        Vector(0.0f, 1.0f, 0.0f, 1.0f),
-        Vector(1.0f, 1.0f, 0.0f, 1.0f),
-        Vector(0.0f, 0.0f, 1.0f, 1.0f)
-    };
-
 
     ionFloat texCoords[] = {
         1.0f, 0.0f,
@@ -685,7 +652,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         for (ionU32 i = 0; i < 24; ++i)
         {
             vertices[i].SetPosition(positions[i]);
-            vertices[i].SetColor(colors[i]);
+            vertices[i].SetColor(_r, _g, _b, _a);
         }
         for (ionU32 i = 0; i < 24; ++i)
         {
@@ -769,7 +736,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
             vertices[i].SetPosition(positions[i]);
             vertices[i].SetTexCoordUV0(uvuv[i]);
             vertices[i].SetNormal(normals[i]);
-            vertices[i].SetColor(colors[i]);
+            vertices[i].SetColor(_r, _g, _b, _a);
             vertices[i].SetTangent(tangents[i]);
         }
         for (ionU32 i = 0; i < 24; ++i)
@@ -813,7 +780,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
 ///
 ///            SPHERE
 ///
-void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _entity)
+void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
     static const ionFloat radius = 1.0f;
     static const ionU32 rings = 24;
@@ -821,7 +788,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
 
     eosVector(Vector) positions;
     eosVector(Vector) normals;
-    eosVector(Vector) colors;
     eosVector(Vector) uvuv;
     eosVector(Index) indices;
 
@@ -911,11 +877,9 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
 
         positions.resize(verticesSize);
         normals.resize(verticesSize);
-        colors.resize(verticesSize);
 
         std::vector<Vector>::iterator v = positions.begin();
         std::vector<Vector>::iterator n = normals.begin();
-        std::vector<Vector>::iterator c = colors.begin();
 
 
         for (r = 0; r < rings; ++r)
@@ -928,7 +892,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
 
                 *v++ = VectorHelper::Set(x * radius, y * radius, z * radius, 1.0f);
                 *n++ = VectorHelper::Set(x, y, z, 1.0f);
-                *c++ = VectorHelper::Set(x, y, z, 1.0f);
             }
         }
 
@@ -949,7 +912,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
             vertices[i].SetPosition(positions[i]);
-            vertices[i].SetColor(colors[i]);
+            vertices[i].SetColor(_r, _g, _b, _a);
         }
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
@@ -1124,12 +1087,10 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         positions.resize(verticesSize);
         normals.resize(verticesSize);
         uvuv.resize(verticesSize);
-        colors.resize(verticesSize);
 
         std::vector<Vector>::iterator v = positions.begin();
         std::vector<Vector>::iterator n = normals.begin();
         std::vector<Vector>::iterator t = uvuv.begin();
-        std::vector<Vector>::iterator c = colors.begin();
 
         for (r = 0; r < rings; ++r)
         {
@@ -1142,7 +1103,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
                 *v++ = VectorHelper::Set(x * radius, y * radius, z * radius, 1.0f);
                 *n++ = VectorHelper::Set(x, y, z, 1.0f);
                 *t++ = VectorHelper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
-                *c++ = VectorHelper::Set(x, y, z, 1.0f);
             }
         }
 
@@ -1168,7 +1128,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
             vertices[i].SetPosition(positions[i]);
             vertices[i].SetTexCoordUV0(uvuv[i]);
             vertices[i].SetNormal(normals[i]);
-            vertices[i].SetColor(colors[i]);
+            vertices[i].SetColor(_r, _g, _b, _a);
             vertices[i].SetTangent(tangents[i]);
         }
         for (ionU32 i = 0; i < verticesSize; ++i)
