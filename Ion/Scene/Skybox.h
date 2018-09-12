@@ -13,6 +13,8 @@
 
 #include "../Renderer/RenderCommon.h"
 
+#include "../Geometry/Mesh.h"
+
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
 
@@ -20,7 +22,7 @@ ION_NAMESPACE_BEGIN
 
 class RenderCore;
 class Material;
-class MeshPlain;
+class MeshRendererPlain;
 
 class ION_DLL Skybox
 {
@@ -45,7 +47,8 @@ private:
     void GenerateMesh();
 
 private:
-    MeshPlain*  m_mesh;
+    MeshRendererPlain* m_meshRenderer;
+    Mesh m_mesh;
     DrawSurface m_drawSurface;
 };
 

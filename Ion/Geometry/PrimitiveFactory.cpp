@@ -36,7 +36,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
     {
     case EVertexLayout_Pos:
     {
-        MeshPlain* mesh = entityPtr->AddMesh<MeshPlain>();
+        MeshRendererPlain* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererPlain>();
 
         eosVector(VertexPlain) vertices;
         vertices.resize(3);
@@ -45,22 +45,25 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         vertices[1].SetPosition(positions[1]);
         vertices[2].SetPosition(positions[2]);
 
-        mesh->PushBackVertex(vertices[0]);
-        mesh->PushBackVertex(vertices[1]);
-        mesh->PushBackVertex(vertices[2]);
+        meshRenderer->PushBackVertex(vertices[0]);
+        meshRenderer->PushBackVertex(vertices[1]);
+        meshRenderer->PushBackVertex(vertices[2]);
 
-        mesh->PushBackIndex(indices[0]);
-        mesh->PushBackIndex(indices[1]);
-        mesh->PushBackIndex(indices[2]);
+        meshRenderer->PushBackIndex(indices[0]);
+        meshRenderer->PushBackIndex(indices[1]);
+        meshRenderer->PushBackIndex(indices[2]);
 
-        mesh->SetIndexCount(3);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(3);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Pos_Color:
     {
-        MeshColored* mesh = entityPtr->AddMesh<MeshColored>();
+        MeshRendererColored* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererColored>();
 
         eosVector(VertexColored) vertices;
         vertices.resize(3);
@@ -73,22 +76,25 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         vertices[1].SetColor(_r, _g, _b, _a);
         vertices[2].SetColor(_r, _g, _b, _a);
 
-        mesh->PushBackVertex(vertices[0]);
-        mesh->PushBackVertex(vertices[1]);
-        mesh->PushBackVertex(vertices[2]);
+        meshRenderer->PushBackVertex(vertices[0]);
+        meshRenderer->PushBackVertex(vertices[1]);
+        meshRenderer->PushBackVertex(vertices[2]);
 
-        mesh->PushBackIndex(indices[0]);
-        mesh->PushBackIndex(indices[1]);
-        mesh->PushBackIndex(indices[2]);
+        meshRenderer->PushBackIndex(indices[0]);
+        meshRenderer->PushBackIndex(indices[1]);
+        meshRenderer->PushBackIndex(indices[2]);
 
-        mesh->SetIndexCount(3);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(3);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Pos_UV:
     {
-        MeshUV* mesh = entityPtr->AddMesh<MeshUV>();
+        MeshRendererUV* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererUV>();
 
         eosVector(VertexUV) vertices;
         vertices.resize(3);
@@ -101,22 +107,25 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         vertices[1].SetTexCoordUV(1.0f, 0.0f);
         vertices[2].SetTexCoordUV(0.0f, 1.0f);
 
-        mesh->PushBackVertex(vertices[0]);
-        mesh->PushBackVertex(vertices[1]);
-        mesh->PushBackVertex(vertices[2]);
+        meshRenderer->PushBackVertex(vertices[0]);
+        meshRenderer->PushBackVertex(vertices[1]);
+        meshRenderer->PushBackVertex(vertices[2]);
 
-        mesh->PushBackIndex(indices[0]);
-        mesh->PushBackIndex(indices[1]);
-        mesh->PushBackIndex(indices[2]);
+        meshRenderer->PushBackIndex(indices[0]);
+        meshRenderer->PushBackIndex(indices[1]);
+        meshRenderer->PushBackIndex(indices[2]);
 
-        mesh->SetIndexCount(3);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(3);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
     
     case EVertexLayout_Pos_UV_Normal:
     {
-        MeshSimple* mesh = entityPtr->AddMesh<MeshSimple>();
+        MeshRendererSimple* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererSimple>();
 
         eosVector(VertexSimple) vertices;
         vertices.resize(3);
@@ -137,22 +146,25 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         vertices[1].SetNormal(normal1);
         vertices[2].SetNormal(normal2);
 
-        mesh->PushBackVertex(vertices[0]);
-        mesh->PushBackVertex(vertices[1]);
-        mesh->PushBackVertex(vertices[2]);
+        meshRenderer->PushBackVertex(vertices[0]);
+        meshRenderer->PushBackVertex(vertices[1]);
+        meshRenderer->PushBackVertex(vertices[2]);
 
-        mesh->PushBackIndex(indices[0]);
-        mesh->PushBackIndex(indices[1]);
-        mesh->PushBackIndex(indices[2]);
+        meshRenderer->PushBackIndex(indices[0]);
+        meshRenderer->PushBackIndex(indices[1]);
+        meshRenderer->PushBackIndex(indices[2]);
 
-        mesh->SetIndexCount(3);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(3);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Full:
     {
-        Mesh* mesh = entityPtr->AddMesh<Mesh>();
+        MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
 
         eosVector(Vertex) vertices;
         vertices.resize(3);
@@ -193,22 +205,31 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         //vertices[1].SetBiTangent(tangents[1]);
         //vertices[2].SetBiTangent(tangents[2]);
 
-        mesh->PushBackVertex(vertices[0]);
-        mesh->PushBackVertex(vertices[1]);
-        mesh->PushBackVertex(vertices[2]);
+        meshRenderer->PushBackVertex(vertices[0]);
+        meshRenderer->PushBackVertex(vertices[1]);
+        meshRenderer->PushBackVertex(vertices[2]);
 
-        mesh->PushBackIndex(indices[0]);
-        mesh->PushBackIndex(indices[1]);
-        mesh->PushBackIndex(indices[2]);
+        meshRenderer->PushBackIndex(indices[0]);
+        meshRenderer->PushBackIndex(indices[1]);
+        meshRenderer->PushBackIndex(indices[2]);
 
-        mesh->SetIndexCount(3);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(3);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Empty:
     {
-        BaseMesh* mesh = entityPtr->AddMesh<BaseMesh>();
+        entityPtr->AddMeshRenderer<BaseMeshRenderer>();
+
+        Mesh mesh;
+        mesh.SetIndexCount(0);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
@@ -244,7 +265,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
     {
     case EVertexLayout_Pos:
     {
-        MeshPlain* mesh = entityPtr->AddMesh<MeshPlain>();
+        MeshRendererPlain* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererPlain>();
 
         eosVector(VertexPlain) vertices;
         vertices.resize(4);
@@ -254,26 +275,29 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         vertices[2].SetPosition(positions[2]);
         vertices[3].SetPosition(positions[3]);
 
-        mesh->PushBackVertex(vertices[0]);
-        mesh->PushBackVertex(vertices[1]);
-        mesh->PushBackVertex(vertices[2]);
-        mesh->PushBackVertex(vertices[3]);
+        meshRenderer->PushBackVertex(vertices[0]);
+        meshRenderer->PushBackVertex(vertices[1]);
+        meshRenderer->PushBackVertex(vertices[2]);
+        meshRenderer->PushBackVertex(vertices[3]);
 
-        mesh->PushBackIndex(indices[0]);
-        mesh->PushBackIndex(indices[1]);
-        mesh->PushBackIndex(indices[2]);
-        mesh->PushBackIndex(indices[3]);
-        mesh->PushBackIndex(indices[4]);
-        mesh->PushBackIndex(indices[5]);
+        meshRenderer->PushBackIndex(indices[0]);
+        meshRenderer->PushBackIndex(indices[1]);
+        meshRenderer->PushBackIndex(indices[2]);
+        meshRenderer->PushBackIndex(indices[3]);
+        meshRenderer->PushBackIndex(indices[4]);
+        meshRenderer->PushBackIndex(indices[5]);
 
-        mesh->SetIndexCount(6);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(6);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
     
     case EVertexLayout_Pos_Color:
     {
-        MeshColored* mesh = entityPtr->AddMesh<MeshColored>();
+        MeshRendererColored* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererColored>();
 
         eosVector(VertexColored) vertices;
         vertices.resize(4);
@@ -288,26 +312,29 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         vertices[2].SetColor(_r, _g, _b, _a);
         vertices[3].SetColor(_r, _g, _b, _a);
 
-        mesh->PushBackVertex(vertices[0]);
-        mesh->PushBackVertex(vertices[1]);
-        mesh->PushBackVertex(vertices[2]);
-        mesh->PushBackVertex(vertices[3]);
+        meshRenderer->PushBackVertex(vertices[0]);
+        meshRenderer->PushBackVertex(vertices[1]);
+        meshRenderer->PushBackVertex(vertices[2]);
+        meshRenderer->PushBackVertex(vertices[3]);
 
-        mesh->PushBackIndex(indices[0]);
-        mesh->PushBackIndex(indices[1]);
-        mesh->PushBackIndex(indices[2]);
-        mesh->PushBackIndex(indices[3]);
-        mesh->PushBackIndex(indices[4]);
-        mesh->PushBackIndex(indices[5]);
+        meshRenderer->PushBackIndex(indices[0]);
+        meshRenderer->PushBackIndex(indices[1]);
+        meshRenderer->PushBackIndex(indices[2]);
+        meshRenderer->PushBackIndex(indices[3]);
+        meshRenderer->PushBackIndex(indices[4]);
+        meshRenderer->PushBackIndex(indices[5]);
 
-        mesh->SetIndexCount(6);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(6);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Pos_UV:
     {
-        MeshUV* mesh = entityPtr->AddMesh<MeshUV>();
+        MeshRendererUV* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererUV>();
 
         eosVector(VertexUV) vertices;
         vertices.resize(4);
@@ -322,26 +349,29 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         vertices[2].SetTexCoordUV(0.0f, 1.0f);
         vertices[3].SetTexCoordUV(1.0f, 1.0f);
 
-        mesh->PushBackVertex(vertices[0]);
-        mesh->PushBackVertex(vertices[1]);
-        mesh->PushBackVertex(vertices[2]);
-        mesh->PushBackVertex(vertices[3]);
+        meshRenderer->PushBackVertex(vertices[0]);
+        meshRenderer->PushBackVertex(vertices[1]);
+        meshRenderer->PushBackVertex(vertices[2]);
+        meshRenderer->PushBackVertex(vertices[3]);
 
-        mesh->PushBackIndex(indices[0]);
-        mesh->PushBackIndex(indices[1]);
-        mesh->PushBackIndex(indices[2]);
-        mesh->PushBackIndex(indices[3]);
-        mesh->PushBackIndex(indices[4]);
-        mesh->PushBackIndex(indices[5]);
+        meshRenderer->PushBackIndex(indices[0]);
+        meshRenderer->PushBackIndex(indices[1]);
+        meshRenderer->PushBackIndex(indices[2]);
+        meshRenderer->PushBackIndex(indices[3]);
+        meshRenderer->PushBackIndex(indices[4]);
+        meshRenderer->PushBackIndex(indices[5]);
 
-        mesh->SetIndexCount(6);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(6);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Pos_UV_Normal:
     {
-        MeshSimple* mesh = entityPtr->AddMesh<MeshSimple>();
+        MeshRendererSimple* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererSimple>();
 
         eosVector(VertexSimple) vertices;
         vertices.resize(4);
@@ -364,26 +394,29 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         vertices[2].SetNormal(normals[2]);
         vertices[3].SetNormal(normals[3]);
 
-        mesh->PushBackVertex(vertices[0]);
-        mesh->PushBackVertex(vertices[1]);
-        mesh->PushBackVertex(vertices[2]);
-        mesh->PushBackVertex(vertices[3]);
+        meshRenderer->PushBackVertex(vertices[0]);
+        meshRenderer->PushBackVertex(vertices[1]);
+        meshRenderer->PushBackVertex(vertices[2]);
+        meshRenderer->PushBackVertex(vertices[3]);
 
-        mesh->PushBackIndex(indices[0]);
-        mesh->PushBackIndex(indices[1]);
-        mesh->PushBackIndex(indices[2]);
-        mesh->PushBackIndex(indices[3]);
-        mesh->PushBackIndex(indices[4]);
-        mesh->PushBackIndex(indices[5]);
+        meshRenderer->PushBackIndex(indices[0]);
+        meshRenderer->PushBackIndex(indices[1]);
+        meshRenderer->PushBackIndex(indices[2]);
+        meshRenderer->PushBackIndex(indices[3]);
+        meshRenderer->PushBackIndex(indices[4]);
+        meshRenderer->PushBackIndex(indices[5]);
 
-        mesh->SetIndexCount(6);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(6);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Full:
     {
-        Mesh* mesh = entityPtr->AddMesh<Mesh>();
+        MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
 
         eosVector(Vertex) vertices;
         vertices.resize(4);
@@ -431,26 +464,35 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         //vertices[2].SetBiTangent(tangents[2]);
         //vertices[3].SetBiTangent(tangents[3]);
 
-        mesh->PushBackVertex(vertices[0]);
-        mesh->PushBackVertex(vertices[1]);
-        mesh->PushBackVertex(vertices[2]);
-        mesh->PushBackVertex(vertices[3]);
+        meshRenderer->PushBackVertex(vertices[0]);
+        meshRenderer->PushBackVertex(vertices[1]);
+        meshRenderer->PushBackVertex(vertices[2]);
+        meshRenderer->PushBackVertex(vertices[3]);
 
-        mesh->PushBackIndex(indices[0]);
-        mesh->PushBackIndex(indices[1]);
-        mesh->PushBackIndex(indices[2]);
-        mesh->PushBackIndex(indices[3]);
-        mesh->PushBackIndex(indices[4]);
-        mesh->PushBackIndex(indices[5]);
+        meshRenderer->PushBackIndex(indices[0]);
+        meshRenderer->PushBackIndex(indices[1]);
+        meshRenderer->PushBackIndex(indices[2]);
+        meshRenderer->PushBackIndex(indices[3]);
+        meshRenderer->PushBackIndex(indices[4]);
+        meshRenderer->PushBackIndex(indices[5]);
 
-        mesh->SetIndexCount(6);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(6);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Empty:
     {
-        BaseMesh* mesh = entityPtr->AddMesh<BaseMesh>();
+        entityPtr->AddMeshRenderer<BaseMeshRenderer>();
+
+        Mesh mesh;
+        mesh.SetIndexCount(0);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
@@ -619,7 +661,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
     {
     case EVertexLayout_Pos:
     {
-        MeshPlain* mesh = entityPtr->AddMesh<MeshPlain>();
+        MeshRendererPlain* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererPlain>();
 
         eosVector(VertexPlain) vertices;
         vertices.resize(24);
@@ -630,21 +672,24 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         }
         for (ionU32 i = 0; i < 24; ++i)
         {
-            mesh->PushBackVertex(vertices[i]);
+            meshRenderer->PushBackVertex(vertices[i]);
         }
         for (ionU32 i = 0; i < 36; ++i)
         {
-            mesh->PushBackIndex(indices[i]);
+            meshRenderer->PushBackIndex(indices[i]);
         }
 
-        mesh->SetIndexCount(36);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(36);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Pos_Color:
     {
-        MeshColored* mesh = entityPtr->AddMesh<MeshColored>();
+        MeshRendererColored* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererColored>();
 
         eosVector(VertexColored) vertices;
         vertices.resize(24); 
@@ -656,21 +701,24 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         }
         for (ionU32 i = 0; i < 24; ++i)
         {
-            mesh->PushBackVertex(vertices[i]);
+            meshRenderer->PushBackVertex(vertices[i]);
         }
         for (ionU32 i = 0; i < 36; ++i)
         {
-            mesh->PushBackIndex(indices[i]);
+            meshRenderer->PushBackIndex(indices[i]);
         }
 
-        mesh->SetIndexCount(36);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(36);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Pos_UV:
     {
-        MeshUV* mesh = entityPtr->AddMesh<MeshUV>();
+        MeshRendererUV* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererUV>();
 
         eosVector(VertexUV) vertices;
         vertices.resize(24);
@@ -682,21 +730,24 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         }
         for (ionU32 i = 0; i < 24; ++i)
         {
-            mesh->PushBackVertex(vertices[i]);
+            meshRenderer->PushBackVertex(vertices[i]);
         }
         for (ionU32 i = 0; i < 36; ++i)
         {
-            mesh->PushBackIndex(indices[i]);
+            meshRenderer->PushBackIndex(indices[i]);
         }
 
-        mesh->SetIndexCount(36);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(36);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Pos_UV_Normal:
     {
-        MeshSimple* mesh = entityPtr->AddMesh<MeshSimple>();
+        MeshRendererSimple* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererSimple>();
 
         eosVector(VertexSimple) vertices;
         vertices.resize(24);
@@ -709,21 +760,24 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         }
         for (ionU32 i = 0; i < 24; ++i)
         {
-            mesh->PushBackVertex(vertices[i]);
+            meshRenderer->PushBackVertex(vertices[i]);
         }
         for (ionU32 i = 0; i < 36; ++i)
         {
-            mesh->PushBackIndex(indices[i]);
+            meshRenderer->PushBackIndex(indices[i]);
         }
 
-        mesh->SetIndexCount(36);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(36);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Full:
     {
-        Mesh* mesh = entityPtr->AddMesh<Mesh>();
+        MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
 
         eosVector(Vertex) vertices;
         vertices.resize(24);
@@ -741,21 +795,30 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         }
         for (ionU32 i = 0; i < 24; ++i)
         {
-            mesh->PushBackVertex(vertices[i]);
+            meshRenderer->PushBackVertex(vertices[i]);
         }
         for (ionU32 i = 0; i < 36; ++i)
         {
-            mesh->PushBackIndex(indices[i]);
+            meshRenderer->PushBackIndex(indices[i]);
         }
 
-        mesh->SetIndexCount(36);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(36);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Empty:
     {
-        BaseMesh* mesh = entityPtr->AddMesh<BaseMesh>();
+        entityPtr->AddMeshRenderer<BaseMeshRenderer>();
+
+        Mesh mesh;
+        mesh.SetIndexCount(0);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
@@ -797,7 +860,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
     {
     case EVertexLayout_Pos:
     {
-        MeshPlain* mesh = entityPtr->AddMesh<MeshPlain>();
+        MeshRendererPlain* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererPlain>();
 
         eosVector(VertexPlain) vertices; 
 
@@ -847,21 +910,25 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         }
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
-            mesh->PushBackVertex(vertices[i]);
+            meshRenderer->PushBackVertex(vertices[i]);
         }
         for (ionU32 i = 0; i < indicesSize; ++i)
         {
-            mesh->PushBackIndex(indices[i]);
+            meshRenderer->PushBackIndex(indices[i]);
         }
 
-        mesh->SetIndexCount(indicesSize);
-        mesh->SetIndexStart(0);
+
+        Mesh mesh;
+        mesh.SetIndexCount(indicesSize);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Pos_Color:
     {
-        MeshColored* mesh = entityPtr->AddMesh<MeshColored>();
+        MeshRendererColored* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererColored>();
 
         eosVector(VertexColored) vertices;
 
@@ -916,21 +983,24 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         }
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
-            mesh->PushBackVertex(vertices[i]);
+            meshRenderer->PushBackVertex(vertices[i]);
         }
         for (ionU32 i = 0; i < indicesSize; ++i)
         {
-            mesh->PushBackIndex(indices[i]);
+            meshRenderer->PushBackIndex(indices[i]);
         }
 
-        mesh->SetIndexCount(indicesSize);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(indicesSize);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Pos_UV:
     {
-        MeshUV* mesh = entityPtr->AddMesh<MeshUV>();
+        MeshRendererUV* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererUV>();
 
         eosVector(VertexUV) vertices;
 
@@ -984,21 +1054,24 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         }
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
-            mesh->PushBackVertex(vertices[i]);
+            meshRenderer->PushBackVertex(vertices[i]);
         }
         for (ionU32 i = 0; i < indicesSize; ++i)
         {
-            mesh->PushBackIndex(indices[i]);
+            meshRenderer->PushBackIndex(indices[i]);
         }
 
-        mesh->SetIndexCount(indicesSize);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(indicesSize);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Pos_UV_Normal:
     {
-        MeshSimple* mesh = entityPtr->AddMesh<MeshSimple>();
+        MeshRendererSimple* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererSimple>();
 
         eosVector(VertexSimple) vertices;
 
@@ -1056,21 +1129,24 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         }
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
-            mesh->PushBackVertex(vertices[i]);
+            meshRenderer->PushBackVertex(vertices[i]);
         }
         for (ionU32 i = 0; i < indicesSize; ++i)
         {
-            mesh->PushBackIndex(indices[i]);
+            meshRenderer->PushBackIndex(indices[i]);
         }
 
-        mesh->SetIndexCount(indicesSize);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(indicesSize);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Full:
     {
-        Mesh* mesh = entityPtr->AddMesh<Mesh>();
+        MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
 
         eosVector(Vertex) vertices;
 
@@ -1133,21 +1209,30 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         }
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
-            mesh->PushBackVertex(vertices[i]);
+            meshRenderer->PushBackVertex(vertices[i]);
         }
         for (ionU32 i = 0; i < indicesSize; ++i)
         {
-            mesh->PushBackIndex(indices[i]);
+            meshRenderer->PushBackIndex(indices[i]);
         }
 
-        mesh->SetIndexCount(indicesSize);
-        mesh->SetIndexStart(0);
+        Mesh mesh;
+        mesh.SetIndexCount(indicesSize);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 
     case EVertexLayout_Empty:
     {
-        BaseMesh* mesh = entityPtr->AddMesh<BaseMesh>();
+        entityPtr->AddMeshRenderer<BaseMeshRenderer>();
+
+        Mesh mesh;
+        mesh.SetIndexCount(0);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
     }
     break;
 

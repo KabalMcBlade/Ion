@@ -31,12 +31,19 @@
 #define ION_PROJ_MATRIX_PARAM_HASH   9615908744109468950
 
 // PBR
-#define ION_MAIN_CAMERA_POSITION_VECTOR_PARAM  "mainCameraPos"
-#define ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM  "directionalLight"
-#define ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM  "directionalLightColor"
-#define ION_EXPOSURE_FLOAT_PARAM  "exposure"
-#define ION_GAMMA_FLOAT_PARAM  "gamma"
-#define ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM  "prefilteredCubeMipLevels"
+#define ION_MAIN_CAMERA_POSITION_VECTOR_PARAM       "mainCameraPos"
+#define ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM      "directionalLight"
+#define ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM      "directionalLightColor"
+#define ION_EXPOSURE_FLOAT_PARAM                    "exposure"
+#define ION_GAMMA_FLOAT_PARAM                       "gamma"
+#define ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM "prefilteredCubeMipLevels"
+
+#define ION_MAIN_CAMERA_POSITION_VECTOR_PARAM_HASH          15235675884061678663
+#define ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM_HASH         11254454282578422209
+#define ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM_HASH         8321831752619492932
+#define ION_EXPOSURE_FLOAT_PARAM_HASH                       7428861124213858496
+#define ION_GAMMA_FLOAT_PARAM_HASH                          2490902623560640874
+#define ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM_HASH    16846083055572138945
 
 
 EOS_USING_NAMESPACE
@@ -906,9 +913,59 @@ typedef ionU64 VertexCacheHandler;
 
 class Material;
 class Node;
+
+struct DrawMesh final
+{
+    const Material*     m_material;
+    ionU32              m_indexStart;
+    ionU32              m_indexCount;
+    ionU32              m_meshIndexRef;
+    ionU8               m_sortingIndex; // 0 = opaque, 1 = mask, 2 = blend
+
+    DrawMesh()
+    {
+        m_indexStart = 0;
+        m_indexCount = 0;
+        m_material = nullptr;
+        m_sortingIndex = 0;
+        m_meshIndexRef = 0;
+    }
+
+    ~DrawMesh()
+    {
+        m_material = nullptr;
+    }
+
+    ionBool operator <(const DrawMesh& _other) const
+    {
+        return (m_sortingIndex < _other.m_sortingIndex);
+    }
+};
+
+struct DrawNode final
+{
+    eosVector(DrawMesh) m_drawMeshes;
+    ionFloat            m_modelMatrix[16];
+    Node*               m_nodeRef;
+    ionBool             m_visible;
+
+    DrawNode()
+    {
+        memset(&m_modelMatrix, 0, sizeof(m_modelMatrix));
+        m_nodeRef = nullptr;
+        m_visible = true;
+    }
+
+    ~DrawNode()
+    {
+        m_drawMeshes.clear();
+        m_nodeRef = nullptr;
+    }
+};
+
 struct DrawSurface final
 {
-    ionFloat            m_modelMatrix[16];
+    eosVector(DrawNode) m_drawNodes;
     ionFloat            m_viewMatrix[16];
     ionFloat            m_projectionMatrix[16];
     ionFloat            m_mainCameraPos[4];
@@ -918,45 +975,34 @@ struct DrawSurface final
     ionFloat            m_exposure;
     ionFloat            m_gamma;
     ionFloat            m_prefilteredCubeMipLevels;
-    ionU32              m_indexStart;
-    ionU32              m_indexCount;
-    ionU32              m_meshIndexRef; // index of the mesh inside the m_nodeRef meshes array
     VertexCacheHandler  m_vertexCache;
     VertexCacheHandler  m_indexCache;
     VertexCacheHandler  m_jointCache;
-    Node*         m_nodeRef;
-    const Material*     m_material;
-    ionU8               m_sortingIndex; // 0 = opaque, 1 = mask, 2 = blend
-    ionBool             m_visible;
+
+    void Clear()
+    {
+        m_drawNodes.clear();
+    }
 
     DrawSurface()
     {
-        memset(&m_modelMatrix, 0, sizeof(m_modelMatrix));
         memset(&m_viewMatrix, 0, sizeof(m_viewMatrix));
         memset(&m_projectionMatrix, 0, sizeof(m_projectionMatrix));
         memset(&m_mainCameraPos, 0, sizeof(m_mainCameraPos));
         memset(&m_directionalLight, 0, sizeof(m_directionalLight));
         memset(&m_directionalLightColor, 0, sizeof(m_directionalLight));
-        m_indexStart = 0;
-        m_indexCount = 0;
         m_vertexCache = 0;
         m_indexCache = 0;
         m_jointCache = 0;
         m_extraGLState = 0;
-        m_material = nullptr;
-        m_nodeRef = nullptr;
-        m_visible = true;
         m_exposure = 4.5f;
         m_gamma = 2.2f;
         m_prefilteredCubeMipLevels = 10.0f;
-        m_sortingIndex = 0;
-        m_meshIndexRef = 0;
     }
 
     ~DrawSurface()
     {
-        m_material = nullptr;
-        m_nodeRef = nullptr;
+        Clear();
     }
 
     /*DrawSurface& operator=(DrawSurface other)
@@ -984,11 +1030,6 @@ struct DrawSurface final
 
         return *this;
     }*/
-     
-    ionBool operator <(const DrawSurface& _other) const
-    {
-        return (m_sortingIndex < _other.m_sortingIndex);
-    }
 };
 
 ION_NAMESPACE_END

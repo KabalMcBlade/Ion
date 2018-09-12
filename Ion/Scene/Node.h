@@ -48,7 +48,8 @@ class Node;
 typedef SmartPointer<Node> ObjectHandler;
 
 class BoundingBox;
-class BaseMesh;
+class Mesh;
+class BaseMeshRenderer;
 class ION_DLL Node : public SmartObject
 {
 public:
@@ -70,8 +71,12 @@ public:
     virtual void OnKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime) {}
 
     // those need to conformity
-    virtual const BaseMesh* GetMesh(ionU32 _index) const { return nullptr; }
-    virtual BaseMesh* GetMesh(ionU32 _index) { return nullptr; }
+    virtual const BaseMeshRenderer* GetMeshRenderer() const { return nullptr; }
+    virtual BaseMeshRenderer* GetMeshRenderer() { return nullptr; }
+
+    virtual void PushBackMesh(const Mesh& _mesh) {}
+    virtual const Mesh* GetMesh(ionU32 _index) const { return nullptr; }
+    virtual Mesh* GetMesh(ionU32 _index) { return nullptr; }
     virtual ionU32  GetMeshCount() const { return 0; }
 
     virtual BoundingBox* GetBoundingBox()  { return nullptr; }

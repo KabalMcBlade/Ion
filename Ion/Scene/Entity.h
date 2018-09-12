@@ -8,7 +8,7 @@
 
 #include "../Geometry/BoundingBox.h"
 #include "../Geometry/Mesh.h"
-#include "../Geometry/Model.h"
+#include "../Geometry/MeshRenderer.h"
 
 EOS_USING_NAMESPACE
 
@@ -22,26 +22,25 @@ public:
     virtual ~Entity();
 
     template<typename T>
-    T* AddModel()
+    T* AddMeshRenderer()
     {
-        m_model = eosNew(T, ION_MEMORY_ALIGNMENT_SIZE);
-        return m_model;
+        m_boundingBox.Reset();
+        m_meshes.clear();
+        if (m_meshRenderer != nullptr)
+        {
+            eosDelete(m_meshRenderer);
+            m_meshRenderer = nullptr;
+        }
+        m_meshRenderer = eosNew(T, ION_MEMORY_ALIGNMENT_SIZE);
+        return dynamic_cast<T*>(m_meshRenderer);
     }
 
-    const BaseModel* GetModel() const { return m_model; }
-    BaseModel* GetModel() { return m_model; }
+    const BaseMeshRenderer* GetMeshRenderer() const { return m_meshRenderer; }
+    BaseMeshRenderer* GetMeshRenderer() { return m_meshRenderer; }
 
-
-    template<typename T>
-    T* AddMesh()
-    {
-        T* mesh = eosNew(T, ION_MEMORY_ALIGNMENT_SIZE);
-        m_meshes.push_back(mesh);
-        return mesh;
-    }
-
-    virtual const BaseMesh* GetMesh(ionU32 _index) const override final { return m_meshes[_index]; }
-    virtual BaseMesh* GetMesh(ionU32 _index) override final { return m_meshes[_index]; }
+    void PushBackMesh(const Mesh& _mesh);
+    virtual const Mesh* GetMesh(ionU32 _index) const override final { return &m_meshes[_index]; }
+    virtual Mesh* GetMesh(ionU32 _index) override final { return &m_meshes[_index]; }
     virtual ionU32  GetMeshCount() const override final;
 
     virtual BoundingBox* GetBoundingBox() override final { return &m_boundingBox; }
@@ -52,8 +51,8 @@ private:
 
 private:
     BoundingBox             m_boundingBox;
-    BaseModel*              m_model;
-    eosVector(BaseMesh*)    m_meshes;    // 0 to empty entity, logic purpose only
+    BaseMeshRenderer*       m_meshRenderer; // if has this one, means that this one is the root and any other children nodes can potentially contains meshes
+    eosVector(Mesh)         m_meshes;
 };
 
 ION_NAMESPACE_END

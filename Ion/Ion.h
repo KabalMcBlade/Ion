@@ -52,10 +52,10 @@
 #include "Geometry/Ray.h"
 #include "Geometry/BoundingBox.h"
 #include "Geometry/Mesh.h"
+#include "Geometry/MeshRenderer.h"
 #include "Geometry/Intersection.h"
 #include "Geometry/Frustum.h"
 #include "Geometry/PrimitiveFactory.h"
-#include "Geometry/Model.h"
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"

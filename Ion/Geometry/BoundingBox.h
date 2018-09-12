@@ -33,6 +33,8 @@ public:
     ION_INLINE ionBool IsInit() const { return m_min == VectorHelper::GetPlusInf() && m_max == VectorHelper::GetMinusInf(); }
     ION_INLINE ionBool IsValid() const { return !IsInit() && !IsZero() && !IsInfinite(); }
 
+    void Reset();
+
     void Set(const Vector& _min, const Vector& _max);
     void SetInfinite();
     void SetZero();

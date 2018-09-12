@@ -261,7 +261,7 @@
     <ClInclude Include="Texture\CubemapHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Geometry\Model.h">
+    <ClInclude Include="Geometry\MeshRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -392,7 +392,10 @@
     <ClCompile Include="Texture\CubemapHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Geometry\Model.cpp">
+    <ClCompile Include="Geometry\MeshRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

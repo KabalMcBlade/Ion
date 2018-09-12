@@ -5,7 +5,7 @@
 
 #include "../Renderer/RenderCore.h"
 
-#include "../Geometry/Mesh.h"
+#include "../Geometry/MeshRenderer.h"
 
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
@@ -14,14 +14,15 @@ ION_NAMESPACE_BEGIN
 
 Skybox::Skybox()
 {
-    m_mesh = eosNew(MeshPlain, ION_MEMORY_ALIGNMENT_SIZE);
+    m_meshRenderer = eosNew(MeshRendererPlain, ION_MEMORY_ALIGNMENT_SIZE);
 
     GenerateMesh();
 }
 
 Skybox::~Skybox()
 {
-    eosDelete(m_mesh);
+    m_drawSurface.Clear();
+    eosDelete(m_meshRenderer);
 }
 
 void Skybox::GenerateMesh()
@@ -77,40 +78,47 @@ void Skybox::GenerateMesh()
     }
     for (ionU32 i = 0; i < 24; ++i)
     {
-        m_mesh->PushBackVertex(vertices[i]);
+        m_meshRenderer->PushBackVertex(vertices[i]);
     }
     for (ionU32 i = 0; i < 36; ++i)
     {
-        m_mesh->PushBackIndex(indices[i]);
+        m_meshRenderer->PushBackIndex(indices[i]);
     }
 
-    m_mesh->SetIndexCount(36);
-    m_mesh->SetIndexStart(0);
+    m_mesh.SetIndexCount(36);
+    m_mesh.SetIndexStart(0);
 }
 
 void Skybox::SetMaterial(Material* _material)
 {
-    m_mesh->SetMaterial(_material);
+    m_mesh.SetMaterial(_material);
 
-    m_drawSurface.m_visible = true;
-    m_drawSurface.m_indexStart = m_mesh->GetIndexStart();
-    m_drawSurface.m_indexCount = m_mesh->GetIndexCount();
-    m_drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(m_mesh->GetVertexData(), m_mesh->GetVertexSize(), m_mesh->GetSize());
-    m_drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(m_mesh->GetIndexData(), m_mesh->GetIndexSize());
-    m_drawSurface.m_material = m_mesh->GetMaterial();
+    DrawNode drawNode;
+    DrawMesh drawMesh;
+
+    drawMesh.m_indexStart = m_mesh.GetIndexStart();
+    drawMesh.m_indexCount = m_mesh.GetIndexCount();
+    drawMesh.m_material = m_mesh.GetMaterial();
+
+    drawNode.m_drawMeshes.push_back(drawMesh);
+    drawNode.m_visible = true;
+
+    m_drawSurface.m_drawNodes.push_back(drawNode);
+    m_drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(m_meshRenderer->GetVertexData(), m_meshRenderer->GetVertexDataCount(), m_meshRenderer->GetSizeOfVertex());
+    m_drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(m_meshRenderer->GetIndexData(), m_meshRenderer->GetIndexDataCount());
 }
 
 Material* Skybox::GetMaterial()
 {
-    return m_mesh->GetMaterial();
+    return m_mesh.GetMaterial();
 }
 
 void Skybox::UpdateUniformBuffer(const Matrix& _projection, const Matrix& _view, const Matrix& _model)
 {
-    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[0], _model[0]);
-    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[4], _model[1]);
-    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[8], _model[2]);
-    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[12], _model[3]);
+    _mm_storeu_ps(&m_drawSurface.m_drawNodes[0].m_modelMatrix[0], _model[0]);
+    _mm_storeu_ps(&m_drawSurface.m_drawNodes[0].m_modelMatrix[4], _model[1]);
+    _mm_storeu_ps(&m_drawSurface.m_drawNodes[0].m_modelMatrix[8], _model[2]);
+    _mm_storeu_ps(&m_drawSurface.m_drawNodes[0].m_modelMatrix[12], _model[3]);
 
     _mm_storeu_ps(&m_drawSurface.m_viewMatrix[0], _view[0]);
     _mm_storeu_ps(&m_drawSurface.m_viewMatrix[4], _view[1]);
@@ -125,13 +133,13 @@ void Skybox::UpdateUniformBuffer(const Matrix& _projection, const Matrix& _view,
 
 void Skybox::Draw(VkRenderPass _renderPass, RenderCore& _renderCore)
 {
-    _renderCore.SetState(m_mesh->GetMaterial()->GetState().GetStateBits());
+    _renderCore.SetState(m_mesh.GetMaterial()->GetState().GetStateBits());
     _renderCore.Draw(_renderPass, m_drawSurface);
 }
 
 void Skybox::CustomDraw(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, VkRenderPass _renderPass)
 {
-    _renderCore.SetState(m_mesh->GetMaterial()->GetState().GetStateBits());
+    _renderCore.SetState(m_mesh.GetMaterial()->GetState().GetStateBits());
     _renderCore.Draw(_commandBuffer, _renderPass, m_drawSurface);
 }
 

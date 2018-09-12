@@ -16,6 +16,9 @@
 
 #include "../Scene/Camera.h"
 
+#include "../Geometry/MeshRenderer.h"
+#include "../Geometry/Mesh.h"
+
 #define TINYGLTF_IMPLEMENTATION
 // #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
 #include "../Dependencies/Miscellaneous/tiny_gltf.h"
@@ -61,7 +64,7 @@ void UpdateBoundingBox(const ObjectHandler& _node, BoundingBox& _mainBoundingBox
 }
 
 // for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
-void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, ObjectHandler& _entityHandle, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign)
+void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRenderer* _meshRenderer, ObjectHandler& _entityHandle, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign)
 {
     Vector position(0.0f, 0.0f, 0.0f, 1.0f);
     Quaternion rotation;
@@ -110,15 +113,9 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
         Entity* child = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE, _model.nodes[_node.children[i]].name.c_str());
         ObjectHandler childHandle(child);
         child->AttachToParent(_entityHandle);
-        LoadNode(_model.nodes[_node.children[i]], _model, childHandle, _textureIndexToTextureName, _materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+        LoadNode(_model.nodes[_node.children[i]], _model, _meshRenderer, childHandle, _textureIndexToTextureName, _materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
     }
     
-    // NOTE IMPORTANT!!!
-    // NOW EVERY MESH HAS ITS OWN INDEX FROM 0 TO COUNT, THIS MEANS THAT THE DRAW CALLS ARE NO BATCHED!!
-    // NEED TO MERGE IN ONE SINGLE INDEX AND BUFFER ARRAY!!!
-
-    //ionU32 prevIndexSize = 0;
-    //ionU32 prevVertexSize = 0;
     if (_node.mesh > -1) 
     {
         const tinygltf::Mesh mesh = _model.meshes[_node.mesh];
@@ -132,19 +129,10 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
             }
 
             Entity* entityPtr = dynamic_cast<Entity*>(_entityHandle.GetPtr());
-            Mesh* ionMesh = entityPtr->AddMesh<Mesh>();
 
-
-            // NOTE IMPORTANT!!!
-            // NOW EVERY MESH HAS ITS OWN INDEX FROM 0 TO COUNT, THIS MEANS THAT THE DRAW CALLS ARE NO BATCHED!!
-            // NEED TO MERGE IN ONE SINGLE INDEX AND BUFFER ARRAY!!!
-
-
-            //ionMesh->SetIndexStart(prevIndexSize);
-            //ionU32 vertexStart = prevVertexSize;
-            ionMesh->SetIndexStart(0);
-            ionU32 vertexStart = 0;
-
+            Mesh mesh;
+            mesh.SetIndexStart(_meshRenderer->GetIndexDataCount());
+            ionU32 vertexStart = _meshRenderer->GetVertexDataCount();       // 0?
 
             eosVector(Vector) positionToBeNormalized;
             eosVector(Vector) normalForTangent;
@@ -516,7 +504,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
                         }
                     }
 
-                    ionMesh->PushBackVertex(vert);
+                    _meshRenderer->PushBackVertex(vert);
                 }
             }
 
@@ -529,7 +517,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
                 const tinygltf::BufferView &bufferView = _model.bufferViews[accessor.bufferView];
                 const tinygltf::Buffer &buffer = _model.buffers[bufferView.buffer];
 
-                ionMesh->SetIndexCount(static_cast<ionU32>(accessor.count));
+                mesh.SetIndexCount(static_cast<ionU32>(accessor.count));
 
                 switch (accessor.componentType)
                 {
@@ -543,7 +531,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
                         {
                             indexToBeUsedDuringNormalization.push_back((Index)(buf[index] + vertexStart));
                         }
-                        ionMesh->PushBackIndex((Index)(buf[index] + vertexStart));
+                        _meshRenderer->PushBackIndex((Index)(buf[index] + vertexStart));
                     }
                     eosDeleteRaw(buf);
                     break;
@@ -559,7 +547,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
                         {
                             indexToBeUsedDuringNormalization.push_back((Index)(buf[index] + vertexStart));
                         }
-                        ionMesh->PushBackIndex(buf[index] + vertexStart);
+                        _meshRenderer->PushBackIndex(buf[index] + vertexStart);
                     }
                     eosDeleteRaw(buf);
                     break;
@@ -574,7 +562,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
                         {
                             indexToBeUsedDuringNormalization.push_back((Index)(buf[index] + vertexStart));
                         }
-                        ionMesh->PushBackIndex((Index)(buf[index] + vertexStart));
+                        _meshRenderer->PushBackIndex((Index)(buf[index] + vertexStart));
                     }
                     eosDeleteRaw(buf);
                     break;
@@ -595,7 +583,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
                 ionSize count = normalsGenerated.size();
                 for (ionSize k = 0; k < count; ++k)
                 {
-                    ionMesh->GetVertex(k).SetNormal(normalsGenerated[k]);
+                    _meshRenderer->GetVertex(k).SetNormal(normalsGenerated[k]);
                 }
             }
 
@@ -618,21 +606,13 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
                 ionSize count = tangentsGenerated.size();
                 for (ionSize k = 0; k < count; ++k)
                 {
-                    ionMesh->GetVertex(k).SetTangent(tangentsGenerated[k]);
+                    _meshRenderer->GetVertex(k).SetTangent(tangentsGenerated[k]);
                     if (_setBitangentSign)
                     {
-                        ionMesh->GetVertex(k).SetBiTangent(tangentsGenerated[k]);
+                        _meshRenderer->GetVertex(k).SetBiTangent(tangentsGenerated[k]);
                     }
                 } 
             }
-
-            // NOTE IMPORTANT!!!
-            // NOW EVERY MESH HAS ITS OWN INDEX FROM 0 TO COUNT, THIS MEANS THAT THE DRAW CALLS ARE NO BATCHED!!
-            // NEED TO MERGE IN ONE SINGLE INDEX AND BUFFER ARRAY!!!
-
-            // update index size
-            //prevIndexSize += static_cast<ionU32>(ionMesh->GetIndexSize());
-            //prevVertexSize += static_cast<ionU32>(ionMesh->GetVertexSize());
 
             // add material and add all to primitive
             if (_model.materials.size() > 0)
@@ -823,7 +803,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
 
                         material->SetVertexShaderLayout(vertexLayout);
                         material->SetFragmentShaderLayout(fragmentLayout);
-                        material->SetVertexLayout(ionMesh->GetLayout());
+                        material->SetVertexLayout(_meshRenderer->GetLayout());
                         material->SetConstantsShaders(constants);
 
                         ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
@@ -911,7 +891,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
 
                     material->SetVertexShaderLayout(vertexLayout);
                     material->SetFragmentShaderLayout(fragmentLayout);
-                    material->SetVertexLayout(ionMesh->GetLayout());
+                    material->SetVertexLayout(_meshRenderer->GetLayout());
                     material->SetConstantsShaders(constants);
 
                     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
@@ -931,7 +911,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
                 }
 
                 //
-                ionMesh->SetMaterial(material);
+                mesh.SetMaterial(material);
             }
             else
             {
@@ -962,8 +942,10 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, Object
                     break;
                 }
 
-                ionMesh->SetMaterial(material);
+                mesh.SetMaterial(material);
             }
+
+            entityPtr->PushBackMesh(mesh);
         }
 
         // Bone weight for morph targets (NEXT: After the base renderer will works)
@@ -1421,10 +1403,15 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
     const tinygltf::Scene &scene = model.scenes[model.defaultScene];
     const ionSize nodeCount = scene.nodes.size();
 
+    // for GLTF always full vertex
+    Entity* entityPtr = dynamic_cast<Entity*>(_entity.GetPtr());
+    MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
+
     if (nodeCount == 1)
     {
         const tinygltf::Node node = model.nodes[scene.nodes[0]];
-        LoadNode(node, model, _entity, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+
+        LoadNode(node, model, meshRenderer, _entity, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
     }
     else
     {
@@ -1435,7 +1422,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
             Entity* child = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE, node.name.c_str());
             ObjectHandler childHandle(child);
 
-            LoadNode(node, model, childHandle, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+            LoadNode(node, model, meshRenderer, childHandle, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
 
             child->AttachToParent(_entity);
         }

@@ -385,7 +385,7 @@ int main(int argc, char **argv)
     ionBool areAllModelMaterialsUnlit = false;
     CheckIfAllMaterialsAreUnlit(testHandle, areAllModelMaterialsUnlit);
 
-    if (!areAllModelMaterialsUnlit)
+    if (!areAllModelMaterialsUnlit && test->GetMeshRenderer() != nullptr)
     {
         ion::Camera* cameraLightDebug = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE, "DebugLightCamera", false);
         ObjectHandler cameraLightDebugHandle(cameraLightDebug);

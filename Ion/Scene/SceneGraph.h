@@ -41,7 +41,6 @@ public:
     void UpdateAllCameraAspectRatio(const RenderCore& _renderCore);
 
     void Prepare();
-    void PrepareSurfaces();
 
     void Update(ionFloat _deltaTime);
     void Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _width, ionU32 _height);

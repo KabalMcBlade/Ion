@@ -122,19 +122,44 @@ void SceneGraph::GenerateMapTree(const ObjectHandler& _node)
             {
                 ObjectHandler entity = _node;
 
-                // full logical entity are not valid for rendering
+                // is the root of the mesh (because just the "root" has the mesh renderer)
+                const BaseMeshRenderer* renderer = entity->GetMeshRenderer();
+                if (renderer != nullptr)
+                {
+                    DrawSurface drawSurface;
+
+                    drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(renderer->GetVertexData(), renderer->GetVertexDataCount(), renderer->GetSizeOfVertex());
+                    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(renderer->GetIndexData(), renderer->GetIndexDataCount());
+                    
+                    m_drawSurfaces[cam].push_back(drawSurface);
+                }
+
                 const ionU32 meshCount = entity->GetMeshCount();
                 if (meshCount > 0)
                 {
+                    DrawNode drawNode;
+
+                    drawNode.m_nodeRef = entity.GetPtr();
+                    drawNode.m_visible = entity->IsVisible();    // this one is updated x frame, just set for the beginning
+
+                    DrawSurface& drawSurface = m_drawSurfaces[cam].back();
+
                     BoundingBox* bb = entity->GetBoundingBox();
                     m_sceneBoundingBox.Expande(bb->GetTransformed(entity->GetTransform().GetMatrix()));
 
                     for (ionU32 i = 0; i < meshCount; i++)
                     {
-                        DrawSurface surface;
-                        surface.m_nodeRef = entity.GetPtr();
-                        surface.m_meshIndexRef = i;
-                        m_drawSurfaces[cam].push_back(surface);
+                        DrawMesh drawMesh;
+                        
+                        drawMesh.m_meshIndexRef = i;
+                        drawMesh.m_indexStart = entity->GetMesh(i)->GetIndexStart();
+                        drawMesh.m_indexCount = entity->GetMesh(i)->GetIndexCount();
+                        drawMesh.m_material = entity->GetMesh(i)->GetMaterial();
+                        drawMesh.m_sortingIndex = static_cast<ionU8>(drawMesh.m_material->GetAlphaMode());
+
+                        drawNode.m_drawMeshes.push_back(drawMesh);
+
+                        drawSurface.m_drawNodes.push_back(drawNode);
                     }
                 }
             }
@@ -168,34 +193,13 @@ void SceneGraph::Prepare()
         GenerateMapTree(node);
     }
 
-    PrepareSurfaces();
-
     SortDrawSurfaces();
-}
-
-void SceneGraph::PrepareSurfaces()
-{
-    for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
-    {
-        eosVector(DrawSurface)& drawsurfaces = iter->second;
-        eosVector(DrawSurface)::iterator begin = drawsurfaces.begin(), end = drawsurfaces.end(), it = begin;
-        for (; it != end; ++it)
-        {
-            DrawSurface& drawsurface = (*it);
-
-            drawsurface.m_visible = drawsurface.m_nodeRef->IsVisible();
-            drawsurface.m_indexStart = drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetIndexStart();
-            drawsurface.m_indexCount = drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetIndexCount();
-            drawsurface.m_vertexCache = ionVertexCacheManager().AllocVertex(drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetVertexData(), drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetVertexSize(), drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetSize());
-            drawsurface.m_indexCache = ionVertexCacheManager().AllocIndex(drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetIndexData(), drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetIndexSize());
-            drawsurface.m_material = drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetMaterial();
-            drawsurface.m_sortingIndex = static_cast<ionU8>(drawsurface.m_nodeRef->GetMesh(drawsurface.m_meshIndexRef)->GetMaterial()->GetAlphaMode());
-        }
-    }
 }
 
 void SceneGraph::SortDrawSurfaces()
 {
+    // NEED TO REWORK
+    /*
     for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
         eosVector(DrawSurface)& drawSurfaces = iter->second;
@@ -217,6 +221,7 @@ void SceneGraph::SortDrawSurfaces()
             drawSurfaces[i] = temp;
         }
     }
+    */
 }
 
 void SceneGraph::Update(ionFloat _deltaTime)
@@ -242,41 +247,47 @@ void SceneGraph::Update(ionFloat _deltaTime)
 
         const Vector& cameraPos = cam->GetTransform().GetPosition();
 
-        eosVector(DrawSurface)& drawsurfaces = iter->second;
-        eosVector(DrawSurface)::iterator begin = drawsurfaces.begin(), end = drawsurfaces.end(), it = begin;
-        for (; it != end; ++it)
+        eosVector(DrawSurface)& drawSurfaces = iter->second;
+        eosVector(DrawSurface)::iterator beginDS = drawSurfaces.begin(), endDS = drawSurfaces.end(), itDS = beginDS;
+        for (; itDS != endDS; ++itDS)
         {
-            DrawSurface& drawsurface = (*it);
+            DrawSurface& drawSurface = (*itDS);
 
-            const Matrix& model = drawsurface.m_nodeRef->GetTransform().GetMatrixWS();
+            _mm_storeu_ps(&drawSurface.m_viewMatrix[0], view[0]);
+            _mm_storeu_ps(&drawSurface.m_viewMatrix[4], view[1]);
+            _mm_storeu_ps(&drawSurface.m_viewMatrix[8], view[2]);
+            _mm_storeu_ps(&drawSurface.m_viewMatrix[12], view[3]);
 
-            _mm_storeu_ps(&drawsurface.m_modelMatrix[0], model[0]);
-            _mm_storeu_ps(&drawsurface.m_modelMatrix[4], model[1]);
-            _mm_storeu_ps(&drawsurface.m_modelMatrix[8], model[2]);
-            _mm_storeu_ps(&drawsurface.m_modelMatrix[12], model[3]);
+            _mm_storeu_ps(&drawSurface.m_projectionMatrix[0], projection[0]);
+            _mm_storeu_ps(&drawSurface.m_projectionMatrix[4], projection[1]);
+            _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], projection[2]);
+            _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], projection[3]);
 
-            _mm_storeu_ps(&drawsurface.m_viewMatrix[0], view[0]);
-            _mm_storeu_ps(&drawsurface.m_viewMatrix[4], view[1]);
-            _mm_storeu_ps(&drawsurface.m_viewMatrix[8], view[2]);
-            _mm_storeu_ps(&drawsurface.m_viewMatrix[12], view[3]);
-
-            _mm_storeu_ps(&drawsurface.m_projectionMatrix[0], projection[0]);
-            _mm_storeu_ps(&drawsurface.m_projectionMatrix[4], projection[1]);
-            _mm_storeu_ps(&drawsurface.m_projectionMatrix[8], projection[2]);
-            _mm_storeu_ps(&drawsurface.m_projectionMatrix[12], projection[3]);
-
-            _mm_storeu_ps(&drawsurface.m_mainCameraPos[0], cameraPos);
+            _mm_storeu_ps(&drawSurface.m_mainCameraPos[0], cameraPos);
             if (m_directionalLight.IsValid())
             {
-                _mm_storeu_ps(&drawsurface.m_directionalLight[0], GetDirectionalLightPtr()->GetLightDirection());
-                _mm_storeu_ps(&drawsurface.m_directionalLightColor[0], GetDirectionalLightPtr()->GetColor());
+                _mm_storeu_ps(&drawSurface.m_directionalLight[0], GetDirectionalLightPtr()->GetLightDirection());
+                _mm_storeu_ps(&drawSurface.m_directionalLightColor[0], GetDirectionalLightPtr()->GetColor());
             }
 
-            drawsurface.m_exposure = ionRenderManager().m_exposure;
-            drawsurface.m_gamma = ionRenderManager().m_gamma;
-            drawsurface.m_prefilteredCubeMipLevels = ionRenderManager().m_prefilteredCubeMipLevels;
+            drawSurface.m_exposure = ionRenderManager().m_exposure;
+            drawSurface.m_gamma = ionRenderManager().m_gamma;
+            drawSurface.m_prefilteredCubeMipLevels = ionRenderManager().m_prefilteredCubeMipLevels;
 
-            drawsurface.m_visible = drawsurface.m_nodeRef->IsVisible();
+            eosVector(DrawNode)::iterator beginDN = drawSurface.m_drawNodes.begin(), endDN = drawSurface.m_drawNodes.end(), itDN = beginDN;
+            for (; itDN != endDN; ++itDN)
+            {
+                DrawNode& drawNode = (*itDN);
+
+                const Matrix& model = drawNode.m_nodeRef->GetTransform().GetMatrixWS();
+
+                drawNode.m_visible = drawNode.m_nodeRef->IsVisible();
+
+                _mm_storeu_ps(&drawNode.m_modelMatrix[0], model[0]);
+                _mm_storeu_ps(&drawNode.m_modelMatrix[4], model[1]);
+                _mm_storeu_ps(&drawNode.m_modelMatrix[8], model[2]);
+                _mm_storeu_ps(&drawNode.m_modelMatrix[12], model[3]);
+            }
         }
     }
     //ionVertexCacheManager().EndMapping();
@@ -303,11 +314,7 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
         {
             const DrawSurface& drawSurface = (*it);
             
-            if (drawSurface.m_visible)
-            {
-                _renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
-                _renderCore.Draw(cam->GetRenderPass(), drawSurface);
-            }
+            _renderCore.Draw(cam->GetRenderPass(), drawSurface);
         }
 
         cam->EndRenderPass(_renderCore);

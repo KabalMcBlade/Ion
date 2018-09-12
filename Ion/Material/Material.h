@@ -224,7 +224,7 @@ public:
     const SpecularGlossiness& GetSpecularGlossiness() const { return m_specularGlossiness; }
 
     void SetAlphaMode(EAlphaMode _mode) { m_alphaMode = _mode; }
-    EAlphaMode GetAlphaMode() { return m_alphaMode; }
+    EAlphaMode GetAlphaMode() const { return m_alphaMode; }
 
     void SetShaders(const ionS32 _vertexIndex, const ionS32 _fragmentIndex = -1, const ionS32 _tessellationControlIndex = -1, const ionS32 _tessellationEvaluationIndex = -1, const ionS32 _geometryIndex = -1, const ionBool _useJoint = false, const ionBool _useSkinning = false);
     void GetShaders(ionS32& _vertexIndex, ionS32& _fragmentIndex, ionS32& _tessellationControlIndex, ionS32& _tessellationEvaluationIndex, ionS32& _geometryIndex, ionBool& _useJoint, ionBool& _useSkinning) const;

@@ -11,7 +11,7 @@ ION_NAMESPACE_BEGIN
 
 BoundingBox::BoundingBox()
 {
-    Set(VectorHelper::GetPlusInf(), VectorHelper::GetMinusInf());
+    Reset();
 }
 
 BoundingBox::BoundingBox(const Vector& _min, const Vector& _max)
@@ -22,6 +22,11 @@ BoundingBox::BoundingBox(const Vector& _min, const Vector& _max)
 BoundingBox::~BoundingBox()
 {
 
+}
+
+void BoundingBox::Reset()
+{
+    Set(VectorHelper::GetPlusInf(), VectorHelper::GetMinusInf());
 }
 
 void BoundingBox::Set(const Vector& _min, const Vector& _max)
