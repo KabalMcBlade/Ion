@@ -39,7 +39,6 @@ public:
     Texture*    CreateTextureFromFile(const eosString& _name, const eosString& _path, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Repeat, ETextureUsage _usage = ETextureUsage_RGBA, ETextureType _type = ETextureType_2D, ionU32 _maxAnisotrpy = 1, ETextureRepeat _customRepeatU = ETextureRepeat_Repeat, ETextureRepeat _customRepeatV = ETextureRepeat_Repeat, ETextureRepeat _customRepeatW = ETextureRepeat_Repeat);
     Texture*    CreateTextureFromBuffer(const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Repeat, ETextureUsage _usage = ETextureUsage_RGBA, ETextureType _type = ETextureType_2D, ionU32 _maxAnisotrpy = 1, ETextureRepeat _customRepeatU = ETextureRepeat_Repeat, ETextureRepeat _customRepeatV = ETextureRepeat_Repeat, ETextureRepeat _customRepeatW = ETextureRepeat_Repeat);
     Texture*    GenerateTexture(const eosString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureFilter _filter = ETextureFilter_Default, ETextureRepeat _repeat = ETextureRepeat_Repeat, ETextureType _type = ETextureType_2D, ionU32 _numLevel = 1, ionU32 _maxAnisotrpy = 1, ETextureRepeat _customRepeatU = ETextureRepeat_Repeat, ETextureRepeat _customRepeatV = ETextureRepeat_Repeat, ETextureRepeat _customRepeatW = ETextureRepeat_Repeat);
-    void        GenerateMipMaps(Texture* _texture);
 
     Texture*    GetTexture(const eosString& _name) const;
 

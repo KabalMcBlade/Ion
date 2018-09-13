@@ -1167,4 +1167,17 @@ ObjectHandler RenderManager::GetObjectByID(ionU32 _id)
     return m_sceneGraph.GetObjectByID(_id);
 }
 
+VkCommandBuffer RenderManager::InstantiateCommandBuffer(VkCommandBufferLevel _level)
+{
+    VkCommandBuffer cmdBuffer = m_renderCore.CreateCustomCommandBuffer(_level);
+    m_renderCore.BeginCustomCommandBuffer(cmdBuffer);
+    return cmdBuffer;
+}
+
+void RenderManager::ShutdownCommandBuffer(VkCommandBuffer _commandBuffer)
+{
+    m_renderCore.EndCustomCommandBuffer(_commandBuffer);
+    m_renderCore.FlushCustomCommandBuffer(_commandBuffer);
+}
+
 ION_NAMESPACE_END

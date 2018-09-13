@@ -96,17 +96,23 @@ public:
     ionBool IsRunning();
 
     // rendering PBR helper functions:
-    const Texture*    GenerateBRDF(ObjectHandler _camera);
-    const Texture*    GetBRDF() const;
+    const Texture*  GenerateBRDF(ObjectHandler _camera);
+    const Texture*  GetBRDF() const;
 
-    const Texture*    GenerateIrradianceCubemap(ObjectHandler _camera);
-    const Texture*    GetIrradianceCubemap() const;
+    const Texture*  GenerateIrradianceCubemap(ObjectHandler _camera);
+    const Texture*  GetIrradianceCubemap() const;
 
-    const Texture*    GeneratePrefilteredEnvironmentCubemap(ObjectHandler _camera);
-    const Texture*    GetPrefilteredEnvironmentCubemap() const;
+    const Texture*  GeneratePrefilteredEnvironmentCubemap(ObjectHandler _camera);
+    const Texture*  GetPrefilteredEnvironmentCubemap() const;
 
-    const Texture*    GenerateNullTexture();
-    const Texture*    GetNullTexure() const;
+    const Texture*  GenerateNullTexture();
+    const Texture*  GetNullTexure() const;
+
+    // render core interface for outside user (very minimal)
+    VkCommandBuffer InstantiateCommandBuffer(VkCommandBufferLevel _level);
+    void            ShutdownCommandBuffer(VkCommandBuffer _commandBuffer);
+
+    //////////////////////////////////////////////////////////////////////////
 
     ionFloat m_exposure;
     ionFloat m_gamma;

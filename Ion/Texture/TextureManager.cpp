@@ -181,16 +181,6 @@ Texture* TextureManager::GenerateTexture(const eosString& _name, ionU32 _width, 
     }
 }
 
-void TextureManager::GenerateMipMaps(Texture* _texture)
-{
-    if (_texture == nullptr)
-    {
-        return;
-    }
-
-    _texture->GenerateMipMaps();
-}
-
 Texture* TextureManager::GetTexture(const eosString& _name) const
 {
     if (_name.empty())
