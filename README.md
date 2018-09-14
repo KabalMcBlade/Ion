@@ -20,6 +20,9 @@ I did in this way to show you the capabilities to have another camera which rend
 Using the DamagedHelmet supplied with this demo (for the license raed the end of this file)
 <img src="./Screenshots/Screenshot1.jpg">
 
+Another PBR test (model NOT supplied by this demo, but you can download from https://sketchfab.com, the name is steampunkExplorer.gltf)
+<img src="./Screenshots/Screenshot2.jpg">
+
 
 ## Demo Controls
 

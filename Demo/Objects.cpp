@@ -181,7 +181,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
             const Quaternion& prevRot = GetTransform().GetRotation();
 
             Matrix rotationMatrix;
-            rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(xOffset), NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(0.0f));
+            rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(xOffset), NIX_DEG_TO_RAD(yOffset), NIX_DEG_TO_RAD(0.0f));
 
             Quaternion currRot;
             currRot.SetFromMatrix(rotationMatrix);
@@ -202,13 +202,12 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
             ionFloat velocity = m_movementSpeed * _deltaTime;
 
             const Quaternion& orientation = m_camera->GetTransform().GetRotation();
+            const Vector newRight = right * orientation;
+            const Vector newUp = up * orientation;
 
-            Vector dir = right * xOffset + up * yOffset;
-            dir = dir * orientation;
+            const Vector dir = newRight * xOffset + newUp * yOffset;
 
-            Vector pos = GetTransform().GetPosition();
-
-            pos += dir * velocity;
+            const Vector pos = GetTransform().GetPosition() + dir * velocity;
 
             GetTransform().SetPosition(pos);
         }
@@ -218,13 +217,11 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
             ionFloat velocity = m_movementSpeed * m_incresingWheelSpeed * _deltaTime;
 
             const Quaternion& orientation = m_camera->GetTransform().GetRotation();
+            const Vector newForward = forward * orientation;
 
-            Vector dir = forward * _mouseState.m_wheel.m_distance;
-            dir = dir * orientation;
+            const Vector dir = newForward * _mouseState.m_wheel.m_distance;
 
-            Vector pos = GetTransform().GetPosition();
-
-            pos += dir * velocity;
+            const Vector pos = GetTransform().GetPosition() + dir * velocity;
 
             GetTransform().SetPosition(pos);
         }
