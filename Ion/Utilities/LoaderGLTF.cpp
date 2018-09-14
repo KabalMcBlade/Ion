@@ -1075,7 +1075,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
             }
             else
             {
-                filter = ETextureFilter_Nearest;
+                filter = ETextureFilter_Default;
             }
 
             if (sampler.wrapS == 33071)
