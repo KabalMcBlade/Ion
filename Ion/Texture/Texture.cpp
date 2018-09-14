@@ -548,7 +548,7 @@ void Texture::UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _
     if (m_optFormat == ETextureFormat_RGB565)
     {
         ionU8* tmpData = (ionU8*)_buffer;
-        for (int i = 0; i < size; i += 2) 
+        for (ionU8 i = 0; i < size; i += 2)
         {
             data[i] = tmpData[i + 1];
             data[i + 1] = tmpData[i];
