@@ -1051,31 +1051,46 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
         ETextureRepeat repeatU = ETextureRepeat_Repeat;
         ETextureRepeat repeatV = ETextureRepeat_Repeat;
         ETextureRepeat repeatW = ETextureRepeat_Repeat;
-        ETextureFilter filter = ETextureFilter_Nearest;
+
+        ETextureFilterMag filterMag = ETextureFilterMag_Linear;
+        ETextureFilterMin filterMin = ETextureFilterMin_Linear_MipMap_Linear;
 
         if (tex.sampler > -1)
         {
             const tinygltf::Sampler& sampler = model.samplers[tex.sampler];
 
-            if (sampler.magFilter == 9728 && sampler.minFilter == 9728)
+            switch (sampler.magFilter)
             {
-                filter = ETextureFilter_Nearest;
+            case 9728: 
+                filterMag = ETextureFilterMag_Nearest; 
+                break;
+            case 9729: 
+            default:
+                filterMag = ETextureFilterMag_Linear;
+                break;
             }
-            else if (sampler.magFilter == 9729 && sampler.minFilter == 9729)
+
+            switch (sampler.minFilter)
             {
-                filter = ETextureFilter_Linear;
-            }
-            else if (sampler.magFilter == 9728 && sampler.minFilter == 9729)
-            {
-                filter = ETextureFilter_NearestLinear;
-            }
-            else if (sampler.magFilter == 9729 && sampler.minFilter == 9728)
-            {
-                filter = ETextureFilter_LinearNearest;
-            }
-            else
-            {
-                filter = ETextureFilter_Default;
+            case 9728:
+                filterMin = ETextureFilterMin_Nearest;
+                break;
+            case 9729:
+                filterMin = ETextureFilterMin_Linear;
+                break;
+            case 9984:
+                filterMin = ETextureFilterMin_Nearest_MipMap_Nearest;
+                break;
+            case 9985:
+                filterMin = ETextureFilterMin_Linear_MipMap_Nearest;
+                break;
+            case 9986:
+                filterMin = ETextureFilterMin_Nearest_MipMap_Linear;
+                break;
+            case 9987:
+            default:
+                filterMin = ETextureFilterMin_Linear_MipMap_Linear;
+                break;
             }
 
             if (sampler.wrapS == 33071)
@@ -1129,7 +1144,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
 
             textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, name.c_str()));
 
-            ionTextureManger().CreateTextureFromBuffer(name, image.width, image.height, image.component, &image.image[0], image.image.size(), filter, ETextureRepeat_Custom, ETextureUsage_RGBA, ETextureType_2D, 1U, repeatU, repeatV, repeatW);
+            ionTextureManger().CreateTextureFromBuffer(name, image.width, image.height, image.component, &image.image[0], image.image.size(), filterMin, filterMag, ETextureRepeat_Custom, ETextureUsage_RGBA, ETextureType_2D, 1U, repeatU, repeatV, repeatW);
         }
         else
         {
@@ -1151,7 +1166,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
 
             textureIndexToTextureName.insert(std::pair<ionS32, eosString>((ionS32)i, filename.c_str()));
 
-            ionTextureManger().CreateTextureFromFile(filename, path, filter, ETextureRepeat_Custom, ETextureUsage_RGBA, ETextureType_2D, 1U, repeatU, repeatV, repeatW);
+            ionTextureManger().CreateTextureFromFile(filename, path, filterMin, filterMag, ETextureRepeat_Custom, ETextureUsage_RGBA, ETextureType_2D, 1U, repeatU, repeatV, repeatW);
         }
     }
 
@@ -1314,7 +1329,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
 
                 if (key == "doubleSided")
                 {
-                    if (param.bool_value)
+                    //if (param.bool_value) // still not clear if the key exists I have to set anyway double side without caring about the boolean flag
                     {
                         material->GetState().UnsetCullingMode(ECullingMode_Back);
                         material->GetState().SetCullingMode(ECullingMode_TwoSide);

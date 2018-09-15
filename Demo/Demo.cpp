@@ -20,6 +20,8 @@
 #define MEMORY_256_MB               MEMORY_128_MB * 2U
 #define MEMORY_512_MB               MEMORY_256_MB * 2U
 #define MEMORY_1024_MB              MEMORY_512_MB * 2U
+#define MEMORY_2048_MB              MEMORY_1024_MB * 2U
+#define MEMORY_4096_MB              MEMORY_2048_MB * 2U
 
 #define STL_MAX_HEAP_MEMORY         MEMORY_1024_MB
 #define STL_MAX_STACK_MEMORY_SIZE   MEMORY_1_MB
@@ -35,21 +37,18 @@
 //////////////////////////////////////////////////////////////////////////
 // VULKAN MEMORY
 
-// just for sample and just to stress :D     
-#define VULKAN_BASE_MEMORY_MB       MEMORY_1_MB
+#define VULKAN_COMMAND_MEMORY_MB    MEMORY_1_MB
+#define VULKAN_OBJECT_MEMORY_MB     MEMORY_1_MB
+#define VULKAN_CACHE_MEMORY_MB      MEMORY_1_MB
+#define VULKAN_DEVICE_MEMORY_MB     MEMORY_1_MB
+#define VULKAN_INSTANCE_MEMORY_MB   MEMORY_8_MB
 
-#define VULKAN_COMMAND_MEMORY_MB    VULKAN_BASE_MEMORY_MB
-#define VULKAN_OBJECT_MEMORY_MB     VULKAN_BASE_MEMORY_MB
-#define VULKAN_CACHE_MEMORY_MB      VULKAN_BASE_MEMORY_MB
-#define VULKAN_DEVICE_MEMORY_MB     VULKAN_BASE_MEMORY_MB
-#define VULKAN_INSTANCE_MEMORY_MB   VULKAN_BASE_MEMORY_MB * 8
+#define VULKAN_GPU_MEMORY_MB        MEMORY_1024_MB
 
-#define VULKAN_GPU_MEMORY_MB        VULKAN_BASE_MEMORY_MB * 128
+#define VULKAN_GPU_DEVICE_LOCAL_MB  MEMORY_1024_MB
+#define VULKAN_GPU_HOST_VISIBLE_MB  MEMORY_1024_MB
 
-#define VULKAN_GPU_DEVICE_LOCAL_MB  VULKAN_BASE_MEMORY_MB * 1024
-#define VULKAN_GPU_HOST_VISIBLE_MB  VULKAN_BASE_MEMORY_MB * 1024
-
-#define VULKAN_STAGING_BUFFER_MB    VULKAN_BASE_MEMORY_MB * 512
+#define VULKAN_STAGING_BUFFER_MB    MEMORY_512_MB
 
 #ifdef _DEBUG
 #   define ION_VULKAN_VALIDATION_LAYER true
@@ -189,7 +188,7 @@ int main(int argc, char **argv)
 
     ION_SCOPE_BEGIN
 
-        ionFileSystemManager().Init("Assets", "Shaders", "Textures", "Models");
+    ionFileSystemManager().Init("Assets", "Shaders", "Textures", "Models");
 
     ionBool rendererInitialized = false;
     Window window;
@@ -212,7 +211,7 @@ int main(int argc, char **argv)
     //////////////////////////////////////////////////////////////////////////
     // Generate and load all global texture
     const Texture* nullTextureMap = ionRenderManager().GenerateNullTexture();
-    const Texture* skyboxCubeMap = ionTextureManger().CreateTextureFromFile("misty_pines_4k", ionFileSystemManager().GetTexturesPath() + "misty_pines_4k.hdr", ETextureFilter_Default, ETextureRepeat_ClampAlpha, ETextureUsage_SkyboxHDR, ETextureType_Cubic, 1);
+    const Texture* skyboxCubeMap = ionTextureManger().CreateTextureFromFile("misty_pines_4k", ionFileSystemManager().GetTexturesPath() + "misty_pines_4k.hdr", ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_ClampAlpha, ETextureUsage_SkyboxHDR, ETextureType_Cubic, 1);
 
     Material* skyboxMaterial = ionMaterialManger().CreateMaterial("SkyBox", 0u);
 

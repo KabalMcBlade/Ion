@@ -56,6 +56,7 @@ private:
     ionBool CreateSampler();
     VkFormat GetVulkanFormatFromTextureFormat(ETextureFormat _format);
     VkComponentMapping GetVulkanComponentMappingFromTextureFormat(ETextureFormat _format);
+    void GetVulkanFiltersFromTextureFilters(ETextureFilterMin _min0, ETextureFilterMag _mag0, VkFilter& _min, VkFilter& _mag, VkSamplerMipmapMode& _mipmap);
 
     ionBool LoadTextureFromFile(const eosString& _path);
     ionBool LoadCubeTextureFromFile(const eosString& _path);
@@ -83,7 +84,8 @@ private:
     VkSampler               m_sampler;
 
     ETextureUsage           m_optUsage;
-    ETextureFilter          m_optFilter;
+    ETextureFilterMin       m_optFilterMin;
+    ETextureFilterMag       m_optFilterMag;
     ETextureRepeat          m_optRepeat;
     ETextureType            m_optTextureType;
     ETextureFormat          m_optFormat;

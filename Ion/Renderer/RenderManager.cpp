@@ -433,7 +433,7 @@ ionBool RenderManager::IsRunning()
 
 const Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
 {
-    Texture* brdflut = ionTextureManger().GenerateTexture(ION_BRDFLUT_TEXTURENAME, 512, 512, ETextureFormat_BRDF, ETextureFilter_Default, ETextureRepeat_Clamp);
+    Texture* brdflut = ionTextureManger().GenerateTexture(ION_BRDFLUT_TEXTURENAME, 512, 512, ETextureFormat_BRDF, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp);
 
     Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
 
@@ -538,8 +538,8 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
 {
     const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(64))) + 1;
 
-    Texture* irradiance = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME, 64, 64, ETextureFormat_Irradiance, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureType_Cubic, mipMapsLevel);
-    Texture* offscreen = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME_OFFSCREEN, 64, 64, ETextureFormat_Irradiance, ETextureFilter_NoSampler, ETextureRepeat_NoSampler, ETextureType_2D);
+    Texture* irradiance = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME, 64, 64, ETextureFormat_Irradiance, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp, ETextureType_Cubic, mipMapsLevel);
+    Texture* offscreen = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME_OFFSCREEN, 64, 64, ETextureFormat_Irradiance, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp, ETextureType_2D);
 
     //
     // Transition between irradiance and offscreen
@@ -830,8 +830,8 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
 {
     const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(512))) + 1;
 
-    Texture* prefilteredEnvironment = ionTextureManger().GenerateTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME, 512, 512, ETextureFormat_PrefilteredEnvironment, ETextureFilter_Default, ETextureRepeat_Clamp, ETextureType_Cubic, mipMapsLevel);
-    Texture* offscreen = ionTextureManger().GenerateTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME_OFFSCREEN, 512, 512, ETextureFormat_PrefilteredEnvironment, ETextureFilter_NoSampler, ETextureRepeat_NoSampler, ETextureType_2D);
+    Texture* prefilteredEnvironment = ionTextureManger().GenerateTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME, 512, 512, ETextureFormat_PrefilteredEnvironment, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp, ETextureType_Cubic, mipMapsLevel);
+    Texture* offscreen = ionTextureManger().GenerateTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME_OFFSCREEN, 512, 512, ETextureFormat_PrefilteredEnvironment, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp, ETextureType_2D);
 
     //
     // Transition between prefilteredEnvironment and offscreen
@@ -1129,7 +1129,7 @@ const Texture* RenderManager::GetPrefilteredEnvironmentCubemap() const
 
 const Texture* RenderManager::GenerateNullTexture()
 {
-    return ionTextureManger().GenerateTexture(ION_NULL_TEXTURENAME, 1, 1, ETextureFormat_Intensity8, ETextureFilter_Default, ETextureRepeat_Repeat, ETextureType_2D);
+    return ionTextureManger().GenerateTexture(ION_NULL_TEXTURENAME, 1, 1, ETextureFormat_RGBA8, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Repeat, ETextureType_2D);
 }
 
 const Texture* RenderManager::GetNullTexure() const

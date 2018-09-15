@@ -35,7 +35,8 @@ Texture::Texture(VkDevice _vkDevice, const eosString& _name) :
     m_layout = VK_IMAGE_LAYOUT_GENERAL;
     m_sampler = VK_NULL_HANDLE;
 
-    m_optFilter = ETextureFilter_Default;
+    m_optFilterMag = ETextureFilterMag_Linear;
+    m_optFilterMin = ETextureFilterMin_Linear_MipMap_Linear;
     m_optRepeat = ETextureRepeat_Repeat;
     m_optUsage = ETextureUsage_RGBA;
     m_optTextureType = ETextureType_2D;
@@ -326,7 +327,7 @@ void Texture::GenerateOptions()
     {
         m_numLevels = 1;
 
-        if (m_optFilter == ETextureFilter_Default)
+        if (m_optFilterMin > ETextureFilterMin_Nearest)
         {
             ionS32 width = m_width;
             ionS32 height = m_height;
@@ -430,6 +431,8 @@ ionBool Texture::GenerateTexture(ionU32 _width, ionU32 _height, ETextureFormat _
     m_optRepeat = _repeat;
     m_numLevels = _numLevel;
     m_optTextureType = _type;
+
+    GenerateOptions();
 
     return Create();
 }
@@ -667,14 +670,51 @@ VkComponentMapping Texture::GetVulkanComponentMappingFromTextureFormat(ETextureF
     return componentMapping;
 }
 
-ionBool Texture::CreateSampler()
+void Texture::GetVulkanFiltersFromTextureFilters(ETextureFilterMin _min0, ETextureFilterMag _mag0, VkFilter& _min, VkFilter& _mag, VkSamplerMipmapMode& _mipmap)
 {
-    // if have chosen to not create sampler, the function return true but skip the sampler
-    if (m_optFilter == ETextureFilter_NoSampler && m_optRepeat == ETextureRepeat_NoSampler)
+    switch (_mag0)
     {
-        return true;
+    case ETextureFilterMag_Nearest:
+        _mag = VK_FILTER_NEAREST;
+        break;
+    case ETextureFilterMag_Linear:
+    default:
+        _mag = VK_FILTER_LINEAR;
+        break;
     }
 
+    switch (_min0)
+    {
+    case ETextureFilterMin_Linear:
+        _min = VK_FILTER_LINEAR;
+        _mipmap = VK_SAMPLER_MIPMAP_MODE_LINEAR;        // by default is 0 set in the sampler, that means linear mipmap
+        break;
+    case ETextureFilterMin_Nearest:
+        _min = VK_FILTER_NEAREST;
+        _mipmap = VK_SAMPLER_MIPMAP_MODE_LINEAR;        // by default is 0 set in the sampler, that means linear mipmap
+        break;
+    case ETextureFilterMin_Nearest_MipMap_Nearest:
+        _min = VK_FILTER_NEAREST;
+        _mipmap = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+        break;
+    case ETextureFilterMin_Linear_MipMap_Nearest:
+        _min = VK_FILTER_LINEAR;
+        _mipmap = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+        break;
+    case ETextureFilterMin_Nearest_MipMap_Linear:
+        _min = VK_FILTER_NEAREST;
+        _mipmap = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        break;
+    case ETextureFilterMin_Linear_MipMap_Linear:
+    default:
+        _min = VK_FILTER_LINEAR;
+        _mipmap = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        break;
+    }
+}
+
+ionBool Texture::CreateSampler()
+{
     VkSamplerCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     createInfo.maxAnisotropy = ionTextureManger().GetSamplerAnysotropy() ? static_cast<ionFloat>(m_maxAnisotropy) : 1.0f;
@@ -685,33 +725,8 @@ ionBool Texture::CreateSampler()
     createInfo.minLod = 0;
     createInfo.maxLod = static_cast<ionFloat>(m_numLevels);
 
-    switch (m_optFilter) 
-    {
-    case ETextureFilter_Default:
-    case ETextureFilter_Linear:
-        createInfo.minFilter = VK_FILTER_LINEAR;
-        createInfo.magFilter = VK_FILTER_LINEAR;
-        createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        break;
-    case ETextureFilter_Nearest:
-        createInfo.minFilter = VK_FILTER_NEAREST;
-        createInfo.magFilter = VK_FILTER_NEAREST;
-        createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-        break;
-    case ETextureFilter_LinearNearest:
-        createInfo.minFilter = VK_FILTER_LINEAR;
-        createInfo.magFilter = VK_FILTER_NEAREST;
-        createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        break;
-    case ETextureFilter_NearestLinear:
-        createInfo.minFilter = VK_FILTER_NEAREST;
-        createInfo.magFilter = VK_FILTER_LINEAR;
-        createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-        break;
-    default:
-        ionAssertReturnValue(false, "Texture filter not supported", false);
-    }
-    
+    GetVulkanFiltersFromTextureFilters(m_optFilterMin, m_optFilterMag, createInfo.minFilter, createInfo.magFilter, createInfo.mipmapMode);
+
     switch (m_optRepeat) 
     {
     case ETextureRepeat_Repeat:

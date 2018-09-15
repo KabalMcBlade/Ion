@@ -61,16 +61,21 @@ enum ETextureFormat
     ETextureUsage_Skybox                // skybox
 };
 
- enum ETextureFilter
+enum ETextureFilterMag
  {
-     ETextureFilter_Linear,
-     ETextureFilter_Nearest, 
+     ETextureFilterMag_Linear = 0,
+     ETextureFilterMag_Nearest
+ };
 
-     ETextureFilter_LinearNearest,      // min and max
-     ETextureFilter_NearestLinear,      // min and max
+ enum ETextureFilterMin
+ {
+     ETextureFilterMin_Linear = 0,
+     ETextureFilterMin_Nearest,
 
-     ETextureFilter_Default,         // Using this filtering, the TextureOptions::m_numLevels will be computed by width and height, and the filtering will be set as ETextureFilter_Linear
-     ETextureFilter_NoSampler       // is used with the ETextureRepeat_NoSampler, the sampler is not created for the texture, otherwise just use default value for this filter
+     ETextureFilterMin_Nearest_MipMap_Nearest,
+     ETextureFilterMin_Linear_MipMap_Nearest,
+     ETextureFilterMin_Nearest_MipMap_Linear,
+     ETextureFilterMin_Linear_MipMap_Linear
  };
 
  enum ETextureRepeat
@@ -81,8 +86,7 @@ enum ETextureFormat
      ETextureRepeat_ClampAlpha,    // guarantee 0 alpha edge for projected textures
      ETextureRepeat_Mirrored,
      ETextureRepeat_MirroredClamp,
-     ETextureRepeat_Custom,         // this one let the user manually set all U,V and W
-     ETextureRepeat_NoSampler       // is used with the ETextureFilter_NoSampler, the sampler is not created for the texture, otherwise just use default value for this filter
+     ETextureRepeat_Custom         // this one let the user manually set all U,V and W
  };
 
 ION_NAMESPACE_END
