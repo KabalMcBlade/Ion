@@ -82,6 +82,7 @@ private:
     eosVector(ObjectHandler)                    m_nodes;
     eosMap(Camera*, eosVector(DrawSurface))     m_drawSurfaces;
     eosVector(ObjectHandler)                    m_registeredInput;
+    ionBool                                     m_isMeshGeneratedFirstTime;  // is an helper
 };
 
 ION_NAMESPACE_END

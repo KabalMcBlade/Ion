@@ -465,17 +465,10 @@ const Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
     ionShaderProgramManager().StartFrame();
 
     DrawSurface drawSurface;
-    DrawNode drawNode;
-    DrawMesh drawMesh;
-
-    drawMesh.m_indexStart = brdflutEntity->GetMesh(0)->GetIndexStart();
-    drawMesh.m_indexCount = brdflutEntity->GetMesh(0)->GetIndexCount();
-    drawMesh.m_material = brdflutEntity->GetMesh(0)->GetMaterial();
-
-    drawNode.m_drawMeshes.push_back(drawMesh);
-    drawNode.m_visible = brdflutEntity->IsVisible();
-
-    drawSurface.m_drawNodes.push_back(drawNode);
+    drawSurface.m_indexStart = brdflutEntity->GetMesh(0)->GetIndexStart();
+    drawSurface.m_indexCount = brdflutEntity->GetMesh(0)->GetIndexCount();
+    drawSurface.m_material = brdflutEntity->GetMesh(0)->GetMaterial();
+    drawSurface.m_visible = brdflutEntity->IsVisible();
     drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(brdflutEntity->GetMeshRenderer()->GetVertexData(), brdflutEntity->GetMeshRenderer()->GetVertexDataCount(), brdflutEntity->GetMeshRenderer()->GetSizeOfVertex());
     drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(brdflutEntity->GetMeshRenderer()->GetIndexData(), brdflutEntity->GetMeshRenderer()->GetIndexDataCount());
 
@@ -496,10 +489,10 @@ const Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
 
         const Matrix& model = brdflutEntity->GetTransform().GetMatrixWS();
 
-        _mm_storeu_ps(&drawSurface.m_drawNodes[0].m_modelMatrix[0], model[0]);
-        _mm_storeu_ps(&drawSurface.m_drawNodes[0].m_modelMatrix[4], model[1]);
-        _mm_storeu_ps(&drawSurface.m_drawNodes[0].m_modelMatrix[8], model[2]);
-        _mm_storeu_ps(&drawSurface.m_drawNodes[0].m_modelMatrix[12], model[3]);
+        _mm_storeu_ps(&drawSurface.m_modelMatrix[0], model[0]);
+        _mm_storeu_ps(&drawSurface.m_modelMatrix[4], model[1]);
+        _mm_storeu_ps(&drawSurface.m_modelMatrix[8], model[2]);
+        _mm_storeu_ps(&drawSurface.m_modelMatrix[12], model[3]);
 
         _mm_storeu_ps(&drawSurface.m_viewMatrix[0], view[0]);
         _mm_storeu_ps(&drawSurface.m_viewMatrix[4], view[1]);
@@ -511,7 +504,7 @@ const Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
         _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], projection[2]);
         _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], projection[3]);
 
-        m_renderCore.SetState(drawMesh.m_material->GetState().GetStateBits());
+        m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
 
         m_renderCore.DrawNoBinding(cmdBuffer, renderPass, drawSurface, 3, 1, 0, 0);
 
@@ -633,17 +626,10 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
     ionShaderProgramManager().StartFrame();
 
     DrawSurface drawSurface;
-    DrawNode drawNode;
-    DrawMesh drawMesh;
-
-    drawMesh.m_indexStart = irradianceEntity->GetMesh(0)->GetIndexStart();
-    drawMesh.m_indexCount = irradianceEntity->GetMesh(0)->GetIndexCount();
-    drawMesh.m_material = irradianceEntity->GetMesh(0)->GetMaterial();
-
-    drawNode.m_drawMeshes.push_back(drawMesh);
-    drawNode.m_visible = irradianceEntity->IsVisible();
-
-    drawSurface.m_drawNodes.push_back(drawNode);
+    drawSurface.m_indexStart = irradianceEntity->GetMesh(0)->GetIndexStart();
+    drawSurface.m_indexCount = irradianceEntity->GetMesh(0)->GetIndexCount();
+    drawSurface.m_material = irradianceEntity->GetMesh(0)->GetMaterial();
+    drawSurface.m_visible = irradianceEntity->IsVisible();
     drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(irradianceEntity->GetMeshRenderer()->GetVertexData(), irradianceEntity->GetMeshRenderer()->GetVertexDataCount(), irradianceEntity->GetMeshRenderer()->GetSizeOfVertex());
     drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(irradianceEntity->GetMeshRenderer()->GetIndexData(), irradianceEntity->GetMeshRenderer()->GetIndexDataCount());
 
@@ -705,10 +691,10 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
                     const Matrix& view = cameraPtr->GetView();
                     const Matrix& model = irradianceEntity->GetTransform().GetMatrixWS();
 
-                    _mm_storeu_ps(&drawSurface.m_drawNodes[0].m_modelMatrix[0], model[0]);
-                    _mm_storeu_ps(&drawSurface.m_drawNodes[0].m_modelMatrix[4], model[1]);
-                    _mm_storeu_ps(&drawSurface.m_drawNodes[0].m_modelMatrix[8], model[2]);
-                    _mm_storeu_ps(&drawSurface.m_drawNodes[0].m_modelMatrix[12], model[3]);
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[0], model[0]);
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[4], model[1]);
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[8], model[2]);
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[12], model[3]);
 
                     _mm_storeu_ps(&drawSurface.m_viewMatrix[0], view[0]);
                     _mm_storeu_ps(&drawSurface.m_viewMatrix[4], view[1]);
@@ -720,7 +706,7 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
                     _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], projection[2]);
                     _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], projection[3]);
 
-                    m_renderCore.SetState(drawSurface.m_drawNodes[0].m_drawMeshes[0].m_material->GetState().GetStateBits());
+                    m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
                     m_renderCore.Draw(cmdBuffer, renderPass, drawSurface);
                 }
 
@@ -931,17 +917,10 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
 
 
     DrawSurface drawSurface;
-    DrawNode drawNode;
-    DrawMesh drawMesh;
-
-    drawMesh.m_indexStart = prefilteredEntity->GetMesh(0)->GetIndexStart();
-    drawMesh.m_indexCount = prefilteredEntity->GetMesh(0)->GetIndexCount();
-    drawMesh.m_material = prefilteredEntity->GetMesh(0)->GetMaterial();
-
-    drawNode.m_drawMeshes.push_back(drawMesh);
-    drawNode.m_visible = prefilteredEntity->IsVisible();
-
-    drawSurface.m_drawNodes.push_back(drawNode);
+    drawSurface.m_indexStart = prefilteredEntity->GetMesh(0)->GetIndexStart();
+    drawSurface.m_indexCount = prefilteredEntity->GetMesh(0)->GetIndexCount();
+    drawSurface.m_material = prefilteredEntity->GetMesh(0)->GetMaterial();
+    drawSurface.m_visible = prefilteredEntity->IsVisible();
     drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(prefilteredEntity->GetMeshRenderer()->GetVertexData(), prefilteredEntity->GetMeshRenderer()->GetVertexDataCount(), prefilteredEntity->GetMeshRenderer()->GetSizeOfVertex());
     drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(prefilteredEntity->GetMeshRenderer()->GetIndexData(), prefilteredEntity->GetMeshRenderer()->GetIndexDataCount());
 
@@ -1006,10 +985,10 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
                     const Matrix& view = cameraPtr->GetView();
                     const Matrix& model = prefilteredEntity->GetTransform().GetMatrixWS();
 
-                    _mm_storeu_ps(&drawSurface.m_drawNodes[0].m_modelMatrix[0], model[0]);
-                    _mm_storeu_ps(&drawSurface.m_drawNodes[0].m_modelMatrix[4], model[1]);
-                    _mm_storeu_ps(&drawSurface.m_drawNodes[0].m_modelMatrix[8], model[2]);
-                    _mm_storeu_ps(&drawSurface.m_drawNodes[0].m_modelMatrix[12], model[3]);
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[0], model[0]);
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[4], model[1]);
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[8], model[2]);
+                    _mm_storeu_ps(&drawSurface.m_modelMatrix[12], model[3]);
 
                     _mm_storeu_ps(&drawSurface.m_viewMatrix[0], view[0]);
                     _mm_storeu_ps(&drawSurface.m_viewMatrix[4], view[1]);
@@ -1021,7 +1000,7 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
                     _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], projection[2]);
                     _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], projection[3]);
 
-                    m_renderCore.SetState(drawSurface.m_drawNodes[0].m_drawMeshes[0].m_material->GetState().GetStateBits());
+                    m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
                     m_renderCore.Draw(cmdBuffer, renderPass, drawSurface);
                 }
 

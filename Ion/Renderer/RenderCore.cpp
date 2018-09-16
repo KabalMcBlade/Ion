@@ -1886,7 +1886,7 @@ void RenderCore::CopyFrameBuffer(Texture* _texture, ionS32 _width, ionS32 _heigh
 
 void RenderCore::Draw(VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, const DrawSurface& _surface)
 {
-    // THIS SHOULD BE PER SCENE (ACROSS ALL THE OBJECT, SO THE SHADER UNIFORM SET = 0)
+    // THIS SHOULD BE PER SCENE 
     ionShaderProgramManager().SetRenderParamMatrix(ION_VIEW_MATRIX_PARAM_HASH, &_surface.m_viewMatrix[0]);
     ionShaderProgramManager().SetRenderParamMatrix(ION_PROJ_MATRIX_PARAM_HASH, &_surface.m_projectionMatrix[0]);
     ionShaderProgramManager().SetRenderParamVector(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM_HASH, &_surface.m_mainCameraPos[0]);
@@ -1896,73 +1896,51 @@ void RenderCore::Draw(VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, 
     ionShaderProgramManager().SetRenderParamFloat(ION_GAMMA_FLOAT_PARAM_HASH, _surface.m_gamma);
     ionShaderProgramManager().SetRenderParamFloat(ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM_HASH, _surface.m_prefilteredCubeMipLevels);
 
-    ionSize nodeCount = _surface.m_drawNodes.size();
-    for (ionSize i = 0; i < nodeCount; ++i)
+    // THIS SHOULD BE PER OBJECT
+    ionShaderProgramManager().SetRenderParamMatrix(ION_MODEL_MATRIX_PARAM_HASH, &_surface.m_modelMatrix[0]);
+
+    // ALL THE FOLLOWING SHOULD DONE PER MATERIAL
+    const Material* material = _surface.m_material;
+
+    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(material);
+    ionShaderProgramManager().BindProgram(shaderProgramIndex);
+    ionShaderProgramManager().CommitCurrent(*this, material, _renderPass, m_stateBits, _commandBuffer);
+
+    ionSize indexOffset = 0;
+    ionSize vertexOffset = 0;
+    IndexBuffer indexBuffer;
+    if (ionVertexCacheManager().GetIndexBuffer(_surface.m_indexCache, &indexBuffer))
     {
-        // THIS SHOULD BE PER OBJECT (SO THE SHADER UNIFORM SET = 1)
-        ionShaderProgramManager().SetRenderParamMatrix(ION_MODEL_MATRIX_PARAM_HASH, &_surface.m_drawNodes[i].m_modelMatrix[0]);
-
-
-        // ALL THE FOLLOWING SHOULD DONE PER MATERIAL (SO THE SHADER UNIFORM SET = 2)
-        if (_surface.m_drawNodes[i].m_visible)
-        {
-            ionSize meshCount = _surface.m_drawNodes[i].m_drawMeshes.size();
-            for (ionSize j = 0; j < meshCount; ++j)
-            {
-                const Material* material = _surface.m_drawNodes[i].m_drawMeshes[j].m_material;
-
-                SetState(material->GetState().GetStateBits());
-
-                const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(material);
-                ionShaderProgramManager().BindProgram(shaderProgramIndex);
-                ionShaderProgramManager().CommitCurrent(*this, material, _renderPass, m_stateBits, _commandBuffer);
-
-                ionSize indexOffset = 0;
-                ionSize vertexOffset = 0;
-                IndexBuffer indexBuffer;
-                if (ionVertexCacheManager().GetIndexBuffer(_surface.m_indexCache, &indexBuffer))
-                {
-                    const VkBuffer buffer = indexBuffer.GetObject();
-                    const VkDeviceSize offset = indexBuffer.GetOffset();
-                    indexOffset = offset;
-                    vkCmdBindIndexBuffer(_commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT32);
-                }
-
-                VertexBuffer vertexBufer;
-                if (ionVertexCacheManager().GetVertexBuffer(_surface.m_vertexCache, &vertexBufer))
-                {
-                    const VkBuffer buffer = vertexBufer.GetObject();
-                    const VkDeviceSize offset = vertexBufer.GetOffset();
-                    vertexOffset = offset;
-                    vkCmdBindVertexBuffers(_commandBuffer, 0, 1, &buffer, &offset);
-                }
-
-                vkCmdDrawIndexed(_commandBuffer, _surface.m_drawNodes[i].m_drawMeshes[j].m_indexCount, 1, _surface.m_drawNodes[i].m_drawMeshes[j].m_indexStart /*(indexOffset >> 1)*/, 0 /*vertexOffset / sizeof(Vertex)*/, 0);
-            }
-        }
+        const VkBuffer buffer = indexBuffer.GetObject();
+        const VkDeviceSize offset = indexBuffer.GetOffset();
+        indexOffset = offset;
+        vkCmdBindIndexBuffer(_commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT32);
     }
+
+    VertexBuffer vertexBufer;
+    if (ionVertexCacheManager().GetVertexBuffer(_surface.m_vertexCache, &vertexBufer))
+    {
+        const VkBuffer buffer = vertexBufer.GetObject();
+        const VkDeviceSize offset = vertexBufer.GetOffset();
+        vertexOffset = offset;
+        vkCmdBindVertexBuffers(_commandBuffer, 0, 1, &buffer, &offset);
+    }
+
+    vkCmdDrawIndexed(_commandBuffer, _surface.m_indexCount, 1, _surface.m_indexStart /*(indexOffset >> 1)*/, 0 /*vertexOffset / sizeof(Vertex)*/, 0);
 }
 
 
 void RenderCore::DrawNoBinding(VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, const DrawSurface& _surface, ionU32 _vertexCount, ionU32 _instanceCount, ionU32 _firstVertex, ionU32 _firstInstance)
 {
     // per material
-    ionSize nodeCount = _surface.m_drawNodes.size();
-    for (ionSize i = 0; i < nodeCount; ++i)
-    {
-        ionSize meshCount = _surface.m_drawNodes[i].m_drawMeshes.size();
-        for (ionSize j = 0; j < meshCount; ++j)
-        {
-            const Material* material = _surface.m_drawNodes[i].m_drawMeshes[j].m_material;
+    const Material* material = _surface.m_material;
 
-            const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(material);
+    const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(material);
 
-            ionShaderProgramManager().BindProgram(shaderProgramIndex);
-            ionShaderProgramManager().CommitCurrent(*this, material, _renderPass, m_stateBits, _commandBuffer);
+    ionShaderProgramManager().BindProgram(shaderProgramIndex);
+    ionShaderProgramManager().CommitCurrent(*this, material, _renderPass, m_stateBits, _commandBuffer);
 
-            vkCmdDraw(_commandBuffer, _vertexCount, _instanceCount, _firstVertex, _firstInstance);
-        }
-    }
+    vkCmdDraw(_commandBuffer, _vertexCount, _instanceCount, _firstVertex, _firstInstance);
 }
 
 void RenderCore::Draw(VkRenderPass _renderPass, const DrawSurface& _surface)

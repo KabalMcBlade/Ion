@@ -137,29 +137,38 @@ void SceneGraph::GenerateMapTree(const ObjectHandler& _node)
                 const ionU32 meshCount = entity->GetMeshCount();
                 if (meshCount > 0)
                 {
-                    DrawNode drawNode;
+                    DrawSurface* drawSurface = nullptr;
+                    if (!m_isMeshGeneratedFirstTime)
+                    {
+                        drawSurface = &m_drawSurfaces[cam].back();
+                        m_isMeshGeneratedFirstTime = true;
+                    }
+                    else
+                    {
+                        const DrawSurface& drawSurfacePrev = m_drawSurfaces[cam].back();
 
-                    drawNode.m_nodeRef = entity.GetPtr();
-                    drawNode.m_visible = entity->IsVisible();    // this one is updated x frame, just set for the beginning
+                        DrawSurface drawSurfaceTmp;
+                        drawSurfaceTmp.m_vertexCache = drawSurfacePrev.m_vertexCache;
+                        drawSurfaceTmp.m_indexCache = drawSurfacePrev.m_indexCache;
 
-                    DrawSurface& drawSurface = m_drawSurfaces[cam].back();
+                        m_drawSurfaces[cam].push_back(drawSurfaceTmp);
+
+                        drawSurface = &m_drawSurfaces[cam].back();
+                    }
+
+                    drawSurface->m_nodeRef = entity.GetPtr();
+                    drawSurface->m_visible = entity->IsVisible();    // this one is updated x frame, just set for the beginning
 
                     BoundingBox* bb = entity->GetBoundingBox();
                     m_sceneBoundingBox.Expande(bb->GetTransformed(entity->GetTransform().GetMatrix()));
 
                     for (ionU32 i = 0; i < meshCount; i++)
                     {
-                        DrawMesh drawMesh;
-                        
-                        drawMesh.m_meshIndexRef = i;
-                        drawMesh.m_indexStart = entity->GetMesh(i)->GetIndexStart();
-                        drawMesh.m_indexCount = entity->GetMesh(i)->GetIndexCount();
-                        drawMesh.m_material = entity->GetMesh(i)->GetMaterial();
-                        drawMesh.m_sortingIndex = static_cast<ionU8>(drawMesh.m_material->GetAlphaMode());
-
-                        drawNode.m_drawMeshes.push_back(drawMesh);
-
-                        drawSurface.m_drawNodes.push_back(drawNode);
+                        drawSurface->m_meshIndexRef = i;
+                        drawSurface->m_indexStart = entity->GetMesh(i)->GetIndexStart();
+                        drawSurface->m_indexCount = entity->GetMesh(i)->GetIndexCount();
+                        drawSurface->m_material = entity->GetMesh(i)->GetMaterial();
+                        drawSurface->m_sortingIndex = static_cast<ionU8>(drawSurface->m_material->GetAlphaMode());
                     }
                 }
             }
@@ -190,16 +199,17 @@ void SceneGraph::Prepare()
     {
         const ObjectHandler& node = (*it);
         FillCameraMapTree(node);
+
+        m_isMeshGeneratedFirstTime = false;
         GenerateMapTree(node);
     }
+    m_isMeshGeneratedFirstTime = false;
 
     SortDrawSurfaces();
 }
 
 void SceneGraph::SortDrawSurfaces()
 {
-    // NEED TO REWORK
-    /*
     for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
         eosVector(DrawSurface)& drawSurfaces = iter->second;
@@ -221,7 +231,6 @@ void SceneGraph::SortDrawSurfaces()
             drawSurfaces[i] = temp;
         }
     }
-    */
 }
 
 void SceneGraph::Update(ionFloat _deltaTime)
@@ -274,20 +283,16 @@ void SceneGraph::Update(ionFloat _deltaTime)
             drawSurface.m_gamma = ionRenderManager().m_gamma;
             drawSurface.m_prefilteredCubeMipLevels = ionRenderManager().m_prefilteredCubeMipLevels;
 
-            eosVector(DrawNode)::iterator beginDN = drawSurface.m_drawNodes.begin(), endDN = drawSurface.m_drawNodes.end(), itDN = beginDN;
-            for (; itDN != endDN; ++itDN)
-            {
-                DrawNode& drawNode = (*itDN);
 
-                const Matrix& model = drawNode.m_nodeRef->GetTransform().GetMatrixWS();
+            // relative to the nodes
+            const Matrix& model = drawSurface.m_nodeRef->GetTransform().GetMatrixWS();
 
-                drawNode.m_visible = drawNode.m_nodeRef->IsVisible();
+            drawSurface.m_visible = drawSurface.m_nodeRef->IsVisible();
 
-                _mm_storeu_ps(&drawNode.m_modelMatrix[0], model[0]);
-                _mm_storeu_ps(&drawNode.m_modelMatrix[4], model[1]);
-                _mm_storeu_ps(&drawNode.m_modelMatrix[8], model[2]);
-                _mm_storeu_ps(&drawNode.m_modelMatrix[12], model[3]);
-            }
+            _mm_storeu_ps(&drawSurface.m_modelMatrix[0], model[0]);
+            _mm_storeu_ps(&drawSurface.m_modelMatrix[4], model[1]);
+            _mm_storeu_ps(&drawSurface.m_modelMatrix[8], model[2]);
+            _mm_storeu_ps(&drawSurface.m_modelMatrix[12], model[3]);
         }
     }
     //ionVertexCacheManager().EndMapping();
@@ -314,7 +319,11 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
         {
             const DrawSurface& drawSurface = (*it);
             
-            _renderCore.Draw(cam->GetRenderPass(), drawSurface);
+            if (drawSurface.m_visible)
+            {
+                _renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
+                _renderCore.Draw(cam->GetRenderPass(), drawSurface);
+            }
         }
 
         cam->EndRenderPass(_renderCore);

@@ -93,17 +93,10 @@ void Skybox::SetMaterial(Material* _material)
 {
     m_mesh.SetMaterial(_material);
 
-    DrawNode drawNode;
-    DrawMesh drawMesh;
-
-    drawMesh.m_indexStart = m_mesh.GetIndexStart();
-    drawMesh.m_indexCount = m_mesh.GetIndexCount();
-    drawMesh.m_material = m_mesh.GetMaterial();
-
-    drawNode.m_drawMeshes.push_back(drawMesh);
-    drawNode.m_visible = true;
-
-    m_drawSurface.m_drawNodes.push_back(drawNode);
+    m_drawSurface.m_indexStart = m_mesh.GetIndexStart();
+    m_drawSurface.m_indexCount = m_mesh.GetIndexCount();
+    m_drawSurface.m_material = m_mesh.GetMaterial();
+    m_drawSurface.m_visible = true;
     m_drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(m_meshRenderer->GetVertexData(), m_meshRenderer->GetVertexDataCount(), m_meshRenderer->GetSizeOfVertex());
     m_drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(m_meshRenderer->GetIndexData(), m_meshRenderer->GetIndexDataCount());
 }
@@ -115,10 +108,10 @@ Material* Skybox::GetMaterial()
 
 void Skybox::UpdateUniformBuffer(const Matrix& _projection, const Matrix& _view, const Matrix& _model)
 {
-    _mm_storeu_ps(&m_drawSurface.m_drawNodes[0].m_modelMatrix[0], _model[0]);
-    _mm_storeu_ps(&m_drawSurface.m_drawNodes[0].m_modelMatrix[4], _model[1]);
-    _mm_storeu_ps(&m_drawSurface.m_drawNodes[0].m_modelMatrix[8], _model[2]);
-    _mm_storeu_ps(&m_drawSurface.m_drawNodes[0].m_modelMatrix[12], _model[3]);
+    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[0], _model[0]);
+    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[4], _model[1]);
+    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[8], _model[2]);
+    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[12], _model[3]);
 
     _mm_storeu_ps(&m_drawSurface.m_viewMatrix[0], _view[0]);
     _mm_storeu_ps(&m_drawSurface.m_viewMatrix[4], _view[1]);

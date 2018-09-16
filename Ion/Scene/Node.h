@@ -86,10 +86,10 @@ public:
 
     void SetName(const eosString & _name);
     void SetActive(ionBool _isActive);
-    ionBool IsActive() { return m_active; }
+    ionBool IsActive() const { return m_active; }
 
     void SetVisible(ionBool _isVisible);
-    ionBool IsVisible() { return m_visible; }
+    ionBool IsVisible() const { return m_visible; }
 
     void AttachToParent(ObjectHandler& _parent);
     void DetachFromParent();
