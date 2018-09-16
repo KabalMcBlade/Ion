@@ -138,4 +138,17 @@ void Node::RemoveFromRenderLayer(ENodeRenderLayer _layer)
 }
 
 
+void Node::IterateAll(const std::function< void(const ObjectHandler& _node) >& _lambda /*= nullptr*/)
+{
+    if (_lambda != nullptr)
+    {
+        eosVector(ObjectHandler)::const_iterator begin = GetConstChildIteratorBegin(), end = GetConstChildIteratorEnd(), it = begin;
+        for (; it != end; ++it)
+        {
+            _lambda((*it));
+            (*it)->IterateAll(_lambda);
+        }
+    }
+}
+
 ION_NAMESPACE_END

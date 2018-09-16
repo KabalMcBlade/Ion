@@ -86,6 +86,7 @@ public:
 
 private:
     friend class RenderManager;
+    friend class SceneGraph;
 
     void CreateRenderPassAndFrameBuffers(RenderCore& _renderCore);
     void DestroyRenderPassAndFrameBuffers(RenderCore& _renderCore);

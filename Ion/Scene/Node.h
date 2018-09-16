@@ -123,6 +123,12 @@ public:
     eosVector(ObjectHandler)::iterator GetChildIteratorBegin() { return m_children.begin(); }
     eosVector(ObjectHandler)::iterator GetChildIteratorEnd() { return m_children.end(); }
 
+    //////////////////////////////////////////////////////////////////////////
+
+    // "Spcial accessor call"
+
+    void IterateAll(const std::function< void(const ObjectHandler& _node) >& _lambda = nullptr);
+
 protected:
     ENodeType    m_nodeType;
 

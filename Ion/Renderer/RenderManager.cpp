@@ -280,35 +280,22 @@ void RenderManager::RemoveFromSceneGraph(ObjectHandler _node)
 
 void RenderManager::RemoveAllSceneGraph()
 {
-    eosVector(ObjectHandler)::const_iterator begin = m_sceneGraph.GetNodeBegin(), end = m_sceneGraph.GetNodeEnd(), it = begin;
-    for (; it != end; ++it)
-    {
-        if ((*it)->GetNodeType() == ENodeType_Camera)
+    m_sceneGraph.RemoveAll(
+        [&](const ObjectHandler& _node)
+    { 
+        if (_node->GetNodeType() == ENodeType_Camera)
         {
-            Camera* camera = dynamic_cast<Camera*>((*it).GetPtr());
+            Camera* camera = dynamic_cast<Camera*>(_node.GetPtr());
             camera->DestroyRenderPassAndFrameBuffers(m_renderCore);
         }
     }
-
-    m_sceneGraph.RemoveAll();
+    );
 }
 
 void RenderManager::Recreate()
 {
     m_renderCore.Recreate();
-
-    eosVector(ObjectHandler)::const_iterator begin = m_sceneGraph.GetNodeBegin(), end = m_sceneGraph.GetNodeEnd(), it = begin;
-    for (; it != end; ++it)
-    {
-        if ((*it)->GetNodeType() == ENodeType_Camera)
-        {
-            Camera* camera = dynamic_cast<Camera*>((*it).GetPtr());
-            camera->RecreateRenderPassAndFrameBuffers(m_renderCore);
-        }
-    }
-
     m_sceneGraph.UpdateAllCameraAspectRatio(m_renderCore);
-
 }
 
 void RenderManager::Resize(ionS32& _outNewWidth, ionS32 _outNewHeight)

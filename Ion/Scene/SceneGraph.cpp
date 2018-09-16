@@ -16,7 +16,7 @@ ION_NAMESPACE_BEGIN
 
 SceneGraph::SceneGraph()
 {
-    
+    m_root = eosNew(Node, ION_MEMORY_ALIGNMENT_SIZE, "ION_SCENEGRAPH_ROOT");
 }
 
 SceneGraph::~SceneGraph()
@@ -31,6 +31,9 @@ SceneGraph::~SceneGraph()
     m_drawSurfaces.clear();
 
     m_registeredInput.clear();
+
+    // force last release
+    m_root.Release();
 }
 
 void SceneGraph::CreateDirectionalLightToScene()
@@ -61,148 +64,128 @@ DirectionalLight* SceneGraph::GetDirectionalLightPtr()
 
 void SceneGraph::AddToScene(const ObjectHandler& _node)
 {
-    m_nodes.push_back(_node);
+    _node->AttachToParent(m_root);
 }
 
 void SceneGraph::RemoveFromScene(const ObjectHandler& _node)
 {
-    m_nodes.erase(std::remove(m_nodes.begin(), m_nodes.end(), _node), m_nodes.end());
+    _node->DetachFromParent();
 }
 
-void SceneGraph::RemoveAll()
+void SceneGraph::RemoveAll(const std::function< void(const ObjectHandler& _node) >& _lambda /*= nullptr*/)
 {
-    m_nodes.clear();
+    eosVector(ObjectHandler)::const_iterator begin = m_root->GetConstChildIteratorBegin(), end = m_root->GetConstChildIteratorEnd(), it = begin;
+    for (; it != end; ++it)
+    {
+        if (_lambda != nullptr)
+        {
+            _lambda((*it));
+        }
+    }
+
+    // do nothing here: maybe add later a "detach all" ?
 }
 
-void SceneGraph::UpdateAllCameraAspectRatio(const RenderCore& _renderCore)
+void SceneGraph::UpdateAllCameraAspectRatio(RenderCore& _renderCore)
 {
     for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
         Camera* cam = iter->first;
 
+        cam->RecreateRenderPassAndFrameBuffers(_renderCore);
         cam->UpdateAspectRatio((ionFloat)_renderCore.GetWidth() / (ionFloat)_renderCore.GetHeight());
     }
 }
 
-void SceneGraph::FillCameraMapTree(const ObjectHandler& _node)
+void SceneGraph::Prepare()
 {
-    if (_node->GetNodeType() == ENodeType_Camera)
-    {
-        Camera* cam = dynamic_cast<Camera*>(_node.GetPtr());
+    // I do 2 iterations for clearness
 
-        if (m_drawSurfaces.find(cam) == m_drawSurfaces.end())
+    // first camera
+    m_root->IterateAll(
+        [&](const ObjectHandler& _node)
+    {
+        if (_node->GetNodeType() == ENodeType_Camera)
         {
-            m_drawSurfaces.insert(std::pair<Camera*, eosVector(DrawSurface)>(cam, eosVector(DrawSurface)()));
+            Camera* cam = dynamic_cast<Camera*>(_node.GetPtr());
+            if (m_drawSurfaces.find(cam) == m_drawSurfaces.end())
+            {
+                m_drawSurfaces.insert(std::pair<Camera*, eosVector(DrawSurface)>(cam, eosVector(DrawSurface)()));
+            }
         }
     }
+    );
 
-    if (_node->GetChildren().empty())
+    // second objects
+    m_root->IterateAll(
+        [&](const ObjectHandler& _node)
     {
-        return;
-    }
-
-    const eosVector(ObjectHandler)& children = _node->GetChildren();
-    eosVector(ObjectHandler)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
-    for (; it != end; ++it)
-    {
-        ObjectHandler nh = (*it);
-        FillCameraMapTree(nh);
-    }
-}
-
-void SceneGraph::GenerateMapTree(const ObjectHandler& _node)
-{
-    if (_node->GetNodeType() == ENodeType_Entity)
-    {
-        for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+        if (_node->GetNodeType() == ENodeType_Entity)
         {
-            Camera* cam = iter->first;
-
-            if (_node->IsInRenderLayer(cam->GetRenderLayer()))
+            for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
             {
-                ObjectHandler entity = _node;
+                Camera* cam = iter->first;
 
-                // is the root of the mesh (because just the "root" has the mesh renderer)
-                const BaseMeshRenderer* renderer = entity->GetMeshRenderer();
-                if (renderer != nullptr)
+                if (_node->IsInRenderLayer(cam->GetRenderLayer()))
                 {
-                    DrawSurface drawSurface;
+                    ObjectHandler entity = _node;
 
-                    drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(renderer->GetVertexData(), renderer->GetVertexDataCount(), renderer->GetSizeOfVertex());
-                    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(renderer->GetIndexData(), renderer->GetIndexDataCount());
-                    
-                    m_drawSurfaces[cam].push_back(drawSurface);
-                }
-
-                const ionU32 meshCount = entity->GetMeshCount();
-                if (meshCount > 0)
-                {
-                    DrawSurface* drawSurface = nullptr;
-                    if (!m_isMeshGeneratedFirstTime)
+                    // is the root of the mesh (because just the "root" has the mesh renderer)
+                    const BaseMeshRenderer* renderer = entity->GetMeshRenderer();
+                    if (renderer != nullptr)
                     {
-                        drawSurface = &m_drawSurfaces[cam].back();
-                        m_isMeshGeneratedFirstTime = true;
-                    }
-                    else
-                    {
-                        const DrawSurface& drawSurfacePrev = m_drawSurfaces[cam].back();
+                        m_isMeshGeneratedFirstTime = false;
 
-                        DrawSurface drawSurfaceTmp;
-                        drawSurfaceTmp.m_vertexCache = drawSurfacePrev.m_vertexCache;
-                        drawSurfaceTmp.m_indexCache = drawSurfacePrev.m_indexCache;
+                        DrawSurface drawSurface;
 
-                        m_drawSurfaces[cam].push_back(drawSurfaceTmp);
+                        drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(renderer->GetVertexData(), renderer->GetVertexDataCount(), renderer->GetSizeOfVertex());
+                        drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(renderer->GetIndexData(), renderer->GetIndexDataCount());
 
-                        drawSurface = &m_drawSurfaces[cam].back();
+                        m_drawSurfaces[cam].push_back(drawSurface);
                     }
 
-                    drawSurface->m_nodeRef = entity.GetPtr();
-                    drawSurface->m_visible = entity->IsVisible();    // this one is updated x frame, just set for the beginning
-
-                    BoundingBox* bb = entity->GetBoundingBox();
-                    m_sceneBoundingBox.Expande(bb->GetTransformed(entity->GetTransform().GetMatrix()));
-
-                    for (ionU32 i = 0; i < meshCount; i++)
+                    const ionU32 meshCount = entity->GetMeshCount();
+                    if (meshCount > 0)
                     {
-                        drawSurface->m_meshIndexRef = i;
-                        drawSurface->m_indexStart = entity->GetMesh(i)->GetIndexStart();
-                        drawSurface->m_indexCount = entity->GetMesh(i)->GetIndexCount();
-                        drawSurface->m_material = entity->GetMesh(i)->GetMaterial();
-                        drawSurface->m_sortingIndex = static_cast<ionU8>(drawSurface->m_material->GetAlphaMode());
+                        DrawSurface* drawSurface = nullptr;
+                        if (!m_isMeshGeneratedFirstTime)
+                        {
+                            drawSurface = &m_drawSurfaces[cam].back();
+                            m_isMeshGeneratedFirstTime = true;
+                        }
+                        else
+                        {
+                            const DrawSurface& drawSurfacePrev = m_drawSurfaces[cam].back();
+
+                            DrawSurface drawSurfaceTmp;
+                            drawSurfaceTmp.m_vertexCache = drawSurfacePrev.m_vertexCache;
+                            drawSurfaceTmp.m_indexCache = drawSurfacePrev.m_indexCache;
+
+                            m_drawSurfaces[cam].push_back(drawSurfaceTmp);
+
+                            drawSurface = &m_drawSurfaces[cam].back();
+                        }
+
+                        drawSurface->m_nodeRef = entity.GetPtr();
+                        drawSurface->m_visible = entity->IsVisible();    // this one is updated x frame, just set for the beginning
+
+                        BoundingBox* bb = entity->GetBoundingBox();
+                        m_sceneBoundingBox.Expande(bb->GetTransformed(entity->GetTransform().GetMatrix()));
+
+                        for (ionU32 i = 0; i < meshCount; i++)
+                        {
+                            drawSurface->m_meshIndexRef = i;
+                            drawSurface->m_indexStart = entity->GetMesh(i)->GetIndexStart();
+                            drawSurface->m_indexCount = entity->GetMesh(i)->GetIndexCount();
+                            drawSurface->m_material = entity->GetMesh(i)->GetMaterial();
+                            drawSurface->m_sortingIndex = static_cast<ionU8>(drawSurface->m_material->GetAlphaMode());
+                        }
                     }
                 }
             }
         }
     }
-
-    if (_node->GetChildren().empty())
-    {
-        return;
-    }
-
-    const eosVector(ObjectHandler)& children = _node->GetChildren();
-    eosVector(ObjectHandler)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
-    for (; it != end; ++it)
-    {
-        ObjectHandler nh = (*it);
-        GenerateMapTree(nh);
-    }
-}
-
-
-void SceneGraph::Prepare()
-{
-    // Generate the plain map recursively
-    // I don't care about the speed here, is just once before start
-    eosVector(ObjectHandler)::const_iterator begin = m_nodes.cbegin(), end = m_nodes.cend(), it = begin;
-    for (; it != end; ++it)
-    {
-        const ObjectHandler& node = (*it);
-        FillCameraMapTree(node);
-
-        m_isMeshGeneratedFirstTime = false;
-        GenerateMapTree(node);
-    }
+    );
     m_isMeshGeneratedFirstTime = false;
 
     SortDrawSurfaces();
@@ -235,13 +218,7 @@ void SceneGraph::SortDrawSurfaces()
 
 void SceneGraph::Update(ionFloat _deltaTime)
 {
-    // update
-    eosVector(ObjectHandler)::const_iterator begin = m_nodes.cbegin(), end = m_nodes.cend(), it = begin;
-    for (; it != end; ++it)
-    {
-        const ObjectHandler& node = (*it);
-        node->Update(_deltaTime);
-    }
+    m_root->Update(_deltaTime);
 
     // mapping
     //ionVertexCacheManager().BeginMapping();
@@ -361,42 +338,6 @@ void SceneGraph::UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFlo
     }
 }
 
-ObjectHandler SceneGraph::GetObjectByHash(ObjectHandler& _node, ionSize _hash)
-{
-    if (_node->GetHash() == _hash)
-    {
-        return _node;
-    }
-
-    eosVector(ObjectHandler)::iterator begin = _node->GetChildIteratorBegin(), end = _node->GetChildIteratorEnd(), it = begin;
-    for (; it != end; ++it)
-    {
-        ObjectHandler& node = *(it);
-        return GetObjectByHash(node, _hash);
-    }
-
-    static ObjectHandler empty;
-    return empty;
-}
-
-ObjectHandler SceneGraph::GetObjectByID(ObjectHandler& _node, ionU32 _id)
-{
-    if (_node->GetNodeIndex() == _id)
-    {
-        return _node;
-    }
-
-    eosVector(ObjectHandler)::iterator begin = _node->GetChildIteratorBegin(), end = _node->GetChildIteratorEnd(), it = begin;
-    for (; it != end; ++it)
-    {
-        ObjectHandler& node = *(it);
-        return GetObjectByID(node, _id);
-    }
-
-    static ObjectHandler empty;
-    return empty;
-}
-
 ObjectHandler SceneGraph::GetObjectByName(const eosString& _name)
 {
     const ionSize hash = std::hash<eosString>{}(_name);
@@ -405,38 +346,39 @@ ObjectHandler SceneGraph::GetObjectByName(const eosString& _name)
 
 ObjectHandler SceneGraph::GetObjectByHash(ionSize _hash)
 {
-    eosVector(ObjectHandler)::const_iterator begin = GetNodeBegin(), end = GetNodeEnd(), it = begin;
-    for (; it != end; ++it)
-    {
-        ObjectHandler node = *(it);
+    ObjectHandler nodeToFind;   // default is empty/invalid
 
-        ObjectHandler findNode = GetObjectByHash(node, _hash);
-        if (findNode.IsValid())
+    m_root->IterateAll(
+        [&](const ObjectHandler& _node)
+    {
+        if (_node->GetHash() == _hash)
         {
-            return findNode;
+            nodeToFind = _node;
+            return;
         }
     }
+    );
 
-    static ObjectHandler empty;
-    return empty;
+    return nodeToFind;
 }
 
 ObjectHandler SceneGraph::GetObjectByID(ionU32 _id)
 {
-    eosVector(ObjectHandler)::const_iterator begin = GetNodeBegin(), end = GetNodeEnd(), it = begin;
-    for (; it != end; ++it)
-    {
-        ObjectHandler node = *(it);
+    ObjectHandler nodeToFind;   // default is empty/invalid
 
-        ObjectHandler findNode = GetObjectByID(node, _id);
-        if (findNode.IsValid())
+    m_root->IterateAll(
+        [&](const ObjectHandler& _node)
+    {
+        if (_node->GetNodeIndex() == _id)
         {
-            return findNode;
+            nodeToFind = _node;
+            return;
         }
     }
+    );
 
-    static ObjectHandler empty;
-    return empty;
+    return nodeToFind;
 }
+
 
 ION_NAMESPACE_END

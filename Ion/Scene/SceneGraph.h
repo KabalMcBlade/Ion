@@ -36,9 +36,9 @@ public:
 
     void AddToScene(const ObjectHandler& _node);
     void RemoveFromScene(const ObjectHandler& _node);
-    void RemoveAll();
+    void RemoveAll(const std::function< void(const ObjectHandler& _node) >& _lambda = nullptr);
 
-    void UpdateAllCameraAspectRatio(const RenderCore& _renderCore);
+    void UpdateAllCameraAspectRatio(RenderCore& _renderCore);
 
     void Prepare();
 
@@ -52,34 +52,25 @@ public:
     void UpdateMouseInput(const MouseState& _mouseState, ionFloat _deltaTime);
     void UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime);
 
+
+
+
+
     // Utilities
     ObjectHandler GetObjectByName(const eosString& _name);
     ObjectHandler GetObjectByHash(ionSize _hash);
     ObjectHandler GetObjectByID(ionU32 _id);
 
-    // iterators
-    eosVector(ObjectHandler) &GetNodes() { return m_nodes; };
-
-    eosVector(ObjectHandler)::const_iterator GetNodeBegin() { return m_nodes.begin(); }
-    eosVector(ObjectHandler)::const_iterator GetNodeEnd() { return m_nodes.end(); }
-
 private:
     SceneGraph(const SceneGraph& _Orig) = delete;
     SceneGraph& operator = (const SceneGraph&) = delete;
 
-    void FillCameraMapTree(const ObjectHandler& _node);
-    void GenerateMapTree(const ObjectHandler& _node);
-
     void SortDrawSurfaces();
-
-    // Utilities
-    ObjectHandler GetObjectByHash(ObjectHandler& _node, ionSize _hash);
-    ObjectHandler GetObjectByID(ObjectHandler& _node, ionU32 _id);
 
 private:
     BoundingBox                                 m_sceneBoundingBox;
     ObjectHandler                               m_directionalLight;
-    eosVector(ObjectHandler)                    m_nodes;
+    ObjectHandler                               m_root;
     eosMap(Camera*, eosVector(DrawSurface))     m_drawSurfaces;
     eosVector(ObjectHandler)                    m_registeredInput;
     ionBool                                     m_isMeshGeneratedFirstTime;  // is an helper

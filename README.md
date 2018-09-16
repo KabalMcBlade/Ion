@@ -1,7 +1,7 @@
 # Ion
 
 Ion is a Vulkan Render Engine, made just to learn something about this new graphic API.
-I'm not a render or engine programmer and this work MUST NOT BE USED for any commercial purpose.
+I'm not a render or engine programmer and this work SHOULD NOT BE USED for any commercial purpose.
 
 > Ion in the Greek Mythology is the illegitimate child of Creüsa, daughter of Erechtheus and wife of Xuthus
 
