@@ -82,7 +82,7 @@ void Node::Update(ionFloat _deltaTime)
             m_transform.SetMatrixWS(m_transform.GetMatrix());
         }
 
-        eosVector(ObjectHandler)::const_iterator begin = GetConstChildIteratorBegin(), end = GetConstChildIteratorEnd(), it = begin;
+        eosVector(ObjectHandler)::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
         for (; it != end; ++it)
         {
             (*it)->Update(_deltaTime);
@@ -97,7 +97,7 @@ void Node::SetActive(ionBool _isActive)
 {
     m_active = _isActive;
 
-    eosVector(ObjectHandler)::const_iterator begin = GetConstChildIteratorBegin(), end = GetConstChildIteratorEnd(), it = begin;
+    eosVector(ObjectHandler)::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
     for (; it != end; ++it)
     {
         (*it)->SetActive(_isActive);
@@ -108,7 +108,7 @@ void Node::SetVisible(ionBool _isVisible)
 {
     m_visible = _isVisible; 
 
-    eosVector(ObjectHandler)::const_iterator begin = GetConstChildIteratorBegin(), end = GetConstChildIteratorEnd(), it = begin;
+    eosVector(ObjectHandler)::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
     for (; it != end; ++it)
     {
         (*it)->SetVisible(_isVisible);
@@ -119,7 +119,7 @@ void Node::AddToRenderLayer(ENodeRenderLayer _layer)
 {
     m_renderLayer |= _layer; 
 
-    eosVector(ObjectHandler)::const_iterator begin = GetConstChildIteratorBegin(), end = GetConstChildIteratorEnd(), it = begin;
+    eosVector(ObjectHandler)::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
     for (; it != end; ++it)
     {
         (*it)->AddToRenderLayer(_layer);
@@ -130,7 +130,7 @@ void Node::RemoveFromRenderLayer(ENodeRenderLayer _layer)
 {
     m_renderLayer &= ~_layer; 
 
-    eosVector(ObjectHandler)::const_iterator begin = GetConstChildIteratorBegin(), end = GetConstChildIteratorEnd(), it = begin;
+    eosVector(ObjectHandler)::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
     for (; it != end; ++it)
     {
         (*it)->RemoveFromRenderLayer(_layer);
@@ -142,7 +142,7 @@ void Node::IterateAll(const std::function< void(const ObjectHandler& _node) >& _
 {
     if (_lambda != nullptr)
     {
-        eosVector(ObjectHandler)::const_iterator begin = GetConstChildIteratorBegin(), end = GetConstChildIteratorEnd(), it = begin;
+        eosVector(ObjectHandler)::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
         for (; it != end; ++it)
         {
             _lambda((*it));

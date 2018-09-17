@@ -74,7 +74,7 @@ void SceneGraph::RemoveFromScene(const ObjectHandler& _node)
 
 void SceneGraph::RemoveAll(const std::function< void(const ObjectHandler& _node) >& _lambda /*= nullptr*/)
 {
-    eosVector(ObjectHandler)::const_iterator begin = m_root->GetConstChildIteratorBegin(), end = m_root->GetConstChildIteratorEnd(), it = begin;
+    eosVector(ObjectHandler)::const_iterator begin = m_root->ChildrenIteratorBeginConst(), end = m_root->ChildrenIteratorEndConst(), it = begin;
     for (; it != end; ++it)
     {
         if (_lambda != nullptr)

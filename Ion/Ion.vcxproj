@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Animation\Animation.h" />
     <ClInclude Include="App\CommandLineParser.h" />
     <ClInclude Include="App\Mode.h" />
     <ClInclude Include="App\Window.h" />
@@ -241,6 +242,7 @@
     <ClInclude Include="Wrapper\Memory.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Animation\Animation.cpp" />
     <ClCompile Include="App\CommandLineParser.cpp" />
     <ClCompile Include="App\Window.cpp" />
     <ClCompile Include="Core\FileSystemManager.cpp" />

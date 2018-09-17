@@ -57,6 +57,8 @@
 #include "Geometry/Frustum.h"
 #include "Geometry/PrimitiveFactory.h"
 
+#include "Animation/Animation.h"
+
 #include "Scene/Transform.h"
 #include "Scene/Node.h"
 #include "Scene/Entity.h"
