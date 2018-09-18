@@ -16,14 +16,14 @@
 #include "IndexBufferObject.h"
 
 
-#define ION_VERTCACHE_INDEX_MEMORY_PER_FRAME    511 * 1024 * 1024
-#define ION_VERTCACHE_VERTEX_MEMORY_PER_FRAME   1023 * 1024 * 1024
+#define ION_VERTCACHE_INDEX_MEMORY_PER_FRAME    511ULL * 1024ULL * 1024ULL
+#define ION_VERTCACHE_VERTEX_MEMORY_PER_FRAME   1023ULL * 1024ULL * 1024ULL
 //#define ION_VERTCACHE_JOINT_MEMORY_PER_FRAME    256 * 1024
 #define ION_VERTCACHE_JOINT_MEMORY_PER_FRAME    0       // I'm not going to use join at the moment
 
 
-#define ION_STATIC_INDEX_MEMORY                 255 * 1024 * 1024
-#define ION_STATIC_VERTEX_MEMORY                255 * 1024 * 1024    // make sure it fits in ION_VERTCACHE_OFFSET_MASK!
+#define ION_STATIC_INDEX_MEMORY                 255ULL * 1024ULL * 1024ULL
+#define ION_STATIC_VERTEX_MEMORY                255ULL * 1024ULL * 1024ULL    // make sure it fits in ION_VERTCACHE_OFFSET_MASK!
 
 
 #define ION_VERTCACHE_STATIC        1                    // in the static set, not the per-frame set

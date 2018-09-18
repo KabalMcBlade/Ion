@@ -10,18 +10,18 @@
 //////////////////////////////////////////////////////////////////////////
 // COMMON MEMORY
 
-#define MEMORY_1_MB                 1048576U
-#define MEMORY_4_MB                 MEMORY_1_MB * 4U
-#define MEMORY_8_MB                 MEMORY_4_MB * 2U
-#define MEMORY_16_MB                MEMORY_8_MB * 2U
-#define MEMORY_32_MB                MEMORY_16_MB * 2U
-#define MEMORY_64_MB                MEMORY_32_MB * 2U
-#define MEMORY_128_MB               MEMORY_64_MB * 2U
-#define MEMORY_256_MB               MEMORY_128_MB * 2U
-#define MEMORY_512_MB               MEMORY_256_MB * 2U
-#define MEMORY_1024_MB              MEMORY_512_MB * 2U
-#define MEMORY_2048_MB              MEMORY_1024_MB * 2U
-#define MEMORY_4096_MB              MEMORY_2048_MB * 2U
+#define MEMORY_1_MB                 1048576ULL
+#define MEMORY_4_MB                 MEMORY_1_MB * 4ULL
+#define MEMORY_8_MB                 MEMORY_4_MB * 2ULL
+#define MEMORY_16_MB                MEMORY_8_MB * 2ULL
+#define MEMORY_32_MB                MEMORY_16_MB * 2ULL
+#define MEMORY_64_MB                MEMORY_32_MB * 2ULL
+#define MEMORY_128_MB               MEMORY_64_MB * 2ULL
+#define MEMORY_256_MB               MEMORY_128_MB * 2ULL
+#define MEMORY_512_MB               MEMORY_256_MB * 2ULL
+#define MEMORY_1024_MB              MEMORY_512_MB * 2ULL
+#define MEMORY_2048_MB              MEMORY_1024_MB * 2ULL
+#define MEMORY_4096_MB              MEMORY_2048_MB * 2ULL
 
 #define STL_MAX_HEAP_MEMORY         MEMORY_1024_MB
 #define STL_MAX_STACK_MEMORY_SIZE   MEMORY_1_MB

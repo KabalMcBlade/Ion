@@ -147,38 +147,37 @@ void SceneGraph::Prepare()
                     const ionU32 meshCount = entity->GetMeshCount();
                     if (meshCount > 0)
                     {
-                        DrawSurface* drawSurface = nullptr;
-                        if (!m_isMeshGeneratedFirstTime)
-                        {
-                            drawSurface = &m_drawSurfaces[cam].back();
-                            m_isMeshGeneratedFirstTime = true;
-                        }
-                        else
-                        {
-                            const DrawSurface& drawSurfacePrev = m_drawSurfaces[cam].back();
-
-                            DrawSurface drawSurfaceTmp;
-                            drawSurfaceTmp.m_vertexCache = drawSurfacePrev.m_vertexCache;
-                            drawSurfaceTmp.m_indexCache = drawSurfacePrev.m_indexCache;
-
-                            m_drawSurfaces[cam].push_back(drawSurfaceTmp);
-
-                            drawSurface = &m_drawSurfaces[cam].back();
-                        }
-
-                        drawSurface->m_nodeRef = entity.GetPtr();
-                        drawSurface->m_visible = entity->IsVisible();    // this one is updated x frame, just set for the beginning
-
-                        BoundingBox* bb = entity->GetBoundingBox();
-                        m_sceneBoundingBox.Expande(bb->GetTransformed(entity->GetTransform().GetMatrix()));
-
                         for (ionU32 i = 0; i < meshCount; i++)
                         {
+                            DrawSurface* drawSurface = nullptr;
+                            if (!m_isMeshGeneratedFirstTime)
+                            {
+                                drawSurface = &m_drawSurfaces[cam].back();
+                                m_isMeshGeneratedFirstTime = true;
+                            }
+                            else
+                            {
+                                const DrawSurface& drawSurfacePrev = m_drawSurfaces[cam].back();
+
+                                DrawSurface drawSurfaceTmp;
+                                drawSurfaceTmp.m_vertexCache = drawSurfacePrev.m_vertexCache;
+                                drawSurfaceTmp.m_indexCache = drawSurfacePrev.m_indexCache;
+
+                                m_drawSurfaces[cam].push_back(drawSurfaceTmp);
+
+                                drawSurface = &m_drawSurfaces[cam].back();
+                            }
+
+                            drawSurface->m_nodeRef = entity.GetPtr();
+                            drawSurface->m_visible = entity->IsVisible();    // this one is updated x frame, just set for the beginning
                             drawSurface->m_meshIndexRef = i;
                             drawSurface->m_indexStart = entity->GetMesh(i)->GetIndexStart();
                             drawSurface->m_indexCount = entity->GetMesh(i)->GetIndexCount();
                             drawSurface->m_material = entity->GetMesh(i)->GetMaterial();
                             drawSurface->m_sortingIndex = static_cast<ionU8>(drawSurface->m_material->GetAlphaMode());
+
+                            BoundingBox* bb = entity->GetBoundingBox();
+                            m_sceneBoundingBox.Expande(bb->GetTransformed(entity->GetTransform().GetMatrix()));
                         }
                     }
                 }
