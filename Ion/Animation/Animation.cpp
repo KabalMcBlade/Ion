@@ -61,6 +61,11 @@ void AnimationSampler::PushBackOutputLinearPath(const Vector& _input)
     m_outputsLinearPath.push_back(_input);
 }
 
+void AnimationSampler::SetInterpolation(EAnimationInterpolationType _interpolation)
+{
+    m_interpolation = _interpolation;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 Animation::Animation() : m_name(""), m_hash(-1), m_start(std::numeric_limits<ionFloat>::max()), m_end(std::numeric_limits<ionFloat>::min())

@@ -71,17 +71,38 @@ public:
     void SetInterpolation(EAnimationInterpolationType _interpolation);
     const EAnimationInterpolationType GetInterpolation() const { return m_interpolation; }
     
+    const eosVector(ionFloat)& GetInputs() const { return m_inputs; }
+    eosVector(ionFloat)& GetInputs() { return m_inputs; }
+    eosVector(ionFloat)::const_iterator InputsIteratorBeginConst() { return m_inputs.begin(); }
+    eosVector(ionFloat)::const_iterator InputsIteratorEndConst() { return m_inputs.end(); }
+    eosVector(ionFloat)::iterator InputsIteratorBegin() { return m_inputs.begin(); }
+    eosVector(ionFloat)::iterator InputsIteratorEnd() { return m_inputs.end(); }
+
     ION_INLINE ionFloat GetMorphTarget(ionU32 _index)
     {
         ionAssertReturnValue(_index >= 0 && _index < m_outputsMorphTarget.size(), "Index out of range", -1.0f);
         return m_outputsMorphTarget[_index];
     }
 
+    const eosVector(ionFloat)& GetMorphTargets() const { return m_outputsMorphTarget; }
+    eosVector(ionFloat)& GetMorphTargets() { return m_outputsMorphTarget; }
+    eosVector(ionFloat)::const_iterator MorphTargetsIteratorBeginConst() { return m_outputsMorphTarget.begin(); }
+    eosVector(ionFloat)::const_iterator MorphTargetsIteratorEndConst() { return m_outputsMorphTarget.end(); }
+    eosVector(ionFloat)::iterator MorphTargetsIteratorBegin() { return m_outputsMorphTarget.begin(); }
+    eosVector(ionFloat)::iterator MorphTargetsIteratorEnd() { return m_outputsMorphTarget.end(); }
+
     ION_INLINE Vector GetLinearPath(ionU32 _index)
     {
         ionAssertReturnValue(_index >= 0 && _index < m_outputsMorphTarget.size(), "Index out of range", VectorHelper::Splat(-1.0f));
         return m_outputsLinearPath[_index];
     }
+
+    const eosVector(Vector)& GetLinearPaths() const { return m_outputsLinearPath; }
+    eosVector(Vector)& GetLinearPaths() { return m_outputsLinearPath; }
+    eosVector(Vector)::const_iterator LinearPathsIteratorBeginConst() { return m_outputsLinearPath.begin(); }
+    eosVector(Vector)::const_iterator LinearPathsIteratorEndConst() { return m_outputsLinearPath.end(); }
+    eosVector(Vector)::iterator LinearPathsIteratorBegin() { return m_outputsLinearPath.begin(); }
+    eosVector(Vector)::iterator LinearPathsIteratorEnd() { return m_outputsLinearPath.end(); }
 
 private:
     eosVector(ionFloat)         m_inputs;
@@ -99,6 +120,8 @@ public:
     ~Animation();
 
     void SetName(const eosString& _name);
+
+    ionBool IsValid() const { return m_hash != -1; }
 
     const eosString& GetName() const { return m_name; }
     eosSize GetHashName() const { return m_hash; }

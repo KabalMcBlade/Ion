@@ -19,6 +19,8 @@
 #include "../Geometry/MeshRenderer.h"
 #include "../Geometry/Mesh.h"
 
+#include "../Animation/Animation.h"
+
 #define TINYGLTF_IMPLEMENTATION
 // #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
 #include "../Dependencies/Miscellaneous/tiny_gltf.h"
@@ -64,7 +66,7 @@ void UpdateBoundingBox(const ObjectHandler& _node, BoundingBox& _mainBoundingBox
 }
 
 // for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
-void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRenderer* _meshRenderer, ObjectHandler& _entityHandle, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign)
+void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRenderer* _meshRenderer, ObjectHandler& _entityHandle, eosMap(ionU32, Node*)& _nodeIndexToNodePointer, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign)
 {
     Vector position(0.0f, 0.0f, 0.0f, 1.0f);
     Quaternion rotation;
@@ -107,13 +109,21 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
     _entityHandle->GetTransform().SetRotation(rotation);
     _entityHandle->GetTransform().SetScale(scale);
 
+    //
+    //  This one is the "NodeIndex" use to track the animation nodes
+    //
+    //  _node.children[i] 
+    //
+
     // calculate matrix for all children if any
     for (ionSize i = 0; i < _node.children.size(); ++i)
     {
         Entity* child = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE, _model.nodes[_node.children[i]].name.c_str());
         ObjectHandler childHandle(child);
         child->AttachToParent(_entityHandle);
-        LoadNode(_model.nodes[_node.children[i]], _model, _meshRenderer, childHandle, _textureIndexToTextureName, _materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+
+        _nodeIndexToNodePointer.insert(std::pair<ionU32, Node*>((ionU32)_node.children[i], child));
+        LoadNode(_model.nodes[_node.children[i]], _model, _meshRenderer, childHandle, _nodeIndexToNodePointer, _textureIndexToTextureName, _materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
     }
     
     if (_node.mesh > -1) 
@@ -947,13 +957,345 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
             entityPtr->PushBackMesh(mesh);
         }
-
-        // Bone weight for morph targets (NEXT: After the base renderer will works)
-        {
-        }
     }
 }
 
+
+void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _model, MeshRenderer* _meshRenderer, eosMap(ionU32, Node*)& _nodeIndexToNodePointer)
+{
+    if (_model.animations.size() > 0)
+    {
+        const ionSize animSize = _model.animations.size();
+        for (ionSize i = 0; i < animSize; ++i)
+        {
+            const tinygltf::Animation& gltfAnim = _model.animations[i];
+
+            ion::Animation ionAnim;
+            if (gltfAnim.name.empty())
+            {
+                ionAnim.SetName(_filenameNoExt + "#" + std::to_string(i + 1).c_str() + "#" + std::to_string(animSize).c_str());
+            }
+            else
+            {
+                ionAnim.SetName(gltfAnim.name.c_str());
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            // samplers
+            const ionSize samplerSize = gltfAnim.samplers.size();
+            for (ionSize j = 0; j < samplerSize; ++j)
+            {
+                const tinygltf::AnimationSampler& gltfSampler = gltfAnim.samplers[j];
+
+                ion::AnimationSampler ionSampler;
+
+                // interpolation
+                if (gltfSampler.interpolation == "LINEAR")
+                {
+                    ionSampler.SetInterpolation(EAnimationInterpolationType_Linear);
+                }
+                else if (gltfSampler.interpolation == "STEP")
+                {
+                    ionSampler.SetInterpolation(EAnimationInterpolationType_Step);
+                }
+                else if (gltfSampler.interpolation == "CUBICSPLINE")
+                {
+                    ionSampler.SetInterpolation(EAnimationInterpolationType_CubicSpline);
+                }
+                else
+                {
+                    ionAssertReturnVoid(false, "Unsupported interpolation");
+                }
+
+                // sampler input and time value
+                {
+                    const tinygltf::Accessor &accessor = _model.accessors[gltfSampler.input];
+                    const tinygltf::BufferView &bufferView = _model.bufferViews[accessor.bufferView];
+                    const tinygltf::Buffer &buffer = _model.buffers[bufferView.buffer];
+
+                    switch (accessor.componentType)
+                    {
+                    case TINYGLTF_PARAMETER_TYPE_BYTE:
+                    {
+                        ionS8 *buf = (ionS8 *)eosNewRaw(sizeof(ionS8) * accessor.count, ION_MEMORY_ALIGNMENT_SIZE);
+                        memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionS8));
+                        for (ionSize index = 0; index < accessor.count; index++)
+                        {
+                            ionFloat value = std::max(buf[index] / 127.0f, -1.0f);
+                            ionSampler.PushBackInput(value);
+                        }
+                        eosDeleteRaw(buf);
+                        break;
+                    }
+                    case TINYGLTF_PARAMETER_TYPE_SHORT:
+                    {
+                        ionS16 *buf = (ionS16 *)eosNewRaw(sizeof(ionS16) * accessor.count, ION_MEMORY_ALIGNMENT_SIZE);
+                        memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionS16));
+                        for (ionSize index = 0; index < accessor.count; index++)
+                        {
+                            ionFloat value = std::max(buf[index] / 32767.0f, -1.0f);
+                            ionSampler.PushBackInput(value);
+                        }
+                        eosDeleteRaw(buf);
+                        break;
+                    }
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
+                    {
+                        ionU8 *buf = (ionU8 *)eosNewRaw(sizeof(ionU8) * accessor.count, ION_MEMORY_ALIGNMENT_SIZE);
+                        memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU8));
+                        for (ionSize index = 0; index < accessor.count; index++)
+                        {
+                            ionFloat value = buf[index] / 255.0f;
+                            ionSampler.PushBackInput(value);
+                        }
+                        eosDeleteRaw(buf);
+                        break;
+                    }
+                    case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
+                    {
+                        ionU16 *buf = (ionU16 *)eosNewRaw(sizeof(ionU16) * accessor.count, ION_MEMORY_ALIGNMENT_SIZE);
+                        memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU16));
+                        for (ionSize index = 0; index < accessor.count; index++)
+                        {
+                            ionFloat value = buf[index] / 65535.0f;
+                            ionSampler.PushBackInput(value);
+                        }
+                        eosDeleteRaw(buf);
+                        break;
+                    }
+                    case TINYGLTF_PARAMETER_TYPE_FLOAT:
+                    {
+                        ionFloat *buf = (ionFloat *)eosNewRaw(sizeof(ionFloat) * accessor.count, ION_MEMORY_ALIGNMENT_SIZE);
+                        memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionFloat));
+                        for (ionSize index = 0; index < accessor.count; index++)
+                        {
+                            ionSampler.PushBackInput(buf[index]);
+                        }
+                        eosDeleteRaw(buf);
+                        break;
+                    }
+                    default:
+                        ionAssertReturnVoid(false, "Index component type is not supported!");
+                    }
+
+
+                    eosVector(ionFloat)::const_iterator begin = ionSampler.InputsIteratorBeginConst(), end = ionSampler.InputsIteratorEndConst(), it = begin;
+                    for (; it != end; ++it)
+                    {
+                        ionFloat input = *it;
+                        if (input < ionAnim.GetStart())
+                        {
+                            ionAnim.SetStart(input);
+                        }
+
+                        if (input > ionAnim.GetEnd())
+                        {
+                            ionAnim.SetEnd(input);
+                        }
+                    }
+                }
+
+                // sampler output
+                {
+                    const tinygltf::Accessor &accessor = _model.accessors[gltfSampler.output];
+                    const tinygltf::BufferView &bufferView = _model.bufferViews[accessor.bufferView];
+                    const tinygltf::Buffer &buffer = _model.buffers[bufferView.buffer];
+
+                    switch (accessor.type) 
+                    {
+
+                    case TINYGLTF_TYPE_VEC3:
+                    {
+                        const ionFloat *bufferVector = reinterpret_cast<const ionFloat *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                        for (ionSize a = 0; a < accessor.count; ++a)
+                        {
+                            Vector v((&bufferVector[a * 3])[0], ((&bufferVector[a * 3])[1]), (&bufferVector[a * 3])[2], 1.0f);
+                            ionSampler.PushBackOutputLinearPath(v);
+                        }
+                        break;
+                    }
+
+                    case TINYGLTF_TYPE_VEC4:
+                    {
+                        switch (accessor.componentType)
+                        {
+                            case TINYGLTF_PARAMETER_TYPE_FLOAT:
+                            {
+                                const ionFloat *bufferVector = reinterpret_cast<const ionFloat *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                                for (ionSize a = 0; a < accessor.count; ++a)
+                                {
+                                    Vector v((&bufferVector[a * 3])[0], ((&bufferVector[a * 3])[1]), (&bufferVector[a * 3])[2], (&bufferVector[a * 3])[3]);
+                                    ionSampler.PushBackOutputLinearPath(v);
+                                }
+                                break;
+                            }
+
+                            case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
+                            {
+                                const ionU16 *bufferVector = reinterpret_cast<const ionU16 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                                for (ionSize a = 0; a < accessor.count; ++a)
+                                {
+                                    Vector v(ionFloat((&bufferVector[a * 3])[0]) / 65535.0f, ionFloat((&bufferVector[a * 3])[1]) / 65535.0f, ionFloat((&bufferVector[a * 3])[2]) / 65535.0f, ionFloat((&bufferVector[a * 3])[3]) / 65535.0f);
+                                    ionSampler.PushBackOutputLinearPath(v);
+                                }
+                                break;
+                            }
+
+                            case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
+                            {
+                                const ionU8 *bufferVector = reinterpret_cast<const ionU8 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                                for (ionSize a = 0; a < accessor.count; ++a)
+                                {
+                                    Vector v(ionFloat((&bufferVector[a * 3])[0]) / 255.0f, ionFloat((&bufferVector[a * 3])[1]) / 255.0f, ionFloat((&bufferVector[a * 3])[2]) / 255.0f, ionFloat((&bufferVector[a * 3])[3]) / 255.0f);
+                                    ionSampler.PushBackOutputLinearPath(v);
+                                }
+                                break;
+                            }
+
+                            case TINYGLTF_PARAMETER_TYPE_SHORT:
+                            {
+                                const ionS16 *bufferVector = reinterpret_cast<const ionS16 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                                for (ionSize a = 0; a < accessor.count; ++a)
+                                {
+                                    Vector v(std::max(ionFloat((&bufferVector[a * 3])[0]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 3])[1]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 3])[2]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 3])[3]) / 32767.0f, -1.0f));
+                                    ionSampler.PushBackOutputLinearPath(v);
+                                }
+                                break;
+                            }
+
+                            case TINYGLTF_PARAMETER_TYPE_BYTE:
+                            {
+                                const ionS8 *bufferVector = reinterpret_cast<const ionS8 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                                for (ionSize a = 0; a < accessor.count; ++a)
+                                {
+                                    Vector v(std::max(ionFloat((&bufferVector[a * 3])[0]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 3])[1]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 3])[2]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 3])[3]) / 127.0f, -1.0f));
+                                    ionSampler.PushBackOutputLinearPath(v);
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case TINYGLTF_TYPE_SCALAR:
+                    {
+                        switch (accessor.componentType)
+                        {
+                            case TINYGLTF_PARAMETER_TYPE_FLOAT:
+                            {
+                                const ionFloat *bufferVector = reinterpret_cast<const ionFloat *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                                for (ionSize a = 0; a < accessor.count; ++a)
+                                {
+                                    ionFloat f = bufferVector[a];
+                                    ionSampler.PushBackOutputMorphTarget(f);
+                                }
+                                break;
+                            }
+
+                            case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
+                            {
+                                const ionU16 *bufferVector = reinterpret_cast<const ionU16 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                                for (ionSize a = 0; a < accessor.count; ++a)
+                                {
+                                    ionFloat f = ionFloat(bufferVector[a]) / 65535.0f;
+                                    ionSampler.PushBackOutputMorphTarget(f);
+                                }
+                                break;
+                            }
+
+                            case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
+                            {
+                                const ionU8 *bufferVector = reinterpret_cast<const ionU8 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                                for (ionSize a = 0; a < accessor.count; ++a)
+                                {
+                                    ionFloat f = ionFloat(bufferVector[a]) / 255.0f;
+                                    ionSampler.PushBackOutputMorphTarget(f);
+                                }
+                                break;
+                            }
+
+                            case TINYGLTF_PARAMETER_TYPE_SHORT:
+                            {
+                                const ionS16 *bufferVector = reinterpret_cast<const ionS16 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                                for (ionSize a = 0; a < accessor.count; ++a)
+                                {
+                                    ionFloat f = std::max(ionFloat(bufferVector[a]) / 32767.0f, -1.0f);
+                                    ionSampler.PushBackOutputMorphTarget(f);
+                                }
+                                break;
+                            }
+
+                            case TINYGLTF_PARAMETER_TYPE_BYTE:
+                            {
+                                const ionS8 *bufferVector = reinterpret_cast<const ionS8 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
+                                for (ionSize a = 0; a < accessor.count; ++a)
+                                {
+                                    ionFloat f = std::max(ionFloat(bufferVector[a]) / 127.0f, -1.0f);
+                                    ionSampler.PushBackOutputMorphTarget(f);
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    default:
+                        ionAssertReturnVoid(false, "Index component type is not supported!");
+                        break;
+                    }
+
+                }
+
+                // add
+                ionAnim.PushBackSampler(ionSampler);
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            // channels
+            const ionSize channlSize = gltfAnim.channels.size();
+            for (ionSize j = 0; j < channlSize; ++j)
+            {
+                const tinygltf::AnimationChannel& gltfChannel = gltfAnim.channels[j];
+
+                ion::AnimationChannel ionChannel;
+
+                if (gltfChannel.target_path == "rotation")
+                {
+                    ionChannel.SetPath(EAnimationPathType_Rotation);
+                }
+                else if (gltfChannel.target_path == "translation")
+                {
+                    ionChannel.SetPath(EAnimationPathType_Translation);
+                }
+                else if (gltfChannel.target_path == "scale")
+                {
+                    ionChannel.SetPath(EAnimationPathType_Scale);
+                }
+                else if (gltfChannel.target_path == "weights")
+                {
+                    ionChannel.SetPath(EAnimationPathType_WeightMorphTarget);
+                }
+                else
+                {
+                    ionAssertReturnVoid(false, "Unsupported animation path");
+                }
+
+                ionChannel.SetSamplerIndex(gltfChannel.sampler);
+
+                ionChannel.SetNode(_nodeIndexToNodePointer[(ionU32)gltfChannel.target_node]);
+                if (ionChannel.GetNode() == nullptr)
+                {
+                    continue;
+                }
+
+                // add
+                ionAnim.PushBackChannel(ionChannel);
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            // final add
+            _meshRenderer->PushBackAnimation(ionAnim);
+        }
+    }
+}
 
 ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, ObjectHandler& _entity, ionBool _generateNormalWhenMissing /*= false*/, ionBool _generateTangentWhenMissing /*= false*/, ionBool _setBitangentSign /*= false*/)
 {
@@ -964,7 +1306,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
     eosString ext;
     eosMap(ionS32, eosString) textureIndexToTextureName;
     eosMap(ionS32, eosString) materialIndexToMaterialName;
-
+    eosMap(ionU32, Node*) nodeIndexToNodePointer;
 
     //
     tinygltf::Model     model;
@@ -1415,7 +1757,8 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
     
     //
     // 3. Load all meshes..
-    const tinygltf::Scene &scene = model.scenes[model.defaultScene];
+    ionS32 mainIndex = model.defaultScene == -1 ? 0 : model.defaultScene;
+    const tinygltf::Scene &scene = model.scenes[mainIndex];
     const ionSize nodeCount = scene.nodes.size();
 
     // for GLTF always full vertex
@@ -1426,7 +1769,8 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
     {
         const tinygltf::Node node = model.nodes[scene.nodes[0]];
 
-        LoadNode(node, model, meshRenderer, _entity, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+        nodeIndexToNodePointer.insert(std::pair<ionU32, Node*>((ionU32)scene.nodes[0], entityPtr));
+        LoadNode(node, model, meshRenderer, _entity, nodeIndexToNodePointer, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
     }
     else
     {
@@ -1437,18 +1781,23 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
             Entity* child = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE, node.name.c_str());
             ObjectHandler childHandle(child);
 
-            LoadNode(node, model, meshRenderer, childHandle, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+            nodeIndexToNodePointer.insert(std::pair<ionU32, Node*>((ionU32)scene.nodes[i], child));
+            LoadNode(node, model, meshRenderer, childHandle, nodeIndexToNodePointer, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
 
             child->AttachToParent(_entity);
         }
     }
 
     //
-    // 4. for the main bounding box: if missing create, if present expand to the maximum one
+    // 4. load animations if any
+    LoadAnimations(filenameNoExt, model, meshRenderer, nodeIndexToNodePointer);
+
+    //
+    // 5. for the main bounding box: if missing create, if present expand to the maximum one
     UpdateBoundingBox(_entity, *_entity->GetBoundingBox());
 
     //
-    // 5. camera set, for now just one and perspective
+    // 6. camera set, for now just one and perspective
     if (model.cameras.size() > 0)
     {
         if (model.cameras[0].type == "perspective")
@@ -1456,6 +1805,10 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
             _camToUpdatePtr->SetPerspectiveProjection(NIX_RAD_TO_DEG(model.cameras[0].perspective.yfov), model.cameras[0].perspective.aspectRatio, model.cameras[0].perspective.znear, model.cameras[0].perspective.zfar);
         }
     }
+
+    textureIndexToTextureName.clear();
+    materialIndexToMaterialName.clear();
+    nodeIndexToNodePointer.clear();
 
     return true;
 }

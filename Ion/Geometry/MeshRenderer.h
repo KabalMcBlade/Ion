@@ -10,6 +10,8 @@
 
 #include "../Material/Material.h"
 
+#include "../Animation/Animation.h"
+
 
 EOS_USING_NAMESPACE
 
@@ -34,8 +36,20 @@ public:
     virtual const void* GetVertexData() const { return nullptr; }
     virtual ionSize GetSizeOfVertex() const { return 0; }
 
+    void PushBackAnimation(const Animation& _animation);
+
+    const eosVector(Animation)& GetAnimations() const { return m_aninimations; }
+    const Animation& GetAnimation(ionU32 _index) const { return m_aninimations[_index]; }
+    Animation& GetAnimation(ionU32 _index) { return m_aninimations[_index]; }
+    eosVector(Animation)& GetAnimations() { return m_aninimations; }
+    eosVector(Animation)::const_iterator AnimationsIteratorBeginConst() { return m_aninimations.begin(); }
+    eosVector(Animation)::const_iterator AnimationsIteratorEndConst() { return m_aninimations.end(); }
+    eosVector(Animation)::iterator AnimationsIteratorBegin() { return m_aninimations.begin(); }
+    eosVector(Animation)::iterator AnimationsIteratorEnd() { return m_aninimations.end(); }
+
 protected:
-    eosVector(Index)    m_indices;
+    eosVector(Index)        m_indices;
+    eosVector(Animation)    m_aninimations;
 };
 
 
