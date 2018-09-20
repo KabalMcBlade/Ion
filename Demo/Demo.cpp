@@ -352,6 +352,18 @@ int main(int argc, char **argv)
     //
     //////////////////////////////////////////////////////////////////////////
 
+    AnimationRenderer* animationRenderer = testHandle->GetAnimationRenderer();
+    if (animationRenderer != nullptr)
+    {
+        if (animationRenderer->IsEnabled())
+        {
+            if (animationRenderer->GetAnimationCount() > 0)
+            {
+                animationRenderer->SetAnimationSpeedMultiplier(0.05f);
+                animationRenderer->SetAnimationToPlay(0);
+            }
+        }
+    }
 
     // set camera to rotating object
     test->SetCameraReference(camera);

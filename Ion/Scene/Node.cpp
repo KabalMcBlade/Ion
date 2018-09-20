@@ -1,7 +1,8 @@
 #include "Node.h"
 
-
 #include "../Dependencies/Nix/Nix/Nix.h"
+
+#include "../Animation/AnimationRenderer.h"
 
 #define ION_BASE_NODE_NAME "Node"
 
@@ -72,7 +73,16 @@ void Node::Update(ionFloat _deltaTime)
     if (m_active)
     {
         OnUpdate(_deltaTime);
-
+        
+        AnimationRenderer* animationRenderer = GetAnimationRenderer();
+        if (animationRenderer != nullptr)
+        {
+            if (animationRenderer->IsEnabled())
+            {
+                animationRenderer->OnUpate(_deltaTime);
+            }
+        }
+        
         if (m_parent != nullptr)
         {
             m_transform.SetMatrixWS(m_transform.GetMatrix() * m_parent->GetTransform().GetMatrixWS());

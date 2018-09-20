@@ -50,6 +50,7 @@ typedef SmartPointer<Node> ObjectHandler;
 class BoundingBox;
 class Mesh;
 class BaseMeshRenderer;
+class AnimationRenderer;
 class ION_DLL Node : public SmartObject
 {
 public:
@@ -73,6 +74,9 @@ public:
     // those need to conformity
     virtual const BaseMeshRenderer* GetMeshRenderer() const { return nullptr; }
     virtual BaseMeshRenderer* GetMeshRenderer() { return nullptr; }
+
+    virtual const AnimationRenderer* GetAnimationRenderer() const { return nullptr; }
+    virtual AnimationRenderer* GetAnimationRenderer()  { return nullptr; }
 
     virtual void PushBackMesh(const Mesh& _mesh) {}
     virtual const Mesh* GetMesh(ionU32 _index) const { return nullptr; }

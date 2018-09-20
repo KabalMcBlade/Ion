@@ -40,11 +40,6 @@ EVertexLayout BaseMeshRenderer::GetLayout() const
     return EVertexLayout_Empty;
 }
 
-void BaseMeshRenderer::PushBackAnimation(const Animation& _animation)
-{
-    m_aninimations.push_back(_animation);
-}
-
 //////////////////////////////////////////////////////////////////////////
 MeshRendererPlain::MeshRendererPlain() : BaseMeshRenderer()
 {

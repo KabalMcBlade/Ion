@@ -58,6 +58,7 @@
 #include "Geometry/PrimitiveFactory.h"
 
 #include "Animation/Animation.h"
+#include "Animation/AnimationRenderer.h"
 
 #include "Scene/Transform.h"
 #include "Scene/Node.h"

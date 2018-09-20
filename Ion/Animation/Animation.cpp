@@ -17,7 +17,7 @@ AnimationChannel::~AnimationChannel()
     m_node = nullptr;
 }
 
-void AnimationChannel::SetNode(const Node* _node)
+void AnimationChannel::SetNode(Node* _node)
 {
     m_node = _node;
 }

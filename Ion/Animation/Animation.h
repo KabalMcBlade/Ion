@@ -42,16 +42,17 @@ public:
     explicit AnimationChannel();
     ~AnimationChannel();
 
-    void SetNode(const Node* _node);
+    void SetNode(Node* _node);
     void SetSamplerIndex(ionU32 _samplerIndex);
     void SetPath(EAnimationPathType _path);
 
+    Node* GetNode() { return m_node; }
     const Node* GetNode() const { return m_node; }
     const ionU32 GetSamplerIndex() const { return m_samplerIndex; }
     const EAnimationPathType GetPath() const { return m_path; }
 
 private:
-    const Node*         m_node;
+    Node*               m_node;
     ionU32              m_samplerIndex;
     EAnimationPathType  m_path;
 };
@@ -93,7 +94,7 @@ public:
 
     ION_INLINE Vector GetLinearPath(ionU32 _index)
     {
-        ionAssertReturnValue(_index >= 0 && _index < m_outputsMorphTarget.size(), "Index out of range", VectorHelper::Splat(-1.0f));
+        ionAssertReturnValue(_index >= 0 && _index < m_outputsLinearPath.size(), "Index out of range", VectorHelper::Splat(-1.0f));
         return m_outputsLinearPath[_index];
     }
 

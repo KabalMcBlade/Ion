@@ -19,7 +19,7 @@
 #include "../Geometry/MeshRenderer.h"
 #include "../Geometry/Mesh.h"
 
-#include "../Animation/Animation.h"
+#include "../Animation/AnimationRenderer.h"
 
 #define TINYGLTF_IMPLEMENTATION
 // #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
@@ -916,7 +916,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_UNLIT_SHADER_NAME, EShaderStage_Fragment);
                     }
 
-
                     material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
                 }
 
@@ -952,6 +951,101 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     break;
                 }
 
+                enum ESettingType
+                {
+                    ESettingType_Base = 0,
+                    ESettingType_Normal,
+
+                    ESettingType_Count
+                };
+
+                ionFloat constantTexturesSettings[ESettingType_Count];
+                for (ionU32 constantCounter = 0; constantCounter < ESettingType_Count; ++constantCounter)
+                {
+                    constantTexturesSettings[constantCounter] = 1.0f;
+                }
+
+                //
+                UniformBinding uniformVertex;
+                uniformVertex.m_bindingIndex = 0;
+                uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
+                uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
+                uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
+                uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+
+                //
+                UniformBinding uniformFragment;
+                uniformFragment.m_bindingIndex = 1;
+                uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
+                uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
+                uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
+                uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+
+                //
+                SamplerBinding albedoMap;
+                albedoMap.m_bindingIndex = 2;
+                albedoMap.m_texture = material->GetBasePBR().GetBaseColorTexture();
+                if (albedoMap.m_texture == nullptr)
+                {
+                    constantTexturesSettings[ESettingType_Base] = 0.0f;
+                    albedoMap.m_texture = ionRenderManager().GetNullTexure();
+                }
+
+                SamplerBinding normalMap;
+                normalMap.m_bindingIndex = 3;
+                normalMap.m_texture = material->GetAdvancePBR().GetNormalTexture();
+                if (normalMap.m_texture == nullptr)
+                {
+                    constantTexturesSettings[ESettingType_Normal] = 0.0f;
+                    normalMap.m_texture = ionRenderManager().GetNullTexure();
+                }
+
+
+                // set the shaders layout
+                ShaderLayoutDef vertexLayout;
+                vertexLayout.m_uniforms.push_back(uniformVertex);
+
+                ShaderLayoutDef fragmentLayout;
+                fragmentLayout.m_uniforms.push_back(uniformFragment);
+                fragmentLayout.m_samplers.push_back(albedoMap);
+                fragmentLayout.m_samplers.push_back(normalMap);
+
+                //
+                ConstantsBindingDef constants;
+                constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
+                constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
+                constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
+                constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
+                constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
+                constants.m_values.push_back(constantTexturesSettings[ESettingType_Base]);
+                constants.m_values.push_back(constantTexturesSettings[ESettingType_Normal]);
+                constants.m_values.push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
+                constants.m_values.push_back(material->GetAdvancePBR().GetAlphaCutoff());
+
+                material->SetVertexShaderLayout(vertexLayout);
+                material->SetFragmentShaderLayout(fragmentLayout);
+                material->SetVertexLayout(_meshRenderer->GetLayout());
+                material->SetConstantsShaders(constants);
+
+                ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+                ionS32 fragmentShaderIndex = 1;
+
+                if (material->IsDiffuseLight())
+                {
+                    fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_DIFFUSE_LIGHT_SHADER_NAME, EShaderStage_Fragment);
+                }
+                else
+                {
+                    fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_UNLIT_SHADER_NAME, EShaderStage_Fragment);
+                }
+
+
+                material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
+
                 mesh.SetMaterial(material);
             }
 
@@ -961,10 +1055,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 }
 
 
-void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _model, MeshRenderer* _meshRenderer, eosMap(ionU32, Node*)& _nodeIndexToNodePointer)
+void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _model, Entity* _entityPtr, eosMap(ionU32, Node*)& _nodeIndexToNodePointer)
 {
     if (_model.animations.size() > 0)
     {
+        AnimationRenderer* animationRenderer = _entityPtr->AddAnimationRenderer();
+
         const ionSize animSize = _model.animations.size();
         for (ionSize i = 0; i < animSize; ++i)
         {
@@ -1292,7 +1388,7 @@ void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _mod
 
             //////////////////////////////////////////////////////////////////////////
             // final add
-            _meshRenderer->PushBackAnimation(ionAnim);
+            animationRenderer->PushBackAnimation(ionAnim);
         }
     }
 }
@@ -1747,12 +1843,13 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
         material->GetBasePBR().SetRoughnessFactor(1.0f);
         material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
         material->GetAdvancePBR().SetAlphaCutoff(0.5f);
-        material->GetState().SetCullingMode(ECullingMode_Back);
+        material->GetState().SetCullingMode(ECullingMode_TwoSide);
         material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
         material->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
         material->GetState().SetBlendStateMode(EBlendState_SourceBlend_One);
         material->GetState().SetBlendStateMode(EBlendState_DestBlend_Zero);
         material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
+        material->SetUnlit(true);
     }
     
     //
@@ -1790,7 +1887,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
 
     //
     // 4. load animations if any
-    LoadAnimations(filenameNoExt, model, meshRenderer, nodeIndexToNodePointer);
+    LoadAnimations(filenameNoExt, model, entityPtr, nodeIndexToNodePointer);
 
     //
     // 5. for the main bounding box: if missing create, if present expand to the maximum one
