@@ -225,6 +225,11 @@ ION_INLINE ionBool operator!=(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
 // they are assigned to the shader stage directly and for now ONLY floats supported.
 // Anyway seems enough, you can pass matrix, vector, bool, float and integer as "float" representation
 
+/*
+use in the shader like below if you, for instance, have 2 values
+layout (constant_id = 0) const float LIGHTING_MODEL = 0.0;
+layout (constant_id = 1) const float PARAM_TOON_DESATURATION = 0.0;
+*/
 struct SpecializationConstants
 {
     eosVector(ionFloat) m_values;
