@@ -460,13 +460,10 @@ VkStencilOpState ShaderProgramHelper::GetStencilOpState(ionU64 _stencilStateBits
     return state;
 }
 
-VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render, VkRenderPass _renderPass, VkPrimitiveTopology _topology, EVertexLayout _vertexLayoutType, VkPipelineLayout _pipelineLayout, ionU64 _stateBits, VkShaderModule _vertexShader, VkShaderModule _fragmentShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationControlShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationEvaluatorShader /*= VK_NULL_HANDLE*/, VkShaderModule _geometryShader /*= VK_NULL_HANDLE*/)
+VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render, VkRenderPass _renderPass, VkPrimitiveTopology _topology, EVertexLayout _vertexLayoutType, VkPipelineLayout _pipelineLayout, ionU64 _stateBits, 
+    VkShaderModule _vertexShader /*= VK_NULL_HANDLE*/, VkShaderModule _fragmentShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationControlShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationEvaluatorShader /*= VK_NULL_HANDLE*/, VkShaderModule _geometryShader /*= VK_NULL_HANDLE*/,
+    SpecializationConstants* _vertexSpecConst /*= nullptr*/, SpecializationConstants* _fragmentSpecConst /*= nullptr*/, SpecializationConstants* _tessCtrlSpecConst /*= nullptr*/, SpecializationConstants* _tessEvalSpecConst /*= nullptr*/, SpecializationConstants* _geomSpecConst /*= nullptr*/)
 {
-    if (_vertexShader == VK_NULL_HANDLE)
-    {
-        return VK_NULL_HANDLE;
-    }
-
     ShaderVertexLayout& vertexLayout = *m_vertexLayouts[_vertexLayoutType];
 
     VkPipelineVertexInputStateCreateInfo vertexInputState = vertexLayout.m_inputState;
@@ -674,6 +671,12 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
     {
         stage.module = _vertexShader;
         stage.stage = VK_SHADER_STAGE_VERTEX_BIT;
+
+        if (_vertexSpecConst != nullptr && _vertexSpecConst->m_isGenerated)
+        {
+            stage.pSpecializationInfo = &_vertexSpecConst->m_specializationInfo;
+        }
+
         stages.push_back(stage);
     }
 
@@ -681,6 +684,12 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
     {
         stage.module = _tessellationControlShader;
         stage.stage = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+
+        if (_tessCtrlSpecConst != nullptr && _tessCtrlSpecConst->m_isGenerated)
+        {
+            stage.pSpecializationInfo = &_tessCtrlSpecConst->m_specializationInfo;
+        }
+
         stages.push_back(stage);
     }
 
@@ -688,6 +697,12 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
     {
         stage.module = _tessellationEvaluatorShader;
         stage.stage = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+
+        if (_tessEvalSpecConst != nullptr && _tessEvalSpecConst->m_isGenerated)
+        {
+            stage.pSpecializationInfo = &_tessEvalSpecConst->m_specializationInfo;
+        }
+
         stages.push_back(stage);
     }
 
@@ -695,6 +710,12 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
     {
         stage.module = _geometryShader;
         stage.stage = VK_SHADER_STAGE_GEOMETRY_BIT;
+
+        if (_geomSpecConst != nullptr && _geomSpecConst->m_isGenerated)
+        {
+            stage.pSpecializationInfo = &_geomSpecConst->m_specializationInfo;
+        }
+
         stages.push_back(stage);
     }
 
@@ -702,6 +723,12 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
     {
         stage.module = _fragmentShader;
         stage.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+        if (_fragmentSpecConst != nullptr && _fragmentSpecConst->m_isGenerated)
+        {
+            stage.pSpecializationInfo = &_fragmentSpecConst->m_specializationInfo;
+        }
+
         stages.push_back(stage);
     }
 

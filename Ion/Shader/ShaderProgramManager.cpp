@@ -337,11 +337,16 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
     _material->GetShaders(vertexShaderIndex, fragmentShaderIndex, tessellationControlIndex, tessellationEvaluationIndex, geometryIndex, useJoint, useSkinning);
 
     VkPipeline pipeline = shaderProgram.GetPipeline(_render, _renderPass, _stateBits, _material->GetTopology(),
-        m_shaders[vertexShaderIndex].m_shaderModule,
+        vertexShaderIndex != -1 ? m_shaders[vertexShaderIndex].m_shaderModule : VK_NULL_HANDLE,
         fragmentShaderIndex != -1 ? m_shaders[fragmentShaderIndex].m_shaderModule : VK_NULL_HANDLE,
         tessellationControlIndex != -1 ? m_shaders[tessellationControlIndex].m_shaderModule : VK_NULL_HANDLE,
         tessellationEvaluationIndex != -1 ? m_shaders[tessellationEvaluationIndex].m_shaderModule : VK_NULL_HANDLE,
-        geometryIndex != -1 ? m_shaders[geometryIndex].m_shaderModule : VK_NULL_HANDLE);
+        geometryIndex != -1 ? m_shaders[geometryIndex].m_shaderModule : VK_NULL_HANDLE,
+        vertexShaderIndex != -1 ? m_shaders[vertexShaderIndex].GetSpecializationConstants() : nullptr,
+        fragmentShaderIndex != -1 ? m_shaders[fragmentShaderIndex].GetSpecializationConstants() : nullptr,
+        tessellationControlIndex != -1 ? m_shaders[tessellationControlIndex].GetSpecializationConstants() : nullptr,
+        tessellationEvaluationIndex != -1 ? m_shaders[tessellationEvaluationIndex].GetSpecializationConstants() : nullptr,
+        geometryIndex != -1 ? m_shaders[geometryIndex].GetSpecializationConstants() : nullptr);
 
     VkDescriptorSetAllocateInfo setAllocInfo = {};
     setAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -687,6 +692,13 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
 
 ionS32 ShaderProgramManager::FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage)
 {
+    eosVector(ionFloat) emptySpecializationConstants;
+    return FindShader(_path, _name, _stage, emptySpecializationConstants);
+}
+
+
+ionS32 ShaderProgramManager::FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage, const eosVector(ionFloat)& _specializationConstantValues)
+{
     for (ionS32 i = 0; i < m_shaders.size(); ++i)
     {
         Shader& shader = m_shaders[i];
@@ -701,6 +713,14 @@ ionS32 ShaderProgramManager::FindShader(const eosString& _path, const eosString&
     shader.m_path = _path;
     shader.m_name = _name;
     shader.m_stage = _stage;
+
+    // specialization constants
+    if (_specializationConstantValues.size() > 0)
+    {
+        shader.m_specializationConstants.m_values.insert(std::end(shader.m_specializationConstants.m_values), std::begin(_specializationConstantValues), std::end(_specializationConstantValues));
+        shader.m_specializationConstants.Generate();
+    }
+
     m_shaders.push_back(shader);
     ionS32 index = (ionS32)(m_shaders.size() - 1);
     LoadShader(index);

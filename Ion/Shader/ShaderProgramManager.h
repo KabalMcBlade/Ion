@@ -79,6 +79,7 @@ public:
 
     // Shader name WITHOUT extension, because is chose by the shader stage!
     ionS32  FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage);
+    ionS32  FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage, const eosVector(ionFloat)& _specializationConstantValues);
 
     void    StartFrame();
     void    EndFrame();

@@ -22,7 +22,9 @@ ShaderProgram::~ShaderProgram()
     m_material = nullptr;
 }
 
-VkPipeline ShaderProgram::GetPipeline(const RenderCore& _render, VkRenderPass _renderPass, ionU64 _stateBits, VkPrimitiveTopology _topology, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationControlShader  /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationEvaluatorShader /*= VK_NULL_HANDLE*/, VkShaderModule _geometryShader /*= VK_NULL_HANDLE*/)
+VkPipeline ShaderProgram::GetPipeline(const RenderCore& _render, VkRenderPass _renderPass, ionU64 _stateBits, VkPrimitiveTopology _topology, 
+    VkShaderModule _vertexShader /*= VK_NULL_HANDLE*/, VkShaderModule _fragmentShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationControlShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationEvaluatorShader /*= VK_NULL_HANDLE*/, VkShaderModule _geometryShader /*= VK_NULL_HANDLE*/,
+    SpecializationConstants* _vertexSpecConst /*= nullptr*/, SpecializationConstants* _fragmentSpecConst /*= nullptr*/, SpecializationConstants* _tessCtrlSpecConst /*= nullptr*/, SpecializationConstants* _tessEvalSpecConst /*= nullptr*/, SpecializationConstants* _geomSpecConst /*= nullptr*/)
 {
     for (ionU32 i = 0; i < m_pipelines.size(); ++i) 
     {
@@ -33,7 +35,8 @@ VkPipeline ShaderProgram::GetPipeline(const RenderCore& _render, VkRenderPass _r
         }
     }
 
-    VkPipeline pipeline = ShaderProgramHelper::CreateGraphicsPipeline(_render, _renderPass, _topology, m_vertextLayoutType, m_pipelineLayout, _stateBits, _vertexShader, _fragmentShader, _tessellationControlShader, _tessellationEvaluatorShader, _geometryShader);
+    VkPipeline pipeline = ShaderProgramHelper::CreateGraphicsPipeline(_render, _renderPass, _topology, m_vertextLayoutType, m_pipelineLayout, _stateBits, _vertexShader, _fragmentShader, _tessellationControlShader, _tessellationEvaluatorShader, _geometryShader,
+        _vertexSpecConst, _fragmentSpecConst, _tessCtrlSpecConst, _tessEvalSpecConst, _geomSpecConst);
 
     PipelineState pipelineState;
     pipelineState.m_pipeline = pipeline;

@@ -39,6 +39,8 @@ enum EPushConstantStage : ionU32
     EPushConstantStage_All = VK_SHADER_STAGE_ALL_GRAPHICS
 };
 
+//////////////////////////////////////////////////////////////////////////
+
 struct ION_DLL UniformBinding final
 {
     ionU32                              m_bindingIndex;
@@ -84,6 +86,8 @@ ION_INLINE ionBool operator!=(const UniformBinding& lhs, const UniformBinding& r
     return (lhs.m_bindingIndex != rhs.m_bindingIndex);
 }
 
+//////////////////////////////////////////////////////////////////////////
+
 class Texture;
 struct ION_DLL SamplerBinding final
 {
@@ -111,6 +115,7 @@ ION_INLINE ionBool operator!=(const SamplerBinding& lhs, const SamplerBinding& r
     return (lhs.m_bindingIndex != rhs.m_bindingIndex) && (lhs.m_texture != rhs.m_texture);
 }
 
+//////////////////////////////////////////////////////////////////////////
 
 // The push_constant in the shader and for now ONLY floats supported.
 // Anyway seems enough, you can pass matrix, vector, bool, float and integer as "float" representation
@@ -148,6 +153,8 @@ ION_INLINE ionBool operator!=(const ConstantsBindingDef& lhs, const ConstantsBin
 {
     return (lhs.GetData() != rhs.GetData());
 }
+
+//////////////////////////////////////////////////////////////////////////
 
 struct ION_DLL ShaderLayoutDef final
 {
@@ -189,7 +196,6 @@ ION_INLINE ionBool operator==(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
     return true;
 }
 
-
 ION_INLINE ionBool operator!=(const ShaderLayoutDef& lhs, const ShaderLayoutDef& rhs)
 {
     const eosVector(UniformBinding)::size_type uniformCount = lhs.m_uniforms.size();
@@ -213,6 +219,61 @@ ION_INLINE ionBool operator!=(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
     return true;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+// Specialization constants
+// they are assigned to the shader stage directly and for now ONLY floats supported.
+// Anyway seems enough, you can pass matrix, vector, bool, float and integer as "float" representation
+
+struct SpecializationConstants
+{
+    eosVector(ionFloat) m_values;
+
+    // if the command "Generate" is not executed, this one is invalid!
+    VkSpecializationInfo m_specializationInfo;
+
+    ionBool m_isGenerated;
+
+    SpecializationConstants() : m_isGenerated(false)
+    {
+        memset(&m_specializationInfo, 0, sizeof(VkSpecializationInfo));
+    }
+
+    ~SpecializationConstants()
+    {
+        Clear();
+    }
+
+    void Clear()
+    {
+        m_values.clear();
+    }
+
+    void Generate()
+    {
+        eosVector(VkSpecializationMapEntry) specializations;
+        specializations.resize(m_values.size());
+
+        const ionU32 count = static_cast<ionU32>(specializations.size());
+        for (ionU32 i = 0; i < count; ++i)
+        {
+            specializations[i].constantID = i;
+            specializations[i].size = sizeof(ionFloat);
+            specializations[i].offset = i * sizeof(ionFloat);
+        }
+
+        m_specializationInfo.dataSize = m_values.size() * sizeof(ionFloat);
+        m_specializationInfo.mapEntryCount = static_cast<ionU32>(m_values.size());
+        m_specializationInfo.pMapEntries = specializations.data();
+        m_specializationInfo.pData = m_values.data();
+
+        m_isGenerated = true;
+    }
+};
+
+
+//////////////////////////////////////////////////////////////////////////
+
 class RenderCore;
 struct Shader
 {
@@ -229,11 +290,26 @@ struct Shader
         return m_shaderModule != VK_NULL_HANDLE;
     }
 
+    SpecializationConstants* GetSpecializationConstants()
+    {
+        if (m_specializationConstants.m_values.size() > 0)
+        {
+            return &m_specializationConstants;
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
     eosString                       m_name;
     eosString                       m_path;
     EShaderStage                    m_stage;
     VkShaderModule                  m_shaderModule;
+    SpecializationConstants         m_specializationConstants;
 };
+
+//////////////////////////////////////////////////////////////////////////
 
 class Material;
 struct ShaderProgram
@@ -250,7 +326,9 @@ struct ShaderProgram
         VkRenderPass    m_renderpass;
     };
 
-    VkPipeline GetPipeline(const RenderCore& _render, VkRenderPass _renderPass, ionU64 _stateBits, VkPrimitiveTopology _topology, VkShaderModule _vertexShader, VkShaderModule _fragmentShader, VkShaderModule _tessellationControlShader = VK_NULL_HANDLE, VkShaderModule _tessellationEvaluatorShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE);
+    VkPipeline GetPipeline(const RenderCore& _render, VkRenderPass _renderPass, ionU64 _stateBits, VkPrimitiveTopology _topology, 
+                            VkShaderModule _vertexShader = VK_NULL_HANDLE, VkShaderModule _fragmentShader = VK_NULL_HANDLE, VkShaderModule _tessellationControlShader = VK_NULL_HANDLE, VkShaderModule _tessellationEvaluatorShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE,
+                            SpecializationConstants* _vertexSpecConst = nullptr, SpecializationConstants* _fragmentSpecConst = nullptr, SpecializationConstants* _tessCtrlSpecConst = nullptr, SpecializationConstants* _tessEvalSpecConst = nullptr, SpecializationConstants* _geomSpecConst = nullptr);
 
     eosVector(EShaderBinding)   m_bindings;
     eosVector(PipelineState)    m_pipelines;
