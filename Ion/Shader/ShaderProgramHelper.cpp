@@ -245,6 +245,7 @@ VkDescriptorType ShaderProgramHelper::GetDescriptorType(EShaderBinding _type)
     {
     case EShaderBinding_Uniform: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     case EShaderBinding_Sampler: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    case EShaderBinding_Storage: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     default:
         ionAssertReturnValue(false, "Invalid descriptor type!", VK_DESCRIPTOR_TYPE_MAX_ENUM);
     }
