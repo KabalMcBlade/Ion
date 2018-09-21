@@ -717,7 +717,11 @@ ionS32 ShaderProgramManager::FindShader(const eosString& _path, const eosString&
     // specialization constants
     if (_specializationConstantValues.size() > 0)
     {
-        shader.m_specializationConstants.m_values.insert(std::end(shader.m_specializationConstants.m_values), std::begin(_specializationConstantValues), std::end(_specializationConstantValues));
+        for (eosVector(ionFloat)::size_type i = 0; i != _specializationConstantValues.size(); i++) 
+        {
+            shader.m_specializationConstants.m_values.push_back(_specializationConstantValues[i]);
+        }
+
         shader.m_specializationConstants.Generate();
     }
 
