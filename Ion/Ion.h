@@ -41,7 +41,6 @@
 #include "Renderer/VertexBufferObject.h"
 #include "Renderer/IndexBufferObject.h"
 #include "Renderer/UniformBufferObject.h"
-#include "Renderer/StorageBufferObject.h"
 #include "Renderer/RenderManager.h"
 
 #include "Shader/ShaderProgramHelper.h"

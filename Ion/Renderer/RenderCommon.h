@@ -93,7 +93,6 @@ enum EShaderBinding
 {
     EShaderBinding_Uniform = 0,
     EShaderBinding_Sampler,
-    EShaderBinding_Storage,
 
     EShaderBinding_Count
 };

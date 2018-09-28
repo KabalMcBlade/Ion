@@ -301,10 +301,10 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                                 tangent = VectorHelper::Set(0.0f, 0.0f, 0.0f, 1.0f);
                             }
                             vert.SetTangent(tangent);
-
-                            ionMesh.PushBackVertexMorphTarget(vert);
                         }
                     }
+
+                    // TODO: FINISH HERE
                 }
 
                 if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end()) 
@@ -803,23 +803,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
                         uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
 
-                        UniformBinding morphWeightsVertex;
-                        StorageBinding storageMorphTargets;
-                        if (usingMorphTarget)
-                        {
-                            morphWeightsVertex.m_bindingIndex = bindingIndex++;
-                            morphWeightsVertex.m_parameters.push_back("weights");    // array of 8
-                            morphWeightsVertex.m_type.push_back(EBufferParameterType_Float);
-
-                            storageMorphTargets.m_bindingIndex = bindingIndex++;
-                            storageMorphTargets.m_parameters.push_back("position");    // array of 8
-                            storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
-                            storageMorphTargets.m_parameters.push_back("normal");    // array of 8
-                            storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
-                            storageMorphTargets.m_parameters.push_back("tangent");    // array of 8
-                            storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
-                        }
-
                         //
                         UniformBinding uniformFragment;
                         uniformFragment.m_bindingIndex = bindingIndex++;
@@ -902,24 +885,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         ShaderLayoutDef vertexLayout;
                         vertexLayout.m_uniforms.push_back(uniformVertex);
 
-                        if (usingMorphTarget)
-                        {
-                            vertexLayout.m_uniforms.push_back(morphWeightsVertex);
-                            vertexLayout.m_storages.push_back(storageMorphTargets);
-
-                            material->SetCustomDrawFunction(
-
-                                [&](const DrawSurface& _surface)
-                            {
-                                ionShaderProgramManager().SetRenderParamsVector("position", &_surface.m_morphtargetsPositions[0], 8);
-                                ionShaderProgramManager().SetRenderParamsVector("normal", &_surface.m_morphtargetsNormals[0], 8);
-                                ionShaderProgramManager().SetRenderParamsVector("tangent", &_surface.m_morphtargetsTangents[0], 8);
-                                ionShaderProgramManager().SetRenderParamsFloat("weights", &_surface.m_morphtargetsWeights[0], 8);
-                            }
-
-                            );
-                        }
-
                         ShaderLayoutDef fragmentLayout;
                         fragmentLayout.m_uniforms.push_back(uniformFragment);
                         fragmentLayout.m_samplers.push_back(samplerIrradiance);
@@ -970,18 +935,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         material->SetVertexLayout(_meshRenderer->GetLayout());
                         material->SetConstantsShaders(constants);
 
-                        ionS32 vertexShaderIndex = -1;
-                        ionS32 fragmentShaderIndex = -1;
-                        if (usingMorphTarget)
-                        {
-                            vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_MORPH_SHADER_NAME, EShaderStage_Vertex);
-                            fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_MORPH_SHADER_NAME, EShaderStage_Fragment);
-                        }
-                        else
-                        {
-                            vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
-                            fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Fragment);
-                        }
+                        ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+                        ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Fragment);
 
                         material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
                     }
@@ -1013,23 +968,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
                     uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
                     uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
-
-                    UniformBinding morphWeightsVertex;
-                    StorageBinding storageMorphTargets;
-                    if (usingMorphTarget)
-                    {
-                        morphWeightsVertex.m_bindingIndex = bindingIndex++;
-                        morphWeightsVertex.m_parameters.push_back("weights");    // array of 8
-                        morphWeightsVertex.m_type.push_back(EBufferParameterType_Float);
-
-                        storageMorphTargets.m_bindingIndex = bindingIndex++;
-                        storageMorphTargets.m_parameters.push_back("position");    // array of 8
-                        storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
-                        storageMorphTargets.m_parameters.push_back("normal");    // array of 8
-                        storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
-                        storageMorphTargets.m_parameters.push_back("tangent");    // array of 8
-                        storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
-                    }
 
                     //
                     UniformBinding uniformFragment;
@@ -1065,24 +1003,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     ShaderLayoutDef vertexLayout;
                     vertexLayout.m_uniforms.push_back(uniformVertex);
 
-                    if (usingMorphTarget)
-                    {
-                        vertexLayout.m_uniforms.push_back(morphWeightsVertex);
-                        vertexLayout.m_storages.push_back(storageMorphTargets);
-
-                        material->SetCustomDrawFunction(
-
-                            [&](const DrawSurface& _surface)
-                        {
-                            ionShaderProgramManager().SetRenderParamsVector("position", &_surface.m_morphtargetsPositions[0], 8);
-                            ionShaderProgramManager().SetRenderParamsVector("normal", &_surface.m_morphtargetsNormals[0], 8);
-                            ionShaderProgramManager().SetRenderParamsVector("tangent", &_surface.m_morphtargetsTangents[0], 8);
-                            ionShaderProgramManager().SetRenderParamsFloat("weights", &_surface.m_morphtargetsWeights[0], 8);
-                        }
-
-                        );
-                    }
-
                     ShaderLayoutDef fragmentLayout;
                     fragmentLayout.m_uniforms.push_back(uniformFragment);
                     fragmentLayout.m_samplers.push_back(albedoMap);
@@ -1106,18 +1026,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     material->SetConstantsShaders(constants);
 
 
-
-                    ionS32 vertexShaderIndex = -1;
                     ionS32 fragmentShaderIndex = 1;
-
-                    if (usingMorphTarget)
-                    {
-                        vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_MORPH_SHADER_NAME, EShaderStage_Vertex);
-                    }
-                    else
-                    {
-                        vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
-                    }
+                    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
 
                     if (material->IsDiffuseLight())
                     {
@@ -1189,22 +1099,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
                 uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
 
-                UniformBinding morphWeightsVertex;
-                StorageBinding storageMorphTargets;
-                if (usingMorphTarget)
-                {
-                    morphWeightsVertex.m_bindingIndex = bindingIndex++;
-                    morphWeightsVertex.m_parameters.push_back("weights");    // array of 8
-                    morphWeightsVertex.m_type.push_back(EBufferParameterType_Float);
-
-                    storageMorphTargets.m_bindingIndex = bindingIndex++;
-                    storageMorphTargets.m_parameters.push_back("position");    // array of 8
-                    storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
-                    storageMorphTargets.m_parameters.push_back("normal");    // array of 8
-                    storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
-                    storageMorphTargets.m_parameters.push_back("tangent");    // array of 8
-                    storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
-                }
 
                 //
                 UniformBinding uniformFragment;
@@ -1240,25 +1134,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 ShaderLayoutDef vertexLayout;
                 vertexLayout.m_uniforms.push_back(uniformVertex);
 
-                if (usingMorphTarget)
-                {
-                    vertexLayout.m_uniforms.push_back(morphWeightsVertex);
-                    vertexLayout.m_storages.push_back(storageMorphTargets);
-
-                    material->SetCustomDrawFunction(
-
-                        [&](const DrawSurface& _surface)
-                    {
-                        ionShaderProgramManager().SetRenderParamsVector("position", &_surface.m_morphtargetsPositions[0], 8);
-                        ionShaderProgramManager().SetRenderParamsVector("normal", &_surface.m_morphtargetsNormals[0], 8);
-                        ionShaderProgramManager().SetRenderParamsVector("tangent", &_surface.m_morphtargetsTangents[0], 8);
-                        ionShaderProgramManager().SetRenderParamsFloat("weights", &_surface.m_morphtargetsWeights[0], 8);
-                    }
-
-                    );
-                }
-
-
                 ShaderLayoutDef fragmentLayout;
                 fragmentLayout.m_uniforms.push_back(uniformFragment);
                 fragmentLayout.m_samplers.push_back(albedoMap);
@@ -1281,17 +1156,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 material->SetVertexLayout(_meshRenderer->GetLayout());
                 material->SetConstantsShaders(constants);
 
-                ionS32 vertexShaderIndex = -1;
                 ionS32 fragmentShaderIndex = 1;
-
-                if (usingMorphTarget)
-                {
-                    vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_MORPH_SHADER_NAME, EShaderStage_Vertex);
-                }
-                else
-                {
-                    vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
-                }
+                ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
 
                 if (material->IsDiffuseLight())
                 {

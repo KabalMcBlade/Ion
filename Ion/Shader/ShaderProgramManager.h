@@ -9,7 +9,6 @@
 
 #include "../Renderer/RenderCommon.h"
 #include "../Renderer/UniformBufferObject.h"
-#include "../Renderer/StorageBufferObject.h"
 
 #include "ShaderProgram.h"
 
@@ -83,40 +82,6 @@ public:
 
     //////////////////////////////////////////////////////////////////////////
 
-    const   Matrix& GetStorageParamMatrix(const eosString& _param);
-    const   Matrix& GetStorageParamMatrix(ionSize _paramHash);
-
-    const   Vector& GetStorageParamVector(const eosString& _param);
-    const   Vector& GetStorageParamVector(ionSize _paramHash);
-
-    const   ionFloat GetStorageParamFloat(const eosString& _param);
-    const   ionFloat GetStorageParamFloat(ionSize _paramHash);
-
-    const   ionS32 GetStorageParamInteger(const eosString& _param);
-    const   ionS32 GetStorageParamInteger(ionSize _paramHash);
-
-    void    SetStorageParamMatrix(const eosString& _param, const ionFloat* _value);
-    void    SetStorageParamMatrix(ionSize _paramHash, const ionFloat* _value);
-    void    SetStorageParamsMatrix(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
-    void    SetStorageParamsMatrix(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
-
-    void    SetStorageParamVector(const eosString& _param, const ionFloat* _value);
-    void    SetStorageParamVector(ionSize _paramHash, const ionFloat* _value);
-    void    SetStorageParamsVector(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
-    void    SetStorageParamsVector(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
-
-    void    SetStorageParamFloat(const eosString& _param, const ionFloat _value);
-    void    SetStorageParamFloat(ionSize _paramHash, const ionFloat _value);
-    void    SetStorageParamsFloat(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
-    void    SetStorageParamsFloat(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
-
-    void    SetStorageParamInteger(const eosString& _param, const ionS32 _value);
-    void    SetStorageParamInteger(ionSize _paramHash, const ionS32 _value);
-    void    SetStorageParamsInteger(const eosString& _param, const ionS32* _values, ionU32 _numValues);
-    void    SetStorageParamsInteger(ionSize _paramHash, const ionS32* _values, ionU32 _numValues);
-
-    //////////////////////////////////////////////////////////////////////////
-
     // Shader name WITHOUT extension, because is chose by the shader stage!
     ionS32  FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage);
     ionS32  FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage, const eosVector(ionFloat)& _specializationConstantValues);
@@ -139,7 +104,6 @@ private:
     void    LoadShader(Shader& _shader);
 
     void    AllocUniformParametersBlockBuffer(const RenderCore& _render, const UniformBinding& _uniform, UniformBuffer& _ubo);
-    void    AllocStorageParametersBlockBuffer(const RenderCore& _render, const StorageBinding& _storage, StorageBuffer& _sbo);
 
 public:
     eosVector(ShaderProgram) m_shaderPrograms;
@@ -155,20 +119,13 @@ private:
     eosMap(ionSize, ionFloat)   m_uniformsFloat; 
     eosMap(ionSize, ionS32)     m_uniformsInteger;
 
-    eosMap(ionSize, Vector)     m_storagesVector;
-    eosMap(ionSize, Matrix)     m_storagesMatrix;
-    eosMap(ionSize, ionFloat)   m_storagesFloat;
-    eosMap(ionSize, ionS32)     m_storagesInteger;
-
     ionS32                  m_currentDescSet;
     ionSize                 m_currentParmBufferOffset;
-    ionSize                 m_currentParmStorageOffset;
     VkDescriptorPool        m_descriptorPool;
     VkDescriptorSet         m_descriptorSets[ION_MAX_DESCRIPTOR_SETS];
 
     UniformBuffer*          m_skinningUniformBuffer;
     UniformBuffer*          m_uniformBuffer;
-    StorageBuffer*          m_storageBuffer;
 private:
     static ShaderProgramManager *s_instance;
 };

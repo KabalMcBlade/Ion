@@ -51,26 +51,6 @@ void Mesh::SetMaterial(Material* _material)
     m_material = _material;
 }
 
-void Mesh::PushBackVertexMorphTarget(const VertexMorphTarget& _vertexMorphTarget)
-{
-    m_morphTargets.push_back(_vertexMorphTarget);
-}
-
-ionU32 Mesh::GetVertexMorphTargetCount() const
-{
-    return static_cast<ionU32>(m_morphTargets.size());
-}
-
-const VertexMorphTarget& Mesh::GetVertexMorphTarget(ionU32 _index) const
-{
-    return m_morphTargets[_index]; 
-}
-
-eosVector(VertexMorphTarget)& Mesh::GetVertexMorphTargets()
-{
-    return m_morphTargets;
-}
-
 
 ION_NAMESPACE_END
 

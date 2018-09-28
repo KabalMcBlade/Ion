@@ -31,10 +31,6 @@ public:
     void SetIndexCount(ionU32 _count);
     void SetMaterial(Material* _material);
 
-    void PushBackVertexMorphTarget(const VertexMorphTarget& _vertexMorphTarget);
-    ionU32 GetVertexMorphTargetCount() const;
-    const VertexMorphTarget& GetVertexMorphTarget(ionU32 _index) const;
-    eosVector(VertexMorphTarget)& GetVertexMorphTargets();
 
 private:
     eosVector(VertexMorphTarget)    m_morphTargets;

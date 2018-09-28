@@ -36,7 +36,6 @@ public:
         SpecializationConstants* _vertexSpecConst = nullptr, SpecializationConstants* _fragmentSpecConst = nullptr, SpecializationConstants* _tessCtrlSpecConst = nullptr, SpecializationConstants* _tessEvalSpecConst = nullptr, SpecializationConstants* _geomSpecConst = nullptr);
 
 private:
-    static VkDescriptorType GetDescriptorType(EShaderBinding _type);
     static VkStencilOpState GetStencilOpState(ionU64 _stencilStateBits);
 
 private:

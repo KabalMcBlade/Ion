@@ -260,11 +260,6 @@ public:
     void SetTopology(VkPrimitiveTopology _topology) { m_topology = _topology; }
     VkPrimitiveTopology GetTopology() const { return m_topology; }
 
-    //
-    // new accessor for custom draw calls (in sense of custom shader renderer)
-    void CustomDraw(const DrawSurface& _surface) const;
-    void SetCustomDrawFunction(const std::function< void(const DrawSurface& _surface) >& _lambda = nullptr);
-
 private:
     eosString       m_name;
 

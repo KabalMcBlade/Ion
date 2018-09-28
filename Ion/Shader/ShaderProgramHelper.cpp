@@ -239,18 +239,6 @@ void ShaderProgramHelper::CreateDescriptorPools(const VkDevice& _device, VkDescr
     ionAssertReturnVoid(result == VK_SUCCESS, "vkCreateDescriptorPool cannot create descriptor pool!");
 }
 
-VkDescriptorType ShaderProgramHelper::GetDescriptorType(EShaderBinding _type)
-{
-    switch (_type) 
-    {
-    case EShaderBinding_Uniform: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    case EShaderBinding_Sampler: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    case EShaderBinding_Storage: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    default:
-        ionAssertReturnValue(false, "Invalid descriptor type!", VK_DESCRIPTOR_TYPE_MAX_ENUM);
-    }
-}
-
 void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, ShaderProgram& _shaderProgram, const Shader& _vertexShader, const Shader& _fragmentShader, const Shader& _tessellationControlShader, const Shader& _tessellationEvaluatorShader, const Shader& _geometryShader, const Material* _material)
 {
     // Descriptor Set Layout
@@ -282,16 +270,6 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
-
-            ionSize storageCount = _material->GetVertexShaderLayout().m_storages.size();
-            for (ionSize i = 0; i < storageCount; ++i)
-            {
-                binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-                binding.binding = _material->GetVertexShaderLayout().m_storages[i].m_bindingIndex;
-                layoutBindings.push_back(binding);
-
-                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
-            }
         }
 
         if (_tessellationControlShader.IsValid())
@@ -316,16 +294,6 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
                 layoutBindings.push_back(binding);
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
-            }
-
-            ionSize storageCount = _material->GetTessellationControlShaderLayout().m_storages.size();
-            for (ionSize i = 0; i < storageCount; ++i)
-            {
-                binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-                binding.binding = _material->GetTessellationControlShaderLayout().m_storages[i].m_bindingIndex;
-                layoutBindings.push_back(binding);
-
-                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
             }
         }
 
@@ -352,16 +320,6 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
-
-            ionSize storageCount = _material->GetTessellationEvaluatorShaderLayout().m_storages.size();
-            for (ionSize i = 0; i < storageCount; ++i)
-            {
-                binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-                binding.binding = _material->GetTessellationEvaluatorShaderLayout().m_storages[i].m_bindingIndex;
-                layoutBindings.push_back(binding);
-
-                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
-            }
         }
 
         if (_geometryShader.IsValid())
@@ -387,16 +345,6 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
-
-            ionSize storageCount = _material->GetGeometryShaderLayout().m_storages.size();
-            for (ionSize i = 0; i < storageCount; ++i)
-            {
-                binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-                binding.binding = _material->GetGeometryShaderLayout().m_storages[i].m_bindingIndex;
-                layoutBindings.push_back(binding);
-
-                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
-            }
         }
 
         if (_fragmentShader.IsValid())
@@ -421,16 +369,6 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
                 layoutBindings.push_back(binding);
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
-            }
-
-            ionSize storageCount = _material->GetFragmentShaderLayout().m_storages.size();
-            for (ionSize i = 0; i < storageCount; ++i)
-            {
-                binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-                binding.binding = _material->GetFragmentShaderLayout().m_storages[i].m_bindingIndex;
-                layoutBindings.push_back(binding);
-
-                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
             }
         }
 
