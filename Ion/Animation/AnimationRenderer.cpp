@@ -54,6 +54,38 @@ void AnimationRenderer::OnUpate(ionFloat _deltaTime)
     UpdateAnimation(m_animationIndex, m_timer);
 }
 
+ionFloat AnimationRenderer::Lerp(ionFloat v0, ionFloat v1, ionFloat t)
+{
+    return (1.0f - t) * v0 + t * v1;
+}
+
+ionFloat AnimationRenderer::Step(ionFloat v0, ionFloat v1, ionFloat t)
+{
+    if (t < 0.500001f)
+    {
+        return v0;
+    }
+    else
+    {
+        return v1;
+    }
+}
+
+ionFloat AnimationRenderer::HermiteCubicSpline(ionFloat _p0, ionFloat _m0, ionFloat _p1, ionFloat _m1, ionFloat _t)
+{
+    const ionFloat p0c = (2.0f * powf(_t, 3.0f)) - (3.0f * powf(_t, 2.0f)) + 1.0f;
+    const ionFloat m0c = powf(_t, 3.0f) - (2 * powf(_t, 2.0f)) + _t;
+    const ionFloat p1c = (-2 * powf(_t, 3.0f)) + (3 * powf(_t, 2.0f));
+    const ionFloat m1c = powf(_t, 3.0f) - powf(_t, 2.0f);
+
+    const ionFloat p0 = p0c * _p0;
+    const ionFloat m0 = m0c * _m0;
+    const ionFloat p1 = p1c * _p1;
+    const ionFloat m1 = m1c * _m1;
+
+    return p0 + m0 + p1 + m0;
+}
+
 void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animationTimer)
 {
     Animation& anim = m_aninimations[_animationIndex];
@@ -82,6 +114,8 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
             }
         }
 
+        channel.GetNode()->ResizeMorphTargetWeight(channel.GetNode()->GetInitialMorphTargetWeightCount());
+
         // logic
         eosVector(ionFloat)& inputs = sampler.GetInputs();
         const ionU32 inputSize = static_cast<ionU32>(inputs.size());
@@ -89,35 +123,174 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
         {
             if ((_animationTimer >= inputs[i]) && (_animationTimer <= inputs[i + 1]))
             {
-                ionFloat u = std::max(0.0f, _animationTimer - inputs[i]) / (inputs[i + 1] - inputs[i]);
-                if (u <= 1.0f)
+                const ionFloat td = (inputs[i + 1] - inputs[i]);
+                const ionFloat t = std::max(0.0f, _animationTimer - inputs[i]) / td;
+                if (t <= 1.0f)
                 {
-                    switch (channel.GetPath()) 
+                    switch(sampler.GetInterpolation())
                     {
-                    case EAnimationPathType_Translation:
+                    case EAnimationInterpolationType_Linear:
                     {
-                        Vector position = sampler.GetLinearPath(i).LerpTo(sampler.GetLinearPath(i + 1), u);
-                        channel.GetNode()->GetTransform().SetPosition(position);
-                        break;
-                    }
-                    case EAnimationPathType_Scale:
-                    {
-                        Vector scale = sampler.GetLinearPath(i).LerpTo(sampler.GetLinearPath(i + 1), u);
-                        channel.GetNode()->GetTransform().SetScale(scale);
-                        break;
-                    }
-                    case EAnimationPathType_Rotation:
-                    {
-                        Quaternion rot1 = sampler.GetLinearPath(i);
-                        Quaternion rot2 = sampler.GetLinearPath(i + 1);
+                        switch (channel.GetPath())
+                        {
+                        case EAnimationPathType_Translation:
+                        {
+                            Vector position = sampler.GetLinearPath(i).LerpTo(sampler.GetLinearPath(i + 1), t);
+                            channel.GetNode()->GetTransform().SetPosition(position);
+                            break;
+                        }
+                        case EAnimationPathType_Scale:
+                        {
+                            Vector scale = sampler.GetLinearPath(i).LerpTo(sampler.GetLinearPath(i + 1), t);
+                            channel.GetNode()->GetTransform().SetScale(scale);
+                            break;
+                        }
+                        case EAnimationPathType_Rotation:
+                        {
+                            Quaternion rot1 = sampler.GetLinearPath(i);
+                            Quaternion rot2 = sampler.GetLinearPath(i + 1);
 
-                        Quaternion rotation = rot1.Slerp(rot2, u);
-                        channel.GetNode()->GetTransform().SetRotation(rotation);
+                            Quaternion rotation = rot1.Slerp(rot2, t);
+                            channel.GetNode()->GetTransform().SetRotation(rotation);
+                            break;
+                        }
+                        case EAnimationPathType_WeightMorphTarget:
+                        {
+                            ionU32 weightCount = channel.GetNode()->GetInitialMorphTargetWeightCount();
+                            ionU32 vertexIndex0 = (i * weightCount * 3) + weightCount;
+                            ionU32 vertexIndex1 = ((i + 1) * weightCount * 3) + weightCount;
+
+                            for (ionU32 w = 0; w < weightCount; ++w)
+                            {
+                                const ionFloat a = sampler.GetMorphTarget(vertexIndex0 + w);
+                                const ionFloat b = sampler.GetMorphTarget(vertexIndex1 + w);
+
+                                const ionFloat weight = Lerp(a, b, t);
+                                channel.GetNode()->SetMorphTargetWeight(w, weight);
+                            }
+
+                            break;
+                        }
+                        }
                         break;
                     }
-                    case EAnimationPathType_WeightMorphTarget:
+                    case EAnimationInterpolationType_Step:
                     {
-                        // NOT YET IMPLEMENTED
+                        switch (channel.GetPath())
+                        {
+                        case EAnimationPathType_Translation:
+                        {
+                            Vector position = sampler.GetLinearPath(i).StepTo(sampler.GetLinearPath(i + 1), t);
+                            channel.GetNode()->GetTransform().SetPosition(position);
+                            break;
+                        }
+                        case EAnimationPathType_Scale:
+                        {
+                            Vector scale = sampler.GetLinearPath(i).StepTo(sampler.GetLinearPath(i + 1), t);
+                            channel.GetNode()->GetTransform().SetScale(scale);
+                            break;
+                        }
+                        case EAnimationPathType_Rotation:
+                        {
+                            Quaternion rot1 = sampler.GetLinearPath(i);
+                            Quaternion rot2 = sampler.GetLinearPath(i + 1);
+
+                            Quaternion rotation = rot1.StepTo(rot2, t);
+                            channel.GetNode()->GetTransform().SetRotation(rotation);
+                            break;
+                        }
+                        case EAnimationPathType_WeightMorphTarget:
+                        {
+                            ionU32 weightCount = channel.GetNode()->GetInitialMorphTargetWeightCount();
+                            ionU32 vertexIndex0 = (i * weightCount * 3) + weightCount;
+                            ionU32 vertexIndex1 = ((i + 1) * weightCount * 3) + weightCount;
+
+                            for (ionU32 w = 0; w < weightCount; ++w)
+                            {
+                                const ionFloat a = sampler.GetMorphTarget(vertexIndex0 + w);
+                                const ionFloat b = sampler.GetMorphTarget(vertexIndex1 + w);
+
+                                const ionFloat weight = Step(a, b, t);
+                                channel.GetNode()->SetMorphTargetWeight(w, weight);
+                            }
+
+                            break;
+                        }
+                        }
+                        break;
+                    }
+                    case EAnimationInterpolationType_CubicSpline:
+                    {
+                        switch (channel.GetPath())
+                        {
+                        case EAnimationPathType_Translation:
+                        {
+                            Vector p0 = sampler.GetLinearPath(i);
+                            Vector m0 = sampler.GetLinearPath(i) * td;
+                            Vector p1 = sampler.GetLinearPath(i + 1);
+                            Vector m1 = sampler.GetLinearPath(i + 1) * td;
+                            Vector u(t);
+
+                            Vector position = VectorHelper::HermiteCubicSpline(p0, m0, p1, m1, u);
+
+                            channel.GetNode()->GetTransform().SetPosition(position);
+                            break;
+                        }
+                        case EAnimationPathType_Scale:
+                        {
+                            Vector p0 = sampler.GetLinearPath(i);
+                            Vector m0 = sampler.GetLinearPath(i) * td;
+                            Vector p1 = sampler.GetLinearPath(i + 1);
+                            Vector m1 = sampler.GetLinearPath(i + 1) * td;
+                            Vector u(t);
+
+                            Vector scale = VectorHelper::HermiteCubicSpline(p0, m0, p1, m1, u);
+
+                            channel.GetNode()->GetTransform().SetScale(scale);
+                            break;
+                        }
+                        case EAnimationPathType_Rotation:
+                        {
+                            // not very meaningful... just to have "some code" in here... for now..
+                            Quaternion p0 = sampler.GetLinearPath(i);
+                            Quaternion m0 = sampler.GetLinearPath(i) * td;
+                            Quaternion p1 = sampler.GetLinearPath(i + 1);
+                            Quaternion m1 = sampler.GetLinearPath(i + 1) * td;
+                            Vector u(t);
+
+                            Quaternion rotation = VectorHelper::HermiteCubicSpline(p0, m0, p1, m1, u);
+
+                            channel.GetNode()->GetTransform().SetRotation(rotation);
+                            break;
+                        }
+                        case EAnimationPathType_WeightMorphTarget:
+                        {
+                            ionU32 weightCount = channel.GetNode()->GetInitialMorphTargetWeightCount();
+
+                            ionU32 vertexIndex0 = (i * weightCount * 3) + weightCount;
+                            ionU32 outTangent0 = (i * weightCount * 3) + (weightCount * 2);
+                            ionU32 vertexIndex1 = ((i + 1) * weightCount * 3) + weightCount;
+                            ionU32 inTangent1 = (i + 1) * weightCount * 3;
+
+                            for (ionU32 w = 0; w < weightCount; ++w)
+                            {
+                                const ionFloat p0 = sampler.GetMorphTarget(vertexIndex0 + w);
+                                const ionFloat m0 = sampler.GetMorphTarget(outTangent0 + w) * td;
+                                const ionFloat p1 = sampler.GetMorphTarget(vertexIndex1 + w);
+                                const ionFloat m1 = sampler.GetMorphTarget(inTangent1 + w) * td;
+
+                                const ionFloat weight = HermiteCubicSpline(p0, m0, p1, m1, t);
+                                channel.GetNode()->SetMorphTargetWeight(w, weight);
+                            }
+
+                            break;
+                        }
+                        }
+                        break;
+                    }
+                    case EAnimationInterpolationType_None:
+                    default:
+                    {
                         break;
                     }
                     }

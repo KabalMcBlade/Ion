@@ -25,13 +25,21 @@ ShaderProgramManager *ShaderProgramManager::s_instance = nullptr;
 ShaderProgramManager::ShaderProgramManager() :
     m_current(0),
     m_currentDescSet(0),
-    m_currentParmBufferOffset(0)
+    m_currentParmBufferOffset(0),
+    m_currentParmStorageOffset(0)
 {
 }
 
 ShaderProgramManager::~ShaderProgramManager()
 {
-
+    m_uniformsVector.clear();
+    m_uniformsMatrix.clear();
+    m_uniformsFloat.clear();
+    m_uniformsInteger.clear();
+    m_storagesVector.clear();
+    m_storagesMatrix.clear();
+    m_storagesFloat.clear();
+    m_storagesInteger.clear();
 }
 
 void ShaderProgramManager::Create()
@@ -66,6 +74,9 @@ ionBool ShaderProgramManager::Init(VkDevice _vkDevice)
 
     m_uniformBuffer = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
     m_uniformBuffer->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_UNIFORMS, EBufferUsage_Dynamic);
+
+    m_storageBuffer = eosNew(StorageBuffer, ION_MEMORY_ALIGNMENT_SIZE);
+    m_storageBuffer->Alloc(m_vkDevice, nullptr, ION_MAX_DESCRIPTOR_SETS * ION_MAX_DESCRIPTOR_SET_STORAGES, EBufferUsage_Dynamic);
 
     m_skinningUniformBuffer = eosNew(UniformBuffer, ION_MEMORY_ALIGNMENT_SIZE);
     m_skinningUniformBuffer->Alloc(m_vkDevice, nullptr, sizeof(Vector), EBufferUsage_Dynamic);
@@ -106,6 +117,11 @@ void ShaderProgramManager::Shutdown()
     }
     m_shaderPrograms.clear();
 
+
+    m_storageBuffer->Free();
+    eosDelete(m_storageBuffer);
+    m_storageBuffer = nullptr;
+
     m_uniformBuffer->Free();
     eosDelete(m_uniformBuffer);
     m_uniformBuffer = nullptr;
@@ -124,9 +140,10 @@ void ShaderProgramManager::Shutdown()
     m_currentDescSet = 0;
 }
 
-///
-///
-///
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 const Matrix& ShaderProgramManager::GetRenderParamMatrix(const eosString& _param)
 {
@@ -297,14 +314,188 @@ void ShaderProgramManager::SetRenderParamsInteger(ionSize _paramHash, const ionS
     }
 }
 
-///
-///
-///
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+const Matrix& ShaderProgramManager::GetStorageParamMatrix(const eosString& _param)
+{
+    const ionSize hash = std::hash<eosString>{}(_param);
+    return GetStorageParamMatrix(hash);
+}
+
+const Matrix& ShaderProgramManager::GetStorageParamMatrix(ionSize _paramHash)
+{
+    return m_storagesMatrix[_paramHash];
+}
+
+const Vector& ShaderProgramManager::GetStorageParamVector(const eosString& _param)
+{
+    const ionSize hash = std::hash<eosString>{}(_param);
+    return GetStorageParamVector(hash);
+}
+
+const Vector& ShaderProgramManager::GetStorageParamVector(ionSize _paramHash)
+{
+    return m_storagesVector[_paramHash];
+}
+
+const ionFloat ShaderProgramManager::GetStorageParamFloat(const eosString& _param)
+{
+    const ionSize hash = std::hash<eosString>{}(_param);
+    return GetStorageParamFloat(hash);
+}
+
+const ionFloat ShaderProgramManager::GetStorageParamFloat(ionSize _paramHash)
+{
+    return m_storagesFloat[_paramHash];
+}
+
+const ionS32 ShaderProgramManager::GetStorageParamInteger(const eosString& _param)
+{
+    const ionSize hash = std::hash<eosString>{}(_param);
+    return GetStorageParamInteger(hash);
+}
+
+const ionS32 ShaderProgramManager::GetStorageParamInteger(ionSize _paramHash)
+{
+    return m_storagesInteger[_paramHash];
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void ShaderProgramManager::SetStorageParamMatrix(const eosString& _param, const ionFloat* _value)
+{
+    const ionSize hash = std::hash<eosString>{}(_param);
+    SetStorageParamMatrix(hash, _value);
+}
+
+void ShaderProgramManager::SetStorageParamMatrix(ionSize _paramHash, const ionFloat* _value)
+{
+    Matrix m(_value[0], _value[1], _value[2], _value[3], _value[4], _value[5], _value[6], _value[7], _value[8], _value[9], _value[10], _value[11], _value[12], _value[13], _value[14], _value[15]);
+    m_storagesMatrix[_paramHash] = m;
+}
+
+void ShaderProgramManager::SetStorageParamsMatrix(const eosString& _param, const ionFloat* _values, ionU32 _numValues)
+{
+    for (ionU32 i = 0; i < _numValues; ++i)
+    {
+        const eosString indexParam(std::to_string(i).c_str());
+        const eosString fullParam = _param + indexParam;
+        const ionSize hash = std::hash<eosString>{}(fullParam);
+        SetStorageParamMatrix(hash, _values + (i * 16));
+    }
+}
+
+void ShaderProgramManager::SetStorageParamsMatrix(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues)
+{
+    for (ionU32 i = 0; i < _numValues; ++i)
+    {
+        SetStorageParamMatrix(_paramHash, _values + (i * 16));
+    }
+}
+
+
+void ShaderProgramManager::SetStorageParamVector(const eosString& _param, const ionFloat* _value)
+{
+    const ionSize hash = std::hash<eosString>{}(_param);
+    SetStorageParamVector(hash, _value);
+}
+
+void ShaderProgramManager::SetStorageParamVector(ionSize _paramHash, const ionFloat* _value)
+{
+    Vector v(_value[0], _value[1], _value[2], _value[3]);
+    m_storagesVector[_paramHash] = v;
+}
+
+void ShaderProgramManager::SetStorageParamsVector(const eosString& _param, const ionFloat* _values, ionU32 _numValues)
+{
+    for (ionU32 i = 0; i < _numValues; ++i)
+    {
+        const eosString indexParam(std::to_string(i).c_str());
+        const eosString fullParam = _param + indexParam;
+        const ionSize hash = std::hash<eosString>{}(fullParam);
+        SetStorageParamVector(hash, _values + (i * 4));
+    }
+}
+
+void ShaderProgramManager::SetStorageParamsVector(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues)
+{
+    for (ionU32 i = 0; i < _numValues; ++i)
+    {
+        SetStorageParamVector(_paramHash, _values + (i * 4));
+    }
+}
+
+void ShaderProgramManager::SetStorageParamFloat(const eosString& _param, const ionFloat _value)
+{
+    const ionSize hash = std::hash<eosString>{}(_param);
+    SetStorageParamFloat(hash, _value);
+}
+
+void ShaderProgramManager::SetStorageParamFloat(ionSize _paramHash, const ionFloat _value)
+{
+    m_storagesFloat[_paramHash] = _value;
+}
+
+void ShaderProgramManager::SetStorageParamsFloat(const eosString& _param, const ionFloat* _values, ionU32 _numValues)
+{
+    for (ionU32 i = 0; i < _numValues; ++i)
+    {
+        const eosString indexParam(std::to_string(i).c_str());
+        const eosString fullParam = _param + indexParam;
+        const ionSize hash = std::hash<eosString>{}(fullParam);
+        SetStorageParamFloat(hash, *(_values + i));
+    }
+}
+
+void ShaderProgramManager::SetStorageParamsFloat(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues)
+{
+    for (ionU32 i = 0; i < _numValues; ++i)
+    {
+        SetStorageParamFloat(_paramHash, *(_values + i));
+    }
+}
+
+void ShaderProgramManager::SetStorageParamInteger(const eosString& _param, const ionS32 _value)
+{
+    const ionSize hash = std::hash<eosString>{}(_param);
+    SetStorageParamInteger(hash, _value);
+}
+
+void ShaderProgramManager::SetStorageParamInteger(ionSize _paramHash, const ionS32 _value)
+{
+    m_storagesInteger[_paramHash] = _value;
+}
+
+void ShaderProgramManager::SetStorageParamsInteger(const eosString& _param, const ionS32* _values, ionU32 _numValues)
+{
+    for (ionU32 i = 0; i < _numValues; ++i)
+    {
+        const eosString indexParam(std::to_string(i).c_str());
+        const eosString fullParam = _param + indexParam;
+        const ionSize hash = std::hash<eosString>{}(fullParam);
+        SetStorageParamInteger(hash, *(_values + i));
+    }
+}
+
+void ShaderProgramManager::SetStorageParamsInteger(ionSize _paramHash, const ionS32* _values, ionU32 _numValues)
+{
+    for (ionU32 i = 0; i < _numValues; ++i)
+    {
+        SetStorageParamInteger(_paramHash, *(_values + i));
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 void ShaderProgramManager::StartFrame()
 {
     m_currentDescSet = 0;
     m_currentParmBufferOffset = 0;
+    m_currentParmStorageOffset = 0;
 
     vkResetDescriptorPool(m_vkDevice, m_descriptorPool, 0);
 }
@@ -363,29 +554,37 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
 
     ionS32 writeIndex = 0;
     ionS32 bufferIndex = 0;
+    ionS32 storageIndex = 0;
     ionS32 imageIndex = 0;
     ionS32 bindingIndex = 0;
 
     VkWriteDescriptorSet writes[ION_MAX_DESCRIPTOR_SET_WRITES];
     VkDescriptorBufferInfo bufferInfos[ION_MAX_DESCRIPTOR_SET_WRITES];
+    VkDescriptorBufferInfo storageInfos[ION_MAX_DESCRIPTOR_SET_WRITES];
     VkDescriptorImageInfo imageInfos[ION_MAX_DESCRIPTOR_SET_WRITES];
 
     memset(&writes, 0, sizeof(writes));
     memset(&bufferInfos, 0, sizeof(bufferInfos));
+    memset(&storageInfos, 0, sizeof(storageInfos));
     memset(&imageInfos, 0, sizeof(imageInfos));
 
     ionS32 samplerIndex = 0;
     ionS32 uboIndex = 0;
+    ionS32 sboIndex = 0;
     UniformBuffer* ubos[ION_MAX_DESCRIPTOR_SET_WRITES];
     const Texture* textures[ION_MAX_DESCRIPTOR_SET_WRITES];
+    StorageBuffer* sbos[ION_MAX_DESCRIPTOR_SET_WRITES];
     ionU32 destBinding[ION_MAX_DESCRIPTOR_SET_WRITES];
     ionU32 destBindingTexture[ION_MAX_DESCRIPTOR_SET_WRITES];
+    ionU32 destBindingStorage[ION_MAX_DESCRIPTOR_SET_WRITES];
     memset(&ubos, 0, sizeof(ubos));
     memset(&textures, 0, sizeof(textures));
+    memset(&sbos, 0, sizeof(sbos));
     memset(&destBinding, 0, sizeof(destBinding)); 
     memset(&destBindingTexture, 0, sizeof(destBindingTexture));
 
     UniformBuffer vertParms;
+    StorageBuffer storageVertParms;
     if (vertexShaderIndex > -1)
     {
         ionSize uniformCount = _material->GetVertexShaderLayout().m_uniforms.size();
@@ -406,6 +605,17 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
             textures[samplerIndex] = _material->GetVertexShaderLayout().m_samplers[i].m_texture;
 
             ++samplerIndex;
+        }
+
+        ionSize storageCount = _material->GetVertexShaderLayout().m_storages.size();
+        for (ionSize i = 0; i < storageCount; ++i)
+        {
+            AllocStorageParametersBlockBuffer(_render, _material->GetVertexShaderLayout().m_storages[i], storageVertParms);
+
+            destBindingStorage[sboIndex] = _material->GetVertexShaderLayout().m_uniforms[i].m_bindingIndex;
+            sbos[sboIndex] = &storageVertParms;
+
+            ++sboIndex;
         }
     }
 
@@ -428,7 +638,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
     }
 
     UniformBuffer tessCtrlParms;
-    
+    StorageBuffer storageTessCtrlParms;
     if (tessellationControlIndex > -1)
     {
         ionSize uniformCount = _material->GetTessellationControlShaderLayout().m_uniforms.size();
@@ -450,9 +660,21 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
 
             ++samplerIndex;
         }
+
+        ionSize storageCount = _material->GetVertexShaderLayout().m_storages.size();
+        for (ionSize i = 0; i < storageCount; ++i)
+        {
+            AllocStorageParametersBlockBuffer(_render, _material->GetVertexShaderLayout().m_storages[i], storageTessCtrlParms);
+
+            destBindingStorage[sboIndex] = _material->GetVertexShaderLayout().m_uniforms[i].m_bindingIndex;
+            sbos[sboIndex] = &storageTessCtrlParms;
+
+            ++sboIndex;
+        }
     }
 
     UniformBuffer tessEvalParms;
+    StorageBuffer storageTessEvalParms;
     if (tessellationEvaluationIndex > -1)
     {
         ionSize uniformCount = _material->GetTessellationEvaluatorShaderLayout().m_uniforms.size();
@@ -474,9 +696,21 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
 
             ++samplerIndex;
         }
+
+        ionSize storageCount = _material->GetVertexShaderLayout().m_storages.size();
+        for (ionSize i = 0; i < storageCount; ++i)
+        {
+            AllocStorageParametersBlockBuffer(_render, _material->GetVertexShaderLayout().m_storages[i], storageTessEvalParms);
+
+            destBindingStorage[sboIndex] = _material->GetVertexShaderLayout().m_uniforms[i].m_bindingIndex;
+            sbos[sboIndex] = &storageTessEvalParms;
+
+            ++sboIndex;
+        }
     }
 
     UniformBuffer geometryParms;
+    StorageBuffer storageGeometryParms;
     if (geometryIndex > -1)
     {
         ionSize uniformCount = _material->GetGeometryShaderLayout().m_uniforms.size();
@@ -498,9 +732,21 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
 
             ++samplerIndex;
         }
+
+        ionSize storageCount = _material->GetVertexShaderLayout().m_storages.size();
+        for (ionSize i = 0; i < storageCount; ++i)
+        {
+            AllocStorageParametersBlockBuffer(_render, _material->GetVertexShaderLayout().m_storages[i], storageGeometryParms);
+
+            destBindingStorage[sboIndex] = _material->GetVertexShaderLayout().m_uniforms[i].m_bindingIndex;
+            sbos[sboIndex] = &storageGeometryParms;
+
+            ++sboIndex;
+        }
     }
 
     UniformBuffer fragParms;
+    StorageBuffer storageFragParms;
     if (fragmentShaderIndex > -1)
     {
         ionSize uniformCount = _material->GetFragmentShaderLayout().m_uniforms.size();
@@ -522,10 +768,22 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
 
             ++samplerIndex;
         }
+
+        ionSize storageCount = _material->GetVertexShaderLayout().m_storages.size();
+        for (ionSize i = 0; i < storageCount; ++i)
+        {
+            AllocStorageParametersBlockBuffer(_render, _material->GetVertexShaderLayout().m_storages[i], storageFragParms);
+
+            destBindingStorage[sboIndex] = _material->GetVertexShaderLayout().m_uniforms[i].m_bindingIndex;
+            sbos[sboIndex] = &storageFragParms;
+
+            ++sboIndex;
+        }
     }
 
     ionAssertReturnVoid(uboIndex < ION_MAX_DESCRIPTOR_SET_WRITES, "Uniforms exceed count");
     ionAssertReturnVoid(samplerIndex < ION_MAX_DESCRIPTOR_SET_WRITES, "Samplers exceed count");
+    ionAssertReturnVoid(sboIndex < ION_MAX_DESCRIPTOR_SET_WRITES, "Storage exceed count");
 
     for (ionSize i = 0; i < shaderProgram.m_bindings.size(); ++i)
     {
@@ -578,6 +836,27 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
             
             break;
         }
+        case EShaderBinding_Storage:
+        {
+            StorageBuffer* sbo = sbos[storageIndex];
+
+            VkDescriptorBufferInfo & storageInfo = storageInfos[storageIndex];
+            memset(&storageInfo, 0, sizeof(VkDescriptorBufferInfo));
+            storageInfo.buffer = sbo->GetObject();
+            storageInfo.offset = sbo->GetOffset();
+            storageInfo.range = sbo->GetSize();
+
+            VkWriteDescriptorSet & write = writes[writeIndex++];
+            memset(&write, 0, sizeof(VkWriteDescriptorSet));
+            write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            write.dstSet = descSet;
+            write.dstBinding = destBindingStorage[storageIndex++];
+            write.descriptorCount = 1;
+            write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+            write.pBufferInfo = &storageInfo;
+
+            break;
+        }
         }
     }
 
@@ -598,8 +877,8 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
 {
     // gather all informations
     static const ionU32 sMaxParamsAmount = 32;
-    ionSize counterForType[EUniformParameterType_Count];
-    ionSize indexForType[EUniformParameterType_Count][sMaxParamsAmount];
+    ionSize counterForType[EBufferParameterType_Count];
+    ionSize indexForType[EBufferParameterType_Count][sMaxParamsAmount];
 
     memset(&counterForType, 0, sizeof(counterForType));
     memset(&indexForType, 0, sizeof(indexForType));
@@ -607,24 +886,24 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
     const ionSize numParmsType = _uniform.m_type.size();
     for (ionSize i = 0; i < numParmsType; ++i)
     {
-        const EUniformParameterType type = _uniform.m_type[i];
+        const EBufferParameterType type = _uniform.m_type[i];
         switch (type)
         {
-        case EUniformParameterType_Vector:
-            indexForType[EUniformParameterType_Vector][counterForType[EUniformParameterType_Vector]] = i;
-            ++counterForType[EUniformParameterType_Vector];
+        case EBufferParameterType_Vector:
+            indexForType[EBufferParameterType_Vector][counterForType[EBufferParameterType_Vector]] = i;
+            ++counterForType[EBufferParameterType_Vector];
             break;
-        case EUniformParameterType_Matrix:
-            indexForType[EUniformParameterType_Matrix][counterForType[EUniformParameterType_Matrix]] = i;
-            ++counterForType[EUniformParameterType_Matrix];
+        case EBufferParameterType_Matrix:
+            indexForType[EBufferParameterType_Matrix][counterForType[EBufferParameterType_Matrix]] = i;
+            ++counterForType[EBufferParameterType_Matrix];
             break;
-        case EUniformParameterType_Float:
-            indexForType[EUniformParameterType_Float][counterForType[EUniformParameterType_Float]] = i;
-            ++counterForType[EUniformParameterType_Float];
+        case EBufferParameterType_Float:
+            indexForType[EBufferParameterType_Float][counterForType[EBufferParameterType_Float]] = i;
+            ++counterForType[EBufferParameterType_Float];
             break;
-        case EUniformParameterType_Integer:
-            indexForType[EUniformParameterType_Integer][counterForType[EUniformParameterType_Integer]] = i;
-            ++counterForType[EUniformParameterType_Integer];
+        case EBufferParameterType_Integer:
+            indexForType[EBufferParameterType_Integer][counterForType[EBufferParameterType_Integer]] = i;
+            ++counterForType[EBufferParameterType_Integer];
             break;
         default:
             break;
@@ -640,16 +919,16 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
     Integer
     */
 
-    const ionSize numParmsMatrix = counterForType[EUniformParameterType_Matrix];
+    const ionSize numParmsMatrix = counterForType[EBufferParameterType_Matrix];
     const ionSize sizeMatrix = numParmsMatrix * sizeof(Matrix);
 
-    const ionSize numParmsVector = counterForType[EUniformParameterType_Vector];
+    const ionSize numParmsVector = counterForType[EBufferParameterType_Vector];
     const ionSize sizeVector = numParmsVector * sizeof(Vector);
 
-    const ionSize numParmsFloat = counterForType[EUniformParameterType_Float];
+    const ionSize numParmsFloat = counterForType[EBufferParameterType_Float];
     const ionSize sizeFloat = numParmsFloat * sizeof(ionFloat);
 
-    const ionSize numParmsInt = counterForType[EUniformParameterType_Integer];
+    const ionSize numParmsInt = counterForType[EBufferParameterType_Integer];
     const ionSize sizeInt = numParmsInt * sizeof(ionS32);
 
 
@@ -664,30 +943,125 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
     Matrix* uniformsMatrix = (Matrix*)_ubo.MapBuffer(EBufferMappingType_Write);
     for (ionSize i = 0; i < numParmsMatrix; ++i)
     {
-        uniformsMatrix[i] = GetRenderParamMatrix(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Matrix][i]]);
+        uniformsMatrix[i] = GetRenderParamMatrix(_uniform.m_runtimeParameters[indexForType[EBufferParameterType_Matrix][i]]);
     }
 
     Vector* uniformsVector = (Vector*)_ubo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix) * numParmsMatrix));
     for (ionSize i = 0; i < numParmsVector; ++i)
     {
-        uniformsVector[i] = GetRenderParamVector(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Vector][i]]);
+        uniformsVector[i] = GetRenderParamVector(_uniform.m_runtimeParameters[indexForType[EBufferParameterType_Vector][i]]);
     }
 
     ionFloat* uniformsFloat = (ionFloat*)_ubo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix) * numParmsMatrix) + (sizeof(Vector) * numParmsVector));
     for (ionSize i = 0; i < numParmsFloat; ++i)
     {
-        uniformsFloat[i] = GetRenderParamFloat(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Float][i]]);
+        uniformsFloat[i] = GetRenderParamFloat(_uniform.m_runtimeParameters[indexForType[EBufferParameterType_Float][i]]);
     }
 
     ionS32* uniformsInt = (ionS32*)_ubo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix) * numParmsMatrix) + (sizeof(Vector) * numParmsVector) + (sizeof(ionFloat) * numParmsFloat));
     for (ionSize i = 0; i < numParmsInt; ++i)
     {
-        uniformsInt[i] = GetRenderParamInteger(_uniform.m_runtimeParameters[indexForType[EUniformParameterType_Integer][i]]);
+        uniformsInt[i] = GetRenderParamInteger(_uniform.m_runtimeParameters[indexForType[EBufferParameterType_Integer][i]]);
     }
 
     _ubo.UnmapBuffer();
 
     m_currentParmBufferOffset += alignedSize;
+}
+
+void ShaderProgramManager::AllocStorageParametersBlockBuffer(const RenderCore& _render, const StorageBinding& _storage, StorageBuffer& _sbo)
+{
+    // gather all informations
+    static const ionU32 sMaxParamsAmount = 32;
+    ionSize counterForType[EBufferParameterType_Count];
+    ionSize indexForType[EBufferParameterType_Count][sMaxParamsAmount];
+
+    memset(&counterForType, 0, sizeof(counterForType));
+    memset(&indexForType, 0, sizeof(indexForType));
+
+    const ionSize numParmsType = _storage.m_type.size();
+    for (ionSize i = 0; i < numParmsType; ++i)
+    {
+        const EBufferParameterType type = _storage.m_type[i];
+        switch (type)
+        {
+        case EBufferParameterType_Vector:
+            indexForType[EBufferParameterType_Vector][counterForType[EBufferParameterType_Vector]] = i;
+            ++counterForType[EBufferParameterType_Vector];
+            break;
+        case EBufferParameterType_Matrix:
+            indexForType[EBufferParameterType_Matrix][counterForType[EBufferParameterType_Matrix]] = i;
+            ++counterForType[EBufferParameterType_Matrix];
+            break;
+        case EBufferParameterType_Float:
+            indexForType[EBufferParameterType_Float][counterForType[EBufferParameterType_Float]] = i;
+            ++counterForType[EBufferParameterType_Float];
+            break;
+        case EBufferParameterType_Integer:
+            indexForType[EBufferParameterType_Integer][counterForType[EBufferParameterType_Integer]] = i;
+            ++counterForType[EBufferParameterType_Integer];
+            break;
+        default:
+            break;
+        }
+    }
+
+    /*
+    ORDER OF UNIFORM ELEMENTS
+    Matrix
+    Vector
+    Float
+    Integer
+    */
+
+    const ionSize numParmsMatrix = counterForType[EBufferParameterType_Matrix];
+    const ionSize sizeMatrix = numParmsMatrix * sizeof(Matrix);
+
+    const ionSize numParmsVector = counterForType[EBufferParameterType_Vector];
+    const ionSize sizeVector = numParmsVector * sizeof(Vector);
+
+    const ionSize numParmsFloat = counterForType[EBufferParameterType_Float];
+    const ionSize sizeFloat = numParmsFloat * sizeof(ionFloat);
+
+    const ionSize numParmsInt = counterForType[EBufferParameterType_Integer];
+    const ionSize sizeInt = numParmsInt * sizeof(ionS32);
+
+
+    const ionSize size = sizeMatrix + sizeVector + sizeFloat + sizeInt;
+    const ionSize mask = _render.GetGPU().m_vkPhysicalDeviceProps.limits.minUniformBufferOffsetAlignment - 1;
+    const ionSize alignedSize = (size + mask) & ~mask;
+
+    //
+    _sbo.ReferenceTo(*m_storageBuffer, m_currentParmStorageOffset, alignedSize);
+
+
+    Matrix* uniformsMatrix = (Matrix*)_sbo.MapBuffer(EBufferMappingType_Write);
+    for (ionSize i = 0; i < numParmsMatrix; ++i)
+    {
+        uniformsMatrix[i] = GetRenderParamMatrix(_storage.m_runtimeParameters[indexForType[EBufferParameterType_Matrix][i]]);
+    }
+
+    Vector* uniformsVector = (Vector*)_sbo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix) * numParmsMatrix));
+    for (ionSize i = 0; i < numParmsVector; ++i)
+    {
+        uniformsVector[i] = GetRenderParamVector(_storage.m_runtimeParameters[indexForType[EBufferParameterType_Vector][i]]);
+    }
+
+    ionFloat* uniformsFloat = (ionFloat*)_sbo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix) * numParmsMatrix) + (sizeof(Vector) * numParmsVector));
+    for (ionSize i = 0; i < numParmsFloat; ++i)
+    {
+        uniformsFloat[i] = GetRenderParamFloat(_storage.m_runtimeParameters[indexForType[EBufferParameterType_Float][i]]);
+    }
+
+    ionS32* uniformsInt = (ionS32*)_sbo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix) * numParmsMatrix) + (sizeof(Vector) * numParmsVector) + (sizeof(ionFloat) * numParmsFloat));
+    for (ionSize i = 0; i < numParmsInt; ++i)
+    {
+        uniformsInt[i] = GetRenderParamInteger(_storage.m_runtimeParameters[indexForType[EBufferParameterType_Integer][i]]);
+    }
+
+    _sbo.UnmapBuffer();
+
+    m_currentParmStorageOffset += alignedSize;
 }
 
 ionS32 ShaderProgramManager::FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage)

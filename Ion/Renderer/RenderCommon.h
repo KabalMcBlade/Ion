@@ -46,6 +46,10 @@
 #define ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM_HASH    16846083055572138945
 
 
+#define ION_MAX_MORPH_WEIGHTS   8
+
+
+
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
 
@@ -894,6 +898,135 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexPlain
 
 //////////////////////////////////////////////////////////////////////////
 
+// THIS IS A SPECIAL VERTEX NOT ADDED TO THE VERTEX CREATION:
+// IT IS USED FOR MORPH TARGET DYNAMICALLY!
+
+// 24 -> 32
+ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
+{
+    Vector              m_position;     // 16 byte
+    ionU8               m_normal[4];    // 4 byte
+    ionU8               m_tangent[4];   // 4 byte
+
+    VertexMorphTarget()
+    {
+        Clear();
+    }
+
+    ION_INLINE void Clear()
+    {
+        m_position = VectorHelper::GetZero();
+        memset(m_normal, 0, sizeof(m_normal));
+        memset(m_tangent, 0, sizeof(m_tangent));
+    }
+
+    // Getters
+
+    ION_INLINE Vector GetPosition() const
+    {
+        return m_position;
+    }
+
+    ION_INLINE Vector GetNormal() const
+    {
+        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
+        v.Normalize();
+        return v;
+    }
+
+    ION_INLINE Vector GetTangent() const
+    {
+        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_tangent[0]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[1]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[2]));
+        v.Normalize();
+        return v;
+    }
+
+    // Setters
+
+    ION_INLINE void SetPosition(const Vector& _position)
+    {
+        m_position = _position;
+    }
+
+    ION_INLINE void SetPosition(ionFloat _x, ionFloat _y, ionFloat _z)
+    {
+        m_position = Vector(_x, _y, _z, 1.0f);
+    }
+
+    ION_INLINE void SetNormal(const Vector& _normal)
+    {
+        MathHelper::VectorToByte(_normal, m_normal);
+    }
+
+    ION_INLINE void SetNormal(ionFloat _x, ionFloat _y, ionFloat _z)
+    {
+        MathHelper::VectorToByte(_x, _y, _z, m_normal);
+    }
+
+    ION_INLINE void SetTangent(const Vector& _tangent)
+    {
+        MathHelper::VectorToByte(_tangent, m_tangent);
+    }
+
+    ION_INLINE void SetTangent(ionFloat _x, ionFloat _y, ionFloat _z)
+    {
+        MathHelper::VectorToByte(_x, _y, _z, m_tangent);
+    }
+
+    ION_INLINE void SetBiTangentSign(ionFloat _sign)
+    {
+        m_tangent[3] = (_sign < 0.0f) ? 0 : 255;
+    }
+
+    ION_INLINE void SetBiTangentSignBit(ionU8 _sign)
+    {
+        m_tangent[3] = _sign ? 0 : 255;
+    }
+
+    ION_INLINE void SetBiTangent(const Vector& _tangent)
+    {
+        const Vector& v = GetNormal();
+        Vector b = v.Cross(GetTangent());
+        SetBiTangentSign(VectorHelper::ExtractElement_0(b.Dot(_tangent)));
+    }
+
+    ION_INLINE void SetBiTangent(ionFloat _x, ionFloat _y, ionFloat _z)
+    {
+        Vector v(_x, _y, _z);
+        SetBiTangent(v);
+    }
+
+    // Functions
+
+    ION_INLINE void Lerp(const Vertex& _a, const Vertex& _b, const ionFloat _t)
+    {
+        const Vector t(_t);
+
+        m_position = VectorHelper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
+    }
+
+    ION_INLINE void LerpAll(const Vertex& _a, const Vertex& _b, const ionFloat _t)
+    {
+        Lerp(_a, _b, _t);
+
+        const Vector t(_t);
+
+        Vector normal = VectorHelper::Lerp(_a.GetNormal(), _b.GetNormal(), t);
+        Vector tangent = VectorHelper::Lerp(_a.GetTangent(), _b.GetTangent(), t);
+        Vector bitangent = VectorHelper::Lerp(_a.GetBiTangent(), _b.GetBiTangent(), t);
+        normal.Normalize();
+        tangent.Normalize();
+        bitangent.Normalize();
+        SetNormal(normal);
+        SetTangent(tangent);
+        SetBiTangent(bitangent);
+    }
+};
+
+
+
+//////////////////////////////////////////////////////////////////////////
+
 // vertex indices
 typedef ionU32 Index;
 
@@ -917,6 +1050,10 @@ class Node;
 
 struct DrawSurface final
 {
+    ionFloat            m_morphtargetsPositions[ION_MAX_MORPH_WEIGHTS * 4];     // weights per vector elements
+    ionFloat            m_morphtargetsNormals[ION_MAX_MORPH_WEIGHTS * 4];
+    ionFloat            m_morphtargetsTangents[ION_MAX_MORPH_WEIGHTS * 4];
+    ionFloat            m_morphtargetsWeights[ION_MAX_MORPH_WEIGHTS];
     ionFloat            m_modelMatrix[16];
     ionFloat            m_viewMatrix[16];
     ionFloat            m_projectionMatrix[16];
@@ -946,6 +1083,10 @@ struct DrawSurface final
 
     DrawSurface()
     {
+        memset(&m_morphtargetsPositions, 0, sizeof(m_morphtargetsPositions));
+        memset(&m_morphtargetsNormals, 0, sizeof(m_morphtargetsNormals));
+        memset(&m_morphtargetsTangents, 0, sizeof(m_morphtargetsTangents));
+        memset(&m_morphtargetsWeights, 0, sizeof(m_morphtargetsWeights));
         memset(&m_modelMatrix, 0, sizeof(m_modelMatrix));
         memset(&m_viewMatrix, 0, sizeof(m_viewMatrix));
         memset(&m_projectionMatrix, 0, sizeof(m_projectionMatrix));

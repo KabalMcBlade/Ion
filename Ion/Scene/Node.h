@@ -83,6 +83,14 @@ public:
     virtual Mesh* GetMesh(ionU32 _index) { return nullptr; }
     virtual ionU32  GetMeshCount() const { return 0; }
 
+    virtual ionFloat GetInitialMorphTargetWeight(ionU32 _index) const { return -1.0f; }
+    virtual ionU32  GetInitialMorphTargetWeightCount() const { return 0; };
+
+    virtual void ResizeMorphTargetWeight(ionU32 _size) {}
+    virtual ionFloat GetMorphTargetWeight(ionU32 _index) const { return -1.0f; }
+    virtual void SetMorphTargetWeight(ionU32 _index, ionFloat _value) {}
+    virtual ionU32 GetMorphTargetWeightCount() const { return 0; }
+
     virtual BoundingBox* GetBoundingBox()  { return nullptr; }
 
     //

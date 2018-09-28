@@ -193,6 +193,7 @@ enum EAlphaMode : ionU8
     EAlphaMode_Blend
 };
 
+struct DrawSurface;
 class ION_DLL Material
 {
 public:
@@ -259,8 +260,15 @@ public:
     void SetTopology(VkPrimitiveTopology _topology) { m_topology = _topology; }
     VkPrimitiveTopology GetTopology() const { return m_topology; }
 
+    //
+    // new accessor for custom draw calls (in sense of custom shader renderer)
+    void CustomDraw(const DrawSurface& _surface) const;
+    void SetCustomDrawFunction(const std::function< void(const DrawSurface& _surface) >& _lambda = nullptr);
+
 private:
     eosString       m_name;
+
+    std::function<void(const DrawSurface& _surface)> m_customDrawFunction;
 
     ShaderLayoutDef m_vertexShaderLayout;
     ShaderLayoutDef m_tessCtrlShaderLayout;

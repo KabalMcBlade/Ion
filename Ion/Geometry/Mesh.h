@@ -10,6 +10,7 @@
 
 #include "../Material/Material.h"
 
+#include "../Renderer/RenderCommon.h"
 
 EOS_USING_NAMESPACE
 
@@ -30,10 +31,16 @@ public:
     void SetIndexCount(ionU32 _count);
     void SetMaterial(Material* _material);
 
+    void PushBackVertexMorphTarget(const VertexMorphTarget& _vertexMorphTarget);
+    ionU32 GetVertexMorphTargetCount() const;
+    const VertexMorphTarget& GetVertexMorphTarget(ionU32 _index) const;
+    eosVector(VertexMorphTarget)& GetVertexMorphTargets();
+
 private:
-    ionU32                  m_indexStart;
-    ionU32                  m_indexCount;
-    Material*               m_material;
+    eosVector(VertexMorphTarget)    m_morphTargets;
+    ionU32                          m_indexStart;
+    ionU32                          m_indexCount;
+    Material*                       m_material;
 };
 
 

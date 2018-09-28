@@ -15,6 +15,7 @@ Mesh::Mesh()
 
 Mesh::~Mesh()
 {
+    m_morphTargets.clear();
     m_material = nullptr;
     m_indexStart = 0;
     m_indexCount = 0;
@@ -48,6 +49,26 @@ void Mesh::SetIndexCount(ionU32 _count)
 void Mesh::SetMaterial(Material* _material)
 {
     m_material = _material;
+}
+
+void Mesh::PushBackVertexMorphTarget(const VertexMorphTarget& _vertexMorphTarget)
+{
+    m_morphTargets.push_back(_vertexMorphTarget);
+}
+
+ionU32 Mesh::GetVertexMorphTargetCount() const
+{
+    return static_cast<ionU32>(m_morphTargets.size());
+}
+
+const VertexMorphTarget& Mesh::GetVertexMorphTarget(ionU32 _index) const
+{
+    return m_morphTargets[_index]; 
+}
+
+eosVector(VertexMorphTarget)& Mesh::GetVertexMorphTargets()
+{
+    return m_morphTargets;
 }
 
 

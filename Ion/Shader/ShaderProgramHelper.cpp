@@ -282,6 +282,16 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
+
+            ionSize storageCount = _material->GetVertexShaderLayout().m_storages.size();
+            for (ionSize i = 0; i < storageCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                binding.binding = _material->GetVertexShaderLayout().m_storages[i].m_bindingIndex;
+                layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
+            }
         }
 
         if (_tessellationControlShader.IsValid())
@@ -306,6 +316,16 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
                 layoutBindings.push_back(binding);
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
+            }
+
+            ionSize storageCount = _material->GetTessellationControlShaderLayout().m_storages.size();
+            for (ionSize i = 0; i < storageCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                binding.binding = _material->GetTessellationControlShaderLayout().m_storages[i].m_bindingIndex;
+                layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
             }
         }
 
@@ -332,6 +352,16 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
+
+            ionSize storageCount = _material->GetTessellationEvaluatorShaderLayout().m_storages.size();
+            for (ionSize i = 0; i < storageCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                binding.binding = _material->GetTessellationEvaluatorShaderLayout().m_storages[i].m_bindingIndex;
+                layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
+            }
         }
 
         if (_geometryShader.IsValid())
@@ -357,6 +387,16 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
+
+            ionSize storageCount = _material->GetGeometryShaderLayout().m_storages.size();
+            for (ionSize i = 0; i < storageCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                binding.binding = _material->GetGeometryShaderLayout().m_storages[i].m_bindingIndex;
+                layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
+            }
         }
 
         if (_fragmentShader.IsValid())
@@ -381,6 +421,16 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
                 layoutBindings.push_back(binding);
 
                 _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
+            }
+
+            ionSize storageCount = _material->GetFragmentShaderLayout().m_storages.size();
+            for (ionSize i = 0; i < storageCount; ++i)
+            {
+                binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                binding.binding = _material->GetFragmentShaderLayout().m_storages[i].m_bindingIndex;
+                layoutBindings.push_back(binding);
+
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
             }
         }
 

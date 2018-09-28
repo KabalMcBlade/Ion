@@ -18,14 +18,14 @@ ION_NAMESPACE_BEGIN
 
 
 
-enum EUniformParameterType
+enum EBufferParameterType
 {
-    EUniformParameterType_Matrix = 0,
-    EUniformParameterType_Vector,
-    EUniformParameterType_Float,
-    EUniformParameterType_Integer,
+    EBufferParameterType_Matrix = 0,
+    EBufferParameterType_Vector,
+    EBufferParameterType_Float,
+    EBufferParameterType_Integer,
 
-    EUniformParameterType_Count
+    EBufferParameterType_Count
 };
 
 
@@ -36,6 +36,7 @@ enum EPushConstantStage : ionU32
     EPushConstantStage_TessellationEvaluation = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT,
     EPushConstantStage_Geometryx = VK_SHADER_STAGE_GEOMETRY_BIT,
     EPushConstantStage_Fragment = VK_SHADER_STAGE_FRAGMENT_BIT,
+    EPushConstantStage_Compute = VK_SHADER_STAGE_COMPUTE_BIT,
     EPushConstantStage_All = VK_SHADER_STAGE_ALL_GRAPHICS
 };
 
@@ -45,7 +46,7 @@ struct ION_DLL UniformBinding final
 {
     ionU32                              m_bindingIndex;
     eosVector(eosString)                m_parameters;
-    eosVector(EUniformParameterType)    m_type;
+    eosVector(EBufferParameterType)    m_type;
 
     // it is computed by the engine, do not set manually
     eosVector(ionSize)                  m_runtimeParameters;
@@ -60,8 +61,8 @@ struct ION_DLL UniformBinding final
 
 ION_INLINE ionBool operator==(const UniformBinding& lhs, const UniformBinding& rhs)
 {
-    const eosVector(EUniformParameterType)::size_type count = lhs.m_type.size();
-    for (eosVector(EUniformParameterType)::size_type i = 0; i != count; ++i)
+    const eosVector(EBufferParameterType)::size_type count = lhs.m_type.size();
+    for (eosVector(EBufferParameterType)::size_type i = 0; i != count; ++i)
     {
         if ((lhs.m_type[i] != rhs.m_type[i]) || (lhs.m_runtimeParameters[i] != rhs.m_runtimeParameters[i]))
         {
@@ -74,8 +75,8 @@ ION_INLINE ionBool operator==(const UniformBinding& lhs, const UniformBinding& r
 
 ION_INLINE ionBool operator!=(const UniformBinding& lhs, const UniformBinding& rhs)
 {
-    const eosVector(EUniformParameterType)::size_type count = lhs.m_type.size();
-    for (eosVector(EUniformParameterType)::size_type i = 0; i != count; ++i)
+    const eosVector(EBufferParameterType)::size_type count = lhs.m_type.size();
+    for (eosVector(EBufferParameterType)::size_type i = 0; i != count; ++i)
     {
         if ((lhs.m_type[i] == rhs.m_type[i]) || (lhs.m_runtimeParameters[i] == rhs.m_runtimeParameters[i]))
         {
@@ -113,6 +114,53 @@ ION_INLINE ionBool operator==(const SamplerBinding& lhs, const SamplerBinding& r
 ION_INLINE ionBool operator!=(const SamplerBinding& lhs, const SamplerBinding& rhs)
 {
     return (lhs.m_bindingIndex != rhs.m_bindingIndex) && (lhs.m_texture != rhs.m_texture);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+struct ION_DLL StorageBinding final
+{
+    ionU32                          m_bindingIndex;
+    eosVector(eosString)            m_parameters;
+    eosVector(EBufferParameterType) m_type;
+
+    // it is computed by the engine, do not set manually
+    eosVector(ionSize)              m_runtimeParameters;
+
+    ~StorageBinding()
+    {
+        m_parameters.clear();
+        m_type.clear();
+        m_runtimeParameters.clear();
+    }
+};
+
+ION_INLINE ionBool operator==(const StorageBinding& lhs, const StorageBinding& rhs)
+{
+    const eosVector(EBufferParameterType)::size_type count = lhs.m_type.size();
+    for (eosVector(EBufferParameterType)::size_type i = 0; i != count; ++i)
+    {
+        if ((lhs.m_type[i] != rhs.m_type[i]) || (lhs.m_runtimeParameters[i] != rhs.m_runtimeParameters[i]))
+        {
+            return false;
+        }
+    }
+
+    return (lhs.m_bindingIndex == rhs.m_bindingIndex);
+}
+
+ION_INLINE ionBool operator!=(const StorageBinding& lhs, const StorageBinding& rhs)
+{
+    const eosVector(EBufferParameterType)::size_type count = lhs.m_type.size();
+    for (eosVector(EBufferParameterType)::size_type i = 0; i != count; ++i)
+    {
+        if ((lhs.m_type[i] == rhs.m_type[i]) || (lhs.m_runtimeParameters[i] == rhs.m_runtimeParameters[i]))
+        {
+            return false;
+        }
+    }
+
+    return (lhs.m_bindingIndex != rhs.m_bindingIndex);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -160,6 +208,7 @@ struct ION_DLL ShaderLayoutDef final
 {
     eosVector(UniformBinding)   m_uniforms;
     eosVector(SamplerBinding)   m_samplers;
+    eosVector(StorageBinding)   m_storages;
 
     ~ShaderLayoutDef()
     {
@@ -170,6 +219,7 @@ struct ION_DLL ShaderLayoutDef final
     {
         m_uniforms.clear();
         m_samplers.clear();
+        m_storages.clear();
     }
 };
 
@@ -193,6 +243,15 @@ ION_INLINE ionBool operator==(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
         }
     }
 
+    const eosVector(StorageBinding)::size_type storageCount = lhs.m_storages.size();
+    for (eosVector(StorageBinding)::size_type i = 0; i != storageCount; ++i)
+    {
+        if (lhs.m_storages[i] != rhs.m_storages[i])
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -211,6 +270,15 @@ ION_INLINE ionBool operator!=(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
     for (eosVector(SamplerBinding)::size_type i = 0; i != samplerCount; ++i)
     {
         if (lhs.m_samplers[i] == rhs.m_samplers[i])
+        {
+            return false;
+        }
+    }
+
+    const eosVector(StorageBinding)::size_type storageCount = lhs.m_storages.size();
+    for (eosVector(StorageBinding)::size_type i = 0; i != storageCount; ++i)
+    {
+        if (lhs.m_storages[i] == rhs.m_storages[i])
         {
             return false;
         }

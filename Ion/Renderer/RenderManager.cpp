@@ -187,21 +187,21 @@ void RenderManager::LoadCommonMaterialForIntegratedPrimitive(ObjectHandler& _ent
     UniformBinding uniformVertex;
     uniformVertex.m_bindingIndex = 0;
     uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+    uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
     uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+    uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
     uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+    uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
 
     //
     UniformBinding uniformFragment;
     uniformFragment.m_bindingIndex = 1;
     uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+    uniformFragment.m_type.push_back(EBufferParameterType_Vector);
     uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+    uniformFragment.m_type.push_back(EBufferParameterType_Vector);
     uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+    uniformFragment.m_type.push_back(EBufferParameterType_Vector);
 
     //
     SamplerBinding albedoMap;
@@ -565,11 +565,11 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
     UniformBinding uniform;
     uniform.m_bindingIndex = 0;
     uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
+    uniform.m_type.push_back(EBufferParameterType_Matrix);
     uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
+    uniform.m_type.push_back(EBufferParameterType_Matrix);
     uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
+    uniform.m_type.push_back(EBufferParameterType_Matrix);
 
     //
     SamplerBinding sampler;
@@ -850,17 +850,17 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
     UniformBinding uniform;
     uniform.m_bindingIndex = 0;
     uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
+    uniform.m_type.push_back(EBufferParameterType_Matrix);
     uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
+    uniform.m_type.push_back(EBufferParameterType_Matrix);
     uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-    uniform.m_type.push_back(EUniformParameterType_Matrix);
+    uniform.m_type.push_back(EBufferParameterType_Matrix);
 
     //
     UniformBinding uniformFragment;
     uniformFragment.m_bindingIndex = 1;
     uniformFragment.m_parameters.push_back("roughness");
-    uniformFragment.m_type.push_back(EUniformParameterType_Float);
+    uniformFragment.m_type.push_back(EBufferParameterType_Float);
    
     SamplerBinding sampler;
     sampler.m_bindingIndex = 2;

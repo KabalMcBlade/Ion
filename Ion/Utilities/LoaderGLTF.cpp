@@ -10,6 +10,7 @@
 
 #include "../Utilities/GeometryHelper.h"
 
+#include "../Renderer/RenderCommon.h"
 #include "../Renderer/RenderManager.h"
 #include "../Shader/ShaderProgramManager.h"
 #include "../Core/FileSystemManager.h"
@@ -109,6 +110,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
     _entityHandle->GetTransform().SetRotation(rotation);
     _entityHandle->GetTransform().SetScale(scale);
 
+    const Matrix& localTransform = _entityHandle->GetTransform().GetMatrix();
+
     //
     //  This one is the "NodeIndex" use to track the animation nodes
     //
@@ -130,6 +133,38 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
     {
         const tinygltf::Mesh mesh = _model.meshes[_node.mesh];
 
+        Entity* entityPtr = dynamic_cast<Entity*>(_entityHandle.GetPtr());
+
+        ionBool usingMorphTarget = false;
+        ionBool usingSkinningMesh = false;
+
+        // load weights if any!
+        // the weights here are for the morph target animation, not for the skinning animation!
+        // the morph target are per mesh/node: first check node, because node override the mesh.
+        if (_node.weights.size() > 0)
+        {
+            usingMorphTarget = true;
+            ionSize weightCount = _node.weights.size();
+            for (ionSize i = 0; i < weightCount; ++i)
+            {
+                ionFloat weight = static_cast<ionFloat>(_node.weights[i]);
+                entityPtr->PushBackInitialMorphTargetWeight(weight);
+            }
+        }
+        else
+        {
+            if (mesh.weights.size() > 0)
+            {
+                usingMorphTarget = true;
+                ionSize weightCount = mesh.weights.size();
+                for (ionSize i = 0; i < weightCount; ++i)
+                {
+                    ionFloat weight = static_cast<ionFloat>(mesh.weights[i]);
+                    entityPtr->PushBackInitialMorphTargetWeight(weight);
+                }
+            }
+        }
+
         for (ionSize j = 0; j < mesh.primitives.size(); ++j)
         {
             const tinygltf::Primitive &primitive = mesh.primitives[j];
@@ -138,10 +173,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 continue;
             }
 
-            Entity* entityPtr = dynamic_cast<Entity*>(_entityHandle.GetPtr());
-
-            Mesh mesh;
-            mesh.SetIndexStart(_meshRenderer->GetIndexDataCount());
+            Mesh ionMesh;
+            ionMesh.SetIndexStart(_meshRenderer->GetIndexDataCount());
             ionU32 vertexStart = _meshRenderer->GetVertexDataCount();       // 0?
 
             eosVector(Vector) positionToBeNormalized;
@@ -196,6 +229,82 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     bufferTangent = reinterpret_cast<const ionFloat *>(&(_model.buffers[tangentView.buffer].data[tangentAccessor.byteOffset + tangentView.byteOffset]));
 
                     _generateTangentWhenMissing = false;
+                }
+
+                if (usingMorphTarget)
+                {
+                    eosVector(const ionFloat*) morphTargetBufferPos;
+                    eosVector(const ionFloat*) morphTargetBufferNormals;
+                    eosVector(const ionFloat*) morphTargetBufferTangent;
+
+                    eosVector(ionSize) accessorCounts;
+                    const ionSize morphTargetCount = primitive.targets.size();
+                    for (ionSize t = 0; t < morphTargetCount; ++t)
+                    {
+                        if (primitive.targets[t].find("POSITION") != primitive.targets[t].end())
+                        {
+                            const tinygltf::Accessor &posAccessor = _model.accessors[primitive.targets[t].find("POSITION")->second];
+                            const tinygltf::BufferView &posView = _model.bufferViews[posAccessor.bufferView];
+                            morphTargetBufferPos.push_back(reinterpret_cast<const ionFloat *>(&(_model.buffers[posView.buffer].data[posAccessor.byteOffset + posView.byteOffset])));
+                            accessorCounts.push_back(posAccessor.count);
+                        }
+                    }
+
+                    for (size_t t = 0; t < primitive.targets.size(); ++t) 
+                    {
+                        if (primitive.targets[t].find("NORMAL") != primitive.targets[t].end()) 
+                        {
+                            const tinygltf::Accessor &normAccessor = _model.accessors[primitive.targets[t].find("NORMAL")->second];
+                            const tinygltf::BufferView &normView = _model.bufferViews[normAccessor.bufferView];
+                            morphTargetBufferNormals.push_back(reinterpret_cast<const ionFloat *>(&(_model.buffers[normView.buffer].data[normAccessor.byteOffset + normView.byteOffset])));
+                        }
+                    }
+
+                    for (size_t t = 0; t < primitive.targets.size(); ++t)
+                    {
+                        if (primitive.targets[t].find("TANGENT") != primitive.targets[t].end()) 
+                        {
+                            const tinygltf::Accessor &tangentAccessor = _model.accessors[primitive.targets[t].find("TANGENT")->second];
+                            const tinygltf::BufferView &tangentView = _model.bufferViews[tangentAccessor.bufferView];
+                            morphTargetBufferTangent.push_back(reinterpret_cast<const ionFloat *>(&(_model.buffers[tangentView.buffer].data[tangentAccessor.byteOffset + tangentView.byteOffset])));
+                        }
+                    }
+
+                    for (ionSize t = 0; t < morphTargetCount; ++t)
+                    {
+                        const ionSize& count = accessorCounts[t];
+                        for (ionSize v = 0; v < count; ++v)
+                        {
+                            VertexMorphTarget vert;
+
+                            Vector pos((&morphTargetBufferPos[t][v * 3])[0], ((&morphTargetBufferPos[t][v * 3])[1]), (&morphTargetBufferPos[t][v * 3])[2], 1.0f);
+                            vert.SetPosition(pos);
+
+                            Vector normal;
+                            if (morphTargetBufferNormals.size() > 0)
+                            {
+                                normal = VectorHelper::Set((&morphTargetBufferNormals[t][v * 3])[0], ((&morphTargetBufferNormals[t][v * 3])[1]), (&morphTargetBufferNormals[t][v * 3])[2], 1.0f);
+                            }
+                            else
+                            {
+                                normal = VectorHelper::Set(0.0f, 0.0f, 0.0f, 1.0f);
+                            }
+                            vert.SetNormal(normal);
+
+                            Vector tangent;
+                            if (morphTargetBufferTangent.size() > 0)
+                            {
+                                tangent = VectorHelper::Set((&morphTargetBufferTangent[t][v * 3])[0], ((&morphTargetBufferTangent[t][v * 3])[1]), (&morphTargetBufferTangent[t][v * 3])[2], 1.0f);
+                            }
+                            else
+                            {
+                                tangent = VectorHelper::Set(0.0f, 0.0f, 0.0f, 1.0f);
+                            }
+                            vert.SetTangent(tangent);
+
+                            ionMesh.PushBackVertexMorphTarget(vert);
+                        }
+                    }
                 }
 
                 if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end()) 
@@ -290,6 +399,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
                 if (primitive.attributes.find("WEIGHTS_0") != primitive.attributes.end())
                 {
+                    usingSkinningMesh = true;
+
                     const tinygltf::Accessor &weightsAccessor = _model.accessors[primitive.attributes.find("WEIGHTS_0")->second];
                     const tinygltf::BufferView &weightsView = _model.bufferViews[weightsAccessor.bufferView];
 
@@ -341,6 +452,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         ionAssertReturnVoid(false, "Component type is not supported!");
                     } 
                 }
+                else
+                {
+                    // for skinning mesh need weights and joints!
+                    usingSkinningMesh = false;
+                }
 
                 for (ionSize v = 0; v < posAccessor.count; v++) 
                 {
@@ -354,7 +470,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     {
                         positionToBeNormalized.push_back(pos);
                     }
-
+                    pos = localTransform * pos;
                     vert.SetPosition(pos);
 
                     _entityHandle->GetBoundingBox()->Expande(vert.GetPosition(), vert.GetPosition());
@@ -375,6 +491,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
                         // if no normal, after all iteration the normalToBeTangent will be empty, so we will know how to do
                     }
+                    normal = localTransform * normal;
                     vert.SetNormal(normal);
 
                     Vector tangent;
@@ -527,7 +644,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 const tinygltf::BufferView &bufferView = _model.bufferViews[accessor.bufferView];
                 const tinygltf::Buffer &buffer = _model.buffers[bufferView.buffer];
 
-                mesh.SetIndexCount(static_cast<ionU32>(accessor.count));
+                ionMesh.SetIndexCount(static_cast<ionU32>(accessor.count));
 
                 switch (accessor.componentType)
                 {
@@ -674,43 +791,62 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     }
 
                     {
+                        ionU32 bindingIndex = 0;
+
                         //
                         UniformBinding uniformVertex;
-                        uniformVertex.m_bindingIndex = 0;
+                        uniformVertex.m_bindingIndex = bindingIndex++;
                         uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                        uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
                         uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                        uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
                         uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-                        uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                        uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
+
+                        UniformBinding morphWeightsVertex;
+                        StorageBinding storageMorphTargets;
+                        if (usingMorphTarget)
+                        {
+                            morphWeightsVertex.m_bindingIndex = bindingIndex++;
+                            morphWeightsVertex.m_parameters.push_back("weights");    // array of 8
+                            morphWeightsVertex.m_type.push_back(EBufferParameterType_Float);
+
+                            storageMorphTargets.m_bindingIndex = bindingIndex++;
+                            storageMorphTargets.m_parameters.push_back("position");    // array of 8
+                            storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
+                            storageMorphTargets.m_parameters.push_back("normal");    // array of 8
+                            storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
+                            storageMorphTargets.m_parameters.push_back("tangent");    // array of 8
+                            storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
+                        }
 
                         //
                         UniformBinding uniformFragment;
-                        uniformFragment.m_bindingIndex = 1;
+                        uniformFragment.m_bindingIndex = bindingIndex++;
                         uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                        uniformFragment.m_type.push_back(EBufferParameterType_Vector);
                         uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                        uniformFragment.m_type.push_back(EBufferParameterType_Vector);
                         uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                        uniformFragment.m_type.push_back(EBufferParameterType_Vector);
                         uniformFragment.m_parameters.push_back(ION_EXPOSURE_FLOAT_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Float);
+                        uniformFragment.m_type.push_back(EBufferParameterType_Float);
                         uniformFragment.m_parameters.push_back(ION_GAMMA_FLOAT_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Float);
+                        uniformFragment.m_type.push_back(EBufferParameterType_Float);
                         uniformFragment.m_parameters.push_back(ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM);
-                        uniformFragment.m_type.push_back(EUniformParameterType_Float);
+                        uniformFragment.m_type.push_back(EBufferParameterType_Float);
 
                         //
                         SamplerBinding samplerIrradiance;
-                        samplerIrradiance.m_bindingIndex = 2;
+                        samplerIrradiance.m_bindingIndex = bindingIndex++;
                         samplerIrradiance.m_texture = ionRenderManager().GetIrradianceCubemap();
 
                         SamplerBinding prefilteredMap;
-                        prefilteredMap.m_bindingIndex = 3;
+                        prefilteredMap.m_bindingIndex = bindingIndex++;
                         prefilteredMap.m_texture = ionRenderManager().GetPrefilteredEnvironmentCubemap();
 
                         SamplerBinding samplerBRDFLUT;
-                        samplerBRDFLUT.m_bindingIndex = 4;
+                        samplerBRDFLUT.m_bindingIndex = bindingIndex++;
                         samplerBRDFLUT.m_texture = ionRenderManager().GetBRDF();
 
                         //
@@ -718,7 +854,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
                         //
                         SamplerBinding albedoMap;
-                        albedoMap.m_bindingIndex = 5;
+                        albedoMap.m_bindingIndex = bindingIndex++;
                         albedoMap.m_texture = usingSpecularGlossiness ? material->GetSpecularGlossiness().GetBaseColorTexture() : material->GetBasePBR().GetBaseColorTexture();
                         if (albedoMap.m_texture == nullptr)
                         {
@@ -727,7 +863,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         }
 
                         SamplerBinding normalMap;
-                        normalMap.m_bindingIndex = 6;
+                        normalMap.m_bindingIndex = bindingIndex++;
                         normalMap.m_texture = material->GetAdvancePBR().GetNormalTexture();
                         if (normalMap.m_texture == nullptr)
                         {
@@ -736,7 +872,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         }
 
                         SamplerBinding aoMap;
-                        aoMap.m_bindingIndex = 7;
+                        aoMap.m_bindingIndex = bindingIndex++;
                         aoMap.m_texture = material->GetAdvancePBR().GetOcclusionTexture();
                         if (aoMap.m_texture == nullptr)
                         {
@@ -745,7 +881,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         }
 
                         SamplerBinding physicalDescriptorMap;
-                        physicalDescriptorMap.m_bindingIndex = 8;
+                        physicalDescriptorMap.m_bindingIndex = bindingIndex++;
                         physicalDescriptorMap.m_texture = usingSpecularGlossiness ? material->GetSpecularGlossiness().GetSpecularGlossinessTexture() : material->GetBasePBR().GetMetalRoughnessTexture();
                         if (physicalDescriptorMap.m_texture == nullptr)
                         {
@@ -754,7 +890,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         }
 
                         SamplerBinding emissiveMap;
-                        emissiveMap.m_bindingIndex = 9;
+                        emissiveMap.m_bindingIndex = bindingIndex++;
                         emissiveMap.m_texture = material->GetAdvancePBR().GetEmissiveTexture();
                         if (emissiveMap.m_texture == nullptr)
                         {
@@ -765,6 +901,24 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         // set the shaders layout
                         ShaderLayoutDef vertexLayout;
                         vertexLayout.m_uniforms.push_back(uniformVertex);
+
+                        if (usingMorphTarget)
+                        {
+                            vertexLayout.m_uniforms.push_back(morphWeightsVertex);
+                            vertexLayout.m_storages.push_back(storageMorphTargets);
+
+                            material->SetCustomDrawFunction(
+
+                                [&](const DrawSurface& _surface)
+                            {
+                                ionShaderProgramManager().SetRenderParamsVector("position", &_surface.m_morphtargetsPositions[0], 8);
+                                ionShaderProgramManager().SetRenderParamsVector("normal", &_surface.m_morphtargetsNormals[0], 8);
+                                ionShaderProgramManager().SetRenderParamsVector("tangent", &_surface.m_morphtargetsTangents[0], 8);
+                                ionShaderProgramManager().SetRenderParamsFloat("weights", &_surface.m_morphtargetsWeights[0], 8);
+                            }
+
+                            );
+                        }
 
                         ShaderLayoutDef fragmentLayout;
                         fragmentLayout.m_uniforms.push_back(uniformFragment);
@@ -816,8 +970,18 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         material->SetVertexLayout(_meshRenderer->GetLayout());
                         material->SetConstantsShaders(constants);
 
-                        ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
-                        ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Fragment);
+                        ionS32 vertexShaderIndex = -1;
+                        ionS32 fragmentShaderIndex = -1;
+                        if (usingMorphTarget)
+                        {
+                            vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_MORPH_SHADER_NAME, EShaderStage_Vertex);
+                            fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_MORPH_SHADER_NAME, EShaderStage_Fragment);
+                        }
+                        else
+                        {
+                            vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+                            fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Fragment);
+                        }
 
                         material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
                     }
@@ -838,29 +1002,48 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         constantTexturesSettings[constantCounter] = 1.0f;
                     }
 
+                    ionU32 bindingIndex = 0;
+
                     //
                     UniformBinding uniformVertex;
-                    uniformVertex.m_bindingIndex = 0;
+                    uniformVertex.m_bindingIndex = bindingIndex++;
                     uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-                    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                    uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
                     uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-                    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                    uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
                     uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-                    uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                    uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
+
+                    UniformBinding morphWeightsVertex;
+                    StorageBinding storageMorphTargets;
+                    if (usingMorphTarget)
+                    {
+                        morphWeightsVertex.m_bindingIndex = bindingIndex++;
+                        morphWeightsVertex.m_parameters.push_back("weights");    // array of 8
+                        morphWeightsVertex.m_type.push_back(EBufferParameterType_Float);
+
+                        storageMorphTargets.m_bindingIndex = bindingIndex++;
+                        storageMorphTargets.m_parameters.push_back("position");    // array of 8
+                        storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
+                        storageMorphTargets.m_parameters.push_back("normal");    // array of 8
+                        storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
+                        storageMorphTargets.m_parameters.push_back("tangent");    // array of 8
+                        storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
+                    }
 
                     //
                     UniformBinding uniformFragment;
-                    uniformFragment.m_bindingIndex = 1;
+                    uniformFragment.m_bindingIndex = bindingIndex++;
                     uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-                    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                    uniformFragment.m_type.push_back(EBufferParameterType_Vector);
                     uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-                    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                    uniformFragment.m_type.push_back(EBufferParameterType_Vector);
                     uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-                    uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                    uniformFragment.m_type.push_back(EBufferParameterType_Vector);
 
                     //
                     SamplerBinding albedoMap;
-                    albedoMap.m_bindingIndex = 2;
+                    albedoMap.m_bindingIndex = bindingIndex++;
                     albedoMap.m_texture = material->GetBasePBR().GetBaseColorTexture();
                     if (albedoMap.m_texture == nullptr)
                     {
@@ -869,7 +1052,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     }
 
                     SamplerBinding normalMap;
-                    normalMap.m_bindingIndex = 3;
+                    normalMap.m_bindingIndex = bindingIndex++;
                     normalMap.m_texture = material->GetAdvancePBR().GetNormalTexture();
                     if (normalMap.m_texture == nullptr)
                     {
@@ -881,6 +1064,24 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     // set the shaders layout
                     ShaderLayoutDef vertexLayout;
                     vertexLayout.m_uniforms.push_back(uniformVertex);
+
+                    if (usingMorphTarget)
+                    {
+                        vertexLayout.m_uniforms.push_back(morphWeightsVertex);
+                        vertexLayout.m_storages.push_back(storageMorphTargets);
+
+                        material->SetCustomDrawFunction(
+
+                            [&](const DrawSurface& _surface)
+                        {
+                            ionShaderProgramManager().SetRenderParamsVector("position", &_surface.m_morphtargetsPositions[0], 8);
+                            ionShaderProgramManager().SetRenderParamsVector("normal", &_surface.m_morphtargetsNormals[0], 8);
+                            ionShaderProgramManager().SetRenderParamsVector("tangent", &_surface.m_morphtargetsTangents[0], 8);
+                            ionShaderProgramManager().SetRenderParamsFloat("weights", &_surface.m_morphtargetsWeights[0], 8);
+                        }
+
+                        );
+                    }
 
                     ShaderLayoutDef fragmentLayout;
                     fragmentLayout.m_uniforms.push_back(uniformFragment);
@@ -904,8 +1105,19 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     material->SetVertexLayout(_meshRenderer->GetLayout());
                     material->SetConstantsShaders(constants);
 
-                    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+
+
+                    ionS32 vertexShaderIndex = -1;
                     ionS32 fragmentShaderIndex = 1;
+
+                    if (usingMorphTarget)
+                    {
+                        vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_MORPH_SHADER_NAME, EShaderStage_Vertex);
+                    }
+                    else
+                    {
+                        vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+                    }
 
                     if (material->IsDiffuseLight())
                     {
@@ -920,7 +1132,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 }
 
                 //
-                mesh.SetMaterial(material);
+                ionMesh.SetMaterial(material);
             }
             else
             {
@@ -965,29 +1177,48 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     constantTexturesSettings[constantCounter] = 1.0f;
                 }
 
+                ionU32 bindingIndex = 0;
+
                 //
                 UniformBinding uniformVertex;
-                uniformVertex.m_bindingIndex = 0;
+                uniformVertex.m_bindingIndex = bindingIndex++;
                 uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-                uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
                 uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-                uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
                 uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-                uniformVertex.m_type.push_back(EUniformParameterType_Matrix);
+                uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
+
+                UniformBinding morphWeightsVertex;
+                StorageBinding storageMorphTargets;
+                if (usingMorphTarget)
+                {
+                    morphWeightsVertex.m_bindingIndex = bindingIndex++;
+                    morphWeightsVertex.m_parameters.push_back("weights");    // array of 8
+                    morphWeightsVertex.m_type.push_back(EBufferParameterType_Float);
+
+                    storageMorphTargets.m_bindingIndex = bindingIndex++;
+                    storageMorphTargets.m_parameters.push_back("position");    // array of 8
+                    storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
+                    storageMorphTargets.m_parameters.push_back("normal");    // array of 8
+                    storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
+                    storageMorphTargets.m_parameters.push_back("tangent");    // array of 8
+                    storageMorphTargets.m_type.push_back(EBufferParameterType_Vector);
+                }
 
                 //
                 UniformBinding uniformFragment;
-                uniformFragment.m_bindingIndex = 1;
+                uniformFragment.m_bindingIndex = bindingIndex++;
                 uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-                uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                uniformFragment.m_type.push_back(EBufferParameterType_Vector);
                 uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-                uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                uniformFragment.m_type.push_back(EBufferParameterType_Vector);
                 uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-                uniformFragment.m_type.push_back(EUniformParameterType_Vector);
+                uniformFragment.m_type.push_back(EBufferParameterType_Vector);
 
                 //
                 SamplerBinding albedoMap;
-                albedoMap.m_bindingIndex = 2;
+                albedoMap.m_bindingIndex = bindingIndex++;
                 albedoMap.m_texture = material->GetBasePBR().GetBaseColorTexture();
                 if (albedoMap.m_texture == nullptr)
                 {
@@ -996,7 +1227,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 }
 
                 SamplerBinding normalMap;
-                normalMap.m_bindingIndex = 3;
+                normalMap.m_bindingIndex = bindingIndex++;
                 normalMap.m_texture = material->GetAdvancePBR().GetNormalTexture();
                 if (normalMap.m_texture == nullptr)
                 {
@@ -1008,6 +1239,25 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 // set the shaders layout
                 ShaderLayoutDef vertexLayout;
                 vertexLayout.m_uniforms.push_back(uniformVertex);
+
+                if (usingMorphTarget)
+                {
+                    vertexLayout.m_uniforms.push_back(morphWeightsVertex);
+                    vertexLayout.m_storages.push_back(storageMorphTargets);
+
+                    material->SetCustomDrawFunction(
+
+                        [&](const DrawSurface& _surface)
+                    {
+                        ionShaderProgramManager().SetRenderParamsVector("position", &_surface.m_morphtargetsPositions[0], 8);
+                        ionShaderProgramManager().SetRenderParamsVector("normal", &_surface.m_morphtargetsNormals[0], 8);
+                        ionShaderProgramManager().SetRenderParamsVector("tangent", &_surface.m_morphtargetsTangents[0], 8);
+                        ionShaderProgramManager().SetRenderParamsFloat("weights", &_surface.m_morphtargetsWeights[0], 8);
+                    }
+
+                    );
+                }
+
 
                 ShaderLayoutDef fragmentLayout;
                 fragmentLayout.m_uniforms.push_back(uniformFragment);
@@ -1031,8 +1281,17 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 material->SetVertexLayout(_meshRenderer->GetLayout());
                 material->SetConstantsShaders(constants);
 
-                ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+                ionS32 vertexShaderIndex = -1;
                 ionS32 fragmentShaderIndex = 1;
+
+                if (usingMorphTarget)
+                {
+                    vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_MORPH_SHADER_NAME, EShaderStage_Vertex);
+                }
+                else
+                {
+                    vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
+                }
 
                 if (material->IsDiffuseLight())
                 {
@@ -1046,11 +1305,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
                 material->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-                mesh.SetMaterial(material);
+                ionMesh.SetMaterial(material);
             }
 
-            entityPtr->PushBackMesh(mesh);
+            entityPtr->PushBackMesh(ionMesh);
         }
+
     }
 }
 
@@ -1843,7 +2103,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
         material->GetBasePBR().SetRoughnessFactor(1.0f);
         material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
         material->GetAdvancePBR().SetAlphaCutoff(0.5f);
-        material->GetState().SetCullingMode(ECullingMode_TwoSide);
+        material->GetState().SetCullingMode(ECullingMode_Back);
         material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
         material->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
         material->GetState().SetBlendStateMode(EBlendState_SourceBlend_One);

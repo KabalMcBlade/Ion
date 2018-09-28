@@ -197,6 +197,7 @@ int main(int argc, char **argv)
     window.GetCommandLineParse().AddWithValue<eosString>("-primitive", false);
     window.GetCommandLineParse().Add("-usepath", false);
 
+
     if (!window.ParseCommandLine(argc, argv))
     {
         return false;
@@ -241,11 +242,11 @@ int main(int argc, char **argv)
     ion::UniformBinding uniform;
     uniform.m_bindingIndex = 0;
     uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    uniform.m_type.push_back(ion::EBufferParameterType_Matrix);
     uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    uniform.m_type.push_back(ion::EBufferParameterType_Matrix);
     uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-    uniform.m_type.push_back(ion::EUniformParameterType_Matrix);
+    uniform.m_type.push_back(ion::EBufferParameterType_Matrix);
 
     // one sampler bound in the index 1 in the shader stage
     ion::SamplerBinding sampler;

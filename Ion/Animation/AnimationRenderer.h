@@ -48,6 +48,10 @@ public:
 private:
     void UpdateAnimation(ionU32 _animationIndex, ionFloat _animationTimer);
 
+    ionFloat Lerp(ionFloat v0, ionFloat v1, ionFloat t);
+    ionFloat Step(ionFloat v0, ionFloat v1, ionFloat t);
+    ionFloat HermiteCubicSpline(ionFloat _p0, ionFloat _m0, ionFloat _p1, ionFloat _m1, ionFloat _t);
+
 private:
     eosVector(Animation)    m_aninimations;
     ionFloat                m_timer;

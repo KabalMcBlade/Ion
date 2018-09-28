@@ -83,7 +83,8 @@ Material::Material(const eosString& _name) :
     m_alphaMode(EAlphaMode_Opaque),
     m_isDiffuseLight(false),
     m_isUnlit(false),
-    m_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
+    m_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST),
+    m_customDrawFunction(nullptr)
 {
 }
 
@@ -113,6 +114,8 @@ void Material::Destroy()
     m_geometryIndex = -1;
     m_useJoint = false;
     m_useSkinning = false;
+
+    m_customDrawFunction = nullptr;
 }
 
 void Material::SetShaders(const ionS32 _vertexIndex, const ionS32 _fragmentIndex /*= -1*/, const ionS32 _tessellationControlIndex /*= -1*/, const ionS32 _tessellationEvaluationIndex /*= -1*/, const ionS32 _geometryIndex /*= -1*/, const ionBool _useJoint /*= false*/, const ionBool _useSkinning /*= false*/)
@@ -162,6 +165,18 @@ void Material::SetVertexShaderLayout(const ShaderLayoutDef& _defines)
             m_vertexShaderLayout.m_uniforms[i].m_runtimeParameters[j] = hash;
         }
     }
+
+    ionSize storageCount = m_vertexShaderLayout.m_storages.size();
+    for (ionSize i = 0; i < storageCount; ++i)
+    {
+        ionSize paramCount = m_vertexShaderLayout.m_storages[i].m_parameters.size();
+        m_vertexShaderLayout.m_storages[i].m_runtimeParameters.resize(paramCount);
+        for (ionSize j = 0; j < paramCount; ++j)
+        {
+            const ionSize hash = std::hash<eosString>{}(m_vertexShaderLayout.m_storages[i].m_parameters[j]);
+            m_vertexShaderLayout.m_storages[i].m_runtimeParameters[j] = hash;
+        }
+    }
 }
 
 void Material::SetTessellationControlShaderLayout(const ShaderLayoutDef& _defines)
@@ -177,6 +192,18 @@ void Material::SetTessellationControlShaderLayout(const ShaderLayoutDef& _define
         {
             const ionSize hash = std::hash<eosString>{}(m_tessCtrlShaderLayout.m_uniforms[i].m_parameters[j]);
             m_tessCtrlShaderLayout.m_uniforms[i].m_runtimeParameters[j] = hash;
+        }
+    }
+
+    ionSize storageCount = m_tessCtrlShaderLayout.m_storages.size();
+    for (ionSize i = 0; i < storageCount; ++i)
+    {
+        ionSize paramCount = m_tessCtrlShaderLayout.m_storages[i].m_parameters.size();
+        m_tessCtrlShaderLayout.m_storages[i].m_runtimeParameters.resize(paramCount);
+        for (ionSize j = 0; j < paramCount; ++j)
+        {
+            const ionSize hash = std::hash<eosString>{}(m_tessCtrlShaderLayout.m_storages[i].m_parameters[j]);
+            m_tessCtrlShaderLayout.m_storages[i].m_runtimeParameters[j] = hash;
         }
     }
 }
@@ -196,6 +223,18 @@ void Material::SetTessellationEvaluatorShaderLayout(const ShaderLayoutDef& _defi
             m_tessEvalShaderLayout.m_uniforms[i].m_runtimeParameters[j] = hash;
         }
     }
+
+    ionSize storageCount = m_tessEvalShaderLayout.m_storages.size();
+    for (ionSize i = 0; i < storageCount; ++i)
+    {
+        ionSize paramCount = m_tessEvalShaderLayout.m_storages[i].m_parameters.size();
+        m_tessEvalShaderLayout.m_storages[i].m_runtimeParameters.resize(paramCount);
+        for (ionSize j = 0; j < paramCount; ++j)
+        {
+            const ionSize hash = std::hash<eosString>{}(m_tessEvalShaderLayout.m_storages[i].m_parameters[j]);
+            m_tessEvalShaderLayout.m_storages[i].m_runtimeParameters[j] = hash;
+        }
+    }
 }
 
 void Material::SetGeometryShaderLayout(const ShaderLayoutDef& _defines)
@@ -211,6 +250,18 @@ void Material::SetGeometryShaderLayout(const ShaderLayoutDef& _defines)
         {
             const ionSize hash = std::hash<eosString>{}(m_geomtryShaderLayout.m_uniforms[i].m_parameters[j]);
             m_geomtryShaderLayout.m_uniforms[i].m_runtimeParameters[j] = hash;
+        }
+    }
+
+    ionSize storageCount = m_geomtryShaderLayout.m_storages.size();
+    for (ionSize i = 0; i < storageCount; ++i)
+    {
+        ionSize paramCount = m_geomtryShaderLayout.m_storages[i].m_parameters.size();
+        m_geomtryShaderLayout.m_storages[i].m_runtimeParameters.resize(paramCount);
+        for (ionSize j = 0; j < paramCount; ++j)
+        {
+            const ionSize hash = std::hash<eosString>{}(m_geomtryShaderLayout.m_storages[i].m_parameters[j]);
+            m_geomtryShaderLayout.m_storages[i].m_runtimeParameters[j] = hash;
         }
     }
 }
@@ -230,6 +281,18 @@ void Material::SetFragmentShaderLayout(const ShaderLayoutDef& _defines)
             m_fragmentShaderLayout.m_uniforms[i].m_runtimeParameters[j] = hash;
         }
     }
+
+    ionSize storageCount = m_fragmentShaderLayout.m_storages.size();
+    for (ionSize i = 0; i < storageCount; ++i)
+    {
+        ionSize paramCount = m_fragmentShaderLayout.m_storages[i].m_parameters.size();
+        m_fragmentShaderLayout.m_storages[i].m_runtimeParameters.resize(paramCount);
+        for (ionSize j = 0; j < paramCount; ++j)
+        {
+            const ionSize hash = std::hash<eosString>{}(m_fragmentShaderLayout.m_storages[i].m_parameters[j]);
+            m_fragmentShaderLayout.m_storages[i].m_runtimeParameters[j] = hash;
+        }
+    }
 }
 
 void Material::SetComputeShaderLayout(const ShaderLayoutDef& _defines)
@@ -247,6 +310,31 @@ void Material::SetComputeShaderLayout(const ShaderLayoutDef& _defines)
             m_computeShaderLayout.m_uniforms[i].m_runtimeParameters[j] = hash;
         }
     }
+
+    ionSize storageCount = m_computeShaderLayout.m_storages.size();
+    for (ionSize i = 0; i < storageCount; ++i)
+    {
+        ionSize paramCount = m_computeShaderLayout.m_storages[i].m_parameters.size();
+        m_computeShaderLayout.m_storages[i].m_runtimeParameters.resize(paramCount);
+        for (ionSize j = 0; j < paramCount; ++j)
+        {
+            const ionSize hash = std::hash<eosString>{}(m_computeShaderLayout.m_storages[i].m_parameters[j]);
+            m_computeShaderLayout.m_storages[i].m_runtimeParameters[j] = hash;
+        }
+    }
+}
+
+void Material::CustomDraw(const DrawSurface& _surface) const
+{
+    if (m_customDrawFunction != nullptr)
+    {
+        m_customDrawFunction(_surface);
+    }
+}
+
+void Material::SetCustomDrawFunction(const std::function< void(const DrawSurface& _surface) >& _lambda /*= nullptr*/)
+{
+    m_customDrawFunction = _lambda;
 }
 
 ION_NAMESPACE_END
