@@ -23,7 +23,7 @@ public:
     VertexBuffer();
     ~VertexBuffer();
 
-    ionBool                Alloc(const VkDevice& _device, const void* _data, ionSize _allocSize, EBufferUsage _usage);
+    ionBool             Alloc(const VkDevice& _device, const void* _data, ionSize _allocSize, EBufferUsage _usage);
     void                Free();
 
     void                ReferenceTo(const VertexBuffer& _other);

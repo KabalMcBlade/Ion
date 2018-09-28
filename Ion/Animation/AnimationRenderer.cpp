@@ -114,7 +114,13 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
             }
         }
 
-        channel.GetNode()->ResizeMorphTargetWeight(channel.GetNode()->GetInitialMorphTargetWeightCount());
+        ionU32 weightCount = channel.GetNode()->GetInitialMorphTargetWeightCount();
+        channel.GetNode()->ResizeMorphTargetWeight(weightCount);
+
+        for (ionU32 w = 0; w < weightCount; ++w)
+        {
+            channel.GetNode()->SetMorphTargetWeight(w, channel.GetNode()->GetInitialMorphTargetWeight(w));
+        }
 
         // logic
         eosVector(ionFloat)& inputs = sampler.GetInputs();

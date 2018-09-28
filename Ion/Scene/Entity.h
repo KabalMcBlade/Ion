@@ -45,12 +45,12 @@ public:
     const BaseMeshRenderer* GetMeshRenderer() const override final { return m_meshRenderer; }
     BaseMeshRenderer* GetMeshRenderer() override final { return m_meshRenderer; }
 
-    void PushBackMesh(const Mesh& _mesh);
+    virtual void PushBackMesh(const Mesh& _mesh) override final;
     virtual const Mesh* GetMesh(ionU32 _index) const override final { return &m_meshes[_index]; }
     virtual Mesh* GetMesh(ionU32 _index) override final { return &m_meshes[_index]; }
     virtual ionU32  GetMeshCount() const override final;
 
-    void PushBackInitialMorphTargetWeight(ionFloat _weight);
+    virtual void PushBackInitialMorphTargetWeight(ionFloat _weight) override final;
     virtual ionFloat GetInitialMorphTargetWeight(ionU32 _index) const override final { return m_initialMorphTargetWeights[_index]; }
     virtual ionU32  GetInitialMorphTargetWeightCount() const override final;
 

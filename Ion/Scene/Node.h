@@ -83,6 +83,7 @@ public:
     virtual Mesh* GetMesh(ionU32 _index) { return nullptr; }
     virtual ionU32  GetMeshCount() const { return 0; }
 
+    virtual void PushBackInitialMorphTargetWeight(ionFloat _weight) {}
     virtual ionFloat GetInitialMorphTargetWeight(ionU32 _index) const { return -1.0f; }
     virtual ionU32  GetInitialMorphTargetWeightCount() const { return 0; };
 
