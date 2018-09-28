@@ -33,7 +33,6 @@ public:
 
 
 private:
-    eosVector(VertexMorphTarget)    m_morphTargets;
     ionU32                          m_indexStart;
     ionU32                          m_indexCount;
     Material*                       m_material;

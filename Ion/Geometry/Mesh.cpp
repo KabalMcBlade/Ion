@@ -15,7 +15,6 @@ Mesh::Mesh()
 
 Mesh::~Mesh()
 {
-    m_morphTargets.clear();
     m_material = nullptr;
     m_indexStart = 0;
     m_indexCount = 0;

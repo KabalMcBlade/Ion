@@ -46,10 +46,6 @@
 #define ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM_HASH    16846083055572138945
 
 
-#define ION_MAX_MORPH_WEIGHTS   8
-
-
-
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
 
@@ -1049,10 +1045,6 @@ class Node;
 
 struct DrawSurface final
 {
-    ionFloat            m_morphtargetsPositions[ION_MAX_MORPH_WEIGHTS * 4];     // weights per vector elements
-    ionFloat            m_morphtargetsNormals[ION_MAX_MORPH_WEIGHTS * 4];
-    ionFloat            m_morphtargetsTangents[ION_MAX_MORPH_WEIGHTS * 4];
-    ionFloat            m_morphtargetsWeights[ION_MAX_MORPH_WEIGHTS];
     ionFloat            m_modelMatrix[16];
     ionFloat            m_viewMatrix[16];
     ionFloat            m_projectionMatrix[16];
@@ -1082,10 +1074,6 @@ struct DrawSurface final
 
     DrawSurface()
     {
-        memset(&m_morphtargetsPositions, 0, sizeof(m_morphtargetsPositions));
-        memset(&m_morphtargetsNormals, 0, sizeof(m_morphtargetsNormals));
-        memset(&m_morphtargetsTangents, 0, sizeof(m_morphtargetsTangents));
-        memset(&m_morphtargetsWeights, 0, sizeof(m_morphtargetsWeights));
         memset(&m_modelMatrix, 0, sizeof(m_modelMatrix));
         memset(&m_viewMatrix, 0, sizeof(m_viewMatrix));
         memset(&m_projectionMatrix, 0, sizeof(m_projectionMatrix));
