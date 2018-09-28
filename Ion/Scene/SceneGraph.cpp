@@ -178,7 +178,7 @@ void SceneGraph::Prepare()
                             drawSurface->m_sortingIndex = static_cast<ionU8>(drawSurface->m_material->GetAlphaMode());
 
 
-                            
+                            /*
                             // morph target if any
                             Entity* entitptr = dynamic_cast<Entity*>(entity.GetPtr());
                             if (entitptr != nullptr)
@@ -196,7 +196,7 @@ void SceneGraph::Prepare()
                                     _mm_storeu_ps(&drawSurface->m_morphtargetsNormals[t * 4], vmt.GetNormal());
                                     _mm_storeu_ps(&drawSurface->m_morphtargetsTangents[t * 4], vmt.GetTangent());
                                 }
-                            }
+                            }*/
 
                             BoundingBox* bb = entity->GetBoundingBox();
                             m_sceneBoundingBox.Expande(bb->GetTransformed(entity->GetTransform().GetMatrix()));
@@ -292,7 +292,7 @@ void SceneGraph::Update(ionFloat _deltaTime)
             _mm_storeu_ps(&drawSurface.m_modelMatrix[8], model[2]);
             _mm_storeu_ps(&drawSurface.m_modelMatrix[12], model[3]);
 
-
+            /*
             const ionU32 morphTargetCount = drawSurface.m_nodeRef->GetMorphTargetWeightCount();
             if (morphTargetCount > 0)
             {
@@ -301,7 +301,7 @@ void SceneGraph::Update(ionFloat _deltaTime)
                     drawSurface.m_morphtargetsWeights[t] = drawSurface.m_nodeRef->GetMorphTargetWeight(t);
                 }
             }
-           
+           */
         }
     }
     //ionVertexCacheManager().EndMapping();

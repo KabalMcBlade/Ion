@@ -1902,7 +1902,7 @@ void RenderCore::Draw(VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, 
     // ALL THE FOLLOWING SHOULD DONE PER MATERIAL
     const Material* material = _surface.m_material;
 
-    material->CustomDraw(_surface);
+    //material->CustomDraw(_surface);
 
     const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(material);
     ionShaderProgramManager().BindProgram(shaderProgramIndex);
@@ -1937,7 +1937,7 @@ void RenderCore::DrawNoBinding(VkCommandBuffer _commandBuffer, VkRenderPass _ren
     // per material
     const Material* material = _surface.m_material;
 
-    material->CustomDraw(_surface);
+    //material->CustomDraw(_surface);
 
     const ionS32 shaderProgramIndex = ionShaderProgramManager().FindProgram(material);
 
