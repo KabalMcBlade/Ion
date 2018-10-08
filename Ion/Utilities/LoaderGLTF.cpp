@@ -300,7 +300,10 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                             {
                                 tangent = VectorHelper::Set(0.0f, 0.0f, 0.0f, 1.0f);
                             }
+
                             vert.SetTangent(tangent);
+
+                            _meshRenderer->PushBackMorphTarget(vert);
                         }
                     }
 

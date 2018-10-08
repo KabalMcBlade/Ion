@@ -35,9 +35,34 @@ const void* BaseMeshRenderer::GetIndexData() const
     return m_indices.data();
 }
 
+ionSize BaseMeshRenderer::GetSizeOfIndex() const
+{
+    return sizeof(Index);
+}
+
 EVertexLayout BaseMeshRenderer::GetLayout() const
 {
     return EVertexLayout_Empty;
+}
+
+void BaseMeshRenderer::PushBackMorphTarget(const VertexMorphTarget& _vertex)
+{
+    m_morphTargets.push_back(_vertex);
+}
+
+const ionU32 BaseMeshRenderer::GetMorphTargetDataCount() const
+{
+    return static_cast<ionU32>(m_morphTargets.size());
+}
+
+const void* BaseMeshRenderer::GetMorphTargetData() const
+{
+    return m_morphTargets.data();
+}
+
+ionSize BaseMeshRenderer::GetSizeOfMorphTarget() const
+{
+    return sizeof(VertexMorphTarget);
 }
 
 //////////////////////////////////////////////////////////////////////////

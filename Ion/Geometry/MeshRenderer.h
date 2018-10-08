@@ -31,13 +31,23 @@ public:
 
     const ionU32 GetIndexDataCount() const;
     const void* GetIndexData() const;
+    ionSize GetSizeOfIndex() const;
 
     virtual const ionU32 GetVertexDataCount() const { return 0; }
     virtual const void* GetVertexData() const { return nullptr; }
     virtual ionSize GetSizeOfVertex() const { return 0; }
 
+    void PushBackMorphTarget(const VertexMorphTarget& _vertex);
+
+    const ionU32 GetMorphTargetDataCount() const;
+    const void* GetMorphTargetData() const;
+    ionSize GetSizeOfMorphTarget() const;
+
+    ionBool IsUsingMorphTarget() const { return m_morphTargets.size() > 0; }
+
 protected:
-    eosVector(Index)        m_indices;
+    eosVector(Index)                m_indices;
+    eosVector(VertexMorphTarget)    m_morphTargets;
 };
 
 

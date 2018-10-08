@@ -457,7 +457,7 @@ const Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
     drawSurface.m_material = brdflutEntity->GetMesh(0)->GetMaterial();
     drawSurface.m_visible = brdflutEntity->IsVisible();
     drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(brdflutEntity->GetMeshRenderer()->GetVertexData(), brdflutEntity->GetMeshRenderer()->GetVertexDataCount(), brdflutEntity->GetMeshRenderer()->GetSizeOfVertex());
-    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(brdflutEntity->GetMeshRenderer()->GetIndexData(), brdflutEntity->GetMeshRenderer()->GetIndexDataCount());
+    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(brdflutEntity->GetMeshRenderer()->GetIndexData(), brdflutEntity->GetMeshRenderer()->GetIndexDataCount(), brdflutEntity->GetMeshRenderer()->GetSizeOfIndex());
 
     if (m_renderCore.BeginCustomCommandBuffer(cmdBuffer))
     {
@@ -618,7 +618,7 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
     drawSurface.m_material = irradianceEntity->GetMesh(0)->GetMaterial();
     drawSurface.m_visible = irradianceEntity->IsVisible();
     drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(irradianceEntity->GetMeshRenderer()->GetVertexData(), irradianceEntity->GetMeshRenderer()->GetVertexDataCount(), irradianceEntity->GetMeshRenderer()->GetSizeOfVertex());
-    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(irradianceEntity->GetMeshRenderer()->GetIndexData(), irradianceEntity->GetMeshRenderer()->GetIndexDataCount());
+    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(irradianceEntity->GetMeshRenderer()->GetIndexData(), irradianceEntity->GetMeshRenderer()->GetIndexDataCount(), irradianceEntity->GetMeshRenderer()->GetSizeOfIndex());
 
     if (m_renderCore.BeginCustomCommandBuffer(cmdBuffer))
     {
@@ -909,7 +909,7 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
     drawSurface.m_material = prefilteredEntity->GetMesh(0)->GetMaterial();
     drawSurface.m_visible = prefilteredEntity->IsVisible();
     drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(prefilteredEntity->GetMeshRenderer()->GetVertexData(), prefilteredEntity->GetMeshRenderer()->GetVertexDataCount(), prefilteredEntity->GetMeshRenderer()->GetSizeOfVertex());
-    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(prefilteredEntity->GetMeshRenderer()->GetIndexData(), prefilteredEntity->GetMeshRenderer()->GetIndexDataCount());
+    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(prefilteredEntity->GetMeshRenderer()->GetIndexData(), prefilteredEntity->GetMeshRenderer()->GetIndexDataCount(), prefilteredEntity->GetMeshRenderer()->GetSizeOfIndex());
 
     if (m_renderCore.BeginCustomCommandBuffer(cmdBuffer))
     {
