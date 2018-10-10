@@ -141,12 +141,6 @@ void SceneGraph::Prepare()
                         drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(renderer->GetVertexData(), renderer->GetVertexDataCount(), renderer->GetSizeOfVertex());
                         drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(renderer->GetIndexData(), renderer->GetIndexDataCount(), renderer->GetSizeOfIndex());
 
-                        // morph target goes in the storage buffer
-                        if (renderer->IsUsingMorphTarget())
-                        {
-                            drawSurface.m_morphTargetCache = ionVertexCacheManager().AllocStorage(renderer->GetMorphTargetData(), renderer->GetMorphTargetDataCount(), renderer->GetSizeOfMorphTarget());
-                        }
-
                         m_drawSurfaces[cam].push_back(drawSurface);
                     }
 
@@ -168,7 +162,6 @@ void SceneGraph::Prepare()
                                 DrawSurface drawSurfaceTmp;
                                 drawSurfaceTmp.m_vertexCache = drawSurfacePrev.m_vertexCache;
                                 drawSurfaceTmp.m_indexCache = drawSurfacePrev.m_indexCache;
-                                drawSurfaceTmp.m_morphTargetCache = drawSurfacePrev.m_morphTargetCache;
 
                                 m_drawSurfaces[cam].push_back(drawSurfaceTmp);
 

@@ -118,6 +118,30 @@ ION_INLINE ionBool operator!=(const SamplerBinding& lhs, const SamplerBinding& r
 
 //////////////////////////////////////////////////////////////////////////
 
+struct ION_DLL StorageBinding final
+{
+    ionU32              m_bindingIndex;
+    VertexCacheHandler  m_cache;
+
+    StorageBinding()
+    {
+        m_cache = 0;
+    }
+};
+
+ION_INLINE ionBool operator==(const StorageBinding& lhs, const StorageBinding& rhs)
+{
+    return (lhs.m_bindingIndex == rhs.m_bindingIndex && lhs.m_cache == rhs.m_cache);
+}
+
+ION_INLINE ionBool operator!=(const StorageBinding& lhs, const StorageBinding& rhs)
+{
+    return (lhs.m_bindingIndex != rhs.m_bindingIndex || lhs.m_cache != rhs.m_cache);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+
 // The push_constant in the shader and for now ONLY floats supported.
 // Anyway seems enough, you can pass matrix, vector, bool, float and integer as "float" representation
 struct ION_DLL ConstantsBindingDef final
@@ -161,6 +185,7 @@ struct ION_DLL ShaderLayoutDef final
 {
     eosVector(UniformBinding)   m_uniforms;
     eosVector(SamplerBinding)   m_samplers;
+    eosVector(StorageBinding)   m_storages;
 
     ~ShaderLayoutDef()
     {
@@ -171,6 +196,7 @@ struct ION_DLL ShaderLayoutDef final
     {
         m_uniforms.clear();
         m_samplers.clear();
+        m_storages.clear();
     }
 };
 
@@ -194,6 +220,15 @@ ION_INLINE ionBool operator==(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
         }
     }
 
+    const eosVector(StorageBinding)::size_type storageCount = lhs.m_storages.size();
+    for (eosVector(StorageBinding)::size_type i = 0; i != storageCount; ++i)
+    {
+        if (lhs.m_storages[i] != rhs.m_storages[i])
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -212,6 +247,15 @@ ION_INLINE ionBool operator!=(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
     for (eosVector(SamplerBinding)::size_type i = 0; i != samplerCount; ++i)
     {
         if (lhs.m_samplers[i] == rhs.m_samplers[i])
+        {
+            return false;
+        }
+    }
+
+    const eosVector(StorageBinding)::size_type storageCount = lhs.m_storages.size();
+    for (eosVector(StorageBinding)::size_type i = 0; i != storageCount; ++i)
+    {
+        if (lhs.m_storages[i] == rhs.m_storages[i])
         {
             return false;
         }

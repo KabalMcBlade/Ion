@@ -25,8 +25,11 @@
 
 
 #define ION_PBR_SHADER_NAME    "PBR"
+#define ION_PBR_MORPH_SHADER_NAME    "PBRMorph"
 #define ION_DIFFUSE_LIGHT_SHADER_NAME    "DiffuseLight"
+#define ION_DIFFUSE_LIGHT_MORPH_SHADER_NAME    "DiffuseLightMorph"
 #define ION_UNLIT_SHADER_NAME    "Unlit"
+#define ION_UNLIT_MORPH_SHADER_NAME    "UnlitMorph"
 
 EOS_USING_NAMESPACE
 

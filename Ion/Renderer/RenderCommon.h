@@ -89,6 +89,7 @@ enum EShaderBinding
 {
     EShaderBinding_Uniform = 0,
     EShaderBinding_Sampler,
+    EShaderBinding_Storage,
 
     EShaderBinding_Count
 };
@@ -1054,7 +1055,6 @@ struct DrawSurface final
     ionU64              m_extraGLState;
     VertexCacheHandler  m_vertexCache;
     VertexCacheHandler  m_indexCache;
-    VertexCacheHandler  m_morphTargetCache;
     VertexCacheHandler  m_jointCache;
     const Node*         m_nodeRef;
     const Material*     m_material;
@@ -1083,7 +1083,6 @@ struct DrawSurface final
         memset(&m_directionalLightColor, 0, sizeof(m_directionalLight));
         m_vertexCache = 0;
         m_indexCache = 0;
-        m_morphTargetCache = 0;
         m_jointCache = 0;
         m_extraGLState = 0;
         m_exposure = 4.5f;

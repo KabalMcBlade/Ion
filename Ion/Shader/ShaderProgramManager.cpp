@@ -367,26 +367,32 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
 
     ionS32 writeIndex = 0;
     ionS32 bufferIndex = 0;
+    ionS32 storageIndex = 0;
     ionS32 imageIndex = 0;
     ionS32 bindingIndex = 0;
 
     VkWriteDescriptorSet writes[ION_MAX_DESCRIPTOR_SET_WRITES];
     VkDescriptorBufferInfo bufferInfos[ION_MAX_DESCRIPTOR_SET_WRITES];
     VkDescriptorImageInfo imageInfos[ION_MAX_DESCRIPTOR_SET_WRITES];
+    VkDescriptorBufferInfo storageInfos[ION_MAX_DESCRIPTOR_SET_WRITES];
 
     memset(&writes, 0, sizeof(writes));
     memset(&bufferInfos, 0, sizeof(bufferInfos));
     memset(&imageInfos, 0, sizeof(imageInfos));
+    memset(&storageInfos, 0, sizeof(storageInfos));
 
     ionS32 samplerIndex = 0;
     ionS32 uboIndex = 0;
     ionS32 sboIndex = 0;
     UniformBuffer* ubos[ION_MAX_DESCRIPTOR_SET_WRITES];
     const Texture* textures[ION_MAX_DESCRIPTOR_SET_WRITES];
+    VertexCacheHandler storage[ION_MAX_DESCRIPTOR_SET_WRITES];
     ionU32 destBinding[ION_MAX_DESCRIPTOR_SET_WRITES];
     ionU32 destBindingTexture[ION_MAX_DESCRIPTOR_SET_WRITES];
+    ionU32 destBindingStorage[ION_MAX_DESCRIPTOR_SET_WRITES];
     memset(&ubos, 0, sizeof(ubos));
     memset(&textures, 0, sizeof(textures));
+    memset(&storage, 0, sizeof(storage));
     memset(&destBinding, 0, sizeof(destBinding)); 
     memset(&destBindingTexture, 0, sizeof(destBindingTexture));
 
@@ -411,6 +417,15 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
             textures[samplerIndex] = _material->GetVertexShaderLayout().m_samplers[i].m_texture;
 
             ++samplerIndex;
+        }
+
+        ionSize storageCount = _material->GetVertexShaderLayout().m_storages.size();
+        for (ionSize i = 0; i < storageCount; ++i)
+        {
+            destBindingStorage[sboIndex] = _material->GetVertexShaderLayout().m_uniforms[i].m_bindingIndex;
+            storage[sboIndex] = _material->GetVertexShaderLayout().m_storages[i].m_cache;
+
+            ++sboIndex;
         }
     }
 
@@ -454,6 +469,15 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
 
             ++samplerIndex;
         }
+
+        ionSize storageCount = _material->GetTessellationControlShaderLayout().m_storages.size();
+        for (ionSize i = 0; i < storageCount; ++i)
+        {
+            destBindingStorage[sboIndex] = _material->GetTessellationControlShaderLayout().m_uniforms[i].m_bindingIndex;
+            storage[sboIndex] = _material->GetTessellationControlShaderLayout().m_storages[i].m_cache;
+
+            ++sboIndex;
+        }
     }
 
     UniformBuffer tessEvalParms;
@@ -477,6 +501,15 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
             textures[samplerIndex] = _material->GetTessellationEvaluatorShaderLayout().m_samplers[i].m_texture;
 
             ++samplerIndex;
+        }
+
+        ionSize storageCount = _material->GetTessellationEvaluatorShaderLayout().m_storages.size();
+        for (ionSize i = 0; i < storageCount; ++i)
+        {
+            destBindingStorage[sboIndex] = _material->GetTessellationEvaluatorShaderLayout().m_uniforms[i].m_bindingIndex;
+            storage[sboIndex] = _material->GetTessellationEvaluatorShaderLayout().m_storages[i].m_cache;
+
+            ++sboIndex;
         }
     }
 
@@ -502,6 +535,15 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
 
             ++samplerIndex;
         }
+
+        ionSize storageCount = _material->GetGeometryShaderLayout().m_storages.size();
+        for (ionSize i = 0; i < storageCount; ++i)
+        {
+            destBindingStorage[sboIndex] = _material->GetGeometryShaderLayout().m_uniforms[i].m_bindingIndex;
+            storage[sboIndex] = _material->GetGeometryShaderLayout().m_storages[i].m_cache;
+
+            ++sboIndex;
+        }
     }
 
     UniformBuffer fragParms;
@@ -525,6 +567,15 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
             textures[samplerIndex] = _material->GetFragmentShaderLayout().m_samplers[i].m_texture;
 
             ++samplerIndex;
+        }
+
+        ionSize storageCount = _material->GetFragmentShaderLayout().m_storages.size();
+        for (ionSize i = 0; i < storageCount; ++i)
+        {
+            destBindingStorage[sboIndex] = _material->GetFragmentShaderLayout().m_uniforms[i].m_bindingIndex;
+            storage[sboIndex] = _material->GetFragmentShaderLayout().m_storages[i].m_cache;
+
+            ++sboIndex;
         }
     }
 
@@ -580,6 +631,29 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
             write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             write.pImageInfo = &imageInfo;
             
+            break;
+        }
+        case EShaderBinding_Storage:
+        {
+            VkDescriptorBufferInfo & storageInfo = storageInfos[storageIndex];
+            memset(&storageInfo, 0, sizeof(VkDescriptorBufferInfo));
+
+            StorageBuffer storageBuffer;
+            if (ionVertexCacheManager().GetStorageBuffer(storage[storageIndex], &storageBuffer))
+            {
+                storageInfo.buffer = storageBuffer.GetObject();
+                storageInfo.offset = storageBuffer.GetOffset();
+                storageInfo.range = storageBuffer.GetSize();
+
+                VkWriteDescriptorSet & write = writes[writeIndex++];
+                memset(&write, 0, sizeof(VkWriteDescriptorSet));
+                write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                write.dstSet = descSet;
+                write.dstBinding = destBindingStorage[storageIndex++];
+                write.descriptorCount = 1;
+                write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                write.pBufferInfo = &storageInfo;
+            }
             break;
         }
         }
