@@ -37,6 +37,7 @@
 #define ION_EXPOSURE_FLOAT_PARAM                    "exposure"
 #define ION_GAMMA_FLOAT_PARAM                       "gamma"
 #define ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM "prefilteredCubeMipLevels"
+#define ION_WEIGHTS_FLOATS_ARRAY_PARAM              "weights"
 
 #define ION_MAIN_CAMERA_POSITION_VECTOR_PARAM_HASH          15235675884061678663
 #define ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM_HASH         11254454282578422209
@@ -44,7 +45,10 @@
 #define ION_EXPOSURE_FLOAT_PARAM_HASH                       7428861124213858496
 #define ION_GAMMA_FLOAT_PARAM_HASH                          2490902623560640874
 #define ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM_HASH    16846083055572138945
+#define ION_WEIGHTS_FLOATS_ARRAY_PARAM_HASH                 12774824757867200798
 
+// ANIMATION
+#define ION_MAX_WEIGHT_COUNT    8
 
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
@@ -1056,8 +1060,8 @@ struct DrawSurface final
     VertexCacheHandler  m_vertexCache;
     VertexCacheHandler  m_indexCache;
     VertexCacheHandler  m_jointCache;
-    const Node*         m_nodeRef;
-    const Material*     m_material;
+    Node*               m_nodeRef;
+    Material*           m_material;
     ionU32              m_indexStart;
     ionU32              m_indexCount;
     ionU32              m_meshIndexRef;

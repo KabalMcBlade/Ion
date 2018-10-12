@@ -9,6 +9,8 @@
 
 #include "../Scene/DirectionalLight.h"
 
+#include "../Animation/AnimationRenderer.h"
+
 NIX_USING_NAMESPACE
 EOS_USING_NAMESPACE
 
@@ -298,6 +300,15 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
             
             if (drawSurface.m_visible)
             {
+                AnimationRenderer* animationRenderer = drawSurface.m_nodeRef->GetAnimationRenderer();
+                if (animationRenderer != nullptr)
+                {
+                    if (animationRenderer->IsEnabled())
+                    {
+                        animationRenderer->Draw(drawSurface.m_nodeRef);
+                    }
+                }
+
                 _renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
                 _renderCore.Draw(cam->GetRenderPass(), drawSurface);
             }

@@ -79,7 +79,7 @@ void Node::Update(ionFloat _deltaTime)
         {
             if (animationRenderer->IsEnabled())
             {
-                animationRenderer->OnUpate(_deltaTime);
+                animationRenderer->OnUpdate(_deltaTime);
             }
         }
         

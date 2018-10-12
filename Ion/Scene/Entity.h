@@ -39,11 +39,11 @@ public:
 
     AnimationRenderer* AddAnimationRenderer();
 
-    const AnimationRenderer* GetAnimationRenderer() const override final { return m_animationRenderer; }
-    AnimationRenderer* GetAnimationRenderer()  override final { return m_animationRenderer; }
+    virtual const AnimationRenderer* GetAnimationRenderer() const override final { return m_animationRenderer; }
+    virtual AnimationRenderer* GetAnimationRenderer()  override final { return m_animationRenderer; }
 
-    const BaseMeshRenderer* GetMeshRenderer() const override final { return m_meshRenderer; }
-    BaseMeshRenderer* GetMeshRenderer() override final { return m_meshRenderer; }
+    virtual const BaseMeshRenderer* GetMeshRenderer() const override final { return m_meshRenderer; }
+    virtual BaseMeshRenderer* GetMeshRenderer() override final { return m_meshRenderer; }
 
     virtual void PushBackMesh(const Mesh& _mesh) override final;
     virtual const Mesh* GetMesh(ionU32 _index) const override final { return &m_meshes[_index]; }

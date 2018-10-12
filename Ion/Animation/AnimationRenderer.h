@@ -11,7 +11,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-
+class Node;
 class ION_DLL AnimationRenderer final
 {
 public:
@@ -43,7 +43,10 @@ public:
     eosVector(Animation)::iterator AnimationsIteratorEnd() { return m_aninimations.end(); }
 
     void OnUpateAll(ionFloat _deltaTime);
-    void OnUpate(ionFloat _deltaTime);
+    void OnUpdate(ionFloat _deltaTime);
+
+    // actually just set the render parameters...
+    void Draw(const Node* _node);
 
 private:
     void UpdateAnimation(ionU32 _animationIndex, ionFloat _animationTimer);

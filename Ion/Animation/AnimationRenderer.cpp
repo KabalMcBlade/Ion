@@ -4,6 +4,8 @@
 
 #include "../Scene/Node.h"
 
+#include "../Shader/ShaderProgramManager.h"
+
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
 
@@ -38,7 +40,7 @@ void AnimationRenderer::OnUpateAll(ionFloat _deltaTime)
     }
 }
 
-void AnimationRenderer::OnUpate(ionFloat _deltaTime)
+void AnimationRenderer::OnUpdate(ionFloat _deltaTime)
 {
     if (GetAnimationCount() == 0)
     {
@@ -305,6 +307,24 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
         }
     }
 }
+
+void AnimationRenderer::Draw(const Node* _node)
+{
+    ionFloat weights[ION_MAX_WEIGHT_COUNT];
+    memset(&weights, 0, sizeof(weights));
+
+    const ionU32 count = _node->GetMorphTargetWeightCount();
+    for (ionU32 i = 0; i < count && i < ION_MAX_WEIGHT_COUNT; ++i)
+    {
+        weights[i] = _node->GetMorphTargetWeight(i);
+    }
+
+    if (count > 0)
+    {
+        ionShaderProgramManager().SetRenderParamsFloat(ION_WEIGHTS_FLOATS_ARRAY_PARAM_HASH, &weights[0], ION_MAX_WEIGHT_COUNT);
+    }
+}
+
 
 ION_NAMESPACE_END
 

@@ -252,7 +252,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         }
                     }
 
-                    for (size_t t = 0; t < primitive.targets.size(); ++t) 
+                    for (size_t t = 0; t < morphTargetCount; ++t)
                     {
                         if (primitive.targets[t].find("NORMAL") != primitive.targets[t].end()) 
                         {
@@ -262,7 +262,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         }
                     }
 
-                    for (size_t t = 0; t < primitive.targets.size(); ++t)
+                    for (size_t t = 0; t < morphTargetCount; ++t)
                     {
                         if (primitive.targets[t].find("TANGENT") != primitive.targets[t].end()) 
                         {
@@ -814,7 +814,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         if (usingMorphTarget)
                         {
                             morphWeightsVertex.m_bindingIndex = bindingIndex++;
-                            morphWeightsVertex.m_parameters.push_back("weights");    // array of 8
+                            morphWeightsVertex.m_parameters.push_back(ION_WEIGHTS_FLOATS_ARRAY_PARAM);    // array of 8
                             morphWeightsVertex.m_type.push_back(EBufferParameterType_Float);
 
                             storageMorphTargets.m_bindingIndex = bindingIndex++;
@@ -1009,7 +1009,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     if (usingMorphTarget)
                     {
                         morphWeightsVertex.m_bindingIndex = bindingIndex++;
-                        morphWeightsVertex.m_parameters.push_back("weights");    // array of 8
+                        morphWeightsVertex.m_parameters.push_back(ION_WEIGHTS_FLOATS_ARRAY_PARAM);    // array of 8
                         morphWeightsVertex.m_type.push_back(EBufferParameterType_Float);
 
                         storageMorphTargets.m_bindingIndex = bindingIndex++;
@@ -1174,7 +1174,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 if (usingMorphTarget)
                 {
                     morphWeightsVertex.m_bindingIndex = bindingIndex++;
-                    morphWeightsVertex.m_parameters.push_back("weights");    // array of 8
+                    morphWeightsVertex.m_parameters.push_back(ION_WEIGHTS_FLOATS_ARRAY_PARAM);    // array of 8
                     morphWeightsVertex.m_type.push_back(EBufferParameterType_Float);
 
                     storageMorphTargets.m_bindingIndex = bindingIndex++;

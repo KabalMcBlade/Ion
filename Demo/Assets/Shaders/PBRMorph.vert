@@ -56,9 +56,20 @@ out gl_PerVertex
 
 void main() 
 {
-	vec3 locPos = vec3(ubo.model * inPosition);
+    vec4 inMorphPosition = inPosition;
+	vec4 inMorphNormal = inNormal;
+	vec4 inMorphTangent = inTangent;
+	
+	for(uint i = 0; i < MAX_WEIGHTS; ++i)
+	{
+		inMorphPosition += morphTargets.data[gl_VertexIndex].position * uboMorphTargets.weights[i];
+		inMorphNormal += morphTargets.data[gl_VertexIndex].normal * uboMorphTargets.weights[i];
+		inMorphTangent += morphTargets.data[gl_VertexIndex].tangent * uboMorphTargets.weights[i];
+	}
+
+	vec3 locPos = vec3(ubo.model * inMorphPosition);
 	outWorldPos = locPos;
-	outNormal = normalize(inNormal.xyz);
+	outNormal = normalize(inMorphNormal.xyz);
 	outUV = inTexCoord0;
 	outColor = inColor;
 	gl_Position =  ubo.proj * ubo.view * vec4(outWorldPos, 1.0);
