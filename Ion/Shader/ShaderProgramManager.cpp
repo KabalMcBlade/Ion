@@ -422,7 +422,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
         ionSize storageCount = _material->GetVertexShaderLayout().m_storages.size();
         for (ionSize i = 0; i < storageCount; ++i)
         {
-            destBindingStorage[sboIndex] = _material->GetVertexShaderLayout().m_uniforms[i].m_bindingIndex;
+            destBindingStorage[sboIndex] = _material->GetVertexShaderLayout().m_storages[i].m_bindingIndex;
             storage[sboIndex] = _material->GetVertexShaderLayout().m_storages[i].m_cache;
 
             ++sboIndex;
@@ -473,7 +473,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
         ionSize storageCount = _material->GetTessellationControlShaderLayout().m_storages.size();
         for (ionSize i = 0; i < storageCount; ++i)
         {
-            destBindingStorage[sboIndex] = _material->GetTessellationControlShaderLayout().m_uniforms[i].m_bindingIndex;
+            destBindingStorage[sboIndex] = _material->GetTessellationControlShaderLayout().m_storages[i].m_bindingIndex;
             storage[sboIndex] = _material->GetTessellationControlShaderLayout().m_storages[i].m_cache;
 
             ++sboIndex;
@@ -506,7 +506,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
         ionSize storageCount = _material->GetTessellationEvaluatorShaderLayout().m_storages.size();
         for (ionSize i = 0; i < storageCount; ++i)
         {
-            destBindingStorage[sboIndex] = _material->GetTessellationEvaluatorShaderLayout().m_uniforms[i].m_bindingIndex;
+            destBindingStorage[sboIndex] = _material->GetTessellationEvaluatorShaderLayout().m_storages[i].m_bindingIndex;
             storage[sboIndex] = _material->GetTessellationEvaluatorShaderLayout().m_storages[i].m_cache;
 
             ++sboIndex;
@@ -539,7 +539,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
         ionSize storageCount = _material->GetGeometryShaderLayout().m_storages.size();
         for (ionSize i = 0; i < storageCount; ++i)
         {
-            destBindingStorage[sboIndex] = _material->GetGeometryShaderLayout().m_uniforms[i].m_bindingIndex;
+            destBindingStorage[sboIndex] = _material->GetGeometryShaderLayout().m_storages[i].m_bindingIndex;
             storage[sboIndex] = _material->GetGeometryShaderLayout().m_storages[i].m_cache;
 
             ++sboIndex;
@@ -572,7 +572,7 @@ void ShaderProgramManager::CommitCurrent(const RenderCore& _render, const Materi
         ionSize storageCount = _material->GetFragmentShaderLayout().m_storages.size();
         for (ionSize i = 0; i < storageCount; ++i)
         {
-            destBindingStorage[sboIndex] = _material->GetFragmentShaderLayout().m_uniforms[i].m_bindingIndex;
+            destBindingStorage[sboIndex] = _material->GetFragmentShaderLayout().m_storages[i].m_bindingIndex;
             storage[sboIndex] = _material->GetFragmentShaderLayout().m_storages[i].m_cache;
 
             ++sboIndex;
