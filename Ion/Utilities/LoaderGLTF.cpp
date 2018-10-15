@@ -814,8 +814,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         if (usingMorphTarget)
                         {
                             morphWeightsVertex.m_bindingIndex = bindingIndex++;
-                            morphWeightsVertex.m_parameters.push_back(ION_WEIGHTS_FLOATS_ARRAY_PARAM);    // array of 8
-                            morphWeightsVertex.m_type.push_back(EBufferParameterType_Float);
+                            morphWeightsVertex.AddParameter(ION_WEIGHTS_FLOATS_ARRAY_PARAM, EBufferParameterType_Float, 8);
 
                             storageMorphTargets.m_bindingIndex = bindingIndex++;
                             storageMorphTargets.m_cache = ionVertexCacheManager().AllocStorage(_meshRenderer->GetMorphTargetData(), _meshRenderer->GetMorphTargetDataCount(), _meshRenderer->GetSizeOfMorphTarget());
@@ -1009,8 +1008,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     if (usingMorphTarget)
                     {
                         morphWeightsVertex.m_bindingIndex = bindingIndex++;
-                        morphWeightsVertex.m_parameters.push_back(ION_WEIGHTS_FLOATS_ARRAY_PARAM);    // array of 8
-                        morphWeightsVertex.m_type.push_back(EBufferParameterType_Float);
+                        morphWeightsVertex.AddParameter(ION_WEIGHTS_FLOATS_ARRAY_PARAM, EBufferParameterType_Float, 8);
 
                         storageMorphTargets.m_bindingIndex = bindingIndex++;
                         storageMorphTargets.m_cache = ionVertexCacheManager().AllocStorage(_meshRenderer->GetMorphTargetData(), _meshRenderer->GetMorphTargetDataCount(), _meshRenderer->GetSizeOfMorphTarget());
@@ -1174,8 +1172,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 if (usingMorphTarget)
                 {
                     morphWeightsVertex.m_bindingIndex = bindingIndex++;
-                    morphWeightsVertex.m_parameters.push_back(ION_WEIGHTS_FLOATS_ARRAY_PARAM);    // array of 8
-                    morphWeightsVertex.m_type.push_back(EBufferParameterType_Float);
+                    morphWeightsVertex.AddParameter(ION_WEIGHTS_FLOATS_ARRAY_PARAM, EBufferParameterType_Float, 8);
 
                     storageMorphTargets.m_bindingIndex = bindingIndex++;
                     storageMorphTargets.m_cache = ionVertexCacheManager().AllocStorage(_meshRenderer->GetMorphTargetData(), _meshRenderer->GetMorphTargetDataCount(), _meshRenderer->GetSizeOfMorphTarget());

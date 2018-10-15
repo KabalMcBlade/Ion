@@ -200,7 +200,7 @@ void ShaderProgramManager::SetRenderParamsMatrix(const eosString& _param, const 
         SetRenderParamMatrix(hash, _values + (i * 16));
     }
 }
-
+/*
 void ShaderProgramManager::SetRenderParamsMatrix(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues)
 {
     for (ionU32 i = 0; i < _numValues; ++i)
@@ -208,7 +208,7 @@ void ShaderProgramManager::SetRenderParamsMatrix(ionSize _paramHash, const ionFl
         SetRenderParamMatrix(_paramHash, _values + (i * 16));
     }
 }
-
+*/
 
 void ShaderProgramManager::SetRenderParamVector(const eosString& _param, const ionFloat* _value)
 {
@@ -232,7 +232,7 @@ void ShaderProgramManager::SetRenderParamsVector(const eosString& _param, const 
         SetRenderParamVector(hash, _values + (i * 4));
     }
 }
-
+/*
 void ShaderProgramManager::SetRenderParamsVector(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues)
 {
     for (ionU32 i = 0; i < _numValues; ++i)
@@ -240,7 +240,7 @@ void ShaderProgramManager::SetRenderParamsVector(ionSize _paramHash, const ionFl
         SetRenderParamVector(_paramHash, _values + (i * 4));
     }
 }
-
+*/
 void ShaderProgramManager::SetRenderParamFloat(const eosString& _param, const ionFloat _value)
 {
     const ionSize hash = std::hash<eosString>{}(_param);
@@ -262,7 +262,7 @@ void ShaderProgramManager::SetRenderParamsFloat(const eosString& _param, const i
         SetRenderParamFloat(hash, *(_values + i));
     }
 }
-
+/*
 void ShaderProgramManager::SetRenderParamsFloat(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues)
 {
     for (ionU32 i = 0; i < _numValues; ++i)
@@ -270,7 +270,7 @@ void ShaderProgramManager::SetRenderParamsFloat(ionSize _paramHash, const ionFlo
         SetRenderParamFloat(_paramHash, *(_values + i));
     }
 }
-
+*/
 void ShaderProgramManager::SetRenderParamInteger(const eosString& _param, const ionS32 _value)
 {
     const ionSize hash = std::hash<eosString>{}(_param);
@@ -292,7 +292,7 @@ void ShaderProgramManager::SetRenderParamsInteger(const eosString& _param, const
         SetRenderParamInteger(hash, *(_values + i));
     }
 }
-
+/*
 void ShaderProgramManager::SetRenderParamsInteger(ionSize _paramHash, const ionS32* _values, ionU32 _numValues)
 {
     for (ionU32 i = 0; i < _numValues; ++i)
@@ -300,7 +300,7 @@ void ShaderProgramManager::SetRenderParamsInteger(ionSize _paramHash, const ionS
         SetRenderParamInteger(_paramHash, *(_values + i));
     }
 }
-
+*/
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

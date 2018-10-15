@@ -321,7 +321,7 @@ void AnimationRenderer::Draw(const Node* _node)
 
     if (count > 0)
     {
-        ionShaderProgramManager().SetRenderParamsFloat(ION_WEIGHTS_FLOATS_ARRAY_PARAM_HASH, &weights[0], ION_MAX_WEIGHT_COUNT);
+        ionShaderProgramManager().SetRenderParamsFloat(ION_WEIGHTS_FLOATS_ARRAY_PARAM, &weights[0], ION_MAX_WEIGHT_COUNT);
     }
 }
 

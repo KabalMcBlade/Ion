@@ -45,8 +45,33 @@ enum EPushConstantStage : ionU32
 struct ION_DLL UniformBinding final
 {
     ionU32                              m_bindingIndex;
+
+    void AddParameter(const eosString& _name, EBufferParameterType _type, ionU32  _count = 1)
+    {
+        ionAssertReturnVoid(_count > 0, "count must be greater of 0!");
+
+        if (_count == 1)
+        {
+            m_parameters.push_back(_name);
+            m_type.push_back(_type);
+        }
+        else
+        {
+            for (ionU32 i = 0; i < _count; ++i)
+            {
+                const eosString indexParam(std::to_string(i).c_str());
+                const eosString fullParam = _name + indexParam;
+
+                m_parameters.push_back(fullParam);
+                m_type.push_back(_type);
+            }
+        }
+    }
+
+    // even if there are public, please use the above accessor.
+    // this because help in case you have to set the array (otherwise you can still directly access to this parameters)
     eosVector(eosString)                m_parameters;
-    eosVector(EBufferParameterType)    m_type;
+    eosVector(EBufferParameterType)     m_type;
 
     // it is computed by the engine, do not set manually
     eosVector(ionSize)                  m_runtimeParameters;
