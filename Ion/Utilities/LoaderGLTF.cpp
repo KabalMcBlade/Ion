@@ -308,8 +308,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                             _meshRenderer->PushBackMorphTarget(vert);
                         }
                     }
-
-                    // TODO: FINISH HERE
                 }
 
                 if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end()) 
@@ -465,8 +463,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
                 for (ionSize v = 0; v < posAccessor.count; v++) 
                 {
-                    // the Y value of all vectors is inverted due Vulkan coordinate system
-
                     Vertex vert;
 
                     Vector pos((&bufferPos[v * 3])[0], ((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2], 1.0f);
@@ -483,7 +479,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     Vector normal;
                     if (bufferNormals != nullptr)
                     {
-                        normal = VectorHelper::Set((&bufferNormals[v * 3])[0], ((&bufferNormals[v * 3])[1]), (&bufferNormals[v * 3])[2], 1.0f);
+                        normal = VectorHelper::Set((&bufferNormals[v * 3])[0], ((&bufferNormals[v * 3])[1]) , (&bufferNormals[v * 3])[2], 1.0f);
 
                         if (_generateTangentWhenMissing)
                         {

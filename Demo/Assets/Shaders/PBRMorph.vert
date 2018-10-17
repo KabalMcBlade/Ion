@@ -67,8 +67,7 @@ void main()
 		inMorphTangent += morphTargets.data[gl_VertexIndex].tangent * uboMorphTargets.weights[i];
 	}
 
-	vec3 locPos = vec3(ubo.model * inMorphPosition);
-	outWorldPos = locPos;
+	outWorldPos = vec3(ubo.model * inMorphPosition);
 	outNormal = normalize(inMorphNormal.xyz);
 	outUV = inTexCoord0;
 	outColor = inColor;
