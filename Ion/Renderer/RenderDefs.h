@@ -20,6 +20,7 @@ enum EVertexLayout
 
     EVertexLayout_Full,             // Vertex
     EVertexLayout_Pos_UV_Normal,    // VertexSimple
+    EVertexLayout_Pos_Normal,       // VertexNormal
     EVertexLayout_Pos_Color,        // VertexColored
     EVertexLayout_Pos_UV,           // VertexUV
     EVertexLayout_Pos,              // VertexPlain

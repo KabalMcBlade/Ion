@@ -162,6 +162,41 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
     }
     break;
 
+    case EVertexLayout_Pos_Normal:
+    {
+        MeshRendererNormal* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererNormal>();
+
+        eosVector(VertexNormal) vertices;
+        vertices.resize(3);
+
+        vertices[0].SetPosition(positions[0]);
+        vertices[1].SetPosition(positions[1]);
+        vertices[2].SetPosition(positions[2]);
+
+        Vector normal0 = GeometryHelper::CalculateSurfaceNormalTriangle(&positions[0], 0);
+        Vector normal1 = GeometryHelper::CalculateSurfaceNormalTriangle(&positions[0], 1);
+        Vector normal2 = GeometryHelper::CalculateSurfaceNormalTriangle(&positions[0], 2);
+
+        vertices[0].SetNormal(normal0);
+        vertices[1].SetNormal(normal1);
+        vertices[2].SetNormal(normal2);
+
+        meshRenderer->PushBackVertex(vertices[0]);
+        meshRenderer->PushBackVertex(vertices[1]);
+        meshRenderer->PushBackVertex(vertices[2]);
+
+        meshRenderer->PushBackIndex(indices[0]);
+        meshRenderer->PushBackIndex(indices[1]);
+        meshRenderer->PushBackIndex(indices[2]);
+
+        Mesh mesh;
+        mesh.SetIndexCount(3);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
+    }
+    break;
+
     case EVertexLayout_Full:
     {
         MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
@@ -348,6 +383,46 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         vertices[1].SetTexCoordUV(0.0f, 0.0f);
         vertices[2].SetTexCoordUV(0.0f, 1.0f);
         vertices[3].SetTexCoordUV(1.0f, 1.0f);
+
+        meshRenderer->PushBackVertex(vertices[0]);
+        meshRenderer->PushBackVertex(vertices[1]);
+        meshRenderer->PushBackVertex(vertices[2]);
+        meshRenderer->PushBackVertex(vertices[3]);
+
+        meshRenderer->PushBackIndex(indices[0]);
+        meshRenderer->PushBackIndex(indices[1]);
+        meshRenderer->PushBackIndex(indices[2]);
+        meshRenderer->PushBackIndex(indices[3]);
+        meshRenderer->PushBackIndex(indices[4]);
+        meshRenderer->PushBackIndex(indices[5]);
+
+        Mesh mesh;
+        mesh.SetIndexCount(6);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
+    }
+    break;
+
+    case EVertexLayout_Pos_Normal:
+    {
+        MeshRendererNormal* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererNormal>();
+
+        eosVector(VertexNormal) vertices;
+        vertices.resize(4);
+
+        vertices[0].SetPosition(positions[0]);
+        vertices[1].SetPosition(positions[1]);
+        vertices[2].SetPosition(positions[2]);
+        vertices[3].SetPosition(positions[3]);
+
+        Vector normals[4];
+        GeometryHelper::CalculateNormalPerVertex(positions, indices.data(), 6, normals);
+
+        vertices[0].SetNormal(normals[0]);
+        vertices[1].SetNormal(normals[1]);
+        vertices[2].SetNormal(normals[2]);
+        vertices[3].SetNormal(normals[3]);
 
         meshRenderer->PushBackVertex(vertices[0]);
         meshRenderer->PushBackVertex(vertices[1]);
@@ -745,6 +820,35 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
     }
     break;
 
+    case EVertexLayout_Pos_Normal:
+    {
+        MeshRendererNormal* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererNormal>();
+
+        eosVector(VertexNormal) vertices;
+        vertices.resize(24);
+
+        for (ionU32 i = 0, j = 0; i < 24; ++i, j += 2)
+        {
+            vertices[i].SetPosition(positions[i]);
+            vertices[i].SetNormal(normals[i]);
+        }
+        for (ionU32 i = 0; i < 24; ++i)
+        {
+            meshRenderer->PushBackVertex(vertices[i]);
+        }
+        for (ionU32 i = 0; i < 36; ++i)
+        {
+            meshRenderer->PushBackIndex(indices[i]);
+        }
+
+        Mesh mesh;
+        mesh.SetIndexCount(36);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
+    }
+    break;
+
     case EVertexLayout_Pos_UV_Normal:
     {
         MeshRendererSimple* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererSimple>();
@@ -1051,6 +1155,77 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         {
             vertices[i].SetPosition(positions[i]);
             vertices[i].SetTexCoordUV(uvuv[i]);
+        }
+        for (ionU32 i = 0; i < verticesSize; ++i)
+        {
+            meshRenderer->PushBackVertex(vertices[i]);
+        }
+        for (ionU32 i = 0; i < indicesSize; ++i)
+        {
+            meshRenderer->PushBackIndex(indices[i]);
+        }
+
+        Mesh mesh;
+        mesh.SetIndexCount(indicesSize);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
+    }
+    break;
+
+    case EVertexLayout_Pos_Normal:
+    {
+        MeshRendererNormal* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererNormal>();
+
+        eosVector(VertexNormal) vertices;
+
+        const ionU32 verticesSize = rings * sectors;
+        const ionU32 indicesSize = rings * sectors * 6;
+
+        const ionFloat R = 1.0f / static_cast<ionFloat>(rings - 1);
+        const ionFloat S = 1.0f / static_cast<ionFloat>(sectors - 1);
+        ionS32 r, s;
+
+        vertices.resize(verticesSize);
+        indices.resize(indicesSize);
+
+        positions.resize(verticesSize);
+        normals.resize(verticesSize);
+
+        std::vector<Vector>::iterator v = positions.begin();
+        std::vector<Vector>::iterator n = normals.begin();
+
+        for (r = 0; r < rings; ++r)
+        {
+            for (s = 0; s < sectors; ++s)
+            {
+                const ionFloat y = std::sin(-MathHelper::kHalfPI + MathHelper::kPI * r * R);
+                const ionFloat x = std::cos(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
+                const ionFloat z = std::sin(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
+
+                *v++ = VectorHelper::Set(x * radius, y * radius, z * radius, 1.0f);
+                *n++ = VectorHelper::Set(x, y, z, 1.0f);
+            }
+        }
+
+        std::vector<Index>::iterator i = indices.begin();
+        for (r = 0; r < rings; ++r)
+        {
+            for (s = 0; s < sectors; ++s)
+            {
+                *i++ = r * sectors + s;
+                *i++ = (r + 1) * sectors + s;
+                *i++ = (r + 1) * sectors + (s + 1) % sectors;
+                *i++ = r * sectors + s;
+                *i++ = (r + 1) * sectors + (s + 1) % sectors;
+                *i++ = r * sectors + (s + 1) % sectors;
+            }
+        }
+
+        for (ionU32 i = 0; i < verticesSize; ++i)
+        {
+            vertices[i].SetPosition(positions[i]);
+            vertices[i].SetNormal(normals[i]);
         }
         for (ionU32 i = 0; i < verticesSize; ++i)
         {

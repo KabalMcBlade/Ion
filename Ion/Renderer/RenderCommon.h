@@ -697,6 +697,80 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
     }
 };
 
+
+
+//////////////////////////////////////////////////////////////////////////
+
+// 20 -> 32
+ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexNormal
+{
+    Vector              m_position;             // 16 byte
+    ionU8               m_normal[4];            // 4 byte
+
+    VertexNormal()
+    {
+        Clear();
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // CLEAR
+
+    ION_INLINE void Clear()
+    {
+        m_position = VectorHelper::GetZero();
+        memset(m_normal, 0, sizeof(m_normal));
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////
+    // GETTER
+
+    ION_INLINE Vector GetPosition() const
+    {
+        return m_position;
+    }
+
+    ION_INLINE Vector GetNormal() const
+    {
+        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
+        v.Normalize();
+        return v;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // SETTER
+
+    ION_INLINE void SetPosition(const Vector& _position)
+    {
+        m_position = _position;
+    }
+
+    ION_INLINE void SetPosition(ionFloat _x, ionFloat _y, ionFloat _z)
+    {
+        m_position = Vector(_x, _y, _z, 1.0f);
+    }
+
+    ION_INLINE void SetNormal(const Vector& _normal)
+    {
+        MathHelper::VectorToByte(_normal, m_normal);
+    }
+
+    ION_INLINE void SetNormal(ionFloat _x, ionFloat _y, ionFloat _z)
+    {
+        MathHelper::VectorToByte(_x, _y, _z, m_normal);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // FUNCTIONS
+
+    ION_INLINE void Lerp(const VertexNormal& _a, const VertexNormal& _b, const ionFloat _t)
+    {
+        const Vector t(_t);
+        m_position = VectorHelper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
+    }
+};
+
+
 //////////////////////////////////////////////////////////////////////////
 
 // 20 -> 32

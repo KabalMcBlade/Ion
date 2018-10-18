@@ -171,6 +171,41 @@ EVertexLayout MeshRendererUV::GetLayout() const
 }
 
 //////////////////////////////////////////////////////////////////////////
+MeshRendererNormal::MeshRendererNormal() : BaseMeshRenderer()
+{
+}
+
+MeshRendererNormal::~MeshRendererNormal()
+{
+    m_vertices.clear();
+}
+
+void MeshRendererNormal::PushBackVertex(const VertexNormal& _vertex)
+{
+    m_vertices.push_back(_vertex);
+}
+
+const ionU32 MeshRendererNormal::GetVertexDataCount() const
+{
+    return static_cast<ionU32>(m_vertices.size());
+}
+
+const void* MeshRendererNormal::GetVertexData() const
+{
+    return m_vertices.data();
+}
+
+ionSize MeshRendererNormal::GetSizeOfVertex() const
+{
+    return sizeof(VertexNormal);
+}
+
+EVertexLayout MeshRendererNormal::GetLayout() const
+{
+    return EVertexLayout_Pos_Normal;
+}
+
+//////////////////////////////////////////////////////////////////////////
 MeshRendererSimple::MeshRendererSimple() : BaseMeshRenderer()
 {
 }

@@ -145,6 +145,32 @@ void ShaderProgramHelper::CreateVertexDescriptor()
     }
 
     {
+        ShaderVertexLayout& vertexLayout = *m_vertexLayouts[EVertexLayout::EVertexLayout_Pos_Normal];
+
+        vertexLayout.m_inputState = createInfo;
+
+        ionU32 locationIndex = 0;
+        ionU32 locationOffset = 0;
+
+        binding.stride = sizeof(VertexNormal);
+        binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+        vertexLayout.m_bindinggDescription.push_back(binding);
+
+        // Position
+        attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+        attribute.location = locationIndex++;
+        attribute.offset = locationOffset;
+        vertexLayout.m_attributegDescription.push_back(attribute);
+        locationOffset += sizeof(VertexNormal::m_position);
+
+        // Normal
+        attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
+        attribute.location = locationIndex++;
+        attribute.offset = locationOffset;
+        vertexLayout.m_attributegDescription.push_back(attribute);
+    }
+
+    {
         ShaderVertexLayout& vertexLayout = *m_vertexLayouts[EVertexLayout::EVertexLayout_Pos_UV];
 
         vertexLayout.m_inputState = createInfo;

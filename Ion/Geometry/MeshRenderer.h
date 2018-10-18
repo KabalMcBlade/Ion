@@ -109,6 +109,25 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////
+class ION_DLL MeshRendererNormal final : public BaseMeshRenderer
+{
+public:
+    MeshRendererNormal();
+    virtual ~MeshRendererNormal();
+
+    virtual EVertexLayout GetLayout() const override final;
+
+    void PushBackVertex(const VertexNormal& _vertex);
+
+    virtual const ionU32 GetVertexDataCount() const override final;
+    virtual const void* GetVertexData() const override final;
+    virtual ionSize GetSizeOfVertex() const override final;
+
+private:
+    eosVector(VertexNormal)   m_vertices;
+};
+
+//////////////////////////////////////////////////////////////////////////
 class ION_DLL MeshRendererSimple final : public BaseMeshRenderer
 {
 public:
