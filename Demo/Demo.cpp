@@ -196,7 +196,7 @@ int main(int argc, char **argv)
     window.GetCommandLineParse().AddWithValue<eosString>("-model", false);
     window.GetCommandLineParse().AddWithValue<eosString>("-primitive", false);
     window.GetCommandLineParse().Add("-usepath", false);
-
+    window.GetCommandLineParse().Add("-dumpgltf", false);
 
     if (!window.ParseCommandLine(argc, argv))
     {
@@ -311,7 +311,7 @@ int main(int argc, char **argv)
             model = ionFileSystemManager().GetModelsPath() + modelVar;
         }
 
-        ionRenderManager().LoadModelFromFile(model, camera, testHandle);
+        ionRenderManager().LoadModelFromFile(model, camera, testHandle, false, false, false, window.GetCommandLineParse().IsSet("-dumpgltf"));
     }
     else if (window.GetCommandLineParse().HasValue("-primitive"))
     {
