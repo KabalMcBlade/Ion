@@ -255,11 +255,11 @@ void GeometryHelper::CalculateTangent(
         const Vector& t = tan1[i];
 
         // Gram-Schmidt orthogonalized
-        _outTangentVectorArray[i] = (t - n * n.Dot(t)).Normalize();
+        _outTangentVectorArray[i] = (t - n * n.Dot3(t)).Normalize();
 
         // Calculate handedness
         const Vector a = n.Cross(t);
-        const Vector d = a.Dot(tan2[i]);
+        const Vector d = a.Dot3(tan2[i]);
         const ionFloat dot = VectorHelper::ExtractElement_0(d);
         const ionFloat tangentW = (dot < 0.0f) ? -1.0f : 1.0f;
         

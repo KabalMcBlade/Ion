@@ -339,7 +339,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
     {
         const Vector& v = GetNormal();
         Vector b = v.Cross(GetTangent());
-        SetBiTangentSign(VectorHelper::ExtractElement_0(b.Dot(_tangent)));
+        SetBiTangentSign(VectorHelper::ExtractElement_0(b.Dot3(_tangent)));
     }
 
     ION_INLINE void SetBiTangent(ionFloat _x, ionFloat _y, ionFloat _z)
@@ -1061,7 +1061,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
     {
         const Vector& v = GetNormal();
         Vector b = v.Cross(GetTangent());
-        SetBiTangentSign(VectorHelper::ExtractElement_0(b.Dot(_tangent)));
+        SetBiTangentSign(VectorHelper::ExtractElement_0(b.Dot3(_tangent)));
     }
 
     ION_INLINE void SetBiTangent(ionFloat _x, ionFloat _y, ionFloat _z)
