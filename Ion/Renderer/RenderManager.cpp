@@ -425,7 +425,7 @@ const Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
 
     Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
 
-    cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(brdflut->GetWidth()) / static_cast<ionFloat>(brdflut->GetHeight()), 0.1f, 256.0f);
+    cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(brdflut->GetWidth()) / static_cast<ionFloat>(brdflut->GetHeight()), 0.1f, 100.0f);
 
     Entity* brdflutEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler brdflutEntityHandle(brdflutEntity);
@@ -549,7 +549,7 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
     // generation of the entity and camera render
     Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
 
-    cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(irradiance->GetWidth()) / static_cast<ionFloat>(irradiance->GetHeight()), 0.1f, 256.0f);
+    cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(irradiance->GetWidth()) / static_cast<ionFloat>(irradiance->GetHeight()), 0.1f, 100.0f);
 
     Entity* irradianceEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler irradianceEntityHandle(irradianceEntity);
@@ -834,7 +834,7 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
     // generation of the entity and camera render
     Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
 
-    cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(prefilteredEnvironment->GetWidth()) / static_cast<ionFloat>(prefilteredEnvironment->GetHeight()), 0.1f, 256.0f);
+    cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(prefilteredEnvironment->GetWidth()) / static_cast<ionFloat>(prefilteredEnvironment->GetHeight()), 0.1f, 100.0f);
 
     Entity* prefilteredEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
     ObjectHandler prefilteredEntityHandle(prefilteredEntity);

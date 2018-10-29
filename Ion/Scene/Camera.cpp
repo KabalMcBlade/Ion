@@ -124,17 +124,16 @@ void Camera::UpdateView()
 {
     static const Matrix identity;
 
-    const Matrix scale = identity.Scale(GetTransform().GetScale());
     const Matrix rotate = GetTransform().GetRotation().ToMatrix();
     const Matrix translate = identity.Translate(GetTransform().GetPosition());
 
     if (m_type == ECameraType::ECameraType_LookAt)
     {
-        m_view = rotate * translate * scale;
+        m_view = rotate * translate;
     }
     else
     {
-        m_view = scale * translate * rotate;
+        m_view = translate * rotate;
     }
 
     m_frustum.Update(m_projection, m_view);

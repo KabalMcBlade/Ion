@@ -402,7 +402,7 @@ int main(int argc, char **argv)
         ion::Camera* cameraLightDebug = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE, "DebugLightCamera", false);
         ObjectHandler cameraLightDebugHandle(cameraLightDebug);
         cameraLightDebug->SetCameraType(ion::Camera::ECameraType::ECameraType_LookAt);
-        cameraLightDebug->SetPerspectiveProjection(45.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 100.0f);
+        cameraLightDebug->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 100.0f);
         cameraLightDebug->SetRenderPassParameters(1.0f, 0, 0.0f, 1.0f, 0.0f);
         cameraLightDebug->SetViewportParameters(0.0f, 0.0f, 0.25f, 0.25f, 0.0f, 1.0f);
         cameraLightDebug->SetScissorParameters(0.0f, 0.0f, 0.25f, 0.25f);

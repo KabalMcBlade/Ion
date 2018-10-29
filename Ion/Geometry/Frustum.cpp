@@ -45,7 +45,7 @@ void Frustum::ExtractFrustumsCorners(const Matrix& _inverseMatrix, Corners& _out
     for (ionU8 i = 0; i < EFrustumCorner::EFrustumCorner_Count; ++i)
     {
         Vector corner = _inverseMatrix * _outCorners.m_corners[i];
-        Vector cornerW = VectorHelper::ExtractElement_3(corner);
+        Vector cornerW = VectorHelper::ExtractW(corner);
 
         _outCorners.m_corners[i] = corner / cornerW;
     }

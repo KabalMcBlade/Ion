@@ -195,31 +195,31 @@ void GeometryHelper::CalculateTangent(
         const Vector& v2 = _vectorArray[i2];
         const Vector& v3 = _vectorArray[i3];
 
-        const ionFloat v1_x = VectorHelper::ExtractElement_0(v1);
-        const ionFloat v1_y = VectorHelper::ExtractElement_1(v1);
-        const ionFloat v1_z = VectorHelper::ExtractElement_2(v1);
+        const ionFloat v1_x = VectorHelper::ExtractX(v1);
+        const ionFloat v1_y = VectorHelper::ExtractY(v1);
+        const ionFloat v1_z = VectorHelper::ExtractZ(v1);
 
-        const ionFloat v2_x = VectorHelper::ExtractElement_0(v2);
-        const ionFloat v2_y = VectorHelper::ExtractElement_1(v2);
-        const ionFloat v2_z = VectorHelper::ExtractElement_2(v2);
+        const ionFloat v2_x = VectorHelper::ExtractX(v2);
+        const ionFloat v2_y = VectorHelper::ExtractY(v2);
+        const ionFloat v2_z = VectorHelper::ExtractZ(v2);
 
-        const ionFloat v3_x = VectorHelper::ExtractElement_0(v3);
-        const ionFloat v3_y = VectorHelper::ExtractElement_1(v3);
-        const ionFloat v3_z = VectorHelper::ExtractElement_2(v3);
+        const ionFloat v3_x = VectorHelper::ExtractX(v3);
+        const ionFloat v3_y = VectorHelper::ExtractY(v3);
+        const ionFloat v3_z = VectorHelper::ExtractZ(v3);
 
         //
         const Vector& w1 = _textCoordUVUVArray[i1];
         const Vector& w2 = _textCoordUVUVArray[i2];
         const Vector& w3 = _textCoordUVUVArray[i3];
 
-        const ionFloat w1_u = VectorHelper::ExtractElement_0(w1);
-        const ionFloat w1_v = VectorHelper::ExtractElement_1(w1);
+        const ionFloat w1_u = VectorHelper::ExtractX(w1);
+        const ionFloat w1_v = VectorHelper::ExtractY(w1);
 
-        const ionFloat w2_u = VectorHelper::ExtractElement_0(w2);
-        const ionFloat w2_v = VectorHelper::ExtractElement_1(w2);
+        const ionFloat w2_u = VectorHelper::ExtractX(w2);
+        const ionFloat w2_v = VectorHelper::ExtractY(w2);
 
-        const ionFloat w3_u = VectorHelper::ExtractElement_0(w3);
-        const ionFloat w3_v = VectorHelper::ExtractElement_1(w3);
+        const ionFloat w3_u = VectorHelper::ExtractX(w3);
+        const ionFloat w3_v = VectorHelper::ExtractY(w3);
 
         //
         const ionFloat x1 = v2_x - v1_x;
@@ -260,13 +260,13 @@ void GeometryHelper::CalculateTangent(
         // Calculate handedness
         const Vector a = n.Cross(t);
         const Vector d = a.Dot3(tan2[i]);
-        const ionFloat dot = VectorHelper::ExtractElement_0(d);
+        const ionFloat dot = VectorHelper::ExtractX(d);
         const ionFloat tangentW = (dot < 0.0f) ? -1.0f : 1.0f;
         
         // Very ugly, but because I need just here I'm no doing a new SSE helper for now
-        const ionFloat tangentX = VectorHelper::ExtractElement_0(_outTangentVectorArray[i]);
-        const ionFloat tangentY = VectorHelper::ExtractElement_1(_outTangentVectorArray[i]);
-        const ionFloat tangentZ = VectorHelper::ExtractElement_2(_outTangentVectorArray[i]);
+        const ionFloat tangentX = VectorHelper::ExtractX(_outTangentVectorArray[i]);
+        const ionFloat tangentY = VectorHelper::ExtractY(_outTangentVectorArray[i]);
+        const ionFloat tangentZ = VectorHelper::ExtractZ(_outTangentVectorArray[i]);
 
         _outTangentVectorArray[i] = VectorHelper::Set(tangentX, tangentY, tangentZ, tangentW);
     }

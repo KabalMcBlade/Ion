@@ -185,6 +185,7 @@
     <ClInclude Include="Dependencies\Nix\Nix\Matrix.h" />
     <ClInclude Include="Dependencies\Nix\Nix\MatrixHelper.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Nix.h" />
+    <ClInclude Include="Dependencies\Nix\Nix\Operators.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Quaternion.h" />
     <ClInclude Include="Dependencies\Nix\Nix\sse_mathfun.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Types.h" />

@@ -29,16 +29,17 @@ Ray::~Ray()
 
 void Ray::Set(const Vector& _origin, const Vector& _direction)
 {
+    static const Vector one = VectorHelper::GetOne();
     m_origin = _origin;
     m_direction = _direction;
-    m_inverseDirection = VectorHelper::GetOne() / _direction;
+    m_inverseDirection = one / _direction;
 }
 
 void Ray::Set(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector& _worldRayOrigin, const Matrix& _inverseMatrix)
 {
     Vector screenPos(_relMousePosX * 2.0f - 1.0f, _relMousePosY * 2.0f - 1.0f, 1.0f, 1.0f);
     Vector worldPos = _inverseMatrix * screenPos;
-    Vector worldPosWWWW = VectorHelper::ExtractElement_3(worldPos);
+    Vector worldPosWWWW = VectorHelper::ExtractW(worldPos);
     worldPos /= worldPosWWWW;
     Set(_worldRayOrigin, VectorHelper::Normalize(worldPos - _worldRayOrigin));
 }

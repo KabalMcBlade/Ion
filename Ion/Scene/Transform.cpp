@@ -54,10 +54,9 @@ const Matrix& Transform::GetMatrix()
     {
         static const Matrix identity;
 
-        Matrix scale = identity.Scale(m_scale);
-        Matrix rotate = m_rotation.ToMatrix();
-        Matrix translate = identity.Translate(m_position);
-
+        const Matrix scale = identity.Scale(m_scale);
+        const Matrix rotate = m_rotation.ToMatrix();
+        const Matrix translate = identity.Translate(m_position);
         m_matrix = scale * rotate * translate;
 
         m_dirty = false;

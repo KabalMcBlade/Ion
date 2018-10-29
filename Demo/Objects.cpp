@@ -8,7 +8,7 @@ ionBool MainCamera::m_toggleLightRotation = false;
 // ENTITIES
 
 
-DirectionalLightDebugEntity::DirectionalLightDebugEntity() : Entity("DirectionalLightDebugEntity"), m_mouseSensitivity(0.05f), m_rotating(false)
+DirectionalLightDebugEntity::DirectionalLightDebugEntity() : Entity("DirectionalLightDebugEntity"), m_mouseSensitivity(0.05f)
 {
 
 }
@@ -24,34 +24,6 @@ void DirectionalLightDebugEntity::OnUpdate(ionFloat _deltaTime)
     {
         SetVisible(MainCamera::m_toggleLightRotation);
     }
-
-    if (MainCamera::m_toggleLightRotation)
-    {
-        static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
-        static const Vector axis(0.0f, 1.0f, 0.0f, 0.0f);
-        static ionFloat radRotated = 0.0f;
-
-        if (m_rotating)
-        {
-            const Quaternion& prevRot = GetTransform().GetRotation();
-
-            std::random_device rd;
-            std::mt19937 e2(rd());
-            std::uniform_real_distribution<> distribution(0.0f, 90.0f);
-
-            const ionFloat x = (ionFloat)distribution(e2);
-            const ionFloat y = (ionFloat)distribution(e2);
-            const ionFloat z = (ionFloat)distribution(e2);
-
-            Vector eulerRandom(x, y, z, 1.0f);
-            Quaternion currRot; currRot.SetFromEuler(eulerRandom);
-
-            //Quaternion currRot = Quaternion(radPerFrame, axis);
-            currRot = currRot * prevRot;
-
-            GetTransform().SetRotation(currRot);
-        }
-    }
 }
 
 void DirectionalLightDebugEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime)
@@ -66,11 +38,7 @@ void DirectionalLightDebugEntity::OnMouseInput(const ion::MouseState& _mouseStat
 
         const Quaternion& prevRot = GetTransform().GetRotation();
 
-        Matrix rotationMatrix;
-        rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(xOffset), NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(0.0f));
-
-        Quaternion currRot;
-        currRot.SetFromMatrix(rotationMatrix);
+        Quaternion currRot(NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
 
         currRot = currRot * prevRot;
 
@@ -180,11 +148,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
             const Quaternion& prevRot = GetTransform().GetRotation();
 
-            Matrix rotationMatrix;
-            rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(xOffset), NIX_DEG_TO_RAD(yOffset), NIX_DEG_TO_RAD(0.0f));
-
-            Quaternion currRot;
-            currRot.SetFromMatrix(rotationMatrix);
+            Quaternion currRot(NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
 
             currRot = currRot * prevRot;
 
@@ -202,8 +166,8 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
             ionFloat velocity = m_movementSpeed * _deltaTime;
 
             const Quaternion& orientation = m_camera->GetTransform().GetRotation();
-            const Vector newRight = right * orientation;
-            const Vector newUp = up * orientation;
+            const Vector newRight =  orientation * right;
+            const Vector newUp = orientation * up;
 
             const Vector dir = newRight * xOffset + newUp * yOffset;
 
@@ -258,11 +222,7 @@ void MainCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _delt
 
         const Quaternion& prevRot = directionalLight->GetTransform().GetRotation();
 
-        Matrix rotationMatrix;
-        rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(xOffset), NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(0.0f));
-
-        Quaternion currRot;
-        currRot.SetFromMatrix(rotationMatrix);
+        Quaternion currRot(NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
 
         currRot = currRot * prevRot;
 
@@ -280,11 +240,7 @@ void MainCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _delt
 
             const Quaternion& prevRot = GetTransform().GetRotation();
 
-            Matrix rotationMatrix;
-            rotationMatrix.SetFromYawPitchRoll(NIX_DEG_TO_RAD(xOffset), NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(0.0f));
-
-            Quaternion currRot;
-            currRot.SetFromMatrix(rotationMatrix);
+            Quaternion currRot(NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
 
             currRot = currRot * prevRot;
 
