@@ -1520,7 +1520,7 @@ void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _mod
                                 const ionFloat *bufferVector = reinterpret_cast<const ionFloat *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
                                 for (ionSize a = 0; a < accessor.count; ++a)
                                 {
-                                    Vector v((&bufferVector[a * 3])[0], ((&bufferVector[a * 3])[1]), (&bufferVector[a * 3])[2], (&bufferVector[a * 3])[3]);
+                                    Vector v((&bufferVector[a * 4])[0], ((&bufferVector[a * 4])[1]), (&bufferVector[a * 4])[2], (&bufferVector[a * 4])[3]);
                                     ionSampler.PushBackOutputLinearPath(v);
                                 }
                                 break;
@@ -1531,7 +1531,7 @@ void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _mod
                                 const ionU16 *bufferVector = reinterpret_cast<const ionU16 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
                                 for (ionSize a = 0; a < accessor.count; ++a)
                                 {
-                                    Vector v(ionFloat((&bufferVector[a * 3])[0]) / 65535.0f, ionFloat((&bufferVector[a * 3])[1]) / 65535.0f, ionFloat((&bufferVector[a * 3])[2]) / 65535.0f, ionFloat((&bufferVector[a * 3])[3]) / 65535.0f);
+                                    Vector v(ionFloat((&bufferVector[a * 4])[0]) / 65535.0f, ionFloat((&bufferVector[a * 4])[1]) / 65535.0f, ionFloat((&bufferVector[a * 4])[2]) / 65535.0f, ionFloat((&bufferVector[a * 4])[3]) / 65535.0f);
                                     ionSampler.PushBackOutputLinearPath(v);
                                 }
                                 break;
@@ -1542,7 +1542,7 @@ void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _mod
                                 const ionU8 *bufferVector = reinterpret_cast<const ionU8 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
                                 for (ionSize a = 0; a < accessor.count; ++a)
                                 {
-                                    Vector v(ionFloat((&bufferVector[a * 3])[0]) / 255.0f, ionFloat((&bufferVector[a * 3])[1]) / 255.0f, ionFloat((&bufferVector[a * 3])[2]) / 255.0f, ionFloat((&bufferVector[a * 3])[3]) / 255.0f);
+                                    Vector v(ionFloat((&bufferVector[a * 4])[0]) / 255.0f, ionFloat((&bufferVector[a * 4])[1]) / 255.0f, ionFloat((&bufferVector[a * 4])[2]) / 255.0f, ionFloat((&bufferVector[a * 4])[3]) / 255.0f);
                                     ionSampler.PushBackOutputLinearPath(v);
                                 }
                                 break;
@@ -1553,7 +1553,7 @@ void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _mod
                                 const ionS16 *bufferVector = reinterpret_cast<const ionS16 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
                                 for (ionSize a = 0; a < accessor.count; ++a)
                                 {
-                                    Vector v(std::max(ionFloat((&bufferVector[a * 3])[0]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 3])[1]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 3])[2]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 3])[3]) / 32767.0f, -1.0f));
+                                    Vector v(std::max(ionFloat((&bufferVector[a * 4])[0]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[1]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[2]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[3]) / 32767.0f, -1.0f));
                                     ionSampler.PushBackOutputLinearPath(v);
                                 }
                                 break;
@@ -1564,7 +1564,7 @@ void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _mod
                                 const ionS8 *bufferVector = reinterpret_cast<const ionS8 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
                                 for (ionSize a = 0; a < accessor.count; ++a)
                                 {
-                                    Vector v(std::max(ionFloat((&bufferVector[a * 3])[0]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 3])[1]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 3])[2]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 3])[3]) / 127.0f, -1.0f));
+                                    Vector v(std::max(ionFloat((&bufferVector[a * 4])[0]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[1]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[2]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[3]) / 127.0f, -1.0f));
                                     ionSampler.PushBackOutputLinearPath(v);
                                 }
                                 break;

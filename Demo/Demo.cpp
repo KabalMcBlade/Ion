@@ -360,7 +360,7 @@ int main(int argc, char **argv)
         {
             if (animationRenderer->GetAnimationCount() > 0)
             {
-                animationRenderer->SetAnimationSpeedMultiplier(0.05f);
+                animationRenderer->SetAnimationSpeedMultiplier(0.25f);
                 animationRenderer->SetAnimationToPlay(0);
             }
         }
