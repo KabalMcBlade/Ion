@@ -40,7 +40,7 @@ void DirectionalLightDebugEntity::OnMouseInput(const ion::MouseState& _mouseStat
 
         Quaternion currRot(NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
 
-        currRot = currRot * prevRot;
+        currRot = prevRot * currRot;
 
         GetTransform().SetRotation(currRot);
     }
@@ -81,7 +81,7 @@ void RotatingEntity::OnUpdate(ionFloat _deltaTime)
         const Quaternion& prevRot = GetTransform().GetRotation();
 
         Quaternion currRot = Quaternion(radPerFrame, axis);
-        currRot = currRot * prevRot;
+        currRot = prevRot * currRot;
 
         GetTransform().SetRotation(currRot);
     }
@@ -150,7 +150,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
             Quaternion currRot(NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
 
-            currRot = currRot * prevRot;
+            currRot = prevRot * currRot;
 
             GetTransform().SetRotation(currRot);
         }
@@ -224,7 +224,7 @@ void MainCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _delt
 
         Quaternion currRot(NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
 
-        currRot = currRot * prevRot;
+        currRot = prevRot * currRot;
 
         directionalLight->GetTransform().SetRotation(currRot);
     }
@@ -240,9 +240,9 @@ void MainCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _delt
 
             const Quaternion& prevRot = GetTransform().GetRotation();
 
-            Quaternion currRot(NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
+            Quaternion currRot(NIX_DEG_TO_RAD(yOffset), NIX_DEG_TO_RAD(-xOffset), 0.0f);
 
-            currRot = currRot * prevRot;
+            currRot = prevRot * currRot;
 
             GetTransform().SetRotation(currRot);
         }

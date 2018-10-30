@@ -289,7 +289,7 @@ int main(int argc, char **argv)
     camera->Update(0.0f);
     camera->UpdateView();
 
-
+    
     //////////////////////////////////////////////////////////////////////////
     // Create Entity to render
     RotatingEntity* test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE, "GameEntity");
@@ -368,7 +368,7 @@ int main(int argc, char **argv)
 
     // set camera to rotating object
     test->SetCameraReference(camera);
-
+    
     // first full the scene graph
     ionRenderManager().AddToSceneGraph(cameraHandle);
     ionRenderManager().AddToSceneGraph(testHandle);
@@ -378,7 +378,7 @@ int main(int argc, char **argv)
     ionRenderManager().RegisterToInput(cameraHandle);
     ionRenderManager().RegisterToInput(testHandle);
 
-
+    
     ionRenderManager().AddDirectionalLight();
     DirectionalLight* directionalLight = ionRenderManager().GetDirectionalLight();
 
@@ -435,7 +435,7 @@ int main(int argc, char **argv)
         dirlLightDebugEntity->GetTransform().SetRotation(lightRot);
     }
 
-
+    
     if (rendererInitialized)
     {
         window.Loop();

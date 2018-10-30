@@ -159,6 +159,7 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
                             Quaternion rot2 = sampler.GetLinearPath(i + 1);
 
                             Quaternion rotation = rot1.Slerp(rot2, t);
+                            rotation = rotation.Normalize();
                             channel.GetNode()->GetTransform().SetRotation(rotation);
                             break;
                         }
@@ -204,6 +205,7 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
                             Quaternion rot2 = sampler.GetLinearPath(i + 1);
 
                             Quaternion rotation = rot1.StepTo(rot2, t);
+                            rotation = rotation.Normalize();
                             channel.GetNode()->GetTransform().SetRotation(rotation);
                             break;
                         }
@@ -267,6 +269,8 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
                             Vector u(t);
 
                             Quaternion rotation = VectorHelper::HermiteCubicSpline(p0, m0, p1, m1, u);
+
+                            rotation = rotation.Normalize();
 
                             channel.GetNode()->GetTransform().SetRotation(rotation);
                             break;
