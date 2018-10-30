@@ -652,12 +652,12 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
         }
 
         eosVector(Quaternion) rotations;
-        rotations.push_back(Quaternion(0.0f, 0.707f, 0.0f, 0.707f));
-        rotations.push_back(Quaternion(0.0f, -0.707f, 0.0f, 0.707f));
-        rotations.push_back(Quaternion(0.707f, 0.0f, 0.0f, 0.707f));
-        rotations.push_back(Quaternion(-0.707f, 0.0f, 0.0f, 0.707f));
-        rotations.push_back(Quaternion());
-        rotations.push_back(Quaternion(0.0f, 1.0f, 0.0f, 0.0f));
+        rotations.push_back(Quaternion(0.0f, 0.0f, 0.0f));
+        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(90.0f), 0.0f));
+        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(180.0f), 0.0f));
+        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(270.0f), 0.0f));
+        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), 0.0f, 0.0f));
+        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(270.0f), 0.0f, 0.0f));
 
         for (ionU32 m = 0; m < mipMapsLevel; ++m)
         {
@@ -943,12 +943,12 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
         }
 
         eosVector(Quaternion) rotations;
-        rotations.push_back(Quaternion(0.0f, 0.707f, 0.0f, 0.707f));
-        rotations.push_back(Quaternion(0.0f, -0.707f, 0.0f, 0.707f));
-        rotations.push_back(Quaternion(0.707f, 0.0f, 0.0f, 0.707f));
-        rotations.push_back(Quaternion(-0.707f, 0.0f, 0.0f, 0.707f));
-        rotations.push_back(Quaternion()); 
-        rotations.push_back(Quaternion(0.0f, 1.0f, 0.0f, 0.0f));
+        rotations.push_back(Quaternion(0.0f, 0.0f, 0.0f));
+        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(90.0f), 0.0f));
+        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(180.0f), 0.0f));
+        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(270.0f), 0.0f));
+        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), 0.0f, 0.0f));
+        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(270.0f), 0.0f, 0.0f));
 
         for (ionU32 m = 0; m < mipMapsLevel; ++m)
         {
