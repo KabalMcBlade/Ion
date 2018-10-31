@@ -14,7 +14,8 @@ I'm not planning to do a x86 version
 
 This is a screenshot about a first test on PBR render.
 
-In the top left you can see an "arrow" that indicate (more or less) the orientation of the light, that could be useful when you go in the rotating light directional light mode pressing **L** key.
+If there is any lights accordingly with the materials loaded, the DEMO let you enable the direction lights debug in order to debug the lights pressing the key **L** (see below the control section)
+Actually is a simple arrow in the top left that indicate (more or less) the orientation of the light, that could be useful when you go in the rotating light directional light mode pressing **L** key.
 I did in this way to show you the capabilities to have another camera which render on top of another with another canvas, in fact is not a object rendered at the location but it is another render camera.
 
 Using the DamagedHelmet supplied with this demo (for the license raed the end of this file)
@@ -68,7 +69,7 @@ Otherwise the action is on the object
 * Hold **right mouse button** in order to pan right or left and up or down the object
 * Use the **mouse wheel** to go toward or far away the object
 * Press **R** to auto rotate the model
-* Hold key **G** increase x 10 the wheel speed of the mouse and **H** to increase x 100
+* Hold key **J** increase x 10 the wheel speed of the mouse and **K** to increase x 100
 * Press **U** will decrease the scale by 10, press **I** will increase the scale by 10
 
 Pressing the key **L**, you can change the control from the model to the light
@@ -76,8 +77,8 @@ In this case, toggling the **L** key you will have:
 * Move the mouse without press any button in order to rotate the light
 
 To Debug PBR
-* Press **1**, **2** or **3** to change the active value between esposure, gamma or prefiltered cube mip levels
-* Press **Q** or **Z** to increment or decrement the selected values
+* Press **E**, **G** or **P** to change the active value between esposure, gamma or prefiltered cube mip levels
+* Press **Page Up** or **Page Down** to increment or decrement the selected values
 
 
 ## Important

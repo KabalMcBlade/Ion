@@ -98,7 +98,7 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
                 m_rotating = !m_rotating;
             }
 
-            if (_keyboardState.m_key == ion::EKeyboardKey_G || _keyboardState.m_key == ion::EKeyboardKey_H)
+            if (_keyboardState.m_key == ion::EKeyboardKey_J || _keyboardState.m_key == ion::EKeyboardKey_K)
             {
                 m_incresingWheelSpeed = 1.0f;
             }
@@ -118,11 +118,11 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
 
         if (_keyboardState.m_state == ion::EKeyboardState_Down)
         {
-            if (_keyboardState.m_key == ion::EKeyboardKey_G)
+            if (_keyboardState.m_key == ion::EKeyboardKey_J)
             {
                 m_incresingWheelSpeed = 10.0f;
             }
-            if (_keyboardState.m_key == ion::EKeyboardKey_H)
+            if (_keyboardState.m_key == ion::EKeyboardKey_K)
             {
                 m_incresingWheelSpeed = 100.0f;
             }
@@ -284,7 +284,7 @@ void MainCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFl
             GetTransform().SetPosition(pos);
         }
 
-        if (_keyboardState.m_key == ion::EKeyboardKey_Q)
+        if (_keyboardState.m_key == ion::EKeyboardKey_Prior)
         {
             switch (m_pbrDebug)
             {
@@ -304,7 +304,7 @@ void MainCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFl
                 break;
             }
         }
-        else if (_keyboardState.m_key == ion::EKeyboardKey_Z)
+        else if (_keyboardState.m_key == ion::EKeyboardKey_Next)
         {
             switch (m_pbrDebug)
             {
@@ -346,17 +346,17 @@ void MainCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFl
                 std::cout << "Control applied to the object" << std::endl;
             }
         }
-        else if (_keyboardState.m_key == ion::EKeyboardKey_N1)
+        else if (_keyboardState.m_key == ion::EKeyboardKey_E)
         {
             m_pbrDebug = EPBRDebugType_Exposure;
             std::cout << "Active PBR Debug: Esposure - Current level is " << ionRenderManager().m_exposure << std::endl;
         }
-        else if (_keyboardState.m_key == ion::EKeyboardKey_N2)
+        else if (_keyboardState.m_key == ion::EKeyboardKey_G)
         {
             m_pbrDebug = EPBRDebugType_Gamma;
             std::cout << "Active PBR Debug: Gamma - Current level is " << ionRenderManager().m_gamma << std::endl;
         }
-        else if (_keyboardState.m_key == ion::EKeyboardKey_N3)
+        else if (_keyboardState.m_key == ion::EKeyboardKey_P)
         {
             m_pbrDebug = EPBRDebugType_PrefilteredCubeMipLevels;
             std::cout << "Active PBR Debug: Prefiltered Cube Mip Levels - Current level is " << ionRenderManager().m_prefilteredCubeMipLevels << std::endl;

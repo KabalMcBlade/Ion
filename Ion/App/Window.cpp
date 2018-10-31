@@ -273,11 +273,55 @@ ionBool Window::Loop()
             switch (message.message)
             {
             case ION_KEY_DOWN:
-                KeyDown(MapVirtualKey(LOWORD(message.wParam), MAPVK_VK_TO_CHAR));
-                break;
+            {
+                // https://docs.microsoft.com/en-gb/windows/desktop/inputdev/wm-char
+                LPARAM lParam = message.lParam;
+                ionU32 scanCode = (lParam >> 16) & 0x000000ff; // extract bit 16-23
+                /*
+                ionU32 ext = (lParam >> 24) & 0x00000001; // extract bit 24
+                if (ext == 1)
+                {
+                    scanCode += 128;
+                }
+                */
+                ionU32 virtualKey = MapVirtualKey(scanCode, MAPVK_VSC_TO_VK);
+
+                ionU32 ext = (lParam >> 24) & 0x00000001; // extract bit 24
+                if (ext == 1)
+                {
+                    KeyDown(virtualKey);
+                }
+                else
+                {
+                    KeyDown(MapVirtualKey(virtualKey, MAPVK_VK_TO_CHAR));
+                }
+            }
+            break;
             case ION_KEY_UP:
-                KeyUp(MapVirtualKey(LOWORD(message.wParam), MAPVK_VK_TO_CHAR));
-                break;
+            {
+                // https://docs.microsoft.com/en-gb/windows/desktop/inputdev/wm-char
+                LPARAM lParam = message.lParam;
+                ionU32 scanCode = (lParam >> 16) & 0x000000ff; // extract bit 16-23
+                /*
+                ionU32 ext = (lParam >> 24) & 0x00000001; // extract bit 24
+                if (ext == 1)
+                {
+                    scanCode += 128;
+                }
+                */
+                ionU32 virtualKey = MapVirtualKey(scanCode, MAPVK_VSC_TO_VK);
+
+                ionU32 ext = (lParam >> 24) & 0x00000001; // extract bit 24
+                if (ext == 1)
+                {
+                    KeyUp(virtualKey);
+                }
+                else
+                {
+                    KeyUp(MapVirtualKey(virtualKey, MAPVK_VK_TO_CHAR));
+                }
+            }   
+            break;
             case ION_WND_RESIZE:
                 resize = true;
                 break;
