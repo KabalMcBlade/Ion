@@ -33,7 +33,7 @@ void CommandLineParser::Add(const eosString& _option, ionBool _mandatory /*= tru
 ionBool CommandLineParser::Parse(ionS32 argc, const char * const argv[])
 {
     // Parse the command line and set the value to the option
-    // can fail if any errors occured
+    // can fail if any errors occurred
     for (ionS32 i = 1; i < argc; ++i)
     {
         if (strncmp(argv[i], "-", 1) == 0) 

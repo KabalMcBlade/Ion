@@ -158,6 +158,71 @@ const T& OptionValue<T>::GetValue() const
 
 //////////////////////////////////////////////////////////////////////////
 
+template <>
+class OptionValue<eosString> : public Option
+{
+public:
+    ION_INLINE OptionValue();
+    ION_INLINE virtual ~OptionValue();
+
+    ION_INLINE virtual ionBool NeedValue() const override;
+    ION_INLINE virtual ionBool HasValue() const override;
+    ION_INLINE virtual ionBool HasDefault() const override;
+
+    ION_INLINE void SetDefault(eosString _value);
+    ION_INLINE const eosString& GetValue() const;
+    ION_INLINE void Parse();
+
+private:
+    eosString m_value;
+    eosString m_default;
+    ionBool m_hasDefault;
+};
+
+ION_INLINE OptionValue<eosString>::OptionValue() : Option(), m_hasDefault(false)
+{
+
+}
+
+ION_INLINE OptionValue<eosString>::~OptionValue()
+{
+
+}
+
+ION_INLINE void OptionValue<eosString>::Parse()
+{
+    m_value = m_stringValue;
+}
+
+ION_INLINE ionBool OptionValue<eosString>::NeedValue() const
+{
+    return true;
+}
+
+ION_INLINE ionBool OptionValue<eosString>::HasValue() const
+{
+    return !m_stringValue.empty();
+}
+
+ION_INLINE ionBool OptionValue<eosString>::HasDefault() const
+{
+    return m_hasDefault;
+}
+
+ION_INLINE void OptionValue<eosString>::SetDefault(eosString _value)
+{
+    m_default = _value;
+    m_hasDefault = true;
+}
+
+ION_INLINE const eosString& OptionValue<eosString>::GetValue() const
+{
+    return HasValue() ? m_value : m_default;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
 class ION_DLL CommandLineParser final
 {
 public:
