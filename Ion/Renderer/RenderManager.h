@@ -82,7 +82,8 @@ public:
     void    PrepareToShutDown();
 
     void    Resize(ionS32& _outNewWidth, ionS32 _outNewHeight);
-    void    Prepare();
+    void    Begin();
+    void    End();
     void    CoreLoop();
 
     void    SendMouseInput(const MouseState& _mouseState);

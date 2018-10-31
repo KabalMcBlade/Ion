@@ -263,7 +263,7 @@ ionBool Window::Loop()
 
     m_skipNextMouseMove = false;
 
-    ionRenderManager().Prepare();
+    ionRenderManager().Begin();
 
     while (loop)
     {
@@ -383,6 +383,8 @@ ionBool Window::Loop()
             }
         }
     }
+
+    ionRenderManager().End();
 
     return result;
 }

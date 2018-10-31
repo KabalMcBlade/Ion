@@ -80,6 +80,10 @@ To Debug PBR
 * Press **E**, **G** or **P** to change the active value between esposure, gamma or prefiltered cube mip levels
 * Press **Page Up** or **Page Down** to increment or decrement the selected values
 
+Animations: (NOTE: for now supported only animation, not morph/target or skinning)
+* Press **Up arrow** or **Down arrow** to change animation to play (if any)
+* Press **Right arrow** or **Left arror** to increment or decrement the speed of the animation
+
 
 ## Important
 

@@ -65,6 +65,9 @@ public:
     virtual void OnAttachToParent(ObjectHandler& _parent) {}
     virtual void OnDetachFromParent() {}
 
+    virtual void OnBegin() {}
+    virtual void OnEnd() {}
+
     virtual void OnUpdate(ionFloat _deltaTime) {}
     virtual void OnLateUpdate(ionFloat _deltaTime) {}
 

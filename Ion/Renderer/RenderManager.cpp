@@ -312,9 +312,14 @@ void RenderManager::PrepareToShutDown()
     m_renderCore.DestroyCommandBuffers();
 }
 
-void RenderManager::Prepare()
+void RenderManager::Begin()
 {
-    m_sceneGraph.Prepare();
+    m_sceneGraph.Begin();
+}
+
+void RenderManager::End()
+{
+    m_sceneGraph.End();
 }
 
 void RenderManager::CoreLoop()

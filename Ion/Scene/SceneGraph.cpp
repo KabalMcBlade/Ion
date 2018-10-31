@@ -99,7 +99,7 @@ void SceneGraph::UpdateAllCameraAspectRatio(RenderCore& _renderCore)
     }
 }
 
-void SceneGraph::Prepare()
+void SceneGraph::Begin()
 {
     // I do 2 iterations for clearness
 
@@ -191,6 +191,23 @@ void SceneGraph::Prepare()
     m_isMeshGeneratedFirstTime = false;
 
     SortDrawSurfaces();
+
+    m_root->IterateAll(
+        [&](const ObjectHandler& _node)
+    {
+        _node->OnBegin();
+    }
+    );
+}
+
+void SceneGraph::End()
+{  
+    m_root->IterateAll(
+        [&](const ObjectHandler& _node)
+    {
+        _node->OnEnd();
+    }
+    );
 }
 
 void SceneGraph::SortDrawSurfaces()

@@ -29,6 +29,9 @@ public:
     RotatingEntity(const eosString & _name);
     virtual ~RotatingEntity();
 
+    virtual void OnBegin() override;
+    virtual void OnEnd() override;
+
     virtual void OnUpdate(ionFloat _deltaTime) override;
 
     virtual void OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime) override;
@@ -37,6 +40,10 @@ public:
     void SetCameraReference(MainCamera* _camera);
 
 private:
+    ionU32 m_animationCount;
+    ionU32 m_currentAnimationIndex;
+
+    ionFloat m_animationSpeedMultiplier;
     ionFloat m_movementSpeed;
     ionFloat m_mouseSensitivity;
     ionFloat m_incresingWheelSpeed;

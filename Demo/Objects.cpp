@@ -50,12 +50,12 @@ void DirectionalLightDebugEntity::OnMouseInput(const ion::MouseState& _mouseStat
 //////////////////////////////////////////////////////////////////////////
 
 
-RotatingEntity::RotatingEntity() : m_rotating(false), m_mouseSensitivity(0.05f), m_movementSpeed(10.0f), m_incresingWheelSpeed(1.0f)
+RotatingEntity::RotatingEntity() : m_rotating(false), m_mouseSensitivity(0.05f), m_movementSpeed(10.0f), m_incresingWheelSpeed(1.0f), m_animationCount(0), m_currentAnimationIndex(0), m_animationSpeedMultiplier(0.25f)
 {
 
-}
+};
 
-RotatingEntity::RotatingEntity(const eosString & _name) : Entity(_name), m_rotating(false), m_mouseSensitivity(0.05f), m_movementSpeed(10.0f), m_incresingWheelSpeed(1.0f)
+RotatingEntity::RotatingEntity(const eosString & _name) : Entity(_name), m_rotating(false), m_mouseSensitivity(0.05f), m_movementSpeed(10.0f), m_incresingWheelSpeed(1.0f), m_animationCount(0), m_currentAnimationIndex(0), m_animationSpeedMultiplier(0.25f)
 {
 }
 
@@ -68,6 +68,32 @@ RotatingEntity::~RotatingEntity()
 void RotatingEntity::SetCameraReference(MainCamera* _camera)
 {
     m_camera = _camera;
+}
+
+void RotatingEntity::OnBegin()
+{
+    ion::AnimationRenderer* animationRenderer = GetAnimationRenderer();
+    if (animationRenderer != nullptr)
+    {
+        if (animationRenderer->IsEnabled())
+        {
+            m_animationCount = static_cast<ionU32>(animationRenderer->GetAnimationCount());
+            if (m_animationCount > 0)
+            {
+                std::cout << "Model has " << m_animationCount << " animation/s" << std::endl;
+
+                animationRenderer->SetAnimationSpeedMultiplier(m_animationSpeedMultiplier);
+                animationRenderer->SetAnimationToPlay(m_currentAnimationIndex);
+
+                std::cout << "Play animation " << m_currentAnimationIndex << std::endl;
+            }
+        }
+    }
+}
+
+void RotatingEntity::OnEnd()
+{
+
 }
 
 void RotatingEntity::OnUpdate(ionFloat _deltaTime)
@@ -114,6 +140,40 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
                 Vector scale = GetTransform().GetScale() * 10.0f;
                 GetTransform().SetScale(scale);
             }
+
+            if (_keyboardState.m_key == ion::EKeyboardKey_Up && m_animationCount > 0)
+            {
+                ion::AnimationRenderer* animationRenderer = GetAnimationRenderer();
+                if (animationRenderer != nullptr)
+                {
+                    if (animationRenderer->IsEnabled())
+                    {
+                        ++m_currentAnimationIndex;
+                        m_currentAnimationIndex %= m_animationCount;
+
+                        animationRenderer->SetAnimationToPlay(m_currentAnimationIndex);
+
+                        std::cout << "Play animation " << m_currentAnimationIndex << std::endl;
+                    }
+                }
+            }
+
+            if (_keyboardState.m_key == ion::EKeyboardKey_Down && m_animationCount > 0)
+            {
+                ion::AnimationRenderer* animationRenderer = GetAnimationRenderer();
+                if (animationRenderer != nullptr)
+                {
+                    if (animationRenderer->IsEnabled())
+                    {
+                        --m_currentAnimationIndex;
+                        m_currentAnimationIndex %= m_animationCount;
+
+                        animationRenderer->SetAnimationToPlay(m_currentAnimationIndex);
+
+                        std::cout << "Play animation " << m_currentAnimationIndex << std::endl;
+                    }
+                }
+            }
         }
 
         if (_keyboardState.m_state == ion::EKeyboardState_Down)
@@ -126,6 +186,34 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
             {
                 m_incresingWheelSpeed = 100.0f;
             }
+
+            if (_keyboardState.m_key == ion::EKeyboardKey_Right && m_animationCount > 0)
+            {
+                ion::AnimationRenderer* animationRenderer = GetAnimationRenderer();
+                if (animationRenderer != nullptr)
+                {
+                    if (animationRenderer->IsEnabled())
+                    {
+                        m_animationSpeedMultiplier += 0.00001f;
+
+                        animationRenderer->SetAnimationSpeedMultiplier(m_animationSpeedMultiplier);
+                    }
+                }
+            }
+            if (_keyboardState.m_key == ion::EKeyboardKey_Left && m_animationCount > 0)
+            {
+                ion::AnimationRenderer* animationRenderer = GetAnimationRenderer();
+                if (animationRenderer != nullptr)
+                {
+                    if (animationRenderer->IsEnabled())
+                    {
+                        m_animationSpeedMultiplier -= 0.00001f;
+
+                        animationRenderer->SetAnimationSpeedMultiplier(m_animationSpeedMultiplier);
+                    }
+                }
+            }
+
         }
     }
 }
