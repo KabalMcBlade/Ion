@@ -28,9 +28,9 @@ public:
     ION_INLINE const Vector& GetCenter() const { return m_center; }
     ION_INLINE const Vector& GetSize() const { return m_size; }
 
-    ION_INLINE ionBool IsInfinite() const { return m_min == VectorHelper::GetMinusInf() && m_max == VectorHelper::GetPlusInf(); }
-    ION_INLINE ionBool IsZero() const { return m_min == VectorHelper::GetZero() && m_max == VectorHelper::GetZero(); }
-    ION_INLINE ionBool IsInit() const { return m_min == VectorHelper::GetPlusInf() && m_max == VectorHelper::GetMinusInf(); }
+    ION_INLINE ionBool IsInfinite() const { return m_min == kMinusInf.m_simdf && m_max == kPlusInf.m_simdf; }
+    ION_INLINE ionBool IsZero() const { return m_min == kZero.m_simdf && m_max == kZero.m_simdf; }
+    ION_INLINE ionBool IsInit() const { return m_min == kPlusInf.m_simdf && m_max == kMinusInf.m_simdf; }
     ION_INLINE ionBool IsValid() const { return !IsInit() && !IsZero() && !IsInfinite(); }
 
     void Reset();

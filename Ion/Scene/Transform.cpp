@@ -87,20 +87,7 @@ void Transform::SetPosition(const Vector& _position)
 void Transform::SetScale(const nixFloat& _scale)
 {
     m_dirty = true;
-
-#   if NIX_ARCH & NIX_ARCH_AVX512_FLAG
-
-    m_scale = VectorHelper::Splat512(_scale);
-
-#   elif NIX_ARCH & NIX_ARCH_AVX_FLAG
-
-    m_scale = VectorHelper::Splat256(_scale);
-
-#   else 
-
-    m_scale = VectorHelper::Splat(_scale);
-
-#   endif
+    m_scale = Helper::Splat(_scale);
 }
 
 void Transform::SetScale(const Vector& _scale)

@@ -180,7 +180,9 @@
     <ClInclude Include="Dependencies\Miscellaneous\stb_image_write.h" />
     <ClInclude Include="Dependencies\Miscellaneous\tiny_gltf.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Architecture.h" />
+    <ClInclude Include="Dependencies\Nix\Nix\Constants.h" />
     <ClInclude Include="Dependencies\Nix\Nix\CoreDefs.h" />
+    <ClInclude Include="Dependencies\Nix\Nix\Helper.h" />
     <ClInclude Include="Dependencies\Nix\Nix\MathHelper.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Matrix.h" />
     <ClInclude Include="Dependencies\Nix\Nix\MatrixHelper.h" />
@@ -188,7 +190,10 @@
     <ClInclude Include="Dependencies\Nix\Nix\Operators.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Quaternion.h" />
     <ClInclude Include="Dependencies\Nix\Nix\sse_mathfun.h" />
+    <ClInclude Include="Dependencies\Nix\Nix\Swizzle.h" />
+    <ClInclude Include="Dependencies\Nix\Nix\Trigonometry.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Types.h" />
+    <ClInclude Include="Dependencies\Nix\Nix\Utilities.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Vector.h" />
     <ClInclude Include="Dependencies\Nix\Nix\VectorHelper.h" />
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuAllocator.h" />

@@ -86,7 +86,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
     if (_node.matrix.size() == 16)
     {
         ionFloat scaleFactor = std::sqrtf((ionFloat)_node.matrix.data()[0] * (ionFloat)_node.matrix.data()[0] + (ionFloat)_node.matrix.data()[1] * (ionFloat)_node.matrix.data()[1] + (ionFloat)_node.matrix.data()[2] * (ionFloat)_node.matrix.data()[2]);
-        scale = VectorHelper::Set(scaleFactor, scaleFactor, scaleFactor, 1.0f);
+        scale = Helper::Set(scaleFactor, scaleFactor, scaleFactor, 1.0f);
 
         Matrix mat = Matrix(
             (ionFloat)_node.matrix.data()[0], (ionFloat)_node.matrix.data()[1], (ionFloat)_node.matrix.data()[2], (ionFloat)_node.matrix.data()[3],
@@ -293,22 +293,22 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                             Vector normal;
                             if (morphTargetBufferNormals.size() > 0)
                             {
-                                normal = VectorHelper::Set((&morphTargetBufferNormals[t][v * 3])[0], ((&morphTargetBufferNormals[t][v * 3])[1]), (&morphTargetBufferNormals[t][v * 3])[2], 1.0f);
+                                normal = Helper::Set((&morphTargetBufferNormals[t][v * 3])[0], ((&morphTargetBufferNormals[t][v * 3])[1]), (&morphTargetBufferNormals[t][v * 3])[2], 1.0f);
                             }
                             else
                             {
-                                normal = VectorHelper::Set(0.0f, 0.0f, 0.0f, 1.0f);
+                                normal = Helper::Set(0.0f, 0.0f, 0.0f, 1.0f);
                             }
                             vert.SetNormal(normal);
 
                             Vector tangent;
                             if (morphTargetBufferTangent.size() > 0)
                             {
-                                tangent = VectorHelper::Set((&morphTargetBufferTangent[t][v * 3])[0], ((&morphTargetBufferTangent[t][v * 3])[1]), (&morphTargetBufferTangent[t][v * 3])[2], 1.0f);
+                                tangent = Helper::Set((&morphTargetBufferTangent[t][v * 3])[0], ((&morphTargetBufferTangent[t][v * 3])[1]), (&morphTargetBufferTangent[t][v * 3])[2], 1.0f);
                             }
                             else
                             {
-                                tangent = VectorHelper::Set(0.0f, 0.0f, 0.0f, 1.0f);
+                                tangent = Helper::Set(0.0f, 0.0f, 0.0f, 1.0f);
                             }
 
                             vert.SetTangent(tangent);
@@ -496,7 +496,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     Vector normal;
                     if (bufferNormals != nullptr)
                     {
-                        normal = VectorHelper::Set((&bufferNormals[v * 3])[0], ((&bufferNormals[v * 3])[1]) , (&bufferNormals[v * 3])[2], 1.0f);
+                        normal = Helper::Set((&bufferNormals[v * 3])[0], ((&bufferNormals[v * 3])[1]) , (&bufferNormals[v * 3])[2], 1.0f);
 
                         if (_generateTangentWhenMissing)
                         {
@@ -505,7 +505,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     }
                     else
                     {
-                        normal = VectorHelper::Set(0.0f, 0.0f, 0.0f, 1.0f);
+                        normal = Helper::Set(0.0f, 0.0f, 0.0f, 1.0f);
 
                         // if no normal, after all iteration the normalToBeTangent will be empty, so we will know how to do
                     }
@@ -523,11 +523,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     Vector tangent;
                     if (bufferTangent != nullptr)
                     {
-                        tangent = VectorHelper::Set((&bufferTangent[v * 3])[0], ((&bufferTangent[v * 3])[1]), (&bufferTangent[v * 3])[2], 1.0f);
+                        tangent = Helper::Set((&bufferTangent[v * 3])[0], ((&bufferTangent[v * 3])[1]), (&bufferTangent[v * 3])[2], 1.0f);
                     }
                     else
                     {
-                        tangent = VectorHelper::Set(0.0f, 0.0f, 0.0f, 1.0f);
+                        tangent = Helper::Set(0.0f, 0.0f, 0.0f, 1.0f);
                     }
 
                     if (_dumpModel && bufferTangent != nullptr)
@@ -550,7 +550,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     {
                         if (_generateTangentWhenMissing)
                         {
-                            Vector uvuv = VectorHelper::Set((&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1], (&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1]);
+                            Vector uvuv = Helper::Set((&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1], (&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1]);
                             uvuvForTangents.push_back(uvuv);
                         }
 
@@ -562,7 +562,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         {
                             if (_generateTangentWhenMissing)
                             {
-                                Vector uvuv = VectorHelper::Set(ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f);
+                                Vector uvuv = Helper::Set(ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f);
                                 uvuvForTangents.push_back(uvuv);
                             }
 
@@ -574,7 +574,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                             {
                                 if (_generateTangentWhenMissing)
                                 {
-                                    Vector uvuv = VectorHelper::Set(ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f);
+                                    Vector uvuv = Helper::Set(ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f);
                                     uvuvForTangents.push_back(uvuv);
                                 }
 

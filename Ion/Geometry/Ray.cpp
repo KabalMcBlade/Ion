@@ -9,7 +9,7 @@ ION_NAMESPACE_BEGIN
 
 Ray::Ray()
 {
-    Set(VectorHelper::GetZero(), VectorHelper::GetOne());
+    Set(kZero.m_simdf, kOne.m_simdf);
 }
 
 Ray::Ray(const Vector& _origin, const Vector& _direction)
@@ -29,7 +29,7 @@ Ray::~Ray()
 
 void Ray::Set(const Vector& _origin, const Vector& _direction)
 {
-    static const Vector one = VectorHelper::GetOne();
+    static const Vector one = kOne;
     m_origin = _origin;
     m_direction = _direction;
     m_inverseDirection = one / _direction;
@@ -39,9 +39,9 @@ void Ray::Set(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector& _wor
 {
     Vector screenPos(_relMousePosX * 2.0f - 1.0f, _relMousePosY * 2.0f - 1.0f, 1.0f, 1.0f);
     Vector worldPos = _inverseMatrix * screenPos;
-    Vector worldPosWWWW = VectorHelper::ExtractW(worldPos);
+    Vector worldPosWWWW = Helper::ExtractW(worldPos);
     worldPos /= worldPosWWWW;
-    Set(_worldRayOrigin, VectorHelper::Normalize(worldPos - _worldRayOrigin));
+    Set(_worldRayOrigin, Helper::Normalize(worldPos - _worldRayOrigin));
 }
 
 ION_NAMESPACE_END

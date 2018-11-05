@@ -585,8 +585,8 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
     //
     ConstantsBindingDef constants;
     constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-    constants.m_values.push_back((2.0f * MathHelper::kPI) / 180.0f);
-    constants.m_values.push_back((0.5f * MathHelper::kPI) / 64.0f);
+    constants.m_values.push_back((2.0f * kfPI) / 180.0f);
+    constants.m_values.push_back((0.5f * kfPI) / 64.0f);
 
 
     ShaderLayoutDef vertexLayout;

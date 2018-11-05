@@ -986,11 +986,11 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         {
             for (s = 0; s < sectors; ++s)
             {
-                const ionFloat y = std::sin(-MathHelper::kHalfPI + MathHelper::kPI * r * R);
-                const ionFloat x = std::cos(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
-                const ionFloat z = std::sin(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
+                const ionFloat y = std::sin(-kfHalfPI + kfPI * r * R);
+                const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
+                const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
 
-                *v++ = VectorHelper::Set(x * radius, y * radius, z * radius, 1.0f);
+                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
             }
         }
 
@@ -1057,12 +1057,12 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         {
             for (s = 0; s < sectors; ++s)
             {
-                const ionFloat y = std::sin(-MathHelper::kHalfPI + MathHelper::kPI * r * R);
-                const ionFloat x = std::cos(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
-                const ionFloat z = std::sin(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
+                const ionFloat y = std::sin(-kfHalfPI + kfPI * r * R);
+                const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
+                const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
 
-                *v++ = VectorHelper::Set(x * radius, y * radius, z * radius, 1.0f);
-                *n++ = VectorHelper::Set(x, y, z, 1.0f);
+                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
+                *n++ = Helper::Set(x, y, z, 1.0f);
             }
         }
 
@@ -1128,12 +1128,12 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         {
             for (s = 0; s < sectors; ++s)
             {
-                const ionFloat y = std::sin(-MathHelper::kHalfPI + MathHelper::kPI * r * R);
-                const ionFloat x = std::cos(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
-                const ionFloat z = std::sin(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
+                const ionFloat y = std::sin(-kfHalfPI + kfPI * r * R);
+                const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
+                const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
 
-                *v++ = VectorHelper::Set(x * radius, y * radius, z * radius, 1.0f);
-                *t++ = VectorHelper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
+                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
+                *t++ = Helper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
             }
         }
 
@@ -1199,12 +1199,12 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         {
             for (s = 0; s < sectors; ++s)
             {
-                const ionFloat y = std::sin(-MathHelper::kHalfPI + MathHelper::kPI * r * R);
-                const ionFloat x = std::cos(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
-                const ionFloat z = std::sin(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
+                const ionFloat y = std::sin(-kfHalfPI + kfPI * r * R);
+                const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
+                const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
 
-                *v++ = VectorHelper::Set(x * radius, y * radius, z * radius, 1.0f);
-                *n++ = VectorHelper::Set(x, y, z, 1.0f);
+                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
+                *n++ = Helper::Set(x, y, z, 1.0f);
             }
         }
 
@@ -1272,13 +1272,13 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         {
             for (s = 0; s < sectors; ++s)
             {
-                const ionFloat y = std::sin(-MathHelper::kHalfPI + MathHelper::kPI * r * R);
-                const ionFloat x = std::cos(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
-                const ionFloat z = std::sin(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
+                const ionFloat y = std::sin(-kfHalfPI + kfPI * r * R);
+                const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
+                const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
 
-                *v++ = VectorHelper::Set(x * radius, y * radius, z * radius, 1.0f);
-                *n++ = VectorHelper::Set(x, y, z, 1.0f);
-                *t++ = VectorHelper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
+                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
+                *n++ = Helper::Set(x, y, z, 1.0f);
+                *t++ = Helper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
             }
         }
 
@@ -1347,13 +1347,13 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         {
             for (s = 0; s < sectors; ++s)
             {
-                const ionFloat y = std::sin(-MathHelper::kHalfPI + MathHelper::kPI * r * R);
-                const ionFloat x = std::cos(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
-                const ionFloat z = std::sin(2 * MathHelper::kPI * s * S) * std::sin(MathHelper::kPI * r * R);
+                const ionFloat y = std::sin(-kfHalfPI + kfPI * r * R);
+                const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
+                const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
 
-                *v++ = VectorHelper::Set(x * radius, y * radius, z * radius, 1.0f);
-                *n++ = VectorHelper::Set(x, y, z, 1.0f);
-                *t++ = VectorHelper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
+                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
+                *n++ = Helper::Set(x, y, z, 1.0f);
+                *t++ = Helper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
             }
         }
 

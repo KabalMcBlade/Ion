@@ -76,27 +76,27 @@ ION_INLINE void CopyBuffer(ionU8* _dst, const ionU8* _src, ionSize _size)
     ionSize i = 0;
     for (; i + 128 <= _size; i += 128)
     {
-        __nixInt4 d0 = _mm_load_si128((__nixInt4 *)&_src[i + 0 * 16]);
-        __nixInt4 d1 = _mm_load_si128((__nixInt4 *)&_src[i + 1 * 16]);
-        __nixInt4 d2 = _mm_load_si128((__nixInt4 *)&_src[i + 2 * 16]);
-        __nixInt4 d3 = _mm_load_si128((__nixInt4 *)&_src[i + 3 * 16]);
-        __nixInt4 d4 = _mm_load_si128((__nixInt4 *)&_src[i + 4 * 16]);
-        __nixInt4 d5 = _mm_load_si128((__nixInt4 *)&_src[i + 5 * 16]);
-        __nixInt4 d6 = _mm_load_si128((__nixInt4 *)&_src[i + 6 * 16]);
-        __nixInt4 d7 = _mm_load_si128((__nixInt4 *)&_src[i + 7 * 16]);
-        _mm_stream_si128((__nixInt4 *)&_dst[i + 0 * 16], d0);
-        _mm_stream_si128((__nixInt4 *)&_dst[i + 1 * 16], d1);
-        _mm_stream_si128((__nixInt4 *)&_dst[i + 2 * 16], d2);
-        _mm_stream_si128((__nixInt4 *)&_dst[i + 3 * 16], d3);
-        _mm_stream_si128((__nixInt4 *)&_dst[i + 4 * 16], d4);
-        _mm_stream_si128((__nixInt4 *)&_dst[i + 5 * 16], d5);
-        _mm_stream_si128((__nixInt4 *)&_dst[i + 6 * 16], d6);
-        _mm_stream_si128((__nixInt4 *)&_dst[i + 7 * 16], d7);
+        nixInt4 d0 = _mm_load_si128((nixInt4 *)&_src[i + 0 * 16]);
+        nixInt4 d1 = _mm_load_si128((nixInt4 *)&_src[i + 1 * 16]);
+        nixInt4 d2 = _mm_load_si128((nixInt4 *)&_src[i + 2 * 16]);
+        nixInt4 d3 = _mm_load_si128((nixInt4 *)&_src[i + 3 * 16]);
+        nixInt4 d4 = _mm_load_si128((nixInt4 *)&_src[i + 4 * 16]);
+        nixInt4 d5 = _mm_load_si128((nixInt4 *)&_src[i + 5 * 16]);
+        nixInt4 d6 = _mm_load_si128((nixInt4 *)&_src[i + 6 * 16]);
+        nixInt4 d7 = _mm_load_si128((nixInt4 *)&_src[i + 7 * 16]);
+        _mm_stream_si128((nixInt4 *)&_dst[i + 0 * 16], d0);
+        _mm_stream_si128((nixInt4 *)&_dst[i + 1 * 16], d1);
+        _mm_stream_si128((nixInt4 *)&_dst[i + 2 * 16], d2);
+        _mm_stream_si128((nixInt4 *)&_dst[i + 3 * 16], d3);
+        _mm_stream_si128((nixInt4 *)&_dst[i + 4 * 16], d4);
+        _mm_stream_si128((nixInt4 *)&_dst[i + 5 * 16], d5);
+        _mm_stream_si128((nixInt4 *)&_dst[i + 6 * 16], d6);
+        _mm_stream_si128((nixInt4 *)&_dst[i + 7 * 16], d7);
     }
     for (; i + 16 <= _size; i += 16) 
     {
-        __nixInt4 d = _mm_load_si128((__nixInt4 *)&_src[i]);
-        _mm_stream_si128((__nixInt4 *)&_dst[i], d);
+        nixInt4 d = _mm_load_si128((nixInt4 *)&_src[i]);
+        _mm_stream_si128((nixInt4 *)&_dst[i], d);
     }
     for (; i + 4 <= _size; i += 4)
     {

@@ -94,7 +94,7 @@ public:
 
     ION_INLINE Vector GetLinearPath(ionU32 _index)
     {
-        ionAssertReturnValue(_index >= 0 && _index < m_outputsLinearPath.size(), "Index out of range", VectorHelper::Splat(-1.0f));
+        ionAssertReturnValue(_index >= 0 && _index < m_outputsLinearPath.size(), "Index out of range", Helper::Splat(-1.0f));
         return m_outputsLinearPath[_index];
     }
 
