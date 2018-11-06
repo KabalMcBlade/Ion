@@ -59,6 +59,9 @@ const Matrix& Transform::GetMatrix()
         const Matrix translate = identity.Translate(m_position);
         m_matrix = scale * rotate * translate;
 
+        m_rotation.SetFromMatrix(m_matrix);
+        m_rotation = m_rotation.Normalize();
+
         m_dirty = false;
     }
     return m_matrix;

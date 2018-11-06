@@ -38,7 +38,7 @@ void DirectionalLightDebugEntity::OnMouseInput(const ion::MouseState& _mouseStat
 
         const Quaternion& prevRot = GetTransform().GetRotation();
 
-        Quaternion currRot(NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
+        Quaternion currRot(NIX_DEG_TO_RAD(yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
 
         currRot = prevRot * currRot;
 
@@ -236,7 +236,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
             const Quaternion& prevRot = GetTransform().GetRotation();
 
-            Quaternion currRot(NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
+            Quaternion currRot(NIX_DEG_TO_RAD(yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
 
             currRot = prevRot * currRot;
 
