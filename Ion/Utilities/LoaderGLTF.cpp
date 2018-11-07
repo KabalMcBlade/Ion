@@ -120,8 +120,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
     _entityHandle->GetTransform().SetRotation(rotation);
     _entityHandle->GetTransform().SetScale(scale);
 
-    const Matrix& localTransform = _entityHandle->GetTransform().GetMatrix();
-
     //
     //  This one is the "NodeIndex" use to track the animation nodes
     //
@@ -488,7 +486,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     {
                         positionToBeNormalized.push_back(pos);
                     }
-                    pos = localTransform * pos;
                     vert.SetPosition(pos);
 
                     _entityHandle->GetBoundingBox()->Expande(vert.GetPosition(), vert.GetPosition());
@@ -516,8 +513,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         os << "{N}Vector(" << (&bufferNormals[v * 3])[0] << "f, " << (&bufferNormals[v * 3])[1] << "f, " << (&bufferNormals[v * 3])[2] << "f, 1.0f), \t";
                         fputs(os.str().c_str(), s_fileDump);
                     }
-
-                    normal = localTransform * normal;
                     vert.SetNormal(normal);
 
                     Vector tangent;
@@ -543,7 +538,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         os << std::endl;
                         fputs(os.str().c_str(), s_fileDump);
                     }
-
                     vert.SetTangent(tangent);
 
                     if (bufferTexCoordsFloat0 != nullptr)
@@ -2080,7 +2074,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
 
                 if (key == "doubleSided")
                 {
-                    //if (param.bool_value) // still not clear if the key exists I have to set anyway double side without caring about the boolean flag
+                    if (param.bool_value) // still not clear if the key exists I have to set anyway double side without caring about the boolean flag. for now I enable the flag, even if some exported model has not set
                     {
                         material->GetState().UnsetCullingMode(ECullingMode_Back);
                         material->GetState().SetCullingMode(ECullingMode_TwoSide);
