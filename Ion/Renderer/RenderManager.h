@@ -41,7 +41,8 @@ enum EPrimitiveType
     EPrimitiveType_Triangle,
     EPrimitiveType_Quad,
     EPrimitiveType_Cube,
-    EPrimitiveType_Sphere
+    EPrimitiveType_Sphere,
+    EPrimitiveType_Pyramid
 };
 
 
@@ -62,6 +63,7 @@ public:
     void LoadColoredQuad(ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
     void LoadColoredCube(ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
     void LoadColoredSphere(ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
+    void LoadColoredPyramid(ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
 
     ionBool Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
     void    Shutdown();

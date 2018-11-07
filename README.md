@@ -109,7 +109,6 @@ I got my inspiration from the following persons and their code
 	- **misty_pines_4k.hdr** is under CC0 license (https://creativecommons.org/publicdomain/zero/1.0/) and was downloaded from here https://hdrihaven.com/hdri/?c=morning-afternoon&h=misty_pines
 	- **Yokohama3** is under Creative Commons Attribution 3.0 Unported License http://creativecommons.org/licenses/by/3.0/
 	- **Damaged Helmet** is under a Creative Commons Attribution-NonCommercial license: https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0/DamagedHelmet
-	- **Arrow** is under CC-BY-4.0 license (http://creativecommons.org/licenses/by/4.0/) and was downloaded from here https://sketchfab.com/models/56629a8186854a6aa9a94cb8896974d6
 
 
 ### Almost self inclusive

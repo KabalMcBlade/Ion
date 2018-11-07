@@ -126,6 +126,9 @@ void RenderManager::GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _typ
     case EPrimitiveType_Sphere:
         PrimitiveFactory::GenerateSphere(_layout, _entity, _r, _g, _b, _a);
         break;
+    case EPrimitiveType_Pyramid:
+        PrimitiveFactory::GeneratePyramd(_layout, _entity, _r, _g, _b, _a);
+        break;
     }
 }
 
@@ -170,6 +173,16 @@ void RenderManager::LoadColoredSphere(ObjectHandler& _entity, ionFloat _r /*= 1.
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Sphere, _entity, _r, _g, _b, _a);
 
     Material* material = ionMaterialManger().CreateMaterial("ION#Sphere", 0u);
+    _entity->GetMesh(0)->SetMaterial(material);
+
+    LoadCommonMaterialForIntegratedPrimitive(_entity, material);
+}
+
+void RenderManager::LoadColoredPyramid(ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
+{
+    GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Pyramid, _entity, _r, _g, _b, _a);
+
+    Material* material = ionMaterialManger().CreateMaterial("ION#Pyramid", 0u);
     _entity->GetMesh(0)->SetMaterial(material);
 
     LoadCommonMaterialForIntegratedPrimitive(_entity, material);

@@ -337,6 +337,10 @@ int main(int argc, char **argv)
         {
             ionRenderManager().LoadColoredSphere(testHandle, r, g, b, a);
         }
+        else if (primitive == "pyramid")
+        {
+            ionRenderManager().LoadColoredPyramid(testHandle, r, g, b, a);
+        }
         else
         {
             std::cout << "primitive is not valid: use -primitive [triangle, quad, cube, sphere]" << std::endl;
@@ -400,7 +404,7 @@ int main(int argc, char **argv)
         // Arrow for directional lighting debug
         DirectionalLightDebugEntity* dirlLightDebugEntity = eosNew(DirectionalLightDebugEntity, ION_MEMORY_ALIGNMENT_SIZE);
         ObjectHandler dirlLightDebugEntityHandle(dirlLightDebugEntity);
-        ionRenderManager().LoadModelFromFile(ionFileSystemManager().GetModelsPath() + "Arrow.gltf", camera, dirlLightDebugEntityHandle);
+        ionRenderManager().LoadColoredPyramid(dirlLightDebugEntityHandle, 0.8f, 0.2f, 0.2f, 1.0f);
         dirlLightDebugEntity->RemoveFromRenderLayer(ENodeRenderLayer_Default);
         dirlLightDebugEntity->AddToRenderLayer(ENodeRenderLayer_1);
         dirlLightDebugEntity->SetVisible(false);

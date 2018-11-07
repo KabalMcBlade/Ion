@@ -1429,4 +1429,332 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
     }
 }
 
+///
+///            PYRAMID
+///
+void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
+{
+    eosVector(Index) indices;
+    indices.resize(18);
+    indices = { 
+        0, 1, 2, 
+        2, 3, 0,
+    
+        4, 5, 6,
+        7, 8, 9,
+        10, 11, 12,
+        13, 14, 15
+    };
+
+    Vector positions[16] = { 
+
+        // 1 square base
+        Vector(0.5f, 0.5f, -0.5f),
+        Vector(-0.5f, 0.5f, -0.5f),
+        Vector(-0.5f, -0.5f, -0.5f),
+        Vector(0.5f, -0.5f, -0.5f),
+    
+        // 4 triangles
+        Vector(0.5f, 0.5f, -0.5f),
+        Vector(0.0f, 0.0f, 0.5f),
+        Vector(-0.5f, 0.5f, -0.5f),
+
+        Vector(-0.5f, 0.5f, -0.5f),
+        Vector(0.0f, 0.0f, 0.5f),
+        Vector(-0.5f, -0.5f, -0.5f),
+
+        Vector(-0.5f, -0.5f, -0.5f),
+        Vector(0.0f, 0.0f, 0.5f),
+        Vector(0.5f, -0.5f, -0.5f),
+
+        Vector(0.5f, -0.5f, -0.5f),
+        Vector(0.0f, 0.0f, 0.5f),
+        Vector(0.5f, 0.5f, -0.5f)
+    };
+
+
+    ionFloat texCoords[] = {
+
+        1.0f, 0.0f,
+        0.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        0.0f, 1.0f,
+
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        0.0f, 1.0f,
+
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        0.0f, 1.0f,
+
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        0.0f, 1.0f,
+    };
+
+    Vector normals[24] = {
+        Vector(0.0f, 0.0f, -1.0f, 1.0f),
+        Vector(0.0f, 0.0f, -1.0f, 1.0f),
+        Vector(0.0f, 0.0f, -1.0f, 1.0f),
+        Vector(0.0f, 0.0f, -1.0f, 1.0f),
+
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+
+        Vector(0.0f, 1.0f, 0.0f, 1.0f),
+        Vector(0.0f, 1.0f, 0.0f, 1.0f),
+        Vector(0.0f, 1.0f, 0.0f, 1.0f),
+
+        Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(-1.0f, 0.0f, 0.0f, 1.0f),
+
+        Vector(0.0f, -1.0f, 0.0f, 1.0f),
+        Vector(0.0f, -1.0f, 0.0f, 1.0f),
+        Vector(0.0f, -1.0f, 0.0f, 1.0f)
+    };
+
+    Vector uvuv[16] = {
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 1.0f, 0.0f, 0.0f),
+        Vector(0.0f, 1.0f, 1.0f, 0.0f),
+        Vector(0.0f, 0.0f, 1.0f, 1.0f),
+
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 1.0f, 0.0f, 0.0f),
+        Vector(0.0f, 1.0f, 1.0f, 0.0f),
+
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 1.0f, 0.0f, 0.0f),
+        Vector(0.0f, 1.0f, 1.0f, 0.0f),
+
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 1.0f, 0.0f, 0.0f),
+        Vector(0.0f, 1.0f, 1.0f, 0.0f),
+
+        Vector(1.0f, 0.0f, 0.0f, 1.0f),
+        Vector(1.0f, 1.0f, 0.0f, 0.0f),
+        Vector(0.0f, 1.0f, 1.0f, 0.0f),
+    };
+
+    Entity* entityPtr = dynamic_cast<Entity*>(_entity.GetPtr());
+
+    switch (_layout)
+    {
+    case EVertexLayout_Pos:
+    {
+        MeshRendererPlain* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererPlain>();
+
+        eosVector(VertexPlain) vertices;
+        vertices.resize(16);
+
+        for (ionU32 i = 0; i < 16; ++i)
+        {
+            vertices[i].SetPosition(positions[i]);
+        }
+        for (ionU32 i = 0; i < 16; ++i)
+        {
+            meshRenderer->PushBackVertex(vertices[i]);
+        }
+        for (ionU32 i = 0; i < 18; ++i)
+        {
+            meshRenderer->PushBackIndex(indices[i]);
+        }
+
+        Mesh mesh;
+        mesh.SetIndexCount(18);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
+    }
+    break;
+
+    case EVertexLayout_Pos_Color:
+    {
+        MeshRendererColored* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererColored>();
+
+        eosVector(VertexColored) vertices;
+        vertices.resize(24);
+
+        for (ionU32 i = 0; i < 16; ++i)
+        {
+            vertices[i].SetPosition(positions[i]);
+            vertices[i].SetColor(_r, _g, _b, _a);
+        }
+        for (ionU32 i = 0; i < 16; ++i)
+        {
+            meshRenderer->PushBackVertex(vertices[i]);
+        }
+        for (ionU32 i = 0; i < 18; ++i)
+        {
+            meshRenderer->PushBackIndex(indices[i]);
+        }
+
+        Mesh mesh;
+        mesh.SetIndexCount(18);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
+    }
+    break;
+
+    case EVertexLayout_Pos_UV:
+    {
+        MeshRendererUV* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererUV>();
+
+        eosVector(VertexUV) vertices;
+        vertices.resize(24);
+
+        for (ionU32 i = 0, j = 0; i < 16; ++i, j += 2)
+        {
+            vertices[i].SetPosition(positions[i]);
+            vertices[i].SetTexCoordUV(texCoords[j], texCoords[j + 1]);
+        }
+        for (ionU32 i = 0; i < 16; ++i)
+        {
+            meshRenderer->PushBackVertex(vertices[i]);
+        }
+        for (ionU32 i = 0; i < 18; ++i)
+        {
+            meshRenderer->PushBackIndex(indices[i]);
+        }
+
+        Mesh mesh;
+        mesh.SetIndexCount(18);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
+    }
+    break;
+
+    case EVertexLayout_Pos_Normal:
+    {
+        MeshRendererNormal* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererNormal>();
+
+        eosVector(VertexNormal) vertices;
+        vertices.resize(24);
+
+        for (ionU32 i = 0, j = 0; i < 16; ++i, j += 2)
+        {
+            vertices[i].SetPosition(positions[i]);
+            vertices[i].SetNormal(normals[i]);
+        }
+        for (ionU32 i = 0; i < 16; ++i)
+        {
+            meshRenderer->PushBackVertex(vertices[i]);
+        }
+        for (ionU32 i = 0; i < 18; ++i)
+        {
+            meshRenderer->PushBackIndex(indices[i]);
+        }
+
+        Mesh mesh;
+        mesh.SetIndexCount(18);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
+    }
+    break;
+
+    case EVertexLayout_Pos_UV_Normal:
+    {
+        MeshRendererSimple* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererSimple>();
+
+        eosVector(VertexSimple) vertices;
+        vertices.resize(24);
+
+        for (ionU32 i = 0, j = 0; i < 16; ++i, j += 2)
+        {
+            vertices[i].SetPosition(positions[i]);
+            vertices[i].SetTexCoordUV(texCoords[j], texCoords[j + 1]);
+            vertices[i].SetNormal(normals[i]);
+        }
+        for (ionU32 i = 0; i < 16; ++i)
+        {
+            meshRenderer->PushBackVertex(vertices[i]);
+        }
+        for (ionU32 i = 0; i < 18; ++i)
+        {
+            meshRenderer->PushBackIndex(indices[i]);
+        }
+
+        Mesh mesh;
+        mesh.SetIndexCount(18);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
+    }
+    break;
+
+    case EVertexLayout_Full:
+    {
+        MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
+
+        eosVector(Vertex) vertices;
+        vertices.resize(16);
+
+        Vector tangents[16];
+        GeometryHelper::CalculateTangent(positions, normals, uvuv, 16, indices.data(), 18, tangents);
+
+        for (ionU32 i = 0; i < 16; ++i)
+        {
+            vertices[i].SetPosition(positions[i]);
+            vertices[i].SetTexCoordUV0(uvuv[i]);
+            vertices[i].SetNormal(normals[i]);
+            vertices[i].SetColor(_r, _g, _b, _a);
+            vertices[i].SetTangent(tangents[i]);
+        }
+        for (ionU32 i = 0; i < 16; ++i)
+        {
+            meshRenderer->PushBackVertex(vertices[i]);
+        }
+        for (ionU32 i = 0; i < 18; ++i)
+        {
+            meshRenderer->PushBackIndex(indices[i]);
+        }
+
+        Mesh mesh;
+        mesh.SetIndexCount(18);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
+    }
+    break;
+
+    case EVertexLayout_Empty:
+    {
+        entityPtr->AddMeshRenderer<BaseMeshRenderer>();
+
+        Mesh mesh;
+        mesh.SetIndexCount(0);
+        mesh.SetIndexStart(0);
+
+        entityPtr->PushBackMesh(mesh);
+    }
+    break;
+
+    case EVertexLayout_Unknow:
+    case EVertexLayout_Count:
+        ionAssertReturnVoid(false, "Layout does not exist!");
+        break;
+
+
+    default:
+        ionAssertReturnVoid(false, "Layout not yet implemented");
+        break;
+    }
+
+    for (ionU32 i = 1; i < 24; ++i)
+    {
+        entityPtr->GetBoundingBox()->Expande(positions[i - 1], positions[i]);
+    }
+}
+
+
 ION_NAMESPACE_END

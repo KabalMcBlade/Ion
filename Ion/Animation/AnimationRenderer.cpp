@@ -269,7 +269,6 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
                             Vector u(t);
 
                             Quaternion rotation = Helper::HermiteCubicSpline(p0, m0, p1, m1, u);
-
                             rotation = rotation.Normalize();
 
                             channel.GetNode()->GetTransform().SetRotation(rotation);
