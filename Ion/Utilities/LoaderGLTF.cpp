@@ -79,9 +79,9 @@ void UpdateBoundingBox(const ObjectHandler& _node, BoundingBox& _mainBoundingBox
 // for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
 void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRenderer* _meshRenderer, ObjectHandler& _entityHandle, eosMap(ionU32, Node*)& _nodeIndexToNodePointer, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign, ionBool _dumpModel)
 {
-    Vector position(0.0f, 0.0f, 0.0f, 1.0f);
+    Vector position(0.0f, 0.0f, 0.0f);
     Quaternion rotation;
-    Vector scale(1.0f);
+    Vector scale(1.0f, 1.0f, 1.0f);
 
     if (_node.matrix.size() == 16)
     {
