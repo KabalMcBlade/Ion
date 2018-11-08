@@ -35,10 +35,14 @@ public:
     const Quaternion& GetRotation() const;
 
     void SetPosition(const Vector& _position);
+    void SetPosition(const nixFloat& _x, const nixFloat& _y, const nixFloat& _z);
     void SetScale(const nixFloat& _scale);
+    void SetScale(const nixFloat& _x, const nixFloat& _y, const nixFloat& _z);
     void SetScale(const Vector& _scale);
     void SetRotation(const Quaternion& _rotation);
     void SetRotation(const nixFloat& _radians, const Vector& _axis);
+    void SetRotation(const nixFloat& _radians, const nixFloat& _x, const nixFloat& _y, const nixFloat& _z);
+    void SetRotation(const nixFloat& _pitch, const nixFloat& _yaw, const nixFloat& _roll);
 
 private:
     Transform(const Transform& _orig) = delete;    

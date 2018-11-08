@@ -54,13 +54,15 @@ const Matrix& Transform::GetMatrix()
     {
         static const Matrix identity;
 
-        const Matrix scale = identity.Scale(m_scale);
         const Matrix rotate = m_rotation.ToMatrix();
         const Matrix translate = identity.Translate(m_position);
-        m_matrix = scale * rotate * translate;
-
+        m_matrix =  rotate * translate;
+        
         m_rotation.SetFromMatrix(m_matrix);
         m_rotation = m_rotation.Normalize();
+
+        const Matrix scale = identity.Scale(m_scale);
+        m_matrix = scale * m_matrix;
 
         m_dirty = false;
     }
@@ -87,6 +89,12 @@ void Transform::SetPosition(const Vector& _position)
     m_position = _position;
 }
 
+void Transform::SetPosition(const nixFloat& _x, const nixFloat& _y, const nixFloat& _z)
+{
+    m_dirty = true;
+    m_position = Helper::Set(_x, _y, _z, 0.0f);
+}
+
 void Transform::SetScale(const nixFloat& _scale)
 {
     m_dirty = true;
@@ -99,6 +107,12 @@ void Transform::SetScale(const Vector& _scale)
     m_scale = _scale;
 }
 
+void Transform::SetScale(const nixFloat& _x, const nixFloat& _y, const nixFloat& _z)
+{
+    m_dirty = true;
+    m_scale = Helper::Set(_x, _y, _z, 0.0f);
+}
+
 void Transform::SetRotation(const Quaternion& _rotation)
 {
     m_dirty = true;
@@ -108,7 +122,19 @@ void Transform::SetRotation(const Quaternion& _rotation)
 void Transform::SetRotation(const nixFloat& _radians, const Vector& _axis)
 {
     m_dirty = true;
-    m_rotation = Quaternion(_radians, _axis);
+    m_rotation.SetFromAngleAxis(_radians, _axis);
+}
+
+void Transform::SetRotation(const nixFloat& _radians, const nixFloat& _x, const nixFloat& _y, const nixFloat& _z)
+{
+    m_dirty = true;
+    m_rotation.SetFromAngleAxis(_radians, _x, _y, _z);
+}
+
+void Transform::SetRotation(const nixFloat& _pitch, const nixFloat& _yaw, const nixFloat& _roll)
+{
+    m_dirty = true;
+    m_rotation.SetFromPitchYawRoll(_pitch, _yaw, _roll);
 }
 
 

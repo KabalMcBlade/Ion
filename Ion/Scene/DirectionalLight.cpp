@@ -29,13 +29,13 @@ DirectionalLight::~DirectionalLight()
 
 void DirectionalLight::SetColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
 {
-    m_color = Vector(_r, _g, _b, _a);
+    m_color = Helper::Set(_r, _g, _b, _a);
 }
 
 Vector DirectionalLight::GetLightDirection() const
 {
     static const Vector forward(0.0f, 0.0f, 1.0, 0.0f);
-    return GetTransform().GetRotation().Conjugate() * forward;
+    return GetTransform().GetRotation() * forward;
 }
 
 

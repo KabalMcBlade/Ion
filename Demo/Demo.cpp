@@ -408,6 +408,7 @@ int main(int argc, char **argv)
         dirlLightDebugEntity->RemoveFromRenderLayer(ENodeRenderLayer_Default);
         dirlLightDebugEntity->AddToRenderLayer(ENodeRenderLayer_1);
         dirlLightDebugEntity->SetVisible(false);
+        dirlLightDebugEntity->GetTransform().SetScale(1.0f, 1.0f, 2.0f);
 
 
         // override all shader with an unlit
