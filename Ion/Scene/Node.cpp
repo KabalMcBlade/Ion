@@ -85,7 +85,7 @@ void Node::Update(ionFloat _deltaTime)
         
         if (m_parent != nullptr)
         {
-            m_transform.SetMatrixWS(m_parent->GetTransform().GetMatrixWS() * m_transform.GetMatrix());
+            m_transform.SetMatrixWS(m_transform.GetMatrix() * m_parent->GetTransform().GetMatrixWS());
         }
         else
         {
