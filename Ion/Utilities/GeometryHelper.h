@@ -4,8 +4,6 @@
 
 #include "../Dependencies/Nix/Nix/Nix.h"
 
-#include "../Dependencies/Miscellaneous/mikktspace.h"
-
 NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
@@ -20,7 +18,7 @@ public:
     // is a very simple implementation!
     static void CalculateUVs(const Vector* _vectorArray, const ionU32 _vectorCount, Vector* _outUVUVVectorArray);
 
-    // the size of _outTangentVectorArray must be equal to _vectorArray
+    // the size of _outTangentVectorArray must be equal to _vectorArray and the other input array
     static void CalculateTangents(
         const Vector* _vectorArray, const Vector* _normalArray, const Vector* _textCoordUVUVArray, const ionU32 _vectorCount,   // to iterate and get the value to use
         const ionU32* _indexList, const ionU32 _indexCount,                                                                     // to generate face (triangle)
