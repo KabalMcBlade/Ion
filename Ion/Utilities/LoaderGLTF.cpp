@@ -775,7 +775,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
             if (_generateNormalWhenMissing)
             {
                 normalsGenerated.resize(positionToBeNormalized.size());
-                GeometryHelper::CalculateNormalPerVertex(positionToBeNormalized.data(), indexToBeUsedDuringNormalization.data(), static_cast<ionU32>(indexToBeUsedDuringNormalization.size()), normalsGenerated.data());
+                GeometryHelper::CalculateNormals(positionToBeNormalized.data(), indexToBeUsedDuringNormalization.data(), static_cast<ionU32>(indexToBeUsedDuringNormalization.size()), normalsGenerated.data());
 
                 ionSize count = normalsGenerated.size();
                 for (ionSize k = 0; k < count; ++k)
@@ -792,12 +792,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 if (normalForTangent.empty())
                 {
                     tangentsGenerated.resize(positionToBeNormalized.size());
-                    GeometryHelper::CalculateTangent(positionToBeNormalized.data(), normalsGenerated.data(), uvuvForTangents.data(), static_cast<ionU32>(positionToBeNormalized.size()), indexToBeUsedDuringNormalization.data(), static_cast<ionU32>(indexToBeUsedDuringNormalization.size()), tangentsGenerated.data());
+                    GeometryHelper::CalculateTangents(positionToBeNormalized.data(), normalsGenerated.data(), uvuvForTangents.data(), static_cast<ionU32>(positionToBeNormalized.size()), indexToBeUsedDuringNormalization.data(), static_cast<ionU32>(indexToBeUsedDuringNormalization.size()), tangentsGenerated.data());
                 }
                 else
                 {
                     tangentsGenerated.resize(positionToBeNormalized.size());
-                    GeometryHelper::CalculateTangent(positionToBeNormalized.data(), normalForTangent.data(), uvuvForTangents.data(), static_cast<ionU32>(positionToBeNormalized.size()), indexToBeUsedDuringNormalization.data(), static_cast<ionU32>(indexToBeUsedDuringNormalization.size()), tangentsGenerated.data());
+                    GeometryHelper::CalculateTangents(positionToBeNormalized.data(), normalForTangent.data(), uvuvForTangents.data(), static_cast<ionU32>(positionToBeNormalized.size()), indexToBeUsedDuringNormalization.data(), static_cast<ionU32>(indexToBeUsedDuringNormalization.size()), tangentsGenerated.data());
                 }
 
                 ionSize count = tangentsGenerated.size();

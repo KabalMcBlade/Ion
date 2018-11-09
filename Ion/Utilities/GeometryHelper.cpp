@@ -51,7 +51,7 @@ Vector GeometryHelper::CalculateSurfaceNormalQuad(const Vector* _vectorArray)
 }
 
 #define GEOMETRY_HELPER_INVALID_INDEX (ionU32)-1
-void GeometryHelper::CalculateNormalPerVertex(const Vector* _vectorArray, const ionU32* _indexList, const ionU32 _indexCount, Vector* _outNormalVectorArray)
+void GeometryHelper::CalculateNormals(const Vector* _vectorArray, const ionU32* _indexList, const ionU32 _indexCount, Vector* _outNormalVectorArray)
 {
     //
     // Internal declaration
@@ -123,14 +123,51 @@ void GeometryHelper::CalculateNormalPerVertex(const Vector* _vectorArray, const 
     faces.clear();
 }
 
+
+// is a very simple implementation!
+void GeometryHelper::CalculateUVs(const Vector* _vectorArray, const ionU32 _vectorCount, Vector* _outUVUVVectorArray)
+{
+    ionFloat minX = kfPlusInf;
+    ionFloat maxX = kfMinusInf;
+    ionFloat minY = kfPlusInf;
+    ionFloat maxY = kfMinusInf;
+
+    for(ionU32 i = 0; i < _vectorCount; ++i)
+    {
+        ionFloat x = Helper::ExtractX(_vectorArray[i]);
+        ionFloat y = Helper::ExtractY(_vectorArray[i]);
+        ionFloat z = Helper::ExtractZ(_vectorArray[i]);
+
+        minX = std::min(minX, x * z);
+        minY = std::min(minY, y * z);
+        maxX = std::max(maxX, x * z);
+        maxY = std::max(maxY, y * z);
+    }
+
+    ionFloat kU = 1.0f / (maxX - minX);
+    ionFloat kV = 1.0f / (maxY - minY);
+
+    Vector xyxyMin(minX, minY, minX, minY);
+    Vector uvuv(kU, kV, kU, kV);
+
+    for (ionU32 i = 0; i < _vectorCount; ++i)
+    {
+        Vector xyxy = Swizzle::XYXY(_vectorArray[i]);
+
+        _outUVUVVectorArray[i] = (xyxy - xyxyMin) * uvuv;
+    }
+}
+
+
+
 //
 // THIS FUNCTION IS NOT OPTIMIZED! DO NOT A RUNTIME!
 // FROM:
 // http://www.terathon.com/code/tangent.html
-void GeometryHelper::CalculateTangent(
-    const Vector* _vectorArray, const Vector* _normalArray, const Vector* _textCoordUVUVArray, const ionU32 _vectorCount,   /* to iterate and get the value to use */
-    const ionU32* _indexList, const ionU32 _indexCount,                                                                     /* to generate face (triangle) */
-    Vector* _outTangentVectorArray                                                                                          /* output tangent */
+void GeometryHelper::CalculateTangents(
+    const Vector* _vectorArray, const Vector* _normalArray, const Vector* _textCoordUVUVArray, const ionU32 _vectorCount,   // to iterate and get the value to use 
+    const ionU32* _indexList, const ionU32 _indexCount,                                                                     // to generate face (triangle)
+    Vector* _outTangentVectorArray                                                                                          // output tangent
 )
 {
     //

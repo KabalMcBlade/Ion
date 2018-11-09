@@ -103,9 +103,12 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         vertices[1].SetPosition(positions[1]);
         vertices[2].SetPosition(positions[2]);
 
-        vertices[0].SetTexCoordUV(0.0f, 0.0f);
-        vertices[1].SetTexCoordUV(1.0f, 0.0f);
-        vertices[2].SetTexCoordUV(0.0f, 1.0f);
+        Vector uvuv[3];
+        GeometryHelper::CalculateUVs(positions, 3, uvuv);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetTexCoordUV(uvuv[i]);
+        }
 
         meshRenderer->PushBackVertex(vertices[0]);
         meshRenderer->PushBackVertex(vertices[1]);
@@ -134,17 +137,19 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         vertices[1].SetPosition(positions[1]);
         vertices[2].SetPosition(positions[2]);
 
-        vertices[0].SetTexCoordUV(0.0f, 0.0f);
-        vertices[1].SetTexCoordUV(1.0f, 0.0f);
-        vertices[2].SetTexCoordUV(0.0f, 1.0f);
+        Vector uvuv[3];
+        GeometryHelper::CalculateUVs(positions, 3, uvuv);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetTexCoordUV(uvuv[i]);
+        }
 
-        Vector normal0 = GeometryHelper::CalculateSurfaceNormalTriangle(&positions[0], 0);
-        Vector normal1 = GeometryHelper::CalculateSurfaceNormalTriangle(&positions[0], 1);
-        Vector normal2 = GeometryHelper::CalculateSurfaceNormalTriangle(&positions[0], 2);
-
-        vertices[0].SetNormal(normal0);
-        vertices[1].SetNormal(normal1);
-        vertices[2].SetNormal(normal2);
+        Vector normals[3];
+        GeometryHelper::CalculateNormals(positions, indices.data(), 3, normals);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetNormal(normals[i]);
+        }
 
         meshRenderer->PushBackVertex(vertices[0]);
         meshRenderer->PushBackVertex(vertices[1]);
@@ -173,13 +178,12 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         vertices[1].SetPosition(positions[1]);
         vertices[2].SetPosition(positions[2]);
 
-        Vector normal0 = GeometryHelper::CalculateSurfaceNormalTriangle(&positions[0], 0);
-        Vector normal1 = GeometryHelper::CalculateSurfaceNormalTriangle(&positions[0], 1);
-        Vector normal2 = GeometryHelper::CalculateSurfaceNormalTriangle(&positions[0], 2);
-
-        vertices[0].SetNormal(normal0);
-        vertices[1].SetNormal(normal1);
-        vertices[2].SetNormal(normal2);
+        Vector normals[3];
+        GeometryHelper::CalculateNormals(positions, indices.data(), 3, normals);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetNormal(normals[i]);
+        }
 
         meshRenderer->PushBackVertex(vertices[0]);
         meshRenderer->PushBackVertex(vertices[1]);
@@ -208,29 +212,27 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         vertices[1].SetPosition(positions[1]);
         vertices[2].SetPosition(positions[2]);
 
-        Vector uvuv[3] = { Vector(0.0f, 0.0f, 0.0f, 0.0f),  Vector(1.0f, 0.0f, 1.0f, 0.0f),  Vector(0.0f, 1.0f, 0.0f, 1.0f) };
-
-        vertices[0].SetTexCoordUV0(uvuv[0]);
-        vertices[1].SetTexCoordUV0(uvuv[1]);
-        vertices[2].SetTexCoordUV0(uvuv[2]);
-
-        Vector normals[3] =
+        Vector uvuv[3];
+        GeometryHelper::CalculateUVs(positions, 3, uvuv);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
         {
-            GeometryHelper::CalculateSurfaceNormalTriangle(&positions[0], 0),
-            GeometryHelper::CalculateSurfaceNormalTriangle(&positions[0], 1),
-            GeometryHelper::CalculateSurfaceNormalTriangle(&positions[0], 2)
-        };
+            vertices[i].SetTexCoordUV0(uvuv[i]);
+            vertices[i].SetTexCoordUV1(uvuv[i]);
+        }
 
-        vertices[0].SetNormal(normals[0]);
-        vertices[1].SetNormal(normals[1]);
-        vertices[2].SetNormal(normals[2]);
+        Vector normals[3];
+        GeometryHelper::CalculateNormals(positions, indices.data(), 3, normals);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetNormal(normals[i]);
+        }
 
         vertices[0].SetColor(_r, _g, _b, _a);
         vertices[1].SetColor(_r, _g, _b, _a);
         vertices[2].SetColor(_r, _g, _b, _a);
 
         Vector tangents[3];
-        GeometryHelper::CalculateTangent(positions, normals, uvuv, 3, indices.data(), 3, tangents);
+        GeometryHelper::CalculateTangents(positions, normals, uvuv, 3, indices.data(), 3, tangents);
 
         vertices[0].SetTangent(tangents[0]);
         vertices[1].SetTangent(tangents[1]);
@@ -379,10 +381,12 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         vertices[2].SetPosition(positions[2]);
         vertices[3].SetPosition(positions[3]);
 
-        vertices[0].SetTexCoordUV(1.0f, 0.0f);
-        vertices[1].SetTexCoordUV(0.0f, 0.0f);
-        vertices[2].SetTexCoordUV(0.0f, 1.0f);
-        vertices[3].SetTexCoordUV(1.0f, 1.0f);
+        Vector uvuv[4];
+        GeometryHelper::CalculateUVs(positions, 4, uvuv);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetTexCoordUV(uvuv[i]);
+        }
 
         meshRenderer->PushBackVertex(vertices[0]);
         meshRenderer->PushBackVertex(vertices[1]);
@@ -417,12 +421,11 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         vertices[3].SetPosition(positions[3]);
 
         Vector normals[4];
-        GeometryHelper::CalculateNormalPerVertex(positions, indices.data(), 6, normals);
-
-        vertices[0].SetNormal(normals[0]);
-        vertices[1].SetNormal(normals[1]);
-        vertices[2].SetNormal(normals[2]);
-        vertices[3].SetNormal(normals[3]);
+        GeometryHelper::CalculateNormals(positions, indices.data(), 4, normals);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetNormal(normals[i]);
+        }
 
         meshRenderer->PushBackVertex(vertices[0]);
         meshRenderer->PushBackVertex(vertices[1]);
@@ -456,18 +459,19 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         vertices[2].SetPosition(positions[2]);
         vertices[3].SetPosition(positions[3]);
 
-        vertices[0].SetTexCoordUV(1.0f, 0.0f);
-        vertices[1].SetTexCoordUV(0.0f, 0.0f);
-        vertices[2].SetTexCoordUV(0.0f, 1.0f);
-        vertices[3].SetTexCoordUV(1.0f, 1.0f);
+        Vector uvuv[4];
+        GeometryHelper::CalculateUVs(positions, 4, uvuv);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetTexCoordUV(uvuv[i]);
+        }
 
         Vector normals[4];
-        GeometryHelper::CalculateNormalPerVertex(positions, indices.data(), 6, normals);
-
-        vertices[0].SetNormal(normals[0]);
-        vertices[1].SetNormal(normals[1]);
-        vertices[2].SetNormal(normals[2]);
-        vertices[3].SetNormal(normals[3]);
+        GeometryHelper::CalculateNormals(positions, indices.data(), 4, normals);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetNormal(normals[i]);
+        }
 
         meshRenderer->PushBackVertex(vertices[0]);
         meshRenderer->PushBackVertex(vertices[1]);
@@ -501,25 +505,20 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         vertices[2].SetPosition(positions[2]);
         vertices[3].SetPosition(positions[3]);
 
-        vertices[0].SetTexCoordUV0(1.0f, 0.0f);
-        vertices[1].SetTexCoordUV0(0.0f, 0.0f);
-        vertices[2].SetTexCoordUV0(0.0f, 1.0f);
-        vertices[3].SetTexCoordUV0(1.0f, 1.0f);
+        Vector uvuv[4];
+        GeometryHelper::CalculateUVs(positions, 4, uvuv);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetTexCoordUV0(uvuv[i]);
+            vertices[i].SetTexCoordUV1(uvuv[i]);
+        }
 
         Vector normals[4];
-        GeometryHelper::CalculateNormalPerVertex(positions, indices.data(), 6, normals);
-
-        vertices[0].SetNormal(normals[0]);
-        vertices[1].SetNormal(normals[1]);
-        vertices[2].SetNormal(normals[2]);
-        vertices[3].SetNormal(normals[3]);
-        
-        Vector uvuv[4] = { Vector(0.0f, 0.0f, 1.0f, 1.0f), Vector(0.0f, 0.0f, 1.0f, 1.0f), Vector(0.0f, 0.0f, 1.0f, 1.0f), Vector(0.0f, 0.0f, 1.0f, 1.0f) };
-
-        vertices[0].SetTexCoordUV0(uvuv[0]);
-        vertices[1].SetTexCoordUV0(uvuv[1]);
-        vertices[2].SetTexCoordUV0(uvuv[2]);
-        vertices[3].SetTexCoordUV0(uvuv[3]);
+        GeometryHelper::CalculateNormals(positions, indices.data(), 4, normals);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetNormal(normals[i]);
+        }
 
         vertices[0].SetColor(_r, _g, _b, _a);
         vertices[1].SetColor(_r, _g, _b, _a);
@@ -527,7 +526,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         vertices[3].SetColor(_r, _g, _b, _a);
 
         Vector tangents[4];
-        GeometryHelper::CalculateTangent(positions, normals, uvuv, 4, indices.data(), 6, tangents);
+        GeometryHelper::CalculateTangents(positions, normals, uvuv, 4, indices.data(), 6, tangents);
 
         vertices[0].SetTangent(tangents[0]);
         vertices[1].SetTangent(tangents[1]);
@@ -634,102 +633,6 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         Vector(0.5f, -0.5f, 0.5f, 1.0f)
     };
 
-    ionFloat texCoords[] = {
-        1.0f, 0.0f,
-        1.0f, 1.0f,
-        0.0f, 1.0f,
-        0.0f, 0.0f,
-
-        1.0f, 0.0f,
-        1.0f, 1.0f,
-        0.0f, 1.0f,
-        0.0f, 0.0f,
-
-        1.0f, 0.0f,
-        1.0f, 1.0f,
-        0.0f, 1.0f,
-        0.0f, 0.0f,
-
-        1.0f, 0.0f,
-        1.0f, 1.0f,
-        0.0f, 1.0f,
-        0.0f, 0.0f,
-
-        1.0f, 0.0f,
-        1.0f, 1.0f,
-        0.0f, 1.0f,
-        0.0f, 0.0f,
-
-        1.0f, 0.0f,
-        1.0f, 1.0f,
-        0.0f, 1.0f,
-        0.0f, 0.0f,
-    };
-
-    Vector normals[24] = {
-        Vector(0.0f, 0.0f, 1.0f, 1.0f),
-        Vector(0.0f, 0.0f, 1.0f, 1.0f),
-        Vector(0.0f, 0.0f, 1.0f, 1.0f),
-        Vector(0.0f, 0.0f, 1.0f, 1.0f),
-
-        Vector(0.0f, 0.0f, -1.0f, 1.0f),
-        Vector(0.0f, 0.0f, -1.0f, 1.0f),
-        Vector(0.0f, 0.0f, -1.0f, 1.0f),
-        Vector(0.0f, 0.0f, -1.0f, 1.0f),
-
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-
-        Vector(0.0f, 1.0f, 0.0f, 1.0f),
-        Vector(0.0f, 1.0f, 0.0f, 1.0f),
-        Vector(0.0f, 1.0f, 0.0f, 1.0f),
-        Vector(0.0f, 1.0f, 0.0f, 1.0f),
-
-        Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-
-        Vector(0.0f, -1.0f, 0.0f, 1.0f),
-        Vector(0.0f, -1.0f, 0.0f, 1.0f),
-        Vector(0.0f, -1.0f, 0.0f, 1.0f),
-        Vector(0.0f, -1.0f, 0.0f, 1.0f)
-    };
-
-    Vector uvuv[24] = {
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 1.0f, 0.0f, 0.0f),
-        Vector(0.0f, 1.0f, 1.0f, 0.0f),
-        Vector(0.0f, 0.0f, 1.0f, 1.0f),
-
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 1.0f, 0.0f, 0.0f),
-        Vector(0.0f, 1.0f, 1.0f, 0.0f),
-        Vector(0.0f, 0.0f, 1.0f, 1.0f),
-
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 1.0f, 0.0f, 0.0f),
-        Vector(0.0f, 1.0f, 1.0f, 0.0f),
-        Vector(0.0f, 0.0f, 1.0f, 1.0f),
-
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 1.0f, 0.0f, 0.0f),
-        Vector(0.0f, 1.0f, 1.0f, 0.0f),
-        Vector(0.0f, 0.0f, 1.0f, 1.0f),
-
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 1.0f, 0.0f, 0.0f),
-        Vector(0.0f, 1.0f, 1.0f, 0.0f),
-        Vector(0.0f, 0.0f, 1.0f, 1.0f),
-
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 1.0f, 0.0f, 0.0f),
-        Vector(0.0f, 1.0f, 1.0f, 0.0f),
-        Vector(0.0f, 0.0f, 1.0f, 1.0f),
-    };
-
     Entity* entityPtr = dynamic_cast<Entity*>(_entity.GetPtr());
 
     switch (_layout)
@@ -798,11 +701,18 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         eosVector(VertexUV) vertices;
         vertices.resize(24);
 
-        for (ionU32 i = 0, j = 0; i < 24; ++i, j += 2)
+        for (ionU32 i = 0; i < 24; ++i)
         {
             vertices[i].SetPosition(positions[i]);
-            vertices[i].SetTexCoordUV(texCoords[j], texCoords[j + 1]);
         }
+
+        Vector uvuv[24];
+        GeometryHelper::CalculateUVs(positions, 24, uvuv);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetTexCoordUV(uvuv[i]);
+        }
+
         for (ionU32 i = 0; i < 24; ++i)
         {
             meshRenderer->PushBackVertex(vertices[i]);
@@ -827,11 +737,18 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         eosVector(VertexNormal) vertices;
         vertices.resize(24);
 
-        for (ionU32 i = 0, j = 0; i < 24; ++i, j += 2)
+        for (ionU32 i = 0; i < 24; ++i)
         {
             vertices[i].SetPosition(positions[i]);
+        }
+
+        Vector normals[24];
+        GeometryHelper::CalculateNormals(positions, indices.data(), 24, normals);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
             vertices[i].SetNormal(normals[i]);
         }
+
         for (ionU32 i = 0; i < 24; ++i)
         {
             meshRenderer->PushBackVertex(vertices[i]);
@@ -856,12 +773,25 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         eosVector(VertexSimple) vertices;
         vertices.resize(24);
 
-        for (ionU32 i = 0, j = 0; i < 24; ++i, j += 2)
+        for (ionU32 i = 0; i < 24; ++i)
         {
             vertices[i].SetPosition(positions[i]);
-            vertices[i].SetTexCoordUV(texCoords[j], texCoords[j + 1]);
+        }
+
+        Vector uvuv[24];
+        GeometryHelper::CalculateUVs(positions, 24, uvuv);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetTexCoordUV(uvuv[i]);
+        }
+
+        Vector normals[24];
+        GeometryHelper::CalculateNormals(positions, indices.data(), 24, normals);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
             vertices[i].SetNormal(normals[i]);
         }
+
         for (ionU32 i = 0; i < 24; ++i)
         {
             meshRenderer->PushBackVertex(vertices[i]);
@@ -886,17 +816,35 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         eosVector(Vertex) vertices;
         vertices.resize(24);
 
-        Vector tangents[24];
-        GeometryHelper::CalculateTangent(positions, normals, uvuv, 24, indices.data(), 36, tangents);
-
         for (ionU32 i = 0; i < 24; ++i)
         {
             vertices[i].SetPosition(positions[i]);
-            vertices[i].SetTexCoordUV0(uvuv[i]);
-            vertices[i].SetNormal(normals[i]);
             vertices[i].SetColor(_r, _g, _b, _a);
+        }
+
+        Vector uvuv[24];
+        GeometryHelper::CalculateUVs(positions, 24, uvuv);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetTexCoordUV0(uvuv[i]);
+            vertices[i].SetTexCoordUV1(uvuv[i]);
+        }
+
+        Vector normals[24];
+        GeometryHelper::CalculateNormals(positions, indices.data(), 24, normals);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetNormal(normals[i]);
+        }
+
+        Vector tangents[24];
+        GeometryHelper::CalculateTangents(positions, normals, uvuv, 24, indices.data(), 36, tangents);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
             vertices[i].SetTangent(tangents[i]);
         }
+
+
         for (ionU32 i = 0; i < 24; ++i)
         {
             meshRenderer->PushBackVertex(vertices[i]);
@@ -1372,7 +1320,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         }
 
         Vector tangents[verticesSize];
-        GeometryHelper::CalculateTangent(positions.data(), normals.data(), uvuv.data(), verticesSize, indices.data(), indicesSize, tangents);
+        GeometryHelper::CalculateTangents(positions.data(), normals.data(), uvuv.data(), verticesSize, indices.data(), indicesSize, tangents);
 
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
@@ -1472,77 +1420,6 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
         Vector(0.5f, 0.5f, -0.5f)
     };
 
-
-    ionFloat texCoords[] = {
-
-        1.0f, 0.0f,
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-        0.0f, 1.0f,
-
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-        0.0f, 1.0f,
-
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-        0.0f, 1.0f,
-
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-        0.0f, 1.0f,
-    };
-
-    Vector normals[24] = {
-        Vector(0.0f, 0.0f, -1.0f, 1.0f),
-        Vector(0.0f, 0.0f, -1.0f, 1.0f),
-        Vector(0.0f, 0.0f, -1.0f, 1.0f),
-        Vector(0.0f, 0.0f, -1.0f, 1.0f),
-
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-
-        Vector(0.0f, 1.0f, 0.0f, 1.0f),
-        Vector(0.0f, 1.0f, 0.0f, 1.0f),
-        Vector(0.0f, 1.0f, 0.0f, 1.0f),
-
-        Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(-1.0f, 0.0f, 0.0f, 1.0f),
-
-        Vector(0.0f, -1.0f, 0.0f, 1.0f),
-        Vector(0.0f, -1.0f, 0.0f, 1.0f),
-        Vector(0.0f, -1.0f, 0.0f, 1.0f)
-    };
-
-    Vector uvuv[16] = {
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 1.0f, 0.0f, 0.0f),
-        Vector(0.0f, 1.0f, 1.0f, 0.0f),
-        Vector(0.0f, 0.0f, 1.0f, 1.0f),
-
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 1.0f, 0.0f, 0.0f),
-        Vector(0.0f, 1.0f, 1.0f, 0.0f),
-
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 1.0f, 0.0f, 0.0f),
-        Vector(0.0f, 1.0f, 1.0f, 0.0f),
-
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 1.0f, 0.0f, 0.0f),
-        Vector(0.0f, 1.0f, 1.0f, 0.0f),
-
-        Vector(1.0f, 0.0f, 0.0f, 1.0f),
-        Vector(1.0f, 1.0f, 0.0f, 0.0f),
-        Vector(0.0f, 1.0f, 1.0f, 0.0f),
-    };
-
     Entity* entityPtr = dynamic_cast<Entity*>(_entity.GetPtr());
 
     switch (_layout)
@@ -1580,7 +1457,7 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
         MeshRendererColored* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererColored>();
 
         eosVector(VertexColored) vertices;
-        vertices.resize(24);
+        vertices.resize(16);
 
         for (ionU32 i = 0; i < 16; ++i)
         {
@@ -1609,13 +1486,20 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
         MeshRendererUV* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererUV>();
 
         eosVector(VertexUV) vertices;
-        vertices.resize(24);
+        vertices.resize(16);
 
-        for (ionU32 i = 0, j = 0; i < 16; ++i, j += 2)
+        for (ionU32 i = 0; i < 16; ++i)
         {
             vertices[i].SetPosition(positions[i]);
-            vertices[i].SetTexCoordUV(texCoords[j], texCoords[j + 1]);
         }
+
+        Vector uvuv[16];
+        GeometryHelper::CalculateUVs(positions, 16, uvuv);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetTexCoordUV(uvuv[i]);
+        }
+
         for (ionU32 i = 0; i < 16; ++i)
         {
             meshRenderer->PushBackVertex(vertices[i]);
@@ -1638,13 +1522,20 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
         MeshRendererNormal* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererNormal>();
 
         eosVector(VertexNormal) vertices;
-        vertices.resize(24);
+        vertices.resize(16);
 
-        for (ionU32 i = 0, j = 0; i < 16; ++i, j += 2)
+        for (ionU32 i = 0; i < 16; ++i)
         {
             vertices[i].SetPosition(positions[i]);
+        }
+
+        Vector normals[16];
+        GeometryHelper::CalculateNormals(positions, indices.data(), 16, normals);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
             vertices[i].SetNormal(normals[i]);
         }
+
         for (ionU32 i = 0; i < 16; ++i)
         {
             meshRenderer->PushBackVertex(vertices[i]);
@@ -1667,14 +1558,27 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
         MeshRendererSimple* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererSimple>();
 
         eosVector(VertexSimple) vertices;
-        vertices.resize(24);
+        vertices.resize(16);
 
-        for (ionU32 i = 0, j = 0; i < 16; ++i, j += 2)
+        for (ionU32 i = 0; i < 16; ++i)
         {
             vertices[i].SetPosition(positions[i]);
-            vertices[i].SetTexCoordUV(texCoords[j], texCoords[j + 1]);
+        }
+
+        Vector uvuv[16];
+        GeometryHelper::CalculateUVs(positions, 16, uvuv);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetTexCoordUV(uvuv[i]);
+        }
+
+        Vector normals[16];
+        GeometryHelper::CalculateNormals(positions, indices.data(), 16, normals);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
             vertices[i].SetNormal(normals[i]);
         }
+
         for (ionU32 i = 0; i < 16; ++i)
         {
             meshRenderer->PushBackVertex(vertices[i]);
@@ -1699,17 +1603,35 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
         eosVector(Vertex) vertices;
         vertices.resize(16);
 
-        Vector tangents[16];
-        GeometryHelper::CalculateTangent(positions, normals, uvuv, 16, indices.data(), 18, tangents);
-
         for (ionU32 i = 0; i < 16; ++i)
         {
             vertices[i].SetPosition(positions[i]);
-            vertices[i].SetTexCoordUV0(uvuv[i]);
-            vertices[i].SetNormal(normals[i]);
             vertices[i].SetColor(_r, _g, _b, _a);
+        }
+
+        Vector uvuv[16];
+        GeometryHelper::CalculateUVs(positions, 16, uvuv);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetTexCoordUV0(uvuv[i]);
+            vertices[i].SetTexCoordUV1(uvuv[i]);
+        }
+
+        Vector normals[16];
+        GeometryHelper::CalculateNormals(positions, indices.data(), 16, normals);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i].SetNormal(normals[i]);
+        }
+
+        Vector tangents[16];
+        GeometryHelper::CalculateTangents(positions, normals, uvuv, 16, indices.data(), 18, tangents);
+        for (ionU32 i = 0; i < vertices.size(); ++i)
+        {
             vertices[i].SetTangent(tangents[i]);
         }
+
+
         for (ionU32 i = 0; i < 16; ++i)
         {
             meshRenderer->PushBackVertex(vertices[i]);
