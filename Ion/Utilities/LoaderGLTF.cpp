@@ -77,7 +77,8 @@ void UpdateBoundingBox(const ObjectHandler& _node, BoundingBox& _mainBoundingBox
 }
 
 // for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
-void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRenderer* _meshRenderer, ObjectHandler& _entityHandle, eosMap(ionU32, Node*)& _nodeIndexToNodePointer, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign, ionBool _dumpModel)
+void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRenderer* _meshRenderer, ObjectHandler& _entityHandle, eosMap(ionU32, Node*)& _nodeIndexToNodePointer, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName
+    /*, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign*/, ionBool _dumpModel)
 {
     Vector position(0.0f, 0.0f, 0.0f);
     Quaternion rotation;
@@ -134,7 +135,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
         child->AttachToParent(_entityHandle);
 
         _nodeIndexToNodePointer.insert(std::pair<ionU32, Node*>((ionU32)_node.children[i], child));
-        LoadNode(_model.nodes[_node.children[i]], _model, _meshRenderer, childHandle, _nodeIndexToNodePointer, _textureIndexToTextureName, _materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign, _dumpModel);
+        LoadNode(_model.nodes[_node.children[i]], _model, _meshRenderer, childHandle, _nodeIndexToNodePointer, _textureIndexToTextureName, _materialIndexToMaterialName, _dumpModel);
     }
     
     if (_node.mesh > -1) 
@@ -185,9 +186,15 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
             ionMesh.SetIndexStart(_meshRenderer->GetIndexDataCount());
             ionU32 vertexStart = _meshRenderer->GetVertexDataCount();       // 0?
 
-            eosVector(Vector) positionToBeNormalized;
-            eosVector(Vector) normalForTangent;
-            eosVector(Vector) uvuvForTangents;
+            eosVector(Vector) positionToCompute;
+            eosVector(Vector) normalToCompute;
+            eosVector(Vector) uvuvToCompute;
+            eosVector(Vector) tangentsToCompute;
+            eosVector(ionFloat) bitangentsSignToCompute;
+
+            ionBool normalsAreMissing = true;
+            ionBool uvAreMissing = true;
+            ionBool tangentsAreMissing = true;
 
             // Vertices
             {
@@ -227,7 +234,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     const tinygltf::BufferView &normView = _model.bufferViews[normAccessor.bufferView];
                     bufferNormals = reinterpret_cast<const ionFloat *>(&(_model.buffers[normView.buffer].data[normAccessor.byteOffset + normView.byteOffset]));
 
-                    _generateNormalWhenMissing = false;
+                    normalsAreMissing = false;
                 }
 
                 if (primitive.attributes.find("TANGENT") != primitive.attributes.end())
@@ -236,7 +243,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     const tinygltf::BufferView &tangentView = _model.bufferViews[tangentAccessor.bufferView];
                     bufferTangent = reinterpret_cast<const ionFloat *>(&(_model.buffers[tangentView.buffer].data[tangentAccessor.byteOffset + tangentView.byteOffset]));
 
-                    _generateTangentWhenMissing = false;
+                    tangentsAreMissing = false;
                 }
 
                 if (usingMorphTarget)
@@ -344,6 +351,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     default:
                         ionAssertReturnVoid(false, "Component type is not supported!");
                     }
+
+                    uvAreMissing = false;
                 }
 
                 if (primitive.attributes.find("TEXCOORD_1") != primitive.attributes.end())
@@ -481,10 +490,9 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         fputs(os.str().c_str(), s_fileDump);
                     }
 
-
-                    if (_generateNormalWhenMissing || _generateTangentWhenMissing)
+                    if (normalsAreMissing || tangentsAreMissing)
                     {
-                        positionToBeNormalized.push_back(pos);
+                        positionToCompute.push_back(pos);
                     }
                     vert.SetPosition(pos);
 
@@ -494,17 +502,15 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     if (bufferNormals != nullptr)
                     {
                         normal = Helper::Set((&bufferNormals[v * 3])[0], ((&bufferNormals[v * 3])[1]) , (&bufferNormals[v * 3])[2], 1.0f);
-
-                        if (_generateTangentWhenMissing)
-                        {
-                            normalForTangent.push_back(normal);
-                        }
                     }
                     else
                     {
                         normal = Helper::Set(0.0f, 0.0f, 0.0f, 1.0f);
+                    }
 
-                        // if no normal, after all iteration the normalToBeTangent will be empty, so we will know how to do
+                    if (!normalsAreMissing && tangentsAreMissing)
+                    {
+                        normalToCompute.push_back(normal);
                     }
 
                     if (_dumpModel && bufferNormals != nullptr)
@@ -542,10 +548,10 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
                     if (bufferTexCoordsFloat0 != nullptr)
                     {
-                        if (_generateTangentWhenMissing)
+                        if (!uvAreMissing)
                         {
                             Vector uvuv = Helper::Set((&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1], (&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1]);
-                            uvuvForTangents.push_back(uvuv);
+                            uvuvToCompute.push_back(uvuv);
                         }
 
                         vert.SetTexCoordUV0((&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1]);
@@ -554,10 +560,10 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     {
                         if (bufferTexCoordsU160 != nullptr)
                         {
-                            if (_generateTangentWhenMissing)
+                            if (!uvAreMissing)
                             {
                                 Vector uvuv = Helper::Set(ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f);
-                                uvuvForTangents.push_back(uvuv);
+                                uvuvToCompute.push_back(uvuv);
                             }
 
                             vert.SetTexCoordUV0(ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f);
@@ -566,10 +572,10 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         {
                             if(bufferTexCoordsU80 != nullptr)
                             {
-                                if (_generateTangentWhenMissing)
+                                if (!uvAreMissing)
                                 {
                                     Vector uvuv = Helper::Set(ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f);
-                                    uvuvForTangents.push_back(uvuv);
+                                    uvuvToCompute.push_back(uvuv);
                                 }
 
                                 vert.SetTexCoordUV0(ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f);
@@ -671,7 +677,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
             }
 
 
-            eosVector(Index) indexToBeUsedDuringNormalization;
+            eosVector(Index) indexToCompute;
 
             // Indices
             {
@@ -696,9 +702,9 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU32));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
-                        if (_generateNormalWhenMissing || _generateTangentWhenMissing)
+                        if (normalsAreMissing || tangentsAreMissing)
                         {
-                            indexToBeUsedDuringNormalization.push_back((Index)(buf[index] + vertexStart));
+                            indexToCompute.push_back((Index)(buf[index]));
                         }
                         _meshRenderer->PushBackIndex((Index)(buf[index] + vertexStart));
 
@@ -719,9 +725,9 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU16));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
-                        if (_generateNormalWhenMissing || _generateTangentWhenMissing)
+                        if (normalsAreMissing || tangentsAreMissing)
                         {
-                            indexToBeUsedDuringNormalization.push_back((Index)(buf[index] + vertexStart));
+                            indexToCompute.push_back((Index)(buf[index]));
                         }
                         _meshRenderer->PushBackIndex(buf[index] + vertexStart);
 
@@ -741,9 +747,9 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU8));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
-                        if (_generateNormalWhenMissing || _generateTangentWhenMissing)
+                        if (normalsAreMissing || tangentsAreMissing)
                         {
-                            indexToBeUsedDuringNormalization.push_back((Index)(buf[index] + vertexStart));
+                            indexToCompute.push_back((Index)(buf[index]));
                         }
                         _meshRenderer->PushBackIndex((Index)(buf[index] + vertexStart));
 
@@ -768,47 +774,36 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     fputs(os.str().c_str(), s_fileDump);
                 }
             }
-
-
+            
             // Write normal and tangent if they are missing
-            eosVector(Vector) normalsGenerated;
-            if (_generateNormalWhenMissing)
+            if (normalsAreMissing)
             {
-                normalsGenerated.resize(positionToBeNormalized.size());
-                GeometryHelper::CalculateNormals(positionToBeNormalized.data(), indexToBeUsedDuringNormalization.data(), static_cast<ionU32>(indexToBeUsedDuringNormalization.size()), normalsGenerated.data());
+                normalToCompute.resize(positionToCompute.size());
+                GeometryHelper::CalculateNormals(positionToCompute.data(), static_cast<ionU32>(positionToCompute.size()), indexToCompute.data(), static_cast<ionU32>(indexToCompute.size()), normalToCompute.data());
 
-                ionSize count = normalsGenerated.size();
+                ionSize count = normalToCompute.size();
                 for (ionSize k = 0; k < count; ++k)
                 {
-                    _meshRenderer->GetVertex(k).SetNormal(normalsGenerated[k]);
+                    _meshRenderer->GetVertex(k).SetNormal(normalToCompute[k]);
                 }
             }
 
-            if (_generateTangentWhenMissing && !uvuvForTangents.empty())
+            // I need to have the UV in order to compute the tangent.
+            // If no UV provided means:
+            // 1. no texture
+            // 2. so no tangent needs
+            if (tangentsAreMissing && !uvAreMissing)
             {
-                eosVector(Vector) tangentsGenerated;
+                tangentsToCompute.resize(positionToCompute.size());
+                bitangentsSignToCompute.resize(positionToCompute.size());
+                GeometryHelper::CalculateTangents(positionToCompute.data(), normalToCompute.data(), uvuvToCompute.data(), static_cast<ionU32>(positionToCompute.size()), indexToCompute.data(), static_cast<ionU32>(indexToCompute.size()), tangentsToCompute.data(), bitangentsSignToCompute.data());
 
-                // means we have generated and not get from model!
-                if (normalForTangent.empty())
-                {
-                    tangentsGenerated.resize(positionToBeNormalized.size());
-                    GeometryHelper::CalculateTangents(positionToBeNormalized.data(), normalsGenerated.data(), uvuvForTangents.data(), static_cast<ionU32>(positionToBeNormalized.size()), indexToBeUsedDuringNormalization.data(), static_cast<ionU32>(indexToBeUsedDuringNormalization.size()), tangentsGenerated.data());
-                }
-                else
-                {
-                    tangentsGenerated.resize(positionToBeNormalized.size());
-                    GeometryHelper::CalculateTangents(positionToBeNormalized.data(), normalForTangent.data(), uvuvForTangents.data(), static_cast<ionU32>(positionToBeNormalized.size()), indexToBeUsedDuringNormalization.data(), static_cast<ionU32>(indexToBeUsedDuringNormalization.size()), tangentsGenerated.data());
-                }
-
-                ionSize count = tangentsGenerated.size();
+                ionSize count = tangentsToCompute.size();
                 for (ionSize k = 0; k < count; ++k)
                 {
-                    _meshRenderer->GetVertex(k).SetTangent(tangentsGenerated[k]);
-                    if (_setBitangentSign)
-                    {
-                        _meshRenderer->GetVertex(k).SetBiTangent(tangentsGenerated[k]);
-                    }
-                } 
+                    _meshRenderer->GetVertex(k).SetTangent(tangentsToCompute[k]);
+                    _meshRenderer->GetVertex(k).SetBiTangentSign(bitangentsSignToCompute[k]);
+                }
             }
 
             // add material and add all to primitive
@@ -1687,7 +1682,7 @@ void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _mod
     }
 }
 
-ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, ObjectHandler& _entity, ionBool _generateNormalWhenMissing /*= false*/, ionBool _generateTangentWhenMissing /*= false*/, ionBool _setBitangentSign /*= false*/)
+ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, ObjectHandler& _entity)
 {
     //
     eosString dir;
@@ -2174,7 +2169,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
         const tinygltf::Node node = model.nodes[scene.nodes[0]];
 
         nodeIndexToNodePointer.insert(std::pair<ionU32, Node*>((ionU32)scene.nodes[0], entityPtr));
-        LoadNode(node, model, meshRenderer, _entity, nodeIndexToNodePointer, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign, m_dumpModel);
+        LoadNode(node, model, meshRenderer, _entity, nodeIndexToNodePointer, textureIndexToTextureName, materialIndexToMaterialName, m_dumpModel);
     }
     else
     {
@@ -2186,7 +2181,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
             ObjectHandler childHandle(child);
 
             nodeIndexToNodePointer.insert(std::pair<ionU32, Node*>((ionU32)scene.nodes[i], child));
-            LoadNode(node, model, meshRenderer, childHandle, nodeIndexToNodePointer, textureIndexToTextureName, materialIndexToMaterialName, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign, m_dumpModel);
+            LoadNode(node, model, meshRenderer, childHandle, nodeIndexToNodePointer, textureIndexToTextureName, materialIndexToMaterialName, m_dumpModel);
 
             child->AttachToParent(_entity);
         }

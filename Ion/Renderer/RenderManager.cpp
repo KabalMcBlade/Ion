@@ -104,10 +104,10 @@ RenderManager& RenderManager::Instance()
     return *s_instance;
 }
 
-ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, Camera* _camToUpdate, ObjectHandler& _entity, ionBool _generateNormalWhenMissing /*= false*/, ionBool _generateTangentWhenMissing /*= false*/, ionBool _setBitangentSign /*= false*/, ionBool _dumpModel /*= false*/)
+ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, Camera* _camToUpdate, ObjectHandler& _entity, ionBool _dumpModel /*= false*/)
 {
     m_loader.SetDumpModel(_dumpModel);
-    return m_loader.Load(_fileName, _camToUpdate, _entity, _generateNormalWhenMissing, _generateTangentWhenMissing, _setBitangentSign);
+    return m_loader.Load(_fileName, _camToUpdate, _entity);
 }
 
 void RenderManager::GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _type, ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)

@@ -2,6 +2,7 @@
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
+#include "../Dependencies/Miscellaneous/mikktspace.h"
 
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
@@ -9,314 +10,290 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+//////////////////////////////////////////////////////////////////////////
 
-Vector GeometryHelper::CalculateAvarageVector(const Vector* _vectorArray, const ionU32 _count)
+
+void GeometryHelper::CalculateNormals(const Vector* _vectorArray, const ionU32 _vectorCount, const ionU32* _indexList, const ionU32 _indexCount, Vector* _outNormalVectorArray)
 {
-    Vector vResult = kZero;
-
-    for (ionU32 i = 0; i < _count; ++i)
+    for (ionU32 i = 0; i < _vectorCount; ++i)
     {
-        vResult += _vectorArray[i];
+        _outNormalVectorArray[i] = Helper::Splat(0.0f);
     }
 
-    ionFloat scale = 1.0f / _count;
-
-    vResult *= scale;
-
-    return vResult;
-}
-
-Vector GeometryHelper::CalculateSurfaceNormalTriangle(const Vector* _vectorArray, const ionU32 _index)
-{
-    const Vector v1 = _vectorArray[(_index + 1) % 3] - _vectorArray[_index];
-    const Vector v2 = _vectorArray[(_index + 2) % 3] - _vectorArray[_index];
-    Vector vSurfaceNormal = v1.Cross(v2);
-    vSurfaceNormal.Normalize3();
-    return vSurfaceNormal;
-}
-
-Vector GeometryHelper::CalculateSurfaceNormalQuad(const Vector* _vectorArray)
-{
-    const Vector vA1 = _vectorArray[1] - _vectorArray[0];
-    const Vector vA2 = _vectorArray[2] - _vectorArray[0];
-    const Vector vB1 = _vectorArray[3] - _vectorArray[2];
-    const Vector vB2 = _vectorArray[0] - _vectorArray[2];
-
-    Vector vSurfaceNormals[2] = { vA1.Cross(vA2), vB1.Cross(vB2) };
-
-    Vector vSurfaceNormal = CalculateAvarageVector(vSurfaceNormals, 2);
-
-    vSurfaceNormal.Normalize3();
-    return vSurfaceNormal;
-}
-
-#define GEOMETRY_HELPER_INVALID_INDEX (ionU32)-1
-void GeometryHelper::CalculateNormals(const Vector* _vectorArray, const ionU32* _indexList, const ionU32 _indexCount, Vector* _outNormalVectorArray)
-{
-    //
-    // Internal declaration
-    struct _Edge
+    ionU32 faceCount = _indexCount / 3;
+    for (ionU32 i = 0; i < faceCount; ++i)
     {
-        ionU32 u;
-        ionU32 v;
+        ionU32 ia = _indexList[i * 3];
+        ionU32 ib = _indexList[i * 3 + 1];
+        ionU32 ic = _indexList[i * 3 + 2];
 
-        _Edge()
-        {
-            u = GEOMETRY_HELPER_INVALID_INDEX;
-            v = GEOMETRY_HELPER_INVALID_INDEX;
-        }
+        const Vector e1 = _vectorArray[ia] - _vectorArray[ib];
+        const Vector e2 = _vectorArray[ic] - _vectorArray[ib];
+        const Vector no = e1.Cross(e2);
 
-        void Set(ionU32 _u, ionU32 _v)
-        {
-            u = _u;
-            v = _v;
-        }
-    };
-
-    struct _Face
-    {
-        _Edge e[3];
-
-        _Face() {}
-        _Face(ionU32 _a, ionU32 _b, ionU32 _c)
-        {
-            e[0].Set(_a, _b);
-            e[1].Set(_b, _c);
-            e[2].Set(_c, _a);
-        }
-    };
-
-
-    //
-    ionU32 triangleCount = _indexCount / 3;
-    eosVector(_Face*) faces;
-
-    // create faces
-    for (ionU32 i = 0; i < triangleCount; ++i)
-    {
-        faces.push_back(eosNew(_Face, ION_MEMORY_ALIGNMENT_SIZE, _indexList[i * 3], _indexList[i * 3 + 1], _indexList[i * 3 + 2]));
+        _outNormalVectorArray[ia] += no;
+        _outNormalVectorArray[ib] += no;
+        _outNormalVectorArray[ic] += no;
     }
-
-    eosVector(Vector) normals;
-    for (ionU32 i = 0; i < _indexCount; ++i)
-    {
-        //Vector normal = kZero;
-        for (ionU32 j = 0; j < faces.size(); ++j)
-        {
-            if (faces[j]->e[0].u == i || faces[j]->e[0].v == i || faces[j]->e[1].u == i || faces[j]->e[1].v == i || faces[j]->e[2].u == i || faces[j]->e[2].v == i)
-            {
-                //normal += CalculateSurfaceNormalTriangle(_vectorArray, _indexList[i]);
-                normals.push_back(CalculateSurfaceNormalTriangle(_vectorArray, _indexList[i]));
-            }
-        }
-
-        //_outNormalVectorArray[_indexList[i]] = normal;
-        _outNormalVectorArray[_indexList[i]] = CalculateAvarageVector(normals.data(), static_cast<ionU32>(normals.size()));
-    }
-
-    //
-    // Clear
-    for (ionU32 i = 0; i < faces.size(); ++i)
-    {
-        eosDelete(faces[i]);
-    }
-    faces.clear();
-}
-
-
-// is a very simple implementation!
-void GeometryHelper::CalculateUVs(const Vector* _vectorArray, const ionU32 _vectorCount, Vector* _outUVUVVectorArray)
-{
-    ionFloat minX = kfPlusInf;
-    ionFloat maxX = kfMinusInf;
-    ionFloat minY = kfPlusInf;
-    ionFloat maxY = kfMinusInf;
-
-    for(ionU32 i = 0; i < _vectorCount; ++i)
-    {
-        ionFloat x = Helper::ExtractX(_vectorArray[i]);
-        ionFloat y = Helper::ExtractY(_vectorArray[i]);
-        ionFloat z = Helper::ExtractZ(_vectorArray[i]);
-
-        minX = std::min(minX, x * z);
-        minY = std::min(minY, y * z);
-        maxX = std::max(maxX, x * z);
-        maxY = std::max(maxY, y * z);
-    }
-
-    ionFloat kU = 1.0f / (maxX - minX);
-    ionFloat kV = 1.0f / (maxY - minY);
-
-    Vector xyxyMin(minX, minY, minX, minY);
-    Vector uvuv(kU, kV, kU, kV);
 
     for (ionU32 i = 0; i < _vectorCount; ++i)
     {
-        Vector xyxy = Swizzle::XYXY(_vectorArray[i]);
-
-        _outUVUVVectorArray[i] = (xyxy - xyxyMin) * uvuv;
+        _outNormalVectorArray[i] = _outNormalVectorArray[i].Normalize3();
     }
 }
 
 
+// It is a very simple implementation and is not optimized, I don't care at this stage of development!
+// It can be used ONLY for simple primitive geometry!!
+void GeometryHelper::CalculateUVs(const Vector* _vectorArray, const ionU32 _vectorCount, Vector* _outUVUVVectorArray)
+{
+    for (ionU32 i = 0; i < _vectorCount; ++i)
+    {
+        const ionFloat x = Helper::ExtractX(_vectorArray[i]);
+        const ionFloat y = Helper::ExtractY(_vectorArray[i]);
+        const ionFloat z = Helper::ExtractZ(_vectorArray[i]);
 
-//
-// THIS FUNCTION IS NOT OPTIMIZED! DO NOT A RUNTIME!
-// FROM:
-// http://www.terathon.com/code/tangent.html
+        // to polar
+        /*
+        ionFloat radius = std::sqrtf(x * x + y * y + z * z);
+        ionFloat theta = std::atan2f(y, x);
+        ionFloat phi = std::acosf(z / radius);
+        ionFloat len = std::sqrt(phi * phi + theta * theta);
+        if (len != 0.0f)
+        {
+            phi = ((phi / len) + 1.0f) / 2.0f;
+            theta = ((theta / len) + 1.0f) / 2.0f;
+        }
+        _outUVUVVectorArray[i] = Helper::Set(phi, theta, phi, theta);
+        */
+        ionFloat phi = std::atan2f(x, z);
+        ionFloat theta = std::atan2f(std::hypot(x, z), y);
+        ionFloat len = std::sqrt(phi * phi + theta * theta);
+
+        if (len != 0.0f) 
+        {
+            phi = ((phi / len) + 1.0f) / 2.0f;
+            theta = ((theta / len) + 1.0f) / 2.0f;
+        }
+
+        _outUVUVVectorArray[i] = Helper::Set(phi, theta, phi, theta);
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// mikktspace algorithm 
+//////////////////////////////////////////////////////////////////////////
+
+
+struct SMikkTSpaceXYZ
+{
+    ionFloat m_x;
+    ionFloat m_y;
+    ionFloat m_z;
+
+    SMikkTSpaceXYZ() : m_x(0.0f), m_y(0.0f), m_z(0.0f) {}
+};
+
+struct SMikkTSpaceUV
+{
+    ionFloat m_u;
+    ionFloat m_v;
+
+    SMikkTSpaceUV() : m_u(0.0f), m_v(0.0f) {}
+};
+
+struct SMikkTSpaceVertex
+{
+    SMikkTSpaceXYZ  m_position;
+    SMikkTSpaceXYZ  m_normal;
+    SMikkTSpaceUV   m_uv;
+
+    SMikkTSpaceXYZ  m_tangent;
+    ionFloat        m_bitangentSign;
+};
+
+struct SMikkTSpaceFace
+{
+    SMikkTSpaceVertex m_vertices[3];
+};
+
+struct SMikkTSpaceConverter
+{
+    eosVector(SMikkTSpaceFace) m_faces;
+    ionU32 m_faceCount;
+};
+
+int GetNumFaces(const SMikkTSpaceContext *x) 
+{
+    SMikkTSpaceConverter* converter = static_cast<SMikkTSpaceConverter*>(x->m_pUserData);
+    return converter->m_faceCount;
+}
+
+int GetNumVerticesFace(const SMikkTSpaceContext *x, int f) 
+{
+    return 3;
+}
+
+void GetPosition(const SMikkTSpaceContext *x, float *dst, int f, int v)
+{
+    SMikkTSpaceConverter* converter = static_cast<SMikkTSpaceConverter*>(x->m_pUserData);
+    
+    dst[0] = converter->m_faces[f].m_vertices[v].m_position.m_x;
+    dst[1] = converter->m_faces[f].m_vertices[v].m_position.m_y;
+    dst[2] = converter->m_faces[f].m_vertices[v].m_position.m_z;
+}
+
+void GetNormal(const SMikkTSpaceContext *x, float *dst, int f, int v)
+{
+    SMikkTSpaceConverter* converter = static_cast<SMikkTSpaceConverter*>(x->m_pUserData);
+
+    dst[0] = converter->m_faces[f].m_vertices[v].m_normal.m_x;
+    dst[1] = converter->m_faces[f].m_vertices[v].m_normal.m_y;
+    dst[2] = converter->m_faces[f].m_vertices[v].m_normal.m_z;
+}
+
+void GetTexCoord(const SMikkTSpaceContext *x, float *dst, int f, int v)
+{
+    SMikkTSpaceConverter* converter = static_cast<SMikkTSpaceConverter*>(x->m_pUserData);
+
+    dst[0] = converter->m_faces[f].m_vertices[v].m_uv.m_u;
+    dst[1] = converter->m_faces[f].m_vertices[v].m_uv.m_v;
+}
+
+void SetTangentSpaceBasic(
+    const SMikkTSpaceContext *x,
+    const float *t,
+    float s,
+    int f,
+    int v) 
+{
+    SMikkTSpaceConverter* converter = static_cast<SMikkTSpaceConverter*>(x->m_pUserData);
+
+    converter->m_faces[f].m_vertices[v].m_tangent.m_x = t[0];
+    converter->m_faces[f].m_vertices[v].m_tangent.m_y = t[1];
+    converter->m_faces[f].m_vertices[v].m_tangent.m_z = t[2];
+
+    converter->m_faces[f].m_vertices[v].m_bitangentSign = s;
+}
+
+/*
+// do not use, base should be fine
+void SetTangentSpace(
+    const SMikkTSpaceContext *x,
+    const float *t,
+    const float *b,
+    float mag_s,
+    float mag_t,
+    tbool op,
+    int f,
+    int v) 
+{
+    SetTangentSpaceBasic(x, t, op != 0 ? 1.0f : -1.0f, f, v);
+}
+*/
+
 void GeometryHelper::CalculateTangents(
     const Vector* _vectorArray, const Vector* _normalArray, const Vector* _textCoordUVUVArray, const ionU32 _vectorCount,   // to iterate and get the value to use 
     const ionU32* _indexList, const ionU32 _indexCount,                                                                     // to generate face (triangle)
-    Vector* _outTangentVectorArray                                                                                          // output tangent
+    Vector* _outTangentVectorArray, ionFloat* _outTangentSignArray                                                          // output tangent and bi-tangent sign
 )
 {
-    //
-    // Internal declaration
-    struct _Edge
-    {
-        ionU32 u;
-        ionU32 v;
+    SMikkTSpaceConverter converter;
 
-        _Edge()
+    converter.m_faceCount = _indexCount / 3;
+    converter.m_faces.resize(converter.m_faceCount);
+
+    for (ionU32 i = 0; i < converter.m_faceCount; ++i)
+    {
+        ionU32 index0 = _indexList[i * 3];
+        ionU32 index1 = _indexList[i * 3 + 1];
+        ionU32 index2 = _indexList[i * 3 + 2];
+
+        const Vector vector0 = _vectorArray[index0];
+        const Vector vector1 = _vectorArray[index1];
+        const Vector vector2 = _vectorArray[index2];
+
+        const Vector normal0 = _normalArray[index0];
+        const Vector normal1 = _normalArray[index1];
+        const Vector normal2 = _normalArray[index2];
+
+        const Vector uv0 = _textCoordUVUVArray[index0];
+        const Vector uv1 = _textCoordUVUVArray[index1];
+        const Vector uv2 = _textCoordUVUVArray[index2];
+
+        // 0
         {
-            u = GEOMETRY_HELPER_INVALID_INDEX;
-            v = GEOMETRY_HELPER_INVALID_INDEX;
+            converter.m_faces[i].m_vertices[0].m_position.m_x = Helper::ExtractX(vector0);
+            converter.m_faces[i].m_vertices[0].m_position.m_y = Helper::ExtractY(vector0);
+            converter.m_faces[i].m_vertices[0].m_position.m_z = Helper::ExtractZ(vector0);
+
+            converter.m_faces[i].m_vertices[0].m_normal.m_x = Helper::ExtractX(normal0);
+            converter.m_faces[i].m_vertices[0].m_normal.m_y = Helper::ExtractY(normal0);
+            converter.m_faces[i].m_vertices[0].m_normal.m_z = Helper::ExtractZ(normal0);
+
+            converter.m_faces[i].m_vertices[0].m_uv.m_u = Helper::ExtractX(uv0);
+            converter.m_faces[i].m_vertices[0].m_uv.m_v = Helper::ExtractY(uv0);
         }
 
-        void Set(ionU32 _u, ionU32 _v)
+        // 1
         {
-            u = _u;
-            v = _v;
+            converter.m_faces[i].m_vertices[1].m_position.m_x = Helper::ExtractX(vector1);
+            converter.m_faces[i].m_vertices[1].m_position.m_y = Helper::ExtractY(vector1);
+            converter.m_faces[i].m_vertices[1].m_position.m_z = Helper::ExtractZ(vector1);
+
+            converter.m_faces[i].m_vertices[1].m_normal.m_x = Helper::ExtractX(normal1);
+            converter.m_faces[i].m_vertices[1].m_normal.m_y = Helper::ExtractY(normal1);
+            converter.m_faces[i].m_vertices[1].m_normal.m_z = Helper::ExtractZ(normal1);
+
+            converter.m_faces[i].m_vertices[1].m_uv.m_u = Helper::ExtractX(uv1);
+            converter.m_faces[i].m_vertices[1].m_uv.m_v = Helper::ExtractY(uv1);
         }
-    };
 
-    struct _Face
-    {
-        _Edge e[3];
-
-        _Face() {}
-        _Face(ionU32 _a, ionU32 _b, ionU32 _c)
+        // 2
         {
-            e[0].Set(_a, _b);
-            e[1].Set(_b, _c);
-            e[2].Set(_c, _a);
+            converter.m_faces[i].m_vertices[2].m_position.m_x = Helper::ExtractX(vector2);
+            converter.m_faces[i].m_vertices[2].m_position.m_y = Helper::ExtractY(vector2);
+            converter.m_faces[i].m_vertices[2].m_position.m_z = Helper::ExtractZ(vector2);
+
+            converter.m_faces[i].m_vertices[2].m_normal.m_x = Helper::ExtractX(normal2);
+            converter.m_faces[i].m_vertices[2].m_normal.m_y = Helper::ExtractY(normal2);
+            converter.m_faces[i].m_vertices[2].m_normal.m_z = Helper::ExtractZ(normal2);
+
+            converter.m_faces[i].m_vertices[2].m_uv.m_u = Helper::ExtractX(uv2);
+            converter.m_faces[i].m_vertices[2].m_uv.m_v = Helper::ExtractY(uv2);
         }
-    };
-
-
-    //
-    ionU32 triangleCount = _indexCount / 3;
-    eosVector(_Face*) faces;
-
-    // create faces
-    for (ionU32 i = 0; i < triangleCount; ++i)
-    {
-        faces.push_back(eosNew(_Face, ION_MEMORY_ALIGNMENT_SIZE, _indexList[i * 3], _indexList[i * 3 + 1], _indexList[i * 3 + 2]));
     }
 
+    SMikkTSpaceInterface logicInterface;
+    logicInterface.m_getNumFaces = GetNumFaces;
+    logicInterface.m_getNumVerticesOfFace = GetNumVerticesFace;
+    logicInterface.m_getPosition = GetPosition;
+    logicInterface.m_getNormal =GetNormal;
+    logicInterface.m_getTexCoord = GetTexCoord;
+    logicInterface.m_setTSpaceBasic = SetTangentSpaceBasic;
+    logicInterface.m_setTSpace = nullptr;   // do not use, base should be fine
 
-    //
-    Vector* tan1 = (Vector*)eosNewRaw(sizeof(Vector) * _vectorCount * 2, ION_MEMORY_ALIGNMENT_SIZE);
-    Vector* tan2 = tan1 + _vectorCount;
-    memset(tan1, 0, _vectorCount * sizeof(Vector) * 2);
+    SMikkTSpaceContext context;
+    context.m_pInterface = &logicInterface;
+    context.m_pUserData = &converter;
 
+    genTangSpaceDefault(&context);
 
-    for (ionU32 i = 0; i < triangleCount; ++i)
+    // unroll the result
+    for (ionU32 i = 0; i < _indexCount; ++i)
     {
-        const ionU32 i1 = faces[i]->e[0].u;
-        const ionU32 i2 = faces[i]->e[1].u;
-        const ionU32 i3 = faces[i]->e[2].u;
+        ionU32 index = _indexList[i];
 
-        //
-        const Vector& v1 = _vectorArray[i1];
-        const Vector& v2 = _vectorArray[i2];
-        const Vector& v3 = _vectorArray[i3];
+        ionU32 f = (ionU32)std::floor(i / 3);
+        ionU32 v = i % 3;
 
-        const ionFloat v1_x = Helper::ExtractX(v1);
-        const ionFloat v1_y = Helper::ExtractY(v1);
-        const ionFloat v1_z = Helper::ExtractZ(v1);
+        SMikkTSpaceXYZ t = converter.m_faces[f].m_vertices[v].m_tangent;
+        ionFloat s = converter.m_faces[f].m_vertices[v].m_bitangentSign;
 
-        const ionFloat v2_x = Helper::ExtractX(v2);
-        const ionFloat v2_y = Helper::ExtractY(v2);
-        const ionFloat v2_z = Helper::ExtractZ(v2);
-
-        const ionFloat v3_x = Helper::ExtractX(v3);
-        const ionFloat v3_y = Helper::ExtractY(v3);
-        const ionFloat v3_z = Helper::ExtractZ(v3);
-
-        //
-        const Vector& w1 = _textCoordUVUVArray[i1];
-        const Vector& w2 = _textCoordUVUVArray[i2];
-        const Vector& w3 = _textCoordUVUVArray[i3];
-
-        const ionFloat w1_u = Helper::ExtractX(w1);
-        const ionFloat w1_v = Helper::ExtractY(w1);
-
-        const ionFloat w2_u = Helper::ExtractX(w2);
-        const ionFloat w2_v = Helper::ExtractY(w2);
-
-        const ionFloat w3_u = Helper::ExtractX(w3);
-        const ionFloat w3_v = Helper::ExtractY(w3);
-
-        //
-        const ionFloat x1 = v2_x - v1_x;
-        const ionFloat x2 = v3_x - v1_x;
-        const ionFloat y1 = v2_y - v1_y;
-        const ionFloat y2 = v3_y - v1_y;
-        const ionFloat z1 = v2_z - v1_z;
-        const ionFloat z2 = v3_z - v1_z;
-
-        const ionFloat s1 = w2_u - w1_u;
-        const ionFloat s2 = w3_u - w1_u;
-        const ionFloat t1 = w2_v - w1_v;
-        const ionFloat t2 = w3_v - w1_v;
-
-        //
-        ionFloat r = 1.0f / (s1 * t2 - s2 * t1);
-        Vector sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r, 1.0f);
-        Vector tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r, 1.0f);
-
-        //
-        tan1[i1] += sdir;
-        tan1[i2] += sdir;
-        tan1[i3] += sdir;
-
-        tan2[i1] += tdir;
-        tan2[i2] += tdir;
-        tan2[i3] += tdir;
+        _outTangentVectorArray[index] = Helper::Set(t.m_x, t.m_y, t.m_z, 0.0f);
+        _outTangentSignArray[index] = s;
     }
-
-    for (ionU32 i = 0; i < _vectorCount; ++i)
-    {
-        const Vector& n = _normalArray[i];
-        const Vector& t = tan1[i];
-
-        // Gram-Schmidt orthogonalized
-        _outTangentVectorArray[i] = (t - n * n.Dot3(t)).Normalize();
-
-        // Calculate handedness
-        const Vector a = n.Cross(t);
-        const Vector d = a.Dot3(tan2[i]);
-        const ionFloat dot = Helper::ExtractX(d);
-        const ionFloat tangentW = (dot < 0.0f) ? -1.0f : 1.0f;
-        
-        // Very ugly, but because I need just here I'm no doing a new SSE helper for now
-        const ionFloat tangentX = Helper::ExtractX(_outTangentVectorArray[i]);
-        const ionFloat tangentY = Helper::ExtractY(_outTangentVectorArray[i]);
-        const ionFloat tangentZ = Helper::ExtractZ(_outTangentVectorArray[i]);
-
-        _outTangentVectorArray[i] = Helper::Set(tangentX, tangentY, tangentZ, tangentW);
-    }
-
-    //
-    // Clear
-    eosDeleteRaw(tan1);
-
-    for (ionU32 i = 0; i < faces.size(); ++i)
-    {
-        eosDelete(faces[i]);
-    }
-    faces.clear();
 }
 
 

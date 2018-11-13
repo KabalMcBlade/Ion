@@ -22,7 +22,7 @@ public:
 
     void SetDumpModel(ionBool _dump) { m_dumpModel = _dump; }
 
-    ionBool Load(const eosString& _fileName, Camera* _camToUpdatePtr, ObjectHandler& _entity, ionBool _generateNormalWhenMissing = false, ionBool _generateTangentWhenMissing = false, ionBool _setBitangentSign = false);
+    ionBool Load(const eosString& _fileName, Camera* _camToUpdatePtr, ObjectHandler& _entity);
 
 private:
     ionBool m_dumpModel;

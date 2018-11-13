@@ -311,7 +311,7 @@ int main(int argc, char **argv)
             model = ionFileSystemManager().GetModelsPath() + modelVar;
         }
 
-        ionRenderManager().LoadModelFromFile(model, camera, testHandle, false, false, false, window.GetCommandLineParse().IsSet("-dumpgltf"));
+        ionRenderManager().LoadModelFromFile(model, camera, testHandle, window.GetCommandLineParse().IsSet("-dumpgltf"));
     }
     else if (window.GetCommandLineParse().HasValue("-primitive"))
     {

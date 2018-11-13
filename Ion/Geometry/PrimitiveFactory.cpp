@@ -145,7 +145,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         }
 
         Vector normals[3];
-        GeometryHelper::CalculateNormals(positions, indices.data(), 3, normals);
+        GeometryHelper::CalculateNormals(positions, 3, indices.data(), 3, normals);
         for (ionU32 i = 0; i < vertices.size(); ++i)
         {
             vertices[i].SetNormal(normals[i]);
@@ -179,7 +179,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         vertices[2].SetPosition(positions[2]);
 
         Vector normals[3];
-        GeometryHelper::CalculateNormals(positions, indices.data(), 3, normals);
+        GeometryHelper::CalculateNormals(positions, 3, indices.data(), 3, normals);
         for (ionU32 i = 0; i < vertices.size(); ++i)
         {
             vertices[i].SetNormal(normals[i]);
@@ -221,7 +221,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         }
 
         Vector normals[3];
-        GeometryHelper::CalculateNormals(positions, indices.data(), 3, normals);
+        GeometryHelper::CalculateNormals(positions, 3, indices.data(), 3, normals);
         for (ionU32 i = 0; i < vertices.size(); ++i)
         {
             vertices[i].SetNormal(normals[i]);
@@ -232,7 +232,8 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
         vertices[2].SetColor(_r, _g, _b, _a);
 
         Vector tangents[3];
-        GeometryHelper::CalculateTangents(positions, normals, uvuv, 3, indices.data(), 3, tangents);
+        ionFloat bitangentsign[3];
+        GeometryHelper::CalculateTangents(positions, normals, uvuv, 3, indices.data(), 3, tangents, bitangentsign);
 
         vertices[0].SetTangent(tangents[0]);
         vertices[1].SetTangent(tangents[1]);
@@ -421,7 +422,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         vertices[3].SetPosition(positions[3]);
 
         Vector normals[4];
-        GeometryHelper::CalculateNormals(positions, indices.data(), 4, normals);
+        GeometryHelper::CalculateNormals(positions, 4, indices.data(), 6, normals);
         for (ionU32 i = 0; i < vertices.size(); ++i)
         {
             vertices[i].SetNormal(normals[i]);
@@ -467,7 +468,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         }
 
         Vector normals[4];
-        GeometryHelper::CalculateNormals(positions, indices.data(), 4, normals);
+        GeometryHelper::CalculateNormals(positions, 4, indices.data(), 6, normals);
         for (ionU32 i = 0; i < vertices.size(); ++i)
         {
             vertices[i].SetNormal(normals[i]);
@@ -514,7 +515,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         }
 
         Vector normals[4];
-        GeometryHelper::CalculateNormals(positions, indices.data(), 4, normals);
+        GeometryHelper::CalculateNormals(positions, 4, indices.data(), 6, normals);
         for (ionU32 i = 0; i < vertices.size(); ++i)
         {
             vertices[i].SetNormal(normals[i]);
@@ -526,7 +527,8 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
         vertices[3].SetColor(_r, _g, _b, _a);
 
         Vector tangents[4];
-        GeometryHelper::CalculateTangents(positions, normals, uvuv, 4, indices.data(), 6, tangents);
+        ionFloat bitangentsign[4];
+        GeometryHelper::CalculateTangents(positions, normals, uvuv, 4, indices.data(), 6, tangents, bitangentsign);
 
         vertices[0].SetTangent(tangents[0]);
         vertices[1].SetTangent(tangents[1]);
@@ -743,7 +745,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         }
 
         Vector normals[24];
-        GeometryHelper::CalculateNormals(positions, indices.data(), 24, normals);
+        GeometryHelper::CalculateNormals(positions, 24, indices.data(), 36, normals);
         for (ionU32 i = 0; i < vertices.size(); ++i)
         {
             vertices[i].SetNormal(normals[i]);
@@ -786,7 +788,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         }
 
         Vector normals[24];
-        GeometryHelper::CalculateNormals(positions, indices.data(), 24, normals);
+        GeometryHelper::CalculateNormals(positions, 24, indices.data(), 36, normals);
         for (ionU32 i = 0; i < vertices.size(); ++i)
         {
             vertices[i].SetNormal(normals[i]);
@@ -831,14 +833,15 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         }
 
         Vector normals[24];
-        GeometryHelper::CalculateNormals(positions, indices.data(), 24, normals);
+        GeometryHelper::CalculateNormals(positions, 24, indices.data(), 36, normals);
         for (ionU32 i = 0; i < vertices.size(); ++i)
         {
             vertices[i].SetNormal(normals[i]);
         }
 
         Vector tangents[24];
-        GeometryHelper::CalculateTangents(positions, normals, uvuv, 24, indices.data(), 36, tangents);
+        ionFloat bitangentsign[24];
+        GeometryHelper::CalculateTangents(positions, normals, uvuv, 24, indices.data(), 36, tangents, bitangentsign);
         for (ionU32 i = 0; i < vertices.size(); ++i)
         {
             vertices[i].SetTangent(tangents[i]);
@@ -1320,7 +1323,8 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         }
 
         Vector tangents[verticesSize];
-        GeometryHelper::CalculateTangents(positions.data(), normals.data(), uvuv.data(), verticesSize, indices.data(), indicesSize, tangents);
+        ionFloat bitangentsign[verticesSize];
+        GeometryHelper::CalculateTangents(positions.data(), normals.data(), uvuv.data(), verticesSize, indices.data(), indicesSize, tangents, bitangentsign);
 
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
@@ -1530,7 +1534,7 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
         }
 
         Vector normals[16];
-        GeometryHelper::CalculateNormals(positions, indices.data(), 16, normals);
+        GeometryHelper::CalculateNormals(positions, 16, indices.data(), 18, normals);
         for (ionU32 i = 0; i < vertices.size(); ++i)
         {
             vertices[i].SetNormal(normals[i]);
@@ -1573,7 +1577,7 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
         }
 
         Vector normals[16];
-        GeometryHelper::CalculateNormals(positions, indices.data(), 16, normals);
+        GeometryHelper::CalculateNormals(positions, 16, indices.data(), 18, normals);
         for (ionU32 i = 0; i < vertices.size(); ++i)
         {
             vertices[i].SetNormal(normals[i]);
@@ -1618,14 +1622,15 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
         }
 
         Vector normals[16];
-        GeometryHelper::CalculateNormals(positions, indices.data(), 16, normals);
+        GeometryHelper::CalculateNormals(positions, 16, indices.data(), 18, normals);
         for (ionU32 i = 0; i < vertices.size(); ++i)
         {
             vertices[i].SetNormal(normals[i]);
         }
 
         Vector tangents[16];
-        GeometryHelper::CalculateTangents(positions, normals, uvuv, 16, indices.data(), 18, tangents);
+        ionFloat bitangentsign[16];
+        GeometryHelper::CalculateTangents(positions, normals, uvuv, 16, indices.data(), 18, tangents, bitangentsign);
         for (ionU32 i = 0; i < vertices.size(); ++i)
         {
             vertices[i].SetTangent(tangents[i]);
@@ -1672,7 +1677,7 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
         break;
     }
 
-    for (ionU32 i = 1; i < 24; ++i)
+    for (ionU32 i = 1; i < 16; ++i)
     {
         entityPtr->GetBoundingBox()->Expande(positions[i - 1], positions[i]);
     }

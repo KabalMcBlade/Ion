@@ -176,6 +176,7 @@
     <ClInclude Include="Dependencies\Eos\Eos\StlAllocators.h" />
     <ClInclude Include="Dependencies\Eos\Eos\StlAllocatorsMacro.h" />
     <ClInclude Include="Dependencies\Miscellaneous\json.hpp" />
+    <ClInclude Include="Dependencies\Miscellaneous\mikktspace.h" />
     <ClInclude Include="Dependencies\Miscellaneous\stb_image.h" />
     <ClInclude Include="Dependencies\Miscellaneous\stb_image_write.h" />
     <ClInclude Include="Dependencies\Miscellaneous\tiny_gltf.h" />
@@ -257,6 +258,7 @@
     <ClCompile Include="App\Window.cpp" />
     <ClCompile Include="Core\FileSystemManager.cpp" />
     <ClCompile Include="Dependencies\Eos\Eos\MemoryManager.cpp" />
+    <ClCompile Include="Dependencies\Miscellaneous\mikktspace.c" />
     <ClCompile Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuMemory.cpp" />
     <ClCompile Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryFunctions.cpp" />
     <ClCompile Include="dllmain.cpp">
