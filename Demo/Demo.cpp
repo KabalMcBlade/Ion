@@ -315,9 +315,10 @@ int main(int argc, char **argv)
     }
     else if (window.GetCommandLineParse().HasValue("-primitive"))
     {
-        ionFloat r = static_cast <ionFloat>(rand()) / static_cast<ionFloat>(RAND_MAX);
-        ionFloat g = static_cast <ionFloat>(rand()) / static_cast<ionFloat>(RAND_MAX);
-        ionFloat b = static_cast <ionFloat>(rand()) / static_cast<ionFloat>(RAND_MAX);
+        std::srand(static_cast<ionU32>(std::time(nullptr)));
+        ionFloat r = static_cast<ionFloat>(std::rand()) / static_cast<ionFloat>(RAND_MAX);
+        ionFloat g = static_cast<ionFloat>(std::rand()) / static_cast<ionFloat>(RAND_MAX);
+        ionFloat b = static_cast<ionFloat>(std::rand()) / static_cast<ionFloat>(RAND_MAX);
         ionFloat a = 1.0f;
 
         const eosString primitive = window.GetCommandLineParse().GetValue<eosString>("-primitive");
