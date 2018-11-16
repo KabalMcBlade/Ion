@@ -55,8 +55,14 @@ public:
     virtual ionU32  GetInitialMorphTargetWeightCount() const override final;
 
     virtual void ResizeMorphTargetWeight(ionU32 _size) override final;
-    virtual ionFloat GetMorphTargetWeight(ionU32 _index) const override final { return m_morphTargetWeights[_index]; }
-    virtual void SetMorphTargetWeight(ionU32 _index, ionFloat _value) override final { m_morphTargetWeights[_index] = _value; }
+    virtual ionFloat GetMorphTargetWeight(ionU32 _index) const override final 
+    { 
+        return m_morphTargetWeights[_index];
+    }
+    virtual void SetMorphTargetWeight(ionU32 _index, ionFloat _value) override final 
+    { 
+        m_morphTargetWeights[_index] = _value; 
+    }
     virtual ionU32 GetMorphTargetWeightCount() const override final;
 
     virtual BoundingBox* GetBoundingBox() override final { return &m_boundingBox; }

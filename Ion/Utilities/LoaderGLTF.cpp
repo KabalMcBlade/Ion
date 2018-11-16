@@ -87,7 +87,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
     if (_node.matrix.size() == 16)
     {
         ionFloat scaleFactor = std::sqrtf((ionFloat)_node.matrix.data()[0] * (ionFloat)_node.matrix.data()[0] + (ionFloat)_node.matrix.data()[1] * (ionFloat)_node.matrix.data()[1] + (ionFloat)_node.matrix.data()[2] * (ionFloat)_node.matrix.data()[2]);
-        scale = Helper::Set(scaleFactor, scaleFactor, scaleFactor, 1.0f);
+        scale = Helper::Set(scaleFactor, scaleFactor, scaleFactor, 0.0f);
 
         Matrix mat = Matrix(
             (ionFloat)_node.matrix.data()[0], (ionFloat)_node.matrix.data()[1], (ionFloat)_node.matrix.data()[2], (ionFloat)_node.matrix.data()[3],
@@ -103,7 +103,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
     {   
         if (_node.translation.size() == 3)
         {
-            position = Vector((ionFloat)_node.translation[0], (ionFloat)_node.translation[1], (ionFloat)_node.translation[2], 1.0f);
+            position = Vector((ionFloat)_node.translation[0], (ionFloat)_node.translation[1], (ionFloat)_node.translation[2]);
         }
 
         if (_node.rotation.size() == 4)
@@ -154,7 +154,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
         {
             usingMorphTarget = true;
             ionSize weightCount = _node.weights.size();
-            for (ionSize i = 0; i < weightCount; ++i)
+            for (ionSize i = 0; i < weightCount && i < ION_MAX_WEIGHT_COUNT; ++i)
             {
                 ionFloat weight = static_cast<ionFloat>(_node.weights[i]);
                 entityPtr->PushBackInitialMorphTargetWeight(weight);
@@ -166,7 +166,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
             {
                 usingMorphTarget = true;
                 ionSize weightCount = mesh.weights.size();
-                for (ionSize i = 0; i < weightCount; ++i)
+                for (ionSize i = 0; i < weightCount && i < ION_MAX_WEIGHT_COUNT; ++i)
                 {
                     ionFloat weight = static_cast<ionFloat>(mesh.weights[i]);
                     entityPtr->PushBackInitialMorphTargetWeight(weight);
@@ -292,28 +292,28 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         {
                             VertexMorphTarget vert;
 
-                            Vector pos((&morphTargetBufferPos[t][v * 3])[0], ((&morphTargetBufferPos[t][v * 3])[1]), (&morphTargetBufferPos[t][v * 3])[2], 1.0f);
+                            Vector pos((&morphTargetBufferPos[t][v * 3])[0], ((&morphTargetBufferPos[t][v * 3])[1]), (&morphTargetBufferPos[t][v * 3])[2]);
                             vert.SetPosition(pos);
 
                             Vector normal;
                             if (morphTargetBufferNormals.size() > 0)
                             {
-                                normal = Helper::Set((&morphTargetBufferNormals[t][v * 3])[0], ((&morphTargetBufferNormals[t][v * 3])[1]), (&morphTargetBufferNormals[t][v * 3])[2], 1.0f);
+                                normal = Helper::Set((&morphTargetBufferNormals[t][v * 3])[0], ((&morphTargetBufferNormals[t][v * 3])[1]), (&morphTargetBufferNormals[t][v * 3])[2], 0.0f);
                             }
                             else
                             {
-                                normal = Helper::Set(0.0f, 0.0f, 0.0f, 1.0f);
+                                normal = Helper::Set(0.0f, 0.0f, 0.0f, 0.0f);
                             }
                             vert.SetNormal(normal);
 
                             Vector tangent;
                             if (morphTargetBufferTangent.size() > 0)
                             {
-                                tangent = Helper::Set((&morphTargetBufferTangent[t][v * 3])[0], ((&morphTargetBufferTangent[t][v * 3])[1]), (&morphTargetBufferTangent[t][v * 3])[2], 1.0f);
+                                tangent = Helper::Set((&morphTargetBufferTangent[t][v * 3])[0], ((&morphTargetBufferTangent[t][v * 3])[1]), (&morphTargetBufferTangent[t][v * 3])[2], 0.0f);
                             }
                             else
                             {
-                                tangent = Helper::Set(0.0f, 0.0f, 0.0f, 1.0f);
+                                tangent = Helper::Set(0.0f, 0.0f, 0.0f, 0.0f);
                             }
 
                             vert.SetTangent(tangent);
@@ -480,13 +480,13 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 {
                     Vertex vert;
 
-                    Vector pos((&bufferPos[v * 3])[0], ((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2], 1.0f);
+                    Vector pos((&bufferPos[v * 3])[0], ((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2]);
 
 
                     if (_dumpModel)
                     {
                         std::ostringstream os;
-                        os << "{P}Vector(" << (&bufferPos[v * 3])[0] << "f, " << (&bufferPos[v * 3])[1] << "f, " << (&bufferPos[v * 3])[2] << "f, 1.0f), \t";
+                        os << "{P}Vector(" << (&bufferPos[v * 3])[0] << "f, " << (&bufferPos[v * 3])[1] << "f, " << (&bufferPos[v * 3])[2] << "f), \t";
                         fputs(os.str().c_str(), s_fileDump);
                     }
 
@@ -501,11 +501,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     Vector normal;
                     if (bufferNormals != nullptr)
                     {
-                        normal = Helper::Set((&bufferNormals[v * 3])[0], ((&bufferNormals[v * 3])[1]) , (&bufferNormals[v * 3])[2], 1.0f);
+                        normal = Helper::Set((&bufferNormals[v * 3])[0], ((&bufferNormals[v * 3])[1]) , (&bufferNormals[v * 3])[2], 0.0f);
                     }
                     else
                     {
-                        normal = Helper::Set(0.0f, 0.0f, 0.0f, 1.0f);
+                        normal = Helper::Set(0.0f, 0.0f, 0.0f, 0.0f);
                     }
 
                     if (!normalsAreMissing && tangentsAreMissing)
@@ -516,7 +516,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     if (_dumpModel && bufferNormals != nullptr)
                     {
                         std::ostringstream os;
-                        os << "{N}Vector(" << (&bufferNormals[v * 3])[0] << "f, " << (&bufferNormals[v * 3])[1] << "f, " << (&bufferNormals[v * 3])[2] << "f, 1.0f), \t";
+                        os << "{N}Vector(" << (&bufferNormals[v * 3])[0] << "f, " << (&bufferNormals[v * 3])[1] << "f, " << (&bufferNormals[v * 3])[2] << "f), \t";
                         fputs(os.str().c_str(), s_fileDump);
                     }
                     vert.SetNormal(normal);
@@ -524,17 +524,17 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     Vector tangent;
                     if (bufferTangent != nullptr)
                     {
-                        tangent = Helper::Set((&bufferTangent[v * 3])[0], ((&bufferTangent[v * 3])[1]), (&bufferTangent[v * 3])[2], 1.0f);
+                        tangent = Helper::Set((&bufferTangent[v * 3])[0], ((&bufferTangent[v * 3])[1]), (&bufferTangent[v * 3])[2], 0.0f);
                     }
                     else
                     {
-                        tangent = Helper::Set(0.0f, 0.0f, 0.0f, 1.0f);
+                        tangent = Helper::Set(0.0f, 0.0f, 0.0f, 0.0f);
                     }
 
                     if (_dumpModel && bufferTangent != nullptr)
                     {
                         std::ostringstream os;
-                        os << "{T}Vector(" << (&bufferTangent[v * 3])[0] << "f, " << (&bufferTangent[v * 3])[1] << "f, " << (&bufferTangent[v * 3])[2] << "f, 1.0f), \t";
+                        os << "{T}Vector(" << (&bufferTangent[v * 3])[0] << "f, " << (&bufferTangent[v * 3])[1] << "f, " << (&bufferTangent[v * 3])[2] << "f), \t";
                         fputs(os.str().c_str(), s_fileDump);
                     }
 
@@ -1494,7 +1494,7 @@ void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _mod
                         const ionFloat *bufferVector = reinterpret_cast<const ionFloat *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
                         for (ionSize a = 0; a < accessor.count; ++a)
                         {
-                            Vector v((&bufferVector[a * 3])[0], ((&bufferVector[a * 3])[1]), (&bufferVector[a * 3])[2], 1.0f);
+                            Vector v((&bufferVector[a * 3])[0], ((&bufferVector[a * 3])[1]), (&bufferVector[a * 3])[2]);
                             ionSampler.PushBackOutputLinearPath(v);
                         }
                         break;
