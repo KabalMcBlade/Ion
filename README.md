@@ -1,3 +1,10 @@
+```diff
+- IMPORTANT
+- This version has been tested and it works using Vulakn SDK version up to 1.1.77.0 (released at 20-Jun-2018)
+- Using an newest version of the SDK may not work!
+```
+
+
 # Ion
 
 Ion is a Vulkan Render Engine, made just to learn something about this new graphic API.
