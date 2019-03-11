@@ -71,6 +71,8 @@ public:
     RenderManager();
     ~RenderManager();
 
+    ION_INLINE ionFloat GetDeltaTime() const { return m_deltaTime; }
+
     void    AddDirectionalLight();
     void    RemoveDirectionalLight();
     DirectionalLight*   GetDirectionalLight();
