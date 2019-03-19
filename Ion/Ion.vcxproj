@@ -164,6 +164,7 @@
     <ClInclude Include="Core\CoreDefs.h" />
     <ClInclude Include="Core\FileSystemManager.h" />
     <ClInclude Include="Core\StandardIncludes.h" />
+    <ClInclude Include="Core\UUID.h" />
     <ClInclude Include="Dependencies\Eos\Eos\CoreDefs.h" />
     <ClInclude Include="Dependencies\Eos\Eos\Eos.h" />
     <ClInclude Include="Dependencies\Eos\Eos\HeapAllocator.h" />
@@ -249,6 +250,8 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utilities\LoaderGLTF.h" />
     <ClInclude Include="Utilities\GeometryHelper.h" />
+    <ClInclude Include="Utilities\Serializer.h" />
+    <ClInclude Include="Utilities\Tools.h" />
     <ClInclude Include="Wrapper\Memory.h" />
   </ItemGroup>
   <ItemGroup>
@@ -257,6 +260,7 @@
     <ClCompile Include="App\CommandLineParser.cpp" />
     <ClCompile Include="App\Window.cpp" />
     <ClCompile Include="Core\FileSystemManager.cpp" />
+    <ClCompile Include="Core\UUID.cpp" />
     <ClCompile Include="Dependencies\Eos\Eos\MemoryManager.cpp" />
     <ClCompile Include="Dependencies\Miscellaneous\mikktspace.c" />
     <ClCompile Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuMemory.cpp" />
@@ -312,6 +316,8 @@
     <ClCompile Include="Texture\TextureManager.cpp" />
     <ClCompile Include="Utilities\LoaderGLTF.cpp" />
     <ClCompile Include="Utilities\GeometryHelper.cpp" />
+    <ClCompile Include="Utilities\Serializer.cpp" />
+    <ClCompile Include="Utilities\Tools.cpp" />
     <ClCompile Include="Wrapper\Memory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

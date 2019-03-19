@@ -11,6 +11,8 @@
 
 #include "../Animation/AnimationRenderer.h"
 
+#include "../Core/UUID.h"
+
 NIX_USING_NAMESPACE
 EOS_USING_NAMESPACE
 
@@ -368,18 +370,12 @@ void SceneGraph::UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFlo
 
 ObjectHandler SceneGraph::GetObjectByName(const eosString& _name)
 {
-    const ionSize hash = std::hash<eosString>{}(_name);
-    return GetObjectByHash(hash);
-}
-
-ObjectHandler SceneGraph::GetObjectByHash(ionSize _hash)
-{
     ObjectHandler nodeToFind;   // default is empty/invalid
 
     m_root->IterateAll(
         [&](const ObjectHandler& _node)
     {
-        if (_node->GetHash() == _hash)
+        if (_node->GetName() == _name)
         {
             nodeToFind = _node;
             return;
@@ -390,14 +386,14 @@ ObjectHandler SceneGraph::GetObjectByHash(ionSize _hash)
     return nodeToFind;
 }
 
-ObjectHandler SceneGraph::GetObjectByID(ionU32 _id)
+ObjectHandler SceneGraph::GetObjectByUUID(const UUID& _uuid)
 {
     ObjectHandler nodeToFind;   // default is empty/invalid
 
     m_root->IterateAll(
         [&](const ObjectHandler& _node)
     {
-        if (_node->GetNodeIndex() == _id)
+        if (_node->GetUUID() == _uuid)
         {
             nodeToFind = _node;
             return;

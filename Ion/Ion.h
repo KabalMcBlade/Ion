@@ -18,6 +18,7 @@
 #include "Core/StandardIncludes.h"
 #include "Core/CoreDefs.h"
 #include "Core/FileSystemManager.h"
+#include "Core/UUID.h"
 
 #include "Renderer/GPUMemoryManager.h"
 #include "Renderer/StagingBufferManager.h"
@@ -71,6 +72,7 @@
 
 #include "Utilities/LoaderGLTF.h"
 #include "Utilities/GeometryHelper.h"
+#include "Utilities/Serializer.h"
 
 #include "Wrapper/Memory.h"
 

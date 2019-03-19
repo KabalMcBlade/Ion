@@ -1,5 +1,7 @@
 #include "Window.h"
 
+#include "../Utilities/Tools.h"
+
 #include "../Renderer/RenderManager.h"
 
 EOS_USING_NAMESPACE
@@ -46,11 +48,15 @@ KeyboardState::~KeyboardState()
 }
 
 ///
+///
 
+const char* Window::s_physicalAddress = nullptr;
+ionU32 Window::s_physicalAddressNumHigh = 0;
+ionU32 Window::s_physicalAddressNumLow = 0;
 
 Window::Window() : m_instance(), m_handle(), m_skipNextMouseMove(false)
 {
-    // mandatory opions
+    // mandatory options
     m_commandLineParse.AddWithValueAndDefault(ION_WND_PARAM_WIDTH, true, 800);
     m_commandLineParse.AddWithValueAndDefault(ION_WND_PARAM_HEIGHT, true, 600);
     m_commandLineParse.AddWithValueAndDefault(ION_WND_PARAM_FULLSCREEN, true, false);
@@ -78,6 +84,12 @@ ionBool Window::ParseCommandLine(ionS32 &argc, char **argv)
 
 ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name)
 {
+    Tools::GetPhysicalAddress(m_macAddress, m_macAddressNum);
+
+    s_physicalAddress = m_macAddress.c_str();
+    s_physicalAddressNumHigh = ION_BIT_GET(m_macAddressNum, 0xFFFFFFFF);
+    s_physicalAddressNumLow = ION_BIT_GET(m_macAddressNum >> 32, 0xFFFFFFFF);
+
     m_name = _name;
     m_width = m_commandLineParse.GetValue<ionS32>(ION_WND_PARAM_WIDTH);
     m_height = m_commandLineParse.GetValue<ionS32>(ION_WND_PARAM_HEIGHT);

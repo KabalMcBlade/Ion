@@ -48,6 +48,12 @@ public:
 
     CommandLineParser& GetCommandLineParse() { return m_commandLineParse; }
 
+    const eosString& GetMacAddress() const { return m_macAddress; }
+
+    static const char* s_physicalAddress;
+    static ionU32 s_physicalAddressNumHigh;
+    static ionU32 s_physicalAddressNumLow;
+
 private:
     void MouseClick(ionU32 _indexButton, ionBool _state);
     void MouseMove(ionFloat _x, ionFloat _y);
@@ -61,7 +67,9 @@ private:
     void KeyboardReset();
 
 private:
+    eosString           m_macAddress;
     eosTString          m_name;
+    ionU64              m_macAddressNum;
     MouseState          m_mouse;
     KeyboardState       m_keyboard;
     HINSTANCE           m_instance;

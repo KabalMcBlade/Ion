@@ -45,7 +45,7 @@ enum EPrimitiveType
     EPrimitiveType_Pyramid
 };
 
-
+class UUID;
 class Entity;
 class DirectionalLight;
 class ION_DLL RenderManager final
@@ -97,8 +97,7 @@ public:
     void    UnregisterFromInput(const ObjectHandler& _node);
 
     ObjectHandler GetObjectByName(const eosString& _name);
-    ObjectHandler GetObjectByHash(ionSize _hash);
-    ObjectHandler GetObjectByID(ionU32 _id);
+    ObjectHandler GetObjectByUUID(const UUID& _uuid);
 
     void    Quit();
     ionBool IsRunning();

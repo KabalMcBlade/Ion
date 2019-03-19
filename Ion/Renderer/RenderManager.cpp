@@ -15,6 +15,7 @@
 #include "../Texture/TextureManager.h"
 
 #include "../Core/FileSystemManager.h"
+#include "../Core/UUID.h"
 
 #include "../Shader/ShaderProgramManager.h"
 
@@ -106,8 +107,7 @@ RenderManager& RenderManager::Instance()
 
 ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, Camera* _camToUpdate, ObjectHandler& _entity, ionBool _dumpModel /*= false*/)
 {
-    m_loader.SetDumpModel(_dumpModel);
-    return m_loader.Load(_fileName, _camToUpdate, _entity);
+    return m_loader.Load(_fileName, _camToUpdate, _entity, _dumpModel);
 }
 
 void RenderManager::GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _type, ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
@@ -1142,14 +1142,9 @@ ObjectHandler RenderManager::GetObjectByName(const eosString& _name)
     return m_sceneGraph.GetObjectByName(_name);
 }
 
-ObjectHandler RenderManager::GetObjectByHash(ionSize _hash)
+ObjectHandler RenderManager::GetObjectByUUID(const UUID& _uuid)
 {
-    return m_sceneGraph.GetObjectByHash(_hash);
-}
-
-ObjectHandler RenderManager::GetObjectByID(ionU32 _id)
-{
-    return m_sceneGraph.GetObjectByID(_id);
+    return m_sceneGraph.GetObjectByUUID(_uuid);
 }
 
 VkCommandBuffer RenderManager::InstantiateCommandBuffer(VkCommandBufferLevel _level)

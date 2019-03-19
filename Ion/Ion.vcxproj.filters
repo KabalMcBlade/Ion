@@ -297,6 +297,15 @@
     <ClInclude Include="Dependencies\Miscellaneous\mikktspace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Utilities\Serializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\UUID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Tools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -441,6 +450,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Dependencies\Miscellaneous\mikktspace.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\Serializer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\UUID.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\Tools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -24,6 +24,8 @@
 
 #include "../Animation/AnimationRenderer.h"
 
+#include "Serializer.h"
+
 #define TINYGLTF_IMPLEMENTATION
 // #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
 #include "../Dependencies/Miscellaneous/tiny_gltf.h"
@@ -33,20 +35,13 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-static const char* s_dumpPath = nullptr;
-static FILE* s_fileDump = nullptr;
 
-LoaderGLTF::LoaderGLTF() : m_dumpModel(false)
+LoaderGLTF::LoaderGLTF()
 {
 }
 
 LoaderGLTF::~LoaderGLTF()
 {
-    if (m_dumpModel && s_fileDump != nullptr)
-    {
-        fclose(s_fileDump);
-        s_fileDump = nullptr;
-    }
 }
 
 
@@ -78,7 +73,7 @@ void UpdateBoundingBox(const ObjectHandler& _node, BoundingBox& _mainBoundingBox
 
 // for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
 void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRenderer* _meshRenderer, ObjectHandler& _entityHandle, eosMap(ionU32, Node*)& _nodeIndexToNodePointer, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName
-    /*, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign*/, ionBool _dumpModel)
+    /*, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign*/)
 {
     Vector position(0.0f, 0.0f, 0.0f);
     Quaternion rotation;
@@ -135,7 +130,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
         child->AttachToParent(_entityHandle);
 
         _nodeIndexToNodePointer.insert(std::pair<ionU32, Node*>((ionU32)_node.children[i], child));
-        LoadNode(_model.nodes[_node.children[i]], _model, _meshRenderer, childHandle, _nodeIndexToNodePointer, _textureIndexToTextureName, _materialIndexToMaterialName, _dumpModel);
+        LoadNode(_model.nodes[_node.children[i]], _model, _meshRenderer, childHandle, _nodeIndexToNodePointer, _textureIndexToTextureName, _materialIndexToMaterialName);
     }
     
     if (_node.mesh > -1) 
@@ -482,14 +477,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
                     Vector pos((&bufferPos[v * 3])[0], ((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2]);
 
-
-                    if (_dumpModel)
-                    {
-                        std::ostringstream os;
-                        os << "{P}Vector(" << (&bufferPos[v * 3])[0] << "f, " << (&bufferPos[v * 3])[1] << "f, " << (&bufferPos[v * 3])[2] << "f), \t";
-                        fputs(os.str().c_str(), s_fileDump);
-                    }
-
                     if (normalsAreMissing || tangentsAreMissing)
                     {
                         positionToCompute.push_back(pos);
@@ -513,12 +500,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         normalToCompute.push_back(normal);
                     }
 
-                    if (_dumpModel && bufferNormals != nullptr)
-                    {
-                        std::ostringstream os;
-                        os << "{N}Vector(" << (&bufferNormals[v * 3])[0] << "f, " << (&bufferNormals[v * 3])[1] << "f, " << (&bufferNormals[v * 3])[2] << "f), \t";
-                        fputs(os.str().c_str(), s_fileDump);
-                    }
                     vert.SetNormal(normal);
 
                     Vector tangent;
@@ -531,19 +512,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         tangent = Helper::Set(0.0f, 0.0f, 0.0f, 0.0f);
                     }
 
-                    if (_dumpModel && bufferTangent != nullptr)
-                    {
-                        std::ostringstream os;
-                        os << "{T}Vector(" << (&bufferTangent[v * 3])[0] << "f, " << (&bufferTangent[v * 3])[1] << "f, " << (&bufferTangent[v * 3])[2] << "f), \t";
-                        fputs(os.str().c_str(), s_fileDump);
-                    }
-
-                    if (_dumpModel)
-                    {
-                        std::ostringstream os;
-                        os << std::endl;
-                        fputs(os.str().c_str(), s_fileDump);
-                    }
                     vert.SetTangent(tangent);
 
                     if (bufferTexCoordsFloat0 != nullptr)
@@ -687,13 +655,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
                 ionMesh.SetIndexCount(static_cast<ionU32>(accessor.count));
 
-                if (_dumpModel)
-                {
-                    std::ostringstream os;
-                    os << "indices = {";
-                    fputs(os.str().c_str(), s_fileDump);
-                }
-
                 switch (accessor.componentType)
                 {
                 case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT:
@@ -707,13 +668,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                             indexToCompute.push_back((Index)(buf[index]));
                         }
                         _meshRenderer->PushBackIndex((Index)(buf[index] + vertexStart));
-
-                        if (_dumpModel)
-                        {
-                            std::ostringstream os;
-                            os << (Index)(buf[index] + vertexStart) << ", ";
-                            fputs(os.str().c_str(), s_fileDump);
-                        }
                     }
                     eosDeleteRaw(buf);
                     break;
@@ -730,13 +684,6 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                             indexToCompute.push_back((Index)(buf[index]));
                         }
                         _meshRenderer->PushBackIndex(buf[index] + vertexStart);
-
-                        if (_dumpModel)
-                        {
-                            std::ostringstream os;
-                            os << (buf[index] + vertexStart) << ", ";
-                            fputs(os.str().c_str(), s_fileDump);
-                        }
                     }
                     eosDeleteRaw(buf);
                     break;
@@ -752,26 +699,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                             indexToCompute.push_back((Index)(buf[index]));
                         }
                         _meshRenderer->PushBackIndex((Index)(buf[index] + vertexStart));
-
-                        if (_dumpModel)
-                        {
-                            std::ostringstream os;
-                            os << (Index)(buf[index] + vertexStart) << ", ";
-                            fputs(os.str().c_str(), s_fileDump);
-                        }
                     }
                     eosDeleteRaw(buf);
                     break;
                 }
                 default:
                     ionAssertReturnVoid(false, "Index component type is not supported!");
-                }
-
-                if (_dumpModel)
-                {
-                    std::ostringstream os;
-                    os << "}" << std::endl;
-                    fputs(os.str().c_str(), s_fileDump);
                 }
             }
             
@@ -1682,7 +1615,7 @@ void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _mod
     }
 }
 
-ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, ObjectHandler& _entity)
+ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, ObjectHandler& _entity, bool dump)
 {
     //
     eosString dir;
@@ -1759,19 +1692,6 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
     ionAssertReturnValue(ret, "Failed to parse glTF", false);
 
     ionAssertReturnValue(err.empty(), err.c_str(), false);
-
-
-    if(m_dumpModel)
-    {
-        eosString filepathDump = dir + "/" + filename + ".txt";
-        s_dumpPath = filepathDump.c_str();
-
-        if (fopen_s(&s_fileDump, s_dumpPath, "w") != 0)
-        {
-            ionAssertReturnValue(false, "Was asked to dump the file, but cannot open the stream to write!", false);
-        }
-    }
-
 
     //
     // START PARSING
@@ -2169,7 +2089,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
         const tinygltf::Node node = model.nodes[scene.nodes[0]];
 
         nodeIndexToNodePointer.insert(std::pair<ionU32, Node*>((ionU32)scene.nodes[0], entityPtr));
-        LoadNode(node, model, meshRenderer, _entity, nodeIndexToNodePointer, textureIndexToTextureName, materialIndexToMaterialName, m_dumpModel);
+        LoadNode(node, model, meshRenderer, _entity, nodeIndexToNodePointer, textureIndexToTextureName, materialIndexToMaterialName);
     }
     else
     {
@@ -2181,7 +2101,7 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
             ObjectHandler childHandle(child);
 
             nodeIndexToNodePointer.insert(std::pair<ionU32, Node*>((ionU32)scene.nodes[i], child));
-            LoadNode(node, model, meshRenderer, childHandle, nodeIndexToNodePointer, textureIndexToTextureName, materialIndexToMaterialName, m_dumpModel);
+            LoadNode(node, model, meshRenderer, childHandle, nodeIndexToNodePointer, textureIndexToTextureName, materialIndexToMaterialName);
 
             child->AttachToParent(_entity);
         }
@@ -2210,15 +2130,15 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
     nodeIndexToNodePointer.clear();
 
 
-    if (m_dumpModel)
+    if (dump)
     {
-        if (s_fileDump != nullptr)
-        {
-            fclose(s_fileDump);
-            s_fileDump = nullptr;
-        }
-    }
+        eosString filepathDump = dir + "/" + filename + ".json";
 
+        std::string entityJson = Serialize(_entity);
+        std::ofstream out(filepathDump.c_str());
+        out << entityJson;
+        out.close();
+    }
 
     return true;
 }

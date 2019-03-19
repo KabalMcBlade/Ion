@@ -20,12 +20,7 @@ public:
     LoaderGLTF();
     ~LoaderGLTF();
 
-    void SetDumpModel(ionBool _dump) { m_dumpModel = _dump; }
-
-    ionBool Load(const eosString& _fileName, Camera* _camToUpdatePtr, ObjectHandler& _entity);
-
-private:
-    ionBool m_dumpModel;
+    ionBool Load(const eosString& _fileName, Camera* _camToUpdatePtr, ObjectHandler& _entity, bool dump);
 };
 
 

@@ -11,20 +11,16 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-ionU32 Node::g_nextValidNodeIndex = 0;
-
 Node::Node() : m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_Default), m_parent(nullptr)
 {
-    m_nodeIndex = g_nextValidNodeIndex;
-    ++g_nextValidNodeIndex;
+    m_uuid.GenerateUUID();
     SetName(ION_BASE_NODE_NAME);
     m_nodeType = ENodeType_EmptyNode;
 }
 
 Node::Node(const eosString & _name) : m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_Default), m_parent(nullptr)
 {
-    m_nodeIndex = g_nextValidNodeIndex;
-    ++g_nextValidNodeIndex;
+    m_uuid.GenerateUUID();
     SetName(_name);
     m_nodeType = ENodeType_EmptyNode;
 }
@@ -37,9 +33,6 @@ Node::~Node()
 void Node::SetName(const eosString& _name)
 {
     m_name = _name;
-    eosString tmp(std::to_string(m_nodeIndex).c_str()); // I know.. but I don't want to implement everything!
-    m_nameInternal = m_name + tmp;
-    m_hash = std::hash<eosString>{}(m_nameInternal);
 }
 
 void Node::AttachToParent(ObjectHandler& _parent)

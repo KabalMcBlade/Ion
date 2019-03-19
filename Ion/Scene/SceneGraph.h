@@ -18,7 +18,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-class Camera;
+class UUID;
 class RenderCore;
 class DirectionalLight;
 class ION_DLL SceneGraph final
@@ -53,14 +53,9 @@ public:
     void UpdateMouseInput(const MouseState& _mouseState, ionFloat _deltaTime);
     void UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime);
 
-
-
-
-
     // Utilities
     ObjectHandler GetObjectByName(const eosString& _name);
-    ObjectHandler GetObjectByHash(ionSize _hash);
-    ObjectHandler GetObjectByID(ionU32 _id);
+    ObjectHandler GetObjectByUUID(const UUID& _uuid);
 
 private:
     SceneGraph(const SceneGraph& _Orig) = delete;
