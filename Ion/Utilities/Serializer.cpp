@@ -3,6 +3,7 @@
 #include "../Dependencies/Miscellaneous/json.hpp"
 
 #include "../Renderer/RenderCommon.h"
+#include "../Animation/AnimationRenderer.h"
 
 using nlohmann::json;
 
@@ -180,25 +181,177 @@ namespace _private
 
             meshesJson.push_back(meshJson);
         }
+
+        //
+        //
+        // TRANSFORM
+        json transformJson = json
+        {
+            { "position", _inData.GetTransform().GetPosition() },
+            { "rotation", _inData.GetTransform().GetRotation() },
+            { "scale", _inData.GetTransform().GetScale() }
+        };
         
         //
         //
+        // MORPH TARGET WEIGHTS
+        std::vector<ionFloat> initialMorphTargetWeight;
+        const ionU32 initialMorphTargetCount = _inData.GetInitialMorphTargetWeightCount();
+        for (ionU32 i = 0; i < initialMorphTargetCount; ++i)
+        {
+            const ionFloat weight = _inData.GetInitialMorphTargetWeight(i);
+            initialMorphTargetWeight.push_back(weight);
+        }
+
+        std::vector<ionFloat> morphTargetWeight;
+        const ionU32 morphTargetCount = _inData.GetMorphTargetWeightCount();
+        for (ionU32 i = 0; i < morphTargetCount; ++i)
+        {
+            const ionFloat weight = _inData.GetMorphTargetWeight(i);
+            morphTargetWeight.push_back(weight);
+        }
+
+        //
+        //
+        // ANIMATION
+        json animationsJson;
+        if (const AnimationRenderer* animationRenderer = _inData.GetAnimationRenderer())
+        {
+            std::vector<json> animationJson;
+            const ionSize animationCount = animationRenderer->GetAnimationCount();
+            for (ionSize i = 0; i < animationCount; ++i)
+            {
+                const Animation& animation = animationRenderer->GetAnimation((ionU32)i);
+
+                const ionFloat start = animation.GetStart();
+                const ionFloat end = animation.GetEnd();
+                const eosString& name = animation.GetName();
+                const eosSize hash = animation.GetHashName();
+
+                const eosVector(AnimationChannel)& channels = animation.GetChannels();
+                const eosVector(AnimationSampler)& samplers = animation.GetSamplers();
+
+                eosVector(AnimationChannel)::size_type channelsCount = channels.size();
+                eosVector(AnimationSampler)::size_type samplersCount = samplers.size();
+
+                std::vector<json> channelsJson;
+                for (eosVector(AnimationChannel)::size_type j = 0; j < channelsCount; ++j)
+                {
+                    const AnimationChannel& channel = channels[j];
+
+                    const eosString& belongingNodeName = channel.GetNode()->GetName();
+                    const eosString& belongingNodeUUID = channel.GetNode()->GetUUID().ToString();
+                    const EAnimationPathType& animationPath = channel.GetPath();
+                    const ionU32 samplerIndex = channel.GetSamplerIndex();
+
+                    json channelJson = json
+                    {
+                        { "belongingNode", belongingNodeName.c_str() },
+                        { "belongingNodeUUID", belongingNodeUUID.c_str() },
+                        { "animationPath", animationPath },
+                        { "samplerIndex", samplerIndex },
+                    };
+
+                    channelsJson.push_back(channelJson);
+                }
+
+                std::vector<json> samplersJson;
+                for (eosVector(AnimationSampler)::size_type j = 0; j < samplersCount; ++j)
+                {
+                    const AnimationSampler& sampler = samplers[j];
+
+                    const EAnimationInterpolationType& interpolation = sampler.GetInterpolation();
+                    const eosVector(ionFloat)& inputs = sampler.GetInputs();
+                    const eosVector(Vector)& linearPath = sampler.GetLinearPaths();
+                    const eosVector(ionFloat)& morphTarget = sampler.GetMorphTargets();
+
+                    std::vector<ionFloat> _input;
+                    eosVector(ionFloat)::size_type inputCount = inputs.size();
+                    for (eosVector(ionFloat)::size_type a = 0; a < inputCount; ++a)
+                    {
+                        const ionFloat& v = inputs[a];
+                        _input.push_back(v);
+                    }
+
+                    std::vector<Vector> _linearPath;
+                    eosVector(Vector)::size_type linearPathCount = linearPath.size();
+                    for (eosVector(Vector)::size_type a = 0; a < linearPathCount; ++a)
+                    {
+                        const Vector& v = linearPath[a];
+                        _linearPath.push_back(v);
+                    }
+
+                    std::vector<ionFloat> _morphTarget;
+                    eosVector(ionFloat)::size_type morphTargetCount = morphTarget.size();
+                    for (eosVector(ionFloat)::size_type a = 0; a < morphTargetCount; ++a)
+                    {
+                        const ionFloat& v = morphTarget[a];
+                        _morphTarget.push_back(v);
+                    }
+
+
+                    json samplerJson = json
+                    {
+                        { "interpolationType", interpolation },
+                        { "inputCount", inputCount },
+                        { "inputs", _input },
+                        { "linearPathCount", linearPathCount },
+                        { "linearPath", _linearPath },
+                        { "morphTargetCount", morphTargetCount },
+                        { "morphTarget", _morphTarget },
+                    };
+
+                    samplersJson.push_back(samplerJson);
+                }
+
+
+                //
+                json animationJson = json
+                {
+                    { "name", name.c_str() },
+                    { "hash", hash },
+                    { "startAt", start },
+                    { "endAt", end },
+                    { "channelCount", channelsCount },
+                    { "channels", channelsJson },
+                    { "samplerCount", samplersCount },
+                    { "samplers", samplersJson },
+                };
+
+                animationsJson.push_back(animationJson);
+            }
+
+            //
+            animationsJson = json
+            {
+                { "animationCount", animationCount },
+                { "animations", animationsJson },
+            };
+        }
+
+        //
+        //
         // NODES
-        json mainObj;
-        mainObj = json
+        json nodeObj;
+        nodeObj = json
         {
             { "uuid", _inData.GetUUID().ToString().c_str() },
             { "name", _inData.GetName().c_str() },
+            { "transform", transformJson },
             { "nodeType", _inData.GetNodeType() },
             { "renderLayer", _inData.GetRenderLayer() },
             { "meshCount", meshCount },
             { "meshes", meshesJson },
+            { "initialMorphTargetCount", initialMorphTargetCount },
+            { "initialMorphTargetWeight", initialMorphTargetWeight },
+            { "morphTargetCount", morphTargetCount },
+            { "morphTargetWeight", morphTargetWeight },
+            { "animations", animationsJson },
             { "child", json() }
-
         };
 
 
-        json& child = mainObj.at("child");
+        json& child = nodeObj.at("child");
 
         _inData.IterateAll(
             [&](const ObjectHandler& _node)
@@ -234,7 +387,7 @@ namespace _private
         }
         );
 
-        _json += mainObj;
+        _json += nodeObj;
     }
 
     void FromJSON(const json& _json, Entity& _outData)
