@@ -8,7 +8,7 @@
 
 ION_NAMESPACE_BEGIN
 
-Entity::Entity() : Node(), m_meshRenderer(nullptr), m_animationRenderer(nullptr)
+Entity::Entity() : Node(ION_BASE_ENTITY_NAME), m_meshRenderer(nullptr), m_animationRenderer(nullptr)
 {
     m_nodeType = ENodeType_Entity;
 }

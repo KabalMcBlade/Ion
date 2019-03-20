@@ -11,6 +11,9 @@
 #include "../Geometry/MeshRenderer.h"
 
 
+#define ION_BASE_ENTITY_NAME "Entity"
+
+
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN

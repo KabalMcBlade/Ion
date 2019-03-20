@@ -36,6 +36,8 @@ NIX_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 
+static ionU32 g_incrementalIndexLocalModelChild = 1;
+
 LoaderGLTF::LoaderGLTF()
 {
 }
@@ -126,6 +128,15 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
     for (ionSize i = 0; i < _node.children.size(); ++i)
     {
         Entity* child = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE, _model.nodes[_node.children[i]].name.c_str());
+
+        if (child->GetName().empty())
+        {
+            eosString newName = _entityHandle->GetName().c_str();
+            newName += std::to_string(g_incrementalIndexLocalModelChild).c_str();
+            child->SetName(newName);
+            ++g_incrementalIndexLocalModelChild;
+        }
+
         ObjectHandler childHandle(child);
         child->AttachToParent(_entityHandle);
 
@@ -2083,6 +2094,15 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
     // for GLTF always full vertex
     Entity* entityPtr = dynamic_cast<Entity*>(_entity.GetPtr());
     MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
+
+    if (entityPtr->GetName().empty())
+    {
+        eosString newName = ION_BASE_ENTITY_NAME;
+        newName  += std::to_string(entityPtr->GetUUID().m_index).c_str();
+        entityPtr->SetName(newName);
+    }
+
+    g_incrementalIndexLocalModelChild = 1;
 
     if (nodeCount == 1)
     {
