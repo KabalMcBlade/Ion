@@ -56,7 +56,9 @@ public:
 
     ION_NO_INLINE static RenderManager& Instance();
 
-    ionBool LoadModelFromFile(const eosString& _fileName, Camera* _camToUpdate, ObjectHandler& _entity, ionBool _dumpModel = false);
+    ionBool LoadModelFromFile(const eosString& _filePath, Camera* _camToUpdate, ObjectHandler& _entity);
+    void DumpModelToFile(const eosString& _filePath, const ObjectHandler& _entity, LoaderGLTF::ESerializationLevel _level = LoaderGLTF::ESerializationLevel_Normal);
+
     void GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _type, ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
 
     void LoadColoredTriangle(ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);

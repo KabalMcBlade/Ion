@@ -105,9 +105,14 @@ RenderManager& RenderManager::Instance()
     return *s_instance;
 }
 
-ionBool RenderManager::LoadModelFromFile(const eosString& _fileName, Camera* _camToUpdate, ObjectHandler& _entity, ionBool _dumpModel /*= false*/)
+ionBool RenderManager::LoadModelFromFile(const eosString& _filePath, Camera* _camToUpdate, ObjectHandler& _entity)
 {
-    return m_loader.Load(_fileName, _camToUpdate, _entity, _dumpModel);
+    return m_loader.Load(_filePath, _camToUpdate, _entity);
+}
+
+void RenderManager::DumpModelToFile(const eosString& _filePath, const ObjectHandler& _entity, LoaderGLTF::ESerializationLevel _level /*= LoaderGLTF::ESerializationLevel_Normal*/)
+{
+    m_loader.Dump(_filePath, _entity, _level);
 }
 
 void RenderManager::GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _type, ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)

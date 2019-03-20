@@ -1615,7 +1615,7 @@ void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _mod
     }
 }
 
-ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, ObjectHandler& _entity, bool dump)
+ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, ObjectHandler& _entity)
 {
     //
     eosString dir;
@@ -2129,19 +2129,20 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
     materialIndexToMaterialName.clear();
     nodeIndexToNodePointer.clear();
 
-
-    if (dump)
-    {
-        eosString filepathDump = dir + "/" + filename + ".json";
-
-        std::string entityJson = Serialize(_entity);
-        std::ofstream out(filepathDump.c_str());
-        out << entityJson;
-        out.close();
-    }
+    //_outFilePath = dir + "/" + filename;
 
     return true;
 }
 
+
+void LoaderGLTF::Dump(const eosString& _filePath, const ObjectHandler& _entity, ESerializationLevel _level /*= ESerializationLevel_Normal*/)
+{
+    eosString filepathDump = _filePath + ".json";
+
+    std::string entityJson = Serialize(_entity, _level);
+    std::ofstream out(filepathDump.c_str());
+    out << entityJson;
+    out.close();
+}
 
 ION_NAMESPACE_END

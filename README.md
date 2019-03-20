@@ -60,10 +60,13 @@ For instance:	-width 1024 -height 768 -fullscreen true
 	* load primitives (quad, triangle, cube, sphere)
 * -usepath
 	* if -usepath is set, you need to specified the fullpath of the model file and can be everywhere 
+* -dumpgltf
+	* will dump the gltf model loaded in the ION structure nodes into json file, following different level of detail (0: just nodes and transform; 1: nodes, transform and animations if any; 2; everything, even vertex, which is very expensive and will generate huge file; default 1)
 
 For instance:	
 * -model DamagedHelmet.gltf
 * -usepath -model C:\Users\MyUser\Downloads\DamagedHelmet\DamagedHelmet.gltf
+* -dumpgltf 1
 
 #### Controls
 

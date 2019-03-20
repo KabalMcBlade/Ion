@@ -17,10 +17,19 @@ class Camera;
 class LoaderGLTF final
 {
 public:
+
+    enum ESerializationLevel : ionU32
+    {
+        ESerializationLevel_Mini = 0,
+        ESerializationLevel_Normal,
+        ESerializationLevel_Full
+    };
+
     LoaderGLTF();
     ~LoaderGLTF();
 
-    ionBool Load(const eosString& _fileName, Camera* _camToUpdatePtr, ObjectHandler& _entity, bool dump);
+    ionBool Load(const eosString& _filePath, Camera* _camToUpdatePtr, ObjectHandler& _entity);
+    void Dump(const eosString& _filePath, const ObjectHandler& _entity, ESerializationLevel _level = ESerializationLevel_Normal);
 };
 
 

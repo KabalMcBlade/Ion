@@ -196,7 +196,7 @@ int main(int argc, char **argv)
     window.GetCommandLineParse().AddWithValue<eosString>("-model", false);
     window.GetCommandLineParse().AddWithValue<eosString>("-primitive", false);
     window.GetCommandLineParse().Add("-usepath", false);
-    window.GetCommandLineParse().Add("-dumpgltf", false);
+    window.GetCommandLineParse().AddWithValueAndDefault<ionU32>("-dumpgltf", false, 1);
 
     if (!window.ParseCommandLine(argc, argv))
     {
@@ -311,7 +311,18 @@ int main(int argc, char **argv)
             model = ionFileSystemManager().GetModelsPath() + modelVar;
         }
 
-        ionRenderManager().LoadModelFromFile(model, camera, testHandle, window.GetCommandLineParse().IsSet("-dumpgltf"));
+        ionRenderManager().LoadModelFromFile(model, camera, testHandle);
+
+        if (window.GetCommandLineParse().IsSet("-dumpgltf"))
+        {
+            const ionU32 serializationLevelNum = window.GetCommandLineParse().GetValue<ionU32>("-dumpgltf");
+            const LoaderGLTF::ESerializationLevel serializationLevel = static_cast<LoaderGLTF::ESerializationLevel>(serializationLevelNum);
+
+            ionRenderManager().DumpModelToFile(model, testHandle, serializationLevel);
+            
+            eosString dumpFile = model + ".json";
+            std::cout << "Model " << testHandle->GetName() << " dumped in " << dumpFile << std::endl;
+        }
     }
     else if (window.GetCommandLineParse().HasValue("-primitive"))
     {
