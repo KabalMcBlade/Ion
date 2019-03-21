@@ -108,20 +108,9 @@ Material* Skybox::GetMaterial()
 
 void Skybox::UpdateUniformBuffer(const Matrix& _projection, const Matrix& _view, const Matrix& _model)
 {
-    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[0], _model[0]);
-    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[4], _model[1]);
-    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[8], _model[2]);
-    _mm_storeu_ps(&m_drawSurface.m_modelMatrix[12], _model[3]);
-
-    _mm_storeu_ps(&m_drawSurface.m_viewMatrix[0], _view[0]);
-    _mm_storeu_ps(&m_drawSurface.m_viewMatrix[4], _view[1]);
-    _mm_storeu_ps(&m_drawSurface.m_viewMatrix[8], _view[2]);
-    _mm_storeu_ps(&m_drawSurface.m_viewMatrix[12], _view[3]);
-
-    _mm_storeu_ps(&m_drawSurface.m_projectionMatrix[0], _projection[0]);
-    _mm_storeu_ps(&m_drawSurface.m_projectionMatrix[4], _projection[1]);
-    _mm_storeu_ps(&m_drawSurface.m_projectionMatrix[8], _projection[2]);
-    _mm_storeu_ps(&m_drawSurface.m_projectionMatrix[12], _projection[3]);
+    m_drawSurface.m_modelMatrix = _model;
+    m_drawSurface.m_viewMatrix = _view;
+    m_drawSurface.m_projectionMatrix = _projection;
 }
 
 void Skybox::Draw(VkRenderPass _renderPass, RenderCore& _renderCore)

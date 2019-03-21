@@ -1124,12 +1124,12 @@ class Node;
 
 struct DrawSurface final
 {
-    ionFloat            m_modelMatrix[16];
-    ionFloat            m_viewMatrix[16];
-    ionFloat            m_projectionMatrix[16];
-    ionFloat            m_mainCameraPos[4];
-    ionFloat            m_directionalLight[4];
-    ionFloat            m_directionalLightColor[4];
+    Matrix              m_modelMatrix;
+    Matrix              m_viewMatrix;
+    Matrix              m_projectionMatrix;
+    Vector              m_mainCameraPos;
+    Vector              m_directionalLight;
+    Vector              m_directionalLightColor;
     ionU64              m_extraGLState;
     VertexCacheHandler  m_vertexCache;
     VertexCacheHandler  m_indexCache;
@@ -1153,12 +1153,6 @@ struct DrawSurface final
 
     DrawSurface()
     {
-        memset(&m_modelMatrix, 0, sizeof(m_modelMatrix));
-        memset(&m_viewMatrix, 0, sizeof(m_viewMatrix));
-        memset(&m_projectionMatrix, 0, sizeof(m_projectionMatrix));
-        memset(&m_mainCameraPos, 0, sizeof(m_mainCameraPos));
-        memset(&m_directionalLight, 0, sizeof(m_directionalLight));
-        memset(&m_directionalLightColor, 0, sizeof(m_directionalLight));
         m_vertexCache = 0;
         m_indexCache = 0;
         m_jointCache = 0;

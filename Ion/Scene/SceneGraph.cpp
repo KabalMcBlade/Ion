@@ -260,21 +260,14 @@ void SceneGraph::Update(ionFloat _deltaTime)
         {
             DrawSurface& drawSurface = (*itDS);
 
-            _mm_storeu_ps(&drawSurface.m_viewMatrix[0], view[0]);
-            _mm_storeu_ps(&drawSurface.m_viewMatrix[4], view[1]);
-            _mm_storeu_ps(&drawSurface.m_viewMatrix[8], view[2]);
-            _mm_storeu_ps(&drawSurface.m_viewMatrix[12], view[3]);
+            drawSurface.m_viewMatrix = view;
+            drawSurface.m_projectionMatrix = projection;
+            drawSurface.m_mainCameraPos = cameraPos;
 
-            _mm_storeu_ps(&drawSurface.m_projectionMatrix[0], projection[0]);
-            _mm_storeu_ps(&drawSurface.m_projectionMatrix[4], projection[1]);
-            _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], projection[2]);
-            _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], projection[3]);
-
-            _mm_storeu_ps(&drawSurface.m_mainCameraPos[0], cameraPos);
             if (m_directionalLight.IsValid())
             {
-                _mm_storeu_ps(&drawSurface.m_directionalLight[0], GetDirectionalLightPtr()->GetLightDirection());
-                _mm_storeu_ps(&drawSurface.m_directionalLightColor[0], GetDirectionalLightPtr()->GetColor());
+                drawSurface.m_directionalLight = GetDirectionalLightPtr()->GetLightDirection();
+                drawSurface.m_directionalLightColor = GetDirectionalLightPtr()->GetColor();
             }
 
             drawSurface.m_exposure = ionRenderManager().m_exposure;
@@ -283,14 +276,9 @@ void SceneGraph::Update(ionFloat _deltaTime)
 
 
             // relative to the nodes
-            const Matrix& model = drawSurface.m_nodeRef->GetTransform().GetMatrixWS();
+            drawSurface.m_modelMatrix = drawSurface.m_nodeRef->GetTransform().GetMatrixWS();
 
             drawSurface.m_visible = drawSurface.m_nodeRef->IsVisible();
-
-            _mm_storeu_ps(&drawSurface.m_modelMatrix[0], model[0]);
-            _mm_storeu_ps(&drawSurface.m_modelMatrix[4], model[1]);
-            _mm_storeu_ps(&drawSurface.m_modelMatrix[8], model[2]);
-            _mm_storeu_ps(&drawSurface.m_modelMatrix[12], model[3]);
         }
     }
     //ionVertexCacheManager().EndMapping();

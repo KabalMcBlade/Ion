@@ -1887,17 +1887,17 @@ void RenderCore::CopyFrameBuffer(Texture* _texture, ionS32 _width, ionS32 _heigh
 void RenderCore::Draw(VkCommandBuffer _commandBuffer, VkRenderPass _renderPass, const DrawSurface& _surface)
 {
     // THIS SHOULD BE PER SCENE 
-    ionShaderProgramManager().SetRenderParamMatrix(ION_VIEW_MATRIX_PARAM_HASH, &_surface.m_viewMatrix[0]);
-    ionShaderProgramManager().SetRenderParamMatrix(ION_PROJ_MATRIX_PARAM_HASH, &_surface.m_projectionMatrix[0]);
-    ionShaderProgramManager().SetRenderParamVector(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM_HASH, &_surface.m_mainCameraPos[0]);
-    ionShaderProgramManager().SetRenderParamVector(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM_HASH, &_surface.m_directionalLight[0]);
-    ionShaderProgramManager().SetRenderParamVector(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM_HASH, &_surface.m_directionalLightColor[0]);
+    ionShaderProgramManager().SetRenderParamMatrix(ION_VIEW_MATRIX_PARAM_HASH, _surface.m_viewMatrix);
+    ionShaderProgramManager().SetRenderParamMatrix(ION_PROJ_MATRIX_PARAM_HASH, _surface.m_projectionMatrix);
+    ionShaderProgramManager().SetRenderParamVector(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM_HASH, _surface.m_mainCameraPos);
+    ionShaderProgramManager().SetRenderParamVector(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM_HASH, _surface.m_directionalLight);
+    ionShaderProgramManager().SetRenderParamVector(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM_HASH, _surface.m_directionalLightColor);
     ionShaderProgramManager().SetRenderParamFloat(ION_EXPOSURE_FLOAT_PARAM_HASH, _surface.m_exposure);
     ionShaderProgramManager().SetRenderParamFloat(ION_GAMMA_FLOAT_PARAM_HASH, _surface.m_gamma);
     ionShaderProgramManager().SetRenderParamFloat(ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM_HASH, _surface.m_prefilteredCubeMipLevels);
 
     // THIS SHOULD BE PER OBJECT
-    ionShaderProgramManager().SetRenderParamMatrix(ION_MODEL_MATRIX_PARAM_HASH, &_surface.m_modelMatrix[0]);
+    ionShaderProgramManager().SetRenderParamMatrix(ION_MODEL_MATRIX_PARAM_HASH, _surface.m_modelMatrix);
 
     // ALL THE FOLLOWING SHOULD DONE PER MATERIAL
     const Material* material = _surface.m_material;

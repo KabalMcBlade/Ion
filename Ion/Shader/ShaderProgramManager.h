@@ -60,14 +60,20 @@ public:
     const   ionS32 GetRenderParamInteger(const eosString& _param);
     const   ionS32 GetRenderParamInteger(ionSize _paramHash);
 
+    void    SetRenderParamMatrix(const eosString& _param, const Matrix& _value);
+    void    SetRenderParamMatrix(ionSize _paramHash, const Matrix& _value);
     void    SetRenderParamMatrix(const eosString& _param, const ionFloat* _value);
     void    SetRenderParamMatrix(ionSize _paramHash, const ionFloat* _value);
     void    SetRenderParamsMatrix(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
+    void    SetRenderParamsMatrix(const eosString& _param, const eosVector(Matrix)& _values);
     //void    SetRenderParamsMatrix(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
 
+    void    SetRenderParamVector(const eosString& _param, const Vector& _value);
+    void    SetRenderParamVector(ionSize _paramHash, const Vector& _value);
     void    SetRenderParamVector(const eosString& _param, const ionFloat* _value);
     void    SetRenderParamVector(ionSize _paramHash, const ionFloat* _value);
     void    SetRenderParamsVector(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
+    void    SetRenderParamsVector(const eosString& _param, const eosVector(Vector)& _values);
     //void    SetRenderParamsVector(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
 
     void    SetRenderParamFloat(const eosString& _param, const ionFloat _value);

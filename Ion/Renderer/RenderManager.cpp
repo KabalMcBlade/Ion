@@ -495,25 +495,9 @@ const Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
         cameraPtr->SetViewport(m_renderCore, cmdBuffer);
         cameraPtr->SetScissor(m_renderCore, cmdBuffer);
 
-        const Matrix& projection = cameraPtr->GetPerspectiveProjection();
-        const Matrix& view = cameraPtr->GetView();
-
-        const Matrix& model = brdflutEntity->GetTransform().GetMatrixWS();
-
-        _mm_storeu_ps(&drawSurface.m_modelMatrix[0], model[0]);
-        _mm_storeu_ps(&drawSurface.m_modelMatrix[4], model[1]);
-        _mm_storeu_ps(&drawSurface.m_modelMatrix[8], model[2]);
-        _mm_storeu_ps(&drawSurface.m_modelMatrix[12], model[3]);
-
-        _mm_storeu_ps(&drawSurface.m_viewMatrix[0], view[0]);
-        _mm_storeu_ps(&drawSurface.m_viewMatrix[4], view[1]);
-        _mm_storeu_ps(&drawSurface.m_viewMatrix[8], view[2]);
-        _mm_storeu_ps(&drawSurface.m_viewMatrix[12], view[3]);
-
-        _mm_storeu_ps(&drawSurface.m_projectionMatrix[0], projection[0]);
-        _mm_storeu_ps(&drawSurface.m_projectionMatrix[4], projection[1]);
-        _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], projection[2]);
-        _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], projection[3]);
+        drawSurface.m_projectionMatrix = cameraPtr->GetPerspectiveProjection();
+        drawSurface.m_viewMatrix = cameraPtr->GetView();
+        drawSurface.m_modelMatrix = brdflutEntity->GetTransform().GetMatrixWS();
 
         m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
 
@@ -698,24 +682,9 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
 
                 // draw irradiance
                 {
-                    const Matrix& projection = cameraPtr->GetPerspectiveProjection();
-                    const Matrix& view = cameraPtr->GetView();
-                    const Matrix& model = irradianceEntity->GetTransform().GetMatrixWS();
-
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[0], model[0]);
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[4], model[1]);
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[8], model[2]);
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[12], model[3]);
-
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[0], view[0]);
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[4], view[1]);
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[8], view[2]);
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[12], view[3]);
-
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[0], projection[0]);
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[4], projection[1]);
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], projection[2]);
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], projection[3]);
+                    drawSurface.m_projectionMatrix = cameraPtr->GetPerspectiveProjection();
+                    drawSurface.m_viewMatrix = cameraPtr->GetView();
+                    drawSurface.m_modelMatrix = irradianceEntity->GetTransform().GetMatrixWS();
 
                     m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
                     m_renderCore.Draw(cmdBuffer, renderPass, drawSurface);
@@ -992,24 +961,9 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
                     // custom draw uniform
                     ionShaderProgramManager().SetRenderParamFloat("roughness", (ionFloat)m / (ionFloat)(mipMapsLevel - 1));
 
-                    const Matrix& projection = cameraPtr->GetPerspectiveProjection();
-                    const Matrix& view = cameraPtr->GetView();
-                    const Matrix& model = prefilteredEntity->GetTransform().GetMatrixWS();
-
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[0], model[0]);
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[4], model[1]);
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[8], model[2]);
-                    _mm_storeu_ps(&drawSurface.m_modelMatrix[12], model[3]);
-
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[0], view[0]);
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[4], view[1]);
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[8], view[2]);
-                    _mm_storeu_ps(&drawSurface.m_viewMatrix[12], view[3]);
-
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[0], projection[0]);
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[4], projection[1]);
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[8], projection[2]);
-                    _mm_storeu_ps(&drawSurface.m_projectionMatrix[12], projection[3]);
+                    drawSurface.m_projectionMatrix = cameraPtr->GetPerspectiveProjection();
+                    drawSurface.m_viewMatrix = cameraPtr->GetView();
+                    drawSurface.m_modelMatrix = prefilteredEntity->GetTransform().GetMatrixWS();
 
                     m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
                     m_renderCore.Draw(cmdBuffer, renderPass, drawSurface);
