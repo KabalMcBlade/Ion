@@ -77,7 +77,7 @@ void UpdateBoundingBox(const ObjectHandler& _node, BoundingBox& _mainBoundingBox
 void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRenderer* _meshRenderer, ObjectHandler& _entityHandle, eosMap(ionU32, Node*)& _nodeIndexToNodePointer, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName
     /*, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign*/)
 {
-    Vector position(0.0f, 0.0f, 0.0f);
+    Vector position(0.0f, 0.0f, 0.0f, 1.0f);
     Quaternion rotation;
     Vector scale(1.0f, 1.0f, 1.0f);
 
@@ -100,7 +100,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
     {   
         if (_node.translation.size() == 3)
         {
-            position = Vector((ionFloat)_node.translation[0], (ionFloat)_node.translation[1], (ionFloat)_node.translation[2]);
+            position = Vector((ionFloat)_node.translation[0], (ionFloat)_node.translation[1], (ionFloat)_node.translation[2], 1.0f);
         }
 
         if (_node.rotation.size() == 4)
@@ -298,7 +298,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         {
                             VertexMorphTarget vert;
 
-                            Vector pos((&morphTargetBufferPos[t][v * 3])[0], ((&morphTargetBufferPos[t][v * 3])[1]), (&morphTargetBufferPos[t][v * 3])[2]);
+                            Vector pos((&morphTargetBufferPos[t][v * 3])[0], ((&morphTargetBufferPos[t][v * 3])[1]), (&morphTargetBufferPos[t][v * 3])[2], 1.0f);
                             vert.SetPosition(pos);
 
                             Vector normal;
@@ -486,7 +486,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 {
                     Vertex vert;
 
-                    Vector pos((&bufferPos[v * 3])[0], ((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2]);
+                    Vector pos((&bufferPos[v * 3])[0], ((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2], 1.0f);
 
                     if (normalsAreMissing || tangentsAreMissing)
                     {
@@ -1438,7 +1438,7 @@ void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _mod
                         const ionFloat *bufferVector = reinterpret_cast<const ionFloat *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
                         for (ionSize a = 0; a < accessor.count; ++a)
                         {
-                            Vector v((&bufferVector[a * 3])[0], ((&bufferVector[a * 3])[1]), (&bufferVector[a * 3])[2]);
+                            Vector v((&bufferVector[a * 3])[0], ((&bufferVector[a * 3])[1]), (&bufferVector[a * 3])[2], 1.0f);
                             ionSampler.PushBackOutputLinearPath(v);
                         }
                         break;

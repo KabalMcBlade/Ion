@@ -57,7 +57,7 @@ For instance:	-width 1024 -height 768 -fullscreen true
 * -model
 	* load a model, if -usepath IS NOT DEFINED, the model MUST be only the filename and MUST be inside the Assets/Models demo folder
 * -primitive
-	* load primitives (quad, triangle, cube, sphere)
+	* load primitives (quad, triangle, cube, sphere, pyramid)
 * -usepath
 	* if -usepath is set, you need to specified the fullpath of the model file and can be everywhere 
 * -dumpgltf

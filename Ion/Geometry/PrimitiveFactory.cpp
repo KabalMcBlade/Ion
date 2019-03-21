@@ -28,7 +28,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
     indices.resize(3);
     indices = { 0, 1, 2 };
 
-    Vector positions[3] = { Vector(0.0f, 0.5f, 0.0f), Vector(0.5f, -0.5f, 0.0f), Vector(-0.5f, -0.5f, 0.0f) };
+    Vector positions[3] = { Vector(0.0f, 0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f) };
 
     Entity* entityPtr = dynamic_cast<Entity*>(_entity.GetPtr());
 
@@ -295,7 +295,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
     indices.resize(6);
     indices = { 0, 1, 2, 2, 3, 0 };
 
-    Vector positions[4] = { Vector(0.5f, 0.5f, 0.0f), Vector(-0.5f, 0.5f, 0.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f) };
+    Vector positions[4] = { Vector(0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, 0.5f, 0.0f, 1.0f), Vector(-0.5f, -0.5f, 0.0f, 1.0f), Vector(0.5f, -0.5f, 0.0f, 1.0f) };
 
     Entity* entityPtr = dynamic_cast<Entity*>(_entity.GetPtr());
 
@@ -604,35 +604,35 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
         20,21,22,20,22,23 };
 
     Vector positions[24] = {
-        Vector(-0.5f, 0.5f, 0.5f),
-        Vector(-0.5f, -0.5f, 0.5f),
-        Vector(0.5f, -0.5f, 0.5f),
-        Vector(0.5f, 0.5f, 0.5f),
+        Vector(-0.5f, 0.5f, 0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(0.5f, 0.5f, 0.5f, 1.0f),
 
-        Vector(0.5f, 0.5f, -0.5f),
-        Vector(0.5f, -0.5f, -0.5f),
-        Vector(-0.5f, -0.5f, -0.5f),
-        Vector(-0.5f, 0.5f, -0.5f),
+        Vector(0.5f, 0.5f, -0.5f, 1.0f),
+        Vector(0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, 0.5f, -0.5f, 1.0f),
 
-        Vector(0.5f, 0.5f, 0.5f),
-        Vector(0.5f, -0.5f, 0.5f),
-        Vector(0.5f, -0.5f, -0.5f),
-        Vector(0.5f, 0.5f, -0.5f),
+        Vector(0.5f, 0.5f, 0.5f, 1.0f),
+        Vector(0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(0.5f, 0.5f, -0.5f, 1.0f),
 
-        Vector(-0.5f, 0.5f, -0.5f),
-        Vector(-0.5f, 0.5f, 0.5f),
-        Vector(0.5f, 0.5f, 0.5f),
-        Vector(0.5f, 0.5f, -0.5f),
+        Vector(-0.5f, 0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, 0.5f, 0.5f, 1.0f),
+        Vector(0.5f, 0.5f, 0.5f, 1.0f),
+        Vector(0.5f, 0.5f, -0.5f, 1.0f),
 
-        Vector(-0.5f, 0.5f, -0.5f),
-        Vector(-0.5f, -0.5f, -0.5f),
-        Vector(-0.5f, -0.5f, 0.5f),
-        Vector(-0.5f, 0.5f, 0.5f),
+        Vector(-0.5f, 0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(-0.5f, 0.5f, 0.5f, 1.0f),
 
-        Vector(-0.5f, -0.5f, 0.5f),
-        Vector(-0.5f, -0.5f, -0.5f),
-        Vector(0.5f, -0.5f, -0.5f),
-        Vector(0.5f, -0.5f, 0.5f)
+        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(0.5f, -0.5f, 0.5f, 1.0f)
     };
 
     Entity* entityPtr = dynamic_cast<Entity*>(_entity.GetPtr());
@@ -942,7 +942,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
                 const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
                 const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
 
-                *v++ = Helper::Set(x * radius, y * radius, z * radius, 0.0f);
+                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
             }
         }
 
@@ -1013,7 +1013,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
                 const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
                 const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
 
-                *v++ = Helper::Set(x * radius, y * radius, z * radius, 0.0f);
+                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
                 *n++ = Helper::Set(x, y, z, 0.0f);
             }
         }
@@ -1084,7 +1084,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
                 const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
                 const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
 
-                *v++ = Helper::Set(x * radius, y * radius, z * radius, 0.0f);
+                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
                 *t++ = Helper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
             }
         }
@@ -1155,7 +1155,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
                 const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
                 const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
 
-                *v++ = Helper::Set(x * radius, y * radius, z * radius, 0.0f);
+                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
                 *n++ = Helper::Set(x, y, z, 0.0f);
             }
         }
@@ -1228,7 +1228,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
                 const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
                 const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
 
-                *v++ = Helper::Set(x * radius, y * radius, z * radius, 0.0f);
+                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
                 *n++ = Helper::Set(x, y, z, 0.0f);
                 *t++ = Helper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
             }
@@ -1303,7 +1303,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
                 const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
                 const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
 
-                *v++ = Helper::Set(x * radius, y * radius, z * radius, 0.0f);
+                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
                 *n++ = Helper::Set(x, y, z, 0.0f);
                 *t++ = Helper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
             }
@@ -1404,27 +1404,27 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
     Vector positions[16] = { 
 
         // 1 square base
-        Vector(0.5f, -0.5f, 0.5f),
-        Vector(-0.5f, -0.5f, 0.5f),
-        Vector(-0.5f, -0.5f, -0.5f),
-        Vector(0.5f, -0.5f, -0.5f),
+        Vector(0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(0.5f, -0.5f, -0.5f, 1.0f),
     
         // 4 triangles
-        Vector(0.5f, -0.5f, 0.5f),
-        Vector(0.0f, 0.5f, 0.0f),
-        Vector(-0.5f, -0.5f, 0.5f),
+        Vector(0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(0.0f, 0.5f, 0.0f, 1.0f),
+        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
 
-        Vector(-0.5f, -0.5f, 0.5f),
-        Vector(0.0f, 0.5f, 0.0f),
-        Vector(-0.5f, -0.5f, -0.5f),
+        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
+        Vector(0.0f, 0.5f, 0.0f, 1.0f),
+        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
 
-        Vector(-0.5f, -0.5f, -0.5f),
-        Vector(0.0f, 0.5f, 0.0f),
-        Vector(0.5f, -0.5f, -0.5f),
+        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(0.0f, 0.5f, 0.0f, 1.0f),
+        Vector(0.5f, -0.5f, -0.5f, 1.0f),
 
-        Vector(0.5f, -0.5f, -0.5f),
-        Vector(0.0f, 0.5f, 0.0f),
-        Vector(0.5f, -0.5f, 0.5f)
+        Vector(0.5f, -0.5f, -0.5f, 1.0f),
+        Vector(0.0f, 0.5f, 0.0f, 1.0f),
+        Vector(0.5f, -0.5f, 0.5f, 1.0f)
     };
 
     Entity* entityPtr = dynamic_cast<Entity*>(_entity.GetPtr());
