@@ -99,7 +99,7 @@ void RotatingEntity::OnEnd()
 void RotatingEntity::OnUpdate(ionFloat _deltaTime)
 {
     static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
-    static const Vector axis(0.0f, 1.0f, 0.0f, 0.0f);
+    static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
     static ionFloat radRotated = 0.0f;
 
     if (m_rotating)
