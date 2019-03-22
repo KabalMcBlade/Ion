@@ -220,9 +220,9 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
 
 void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime)
 {
-    static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
-    static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
-    static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
+    static const Vector right(1.0f, 0.0f, 0.0f, 1.0f);
+    static const Vector up(0.0f, 1.0f, 0.0f, 1.0f);
+    static const Vector forward(0.0f, 0.0f, 1.0f, 1.0f);
 
     if (!MainCamera::m_toggleLightRotation)
     {
@@ -253,7 +253,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
             ionFloat velocity = m_movementSpeed * _deltaTime;
 
-            const Quaternion& orientation = m_camera->GetTransform().GetRotation();
+            const Quaternion& orientation = GetTransform().GetRotation().Conjugate(); //m_camera->GetTransform().GetRotation();
             const Vector newRight =  orientation * right;
             const Vector newUp = orientation * up;
 
@@ -268,7 +268,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
         {
             ionFloat velocity = m_movementSpeed * m_incresingWheelSpeed * _deltaTime;
 
-            const Quaternion& orientation = m_camera->GetTransform().GetRotation();
+            const Quaternion& orientation = GetTransform().GetRotation().Conjugate(); //m_camera->GetTransform().GetRotation();
             const Vector newForward = forward * orientation;
 
             const Vector dir = newForward * _mouseState.m_wheel.m_distance;
@@ -343,9 +343,9 @@ void MainCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFl
     {
         if (m_mouseNotUsed)
         {
-            static const Vector right(1.0f, 0.0f, 0.0f, 0.0f);
-            static const Vector up(0.0f, 1.0f, 0.0f, 0.0f);
-            static const Vector forward(0.0f, 0.0f, 1.0f, 0.0f);
+            static const Vector right(1.0f, 0.0f, 0.0f, 1.0f);
+            static const Vector up(0.0f, 1.0f, 0.0f, 1.0f);
+            static const Vector forward(0.0f, 0.0f, 1.0f, 1.0f);
 
             Vector pos = GetTransform().GetPosition();
 
