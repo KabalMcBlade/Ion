@@ -901,14 +901,43 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
 ///
 void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
-    static const ionFloat radius = 1.0f;
-    static const ionU32 rings = 24;
-    static const ionU32 sectors = 48;
+    const ionU32 stacks = 24;   //20;
+    const ionU32 slices = 48;   //20
 
-    eosVector(Vector) positions;
-    eosVector(Vector) normals;
-    eosVector(Vector) uvuv;
-    eosVector(Index) indices;
+    std::vector<Vector> positions;
+    std::vector<Index> indices;
+
+    for (ionU32 i = 0; i <= stacks; ++i)
+    {
+        ionFloat V = (ionFloat)i / (ionFloat)stacks;
+        ionFloat phi = V * kfPI;
+
+        // loop through the slices.
+        for (ionU32 j = 0; j <= slices; ++j)
+        {
+
+            ionFloat U = (ionFloat)j / (ionFloat)slices;
+            ionFloat theta = U * (kfPI * 2);
+
+            // use spherical coordinates to calculate the positions.
+            ionFloat x = cos(theta) * sin(phi);
+            ionFloat y = cos(phi);
+            ionFloat z = sin(theta) * sin(phi);
+
+            positions.push_back(Vector(x, y, z, 1.0f));
+        }
+    }
+
+    for (ionU32 i = 0; i < slices * stacks + slices; ++i)
+    {
+        indices.push_back(Index(i));
+        indices.push_back(Index(i + slices + 1));
+        indices.push_back(Index(i + slices));
+
+        indices.push_back(Index(i + slices + 1));
+        indices.push_back(Index(i));
+        indices.push_back(Index(i + 1));
+    }
 
     Entity* entityPtr = dynamic_cast<Entity*>(_entity.GetPtr());
 
@@ -918,47 +947,12 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
     {
         MeshRendererPlain* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererPlain>();
 
-        eosVector(VertexPlain) vertices; 
+        eosVector(VertexPlain) vertices;
 
-        const ionU32 verticesSize = rings * sectors;
-        const ionU32 indicesSize = rings * sectors * 6;
-
-        const ionFloat R = 1.0f / static_cast<ionFloat>(rings - 1);
-        const ionFloat S = 1.0f / static_cast<ionFloat>(sectors - 1);
-        ionS32 r, s;
+        const ionU32 verticesSize = static_cast<ionU32>(positions.size());
+        const ionU32 indicesSize = static_cast<ionU32>(indices.size());
 
         vertices.resize(verticesSize);
-        indices.resize(indicesSize);
-
-        positions.resize(verticesSize);
-
-        std::vector<Vector>::iterator v = positions.begin();
-
-        for (r = 0; r < rings; ++r)
-        {
-            for (s = 0; s < sectors; ++s)
-            {
-                const ionFloat y = std::sin(-kfHalfPI + kfPI * r * R);
-                const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
-                const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
-
-                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
-            }
-        }
-
-        std::vector<Index>::iterator i = indices.begin();
-        for (r = 0; r < rings; ++r)
-        {
-            for (s = 0; s < sectors; ++s)
-            {
-                *i++ = r * sectors + s;
-                *i++ = (r + 1) * sectors + s;
-                *i++ = (r + 1) * sectors + (s + 1) % sectors;
-                *i++ = r * sectors + s;
-                *i++ = (r + 1) * sectors + (s + 1) % sectors;
-                *i++ = r * sectors + (s + 1) % sectors;
-            }
-        }
 
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
@@ -972,7 +966,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         {
             meshRenderer->PushBackIndex(indices[i]);
         }
-
 
         Mesh mesh;
         mesh.SetIndexCount(indicesSize);
@@ -988,49 +981,10 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
 
         eosVector(VertexColored) vertices;
 
-        const ionU32 verticesSize = rings * sectors;
-        const ionU32 indicesSize = rings * sectors * 6;
-
-        const ionFloat R = 1.0f / static_cast<ionFloat>(rings - 1);
-        const ionFloat S = 1.0f / static_cast<ionFloat>(sectors - 1);
-        ionS32 r, s;
+        const ionU32 verticesSize = static_cast<ionU32>(positions.size());
+        const ionU32 indicesSize = static_cast<ionU32>(indices.size());
 
         vertices.resize(verticesSize);
-        indices.resize(indicesSize);
-
-        positions.resize(verticesSize);
-        normals.resize(verticesSize);
-
-        std::vector<Vector>::iterator v = positions.begin();
-        std::vector<Vector>::iterator n = normals.begin();
-
-
-        for (r = 0; r < rings; ++r)
-        {
-            for (s = 0; s < sectors; ++s)
-            {
-                const ionFloat y = std::sin(-kfHalfPI + kfPI * r * R);
-                const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
-                const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
-
-                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
-                *n++ = Helper::Set(x, y, z, 0.0f);
-            }
-        }
-
-        std::vector<Index>::iterator i = indices.begin();
-        for (r = 0; r < rings; ++r)
-        {
-            for (s = 0; s < sectors; ++s)
-            {
-                *i++ = r * sectors + s;
-                *i++ = (r + 1) * sectors + s;
-                *i++ = (r + 1) * sectors + (s + 1) % sectors;
-                *i++ = r * sectors + s;
-                *i++ = (r + 1) * sectors + (s + 1) % sectors;
-                *i++ = r * sectors + (s + 1) % sectors;
-            }
-        }
 
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
@@ -1059,49 +1013,16 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         MeshRendererUV* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererUV>();
 
         eosVector(VertexUV) vertices;
+        eosVector(Vector) uvuv;
 
-        const ionU32 verticesSize = rings * sectors;
-        const ionU32 indicesSize = rings * sectors * 6;
-
-        const ionFloat R = 1.0f / static_cast<ionFloat>(rings - 1);
-        const ionFloat S = 1.0f / static_cast<ionFloat>(sectors - 1);
-        ionS32 r, s;
+        const ionU32 verticesSize = static_cast<ionU32>(positions.size());
+        const ionU32 indicesSize = static_cast<ionU32>(indices.size());
 
         vertices.resize(verticesSize);
-        indices.resize(indicesSize);
 
-        positions.resize(verticesSize);
         uvuv.resize(verticesSize);
 
-        std::vector<Vector>::iterator v = positions.begin();
-        std::vector<Vector>::iterator t = uvuv.begin();
-
-        for (r = 0; r < rings; ++r)
-        {
-            for (s = 0; s < sectors; ++s)
-            {
-                const ionFloat y = std::sin(-kfHalfPI + kfPI * r * R);
-                const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
-                const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
-
-                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
-                *t++ = Helper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
-            }
-        }
-
-        std::vector<Index>::iterator i = indices.begin();
-        for (r = 0; r < rings; ++r)
-        {
-            for (s = 0; s < sectors; ++s)
-            {
-                *i++ = r * sectors + s;
-                *i++ = (r + 1) * sectors + s;
-                *i++ = (r + 1) * sectors + (s + 1) % sectors;
-                *i++ = r * sectors + s;
-                *i++ = (r + 1) * sectors + (s + 1) % sectors;
-                *i++ = r * sectors + (s + 1) % sectors;
-            }
-        }
+        GeometryHelper::CalculateUVs(positions.data(), verticesSize, &uvuv[0]);
 
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
@@ -1130,49 +1051,16 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         MeshRendererNormal* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererNormal>();
 
         eosVector(VertexNormal) vertices;
+        eosVector(Vector) normals;
 
-        const ionU32 verticesSize = rings * sectors;
-        const ionU32 indicesSize = rings * sectors * 6;
-
-        const ionFloat R = 1.0f / static_cast<ionFloat>(rings - 1);
-        const ionFloat S = 1.0f / static_cast<ionFloat>(sectors - 1);
-        ionS32 r, s;
+        const ionU32 verticesSize = static_cast<ionU32>(positions.size());
+        const ionU32 indicesSize = static_cast<ionU32>(indices.size());
 
         vertices.resize(verticesSize);
-        indices.resize(indicesSize);
 
-        positions.resize(verticesSize);
         normals.resize(verticesSize);
 
-        std::vector<Vector>::iterator v = positions.begin();
-        std::vector<Vector>::iterator n = normals.begin();
-
-        for (r = 0; r < rings; ++r)
-        {
-            for (s = 0; s < sectors; ++s)
-            {
-                const ionFloat y = std::sin(-kfHalfPI + kfPI * r * R);
-                const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
-                const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
-
-                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
-                *n++ = Helper::Set(x, y, z, 0.0f);
-            }
-        }
-
-        std::vector<Index>::iterator i = indices.begin();
-        for (r = 0; r < rings; ++r)
-        {
-            for (s = 0; s < sectors; ++s)
-            {
-                *i++ = r * sectors + s;
-                *i++ = (r + 1) * sectors + s;
-                *i++ = (r + 1) * sectors + (s + 1) % sectors;
-                *i++ = r * sectors + s;
-                *i++ = (r + 1) * sectors + (s + 1) % sectors;
-                *i++ = r * sectors + (s + 1) % sectors;
-            }
-        }
+        GeometryHelper::CalculateNormals(positions.data(), verticesSize, indices.data(), indicesSize, &normals[0]);
 
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
@@ -1201,52 +1089,19 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         MeshRendererSimple* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererSimple>();
 
         eosVector(VertexSimple) vertices;
+        eosVector(Vector) uvuv;
+        eosVector(Vector) normals;
 
-        const ionU32 verticesSize = rings * sectors;
-        const ionU32 indicesSize = rings * sectors * 6;
-
-        const ionFloat R = 1.0f / static_cast<ionFloat>(rings - 1);
-        const ionFloat S = 1.0f / static_cast<ionFloat>(sectors - 1);
-        ionS32 r, s;
+        const ionU32 verticesSize = static_cast<ionU32>(positions.size());
+        const ionU32 indicesSize = static_cast<ionU32>(indices.size());
 
         vertices.resize(verticesSize);
-        indices.resize(indicesSize);
 
-        positions.resize(verticesSize);
-        normals.resize(verticesSize);
         uvuv.resize(verticesSize);
+        normals.resize(verticesSize);
 
-        std::vector<Vector>::iterator v = positions.begin();
-        std::vector<Vector>::iterator n = normals.begin();
-        std::vector<Vector>::iterator t = uvuv.begin();
-
-        for (r = 0; r < rings; ++r)
-        {
-            for (s = 0; s < sectors; ++s)
-            {
-                const ionFloat y = std::sin(-kfHalfPI + kfPI * r * R);
-                const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
-                const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
-
-                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
-                *n++ = Helper::Set(x, y, z, 0.0f);
-                *t++ = Helper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
-            }
-        }
-
-        std::vector<Index>::iterator i = indices.begin();
-        for (r = 0; r < rings; ++r)
-        {
-            for (s = 0; s < sectors; ++s)
-            {
-                *i++ = r * sectors + s;
-                *i++ = (r + 1) * sectors + s;
-                *i++ = (r + 1) * sectors + (s + 1) % sectors;
-                *i++ = r * sectors + s;
-                *i++ = (r + 1) * sectors + (s + 1) % sectors;
-                *i++ = r * sectors + (s + 1) % sectors;
-            }
-        }
+        GeometryHelper::CalculateUVs(positions.data(), verticesSize, &uvuv[0]);
+        GeometryHelper::CalculateNormals(positions.data(), verticesSize, indices.data(), indicesSize, &normals[0]);
 
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
@@ -1276,56 +1131,24 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
 
         eosVector(Vertex) vertices;
+        eosVector(Vector) uvuv;
+        eosVector(Vector) normals;
+        eosVector(Vector) tangents;
+        eosVector(ionFloat) bitangentsign;
 
-        const ionU32 verticesSize = rings * sectors;
-        const ionU32 indicesSize = rings * sectors * 6;
-
-        const ionFloat R = 1.0f / static_cast<ionFloat>(rings - 1);
-        const ionFloat S = 1.0f / static_cast<ionFloat>(sectors - 1);
-        ionS32 r, s;
+        const ionU32 verticesSize = static_cast<ionU32>(positions.size());
+        const ionU32 indicesSize = static_cast<ionU32>(indices.size());
 
         vertices.resize(verticesSize);
-        indices.resize(indicesSize);
 
-        positions.resize(verticesSize);
-        normals.resize(verticesSize);
         uvuv.resize(verticesSize);
+        normals.resize(verticesSize);
+        tangents.resize(verticesSize);
+        bitangentsign.resize(verticesSize);
 
-        std::vector<Vector>::iterator v = positions.begin();
-        std::vector<Vector>::iterator n = normals.begin();
-        std::vector<Vector>::iterator t = uvuv.begin();
-
-        for (r = 0; r < rings; ++r)
-        {
-            for (s = 0; s < sectors; ++s)
-            {
-                const ionFloat y = std::sin(-kfHalfPI + kfPI * r * R);
-                const ionFloat x = std::cos(2 * kfPI * s * S) * std::sin(kfPI * r * R);
-                const ionFloat z = std::sin(2 * kfPI * s * S) * std::sin(kfPI * r * R);
-
-                *v++ = Helper::Set(x * radius, y * radius, z * radius, 1.0f);
-                *n++ = Helper::Set(x, y, z, 0.0f);
-                *t++ = Helper::Set(1.0f - (s * S), 1.0f - (r * R), 1.0f - (s * S), 1.0f - (r * R));
-            }
-        }
-
-        std::vector<Index>::iterator i = indices.begin();
-        for (r = 0; r < rings; ++r)
-        {
-            for (s = 0; s < sectors; ++s)
-            {
-                *i++ = r * sectors + s;
-                *i++ = (r + 1) * sectors + s;
-                *i++ = (r + 1) * sectors + (s + 1) % sectors;
-                *i++ = r * sectors + s;
-                *i++ = (r + 1) * sectors + (s + 1) % sectors;
-                *i++ = r * sectors + (s + 1) % sectors;
-            }
-        }
-
-        Vector tangents[verticesSize];
-        ionFloat bitangentsign[verticesSize];
-        GeometryHelper::CalculateTangents(positions.data(), normals.data(), uvuv.data(), verticesSize, indices.data(), indicesSize, tangents, bitangentsign);
+        GeometryHelper::CalculateUVs(positions.data(), verticesSize, &uvuv[0]);
+        GeometryHelper::CalculateNormals(positions.data(), verticesSize, indices.data(), indicesSize, &normals[0]);
+        GeometryHelper::CalculateTangents(positions.data(), normals.data(), uvuv.data(), verticesSize, indices.data(), indicesSize, &tangents[0], &bitangentsign[0]);
 
         for (ionU32 i = 0; i < verticesSize; ++i)
         {
@@ -1376,7 +1199,6 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
         ionAssertReturnVoid(false, "Layout not yet implemented");
         break;
     }
-
     const ionSize count = positions.size();
     for (ionU32 i = 1; i < count; ++i)
     {
