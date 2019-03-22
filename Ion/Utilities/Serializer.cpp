@@ -204,7 +204,7 @@ namespace _private
             const ionFloat weight = _inData.GetInitialMorphTargetWeight(i);
             initialMorphTargetWeight.push_back(weight);
         }
-
+        /*
         std::vector<ionFloat> morphTargetWeight;
         const ionU32 morphTargetCount = _inData.GetMorphTargetWeightCount();
         for (ionU32 i = 0; i < morphTargetCount; ++i)
@@ -212,6 +212,7 @@ namespace _private
             const ionFloat weight = _inData.GetMorphTargetWeight(i);
             morphTargetWeight.push_back(weight);
         }
+        */
 
         //
         //
@@ -351,8 +352,8 @@ namespace _private
             { "meshes", meshesJson },
             { "initialMorphTargetCount", initialMorphTargetCount },
             { "initialMorphTargetWeight", initialMorphTargetWeight },
-            { "morphTargetCount", morphTargetCount },
-            { "morphTargetWeight", morphTargetWeight },
+            //{ "morphTargetCount", morphTargetCount },
+            //{ "morphTargetWeight", morphTargetWeight },
             { "animations", animationsJson },
             { "child", json() }
         };
