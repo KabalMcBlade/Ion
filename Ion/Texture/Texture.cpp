@@ -8,6 +8,7 @@
 #include <vulkan/vulkan.h>
 
 #include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
+#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryForward.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../Dependencies/Miscellaneous/stb_image.h"

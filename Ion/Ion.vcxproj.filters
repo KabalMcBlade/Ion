@@ -306,6 +306,12 @@
     <ClInclude Include="Utilities\Tools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryForward.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

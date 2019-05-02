@@ -28,19 +28,6 @@ ION_DLL void ShutdownAllocators()
     MemoryManager::Instance().GetStackAllocator().Shutdown();
 }
 
-
-ION_DLL void InitializeVulkanAllocators(vkaSize _uiSizeCommand, vkaSize _uiSizeObject, vkaSize _uiSizeCache, vkaSize _uiSizeDevice, vkaSize _uiSizeInstace, vkaSize _uiGpuMaxMemoryBlocks)
-{
-    vkMemoryInit(_uiSizeCommand, _uiSizeObject, _uiSizeCache, _uiSizeDevice, _uiSizeInstace);
-    vkGpuMemoryInit(_uiGpuMaxMemoryBlocks); 
-}
-
-ION_DLL void ShutdownVulkanAllocators()
-{
-    vkGpuMemoryShutdown();
-    vkMemoryShutdown();
-}
-
 ION_DLL void InitializeManagers()
 {
     FileSystemManager::Create();

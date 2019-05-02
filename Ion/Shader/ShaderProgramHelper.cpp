@@ -1,6 +1,7 @@
 #include "ShaderProgramHelper.h"
 
 #include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
+#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryForward.h"
 
 #include "ShaderProgram.h"
 #include "../Renderer/RenderState.h"

@@ -3,6 +3,8 @@
 #include "GPUMemoryManager.h"
 #include "StagingBufferManager.h"
 
+#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryForward.h"
+
 ION_NAMESPACE_BEGIN
 
 VertexBuffer::VertexBuffer()

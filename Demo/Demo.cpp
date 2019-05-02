@@ -37,14 +37,6 @@
 //////////////////////////////////////////////////////////////////////////
 // VULKAN MEMORY
 
-#define VULKAN_COMMAND_MEMORY_MB    MEMORY_1_MB
-#define VULKAN_OBJECT_MEMORY_MB     MEMORY_1_MB
-#define VULKAN_CACHE_MEMORY_MB      MEMORY_1_MB
-#define VULKAN_DEVICE_MEMORY_MB     MEMORY_1_MB
-#define VULKAN_INSTANCE_MEMORY_MB   MEMORY_8_MB
-
-#define VULKAN_GPU_MEMORY_MB        MEMORY_1024_MB
-
 #define VULKAN_GPU_DEVICE_LOCAL_MB  MEMORY_1024_MB
 #define VULKAN_GPU_HOST_VISIBLE_MB  MEMORY_1024_MB
 
@@ -182,8 +174,9 @@ void CheckIfAllMaterialsAreUnlit(const ObjectHandler& _node, ionBool& _areUnlit)
 
 int main(int argc, char **argv)
 {
+    vkMemoryInit();
+
     InitializeAllocators(ALL_HEAP_MEMORY, ALL_LINEAR_MEMORY, ALL_STACK_MEMORY, MAX_STACK_MEMORY_BLOCK);
-    InitializeVulkanAllocators(VULKAN_COMMAND_MEMORY_MB, VULKAN_OBJECT_MEMORY_MB, VULKAN_CACHE_MEMORY_MB, VULKAN_DEVICE_MEMORY_MB, VULKAN_INSTANCE_MEMORY_MB, VULKAN_GPU_MEMORY_MB);
     InitializeManagers();
 
     ION_SCOPE_BEGIN
@@ -453,9 +446,10 @@ int main(int argc, char **argv)
 
     ION_SCOPE_END
 
-        ShutdownManagers();
-    ShutdownVulkanAllocators();
+    ShutdownManagers();
     ShutdownAllocators();
+
+    vkMemoryShutdown();
 
     return 0;
 }

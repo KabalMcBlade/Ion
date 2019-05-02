@@ -15,6 +15,8 @@
 
 #include "RenderState.h"
 
+#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryForward.h"
+
 #define VK_NAME                     "Ion"
 #define VK_LUNAR_VALIDATION_LAYER   "VK_LAYER_LUNARG_standard_validation"
 
