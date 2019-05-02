@@ -70,11 +70,11 @@ struct ION_DLL UniformBinding final
 
     // even if there are public, please use the above accessor.
     // this because help in case you have to set the array (otherwise you can still directly access to this parameters)
-    eosVector(eosString)                m_parameters;
-    eosVector(EBufferParameterType)     m_type;
+    eosVector<eosString>                m_parameters;
+    eosVector<EBufferParameterType>     m_type;
 
     // it is computed by the engine, do not set manually
-    eosVector(ionSize)                  m_runtimeParameters;
+    eosVector<ionSize>                  m_runtimeParameters;
 
     ~UniformBinding()
     {
@@ -86,8 +86,8 @@ struct ION_DLL UniformBinding final
 
 ION_INLINE ionBool operator==(const UniformBinding& lhs, const UniformBinding& rhs)
 {
-    const eosVector(EBufferParameterType)::size_type count = lhs.m_type.size();
-    for (eosVector(EBufferParameterType)::size_type i = 0; i != count; ++i)
+    const eosVector<EBufferParameterType>::size_type count = lhs.m_type.size();
+    for (eosVector<EBufferParameterType>::size_type i = 0; i != count; ++i)
     {
         if ((lhs.m_type[i] != rhs.m_type[i]) || (lhs.m_runtimeParameters[i] != rhs.m_runtimeParameters[i]))
         {
@@ -100,8 +100,8 @@ ION_INLINE ionBool operator==(const UniformBinding& lhs, const UniformBinding& r
 
 ION_INLINE ionBool operator!=(const UniformBinding& lhs, const UniformBinding& rhs)
 {
-    const eosVector(EBufferParameterType)::size_type count = lhs.m_type.size();
-    for (eosVector(EBufferParameterType)::size_type i = 0; i != count; ++i)
+    const eosVector<EBufferParameterType>::size_type count = lhs.m_type.size();
+    for (eosVector<EBufferParameterType>::size_type i = 0; i != count; ++i)
     {
         if ((lhs.m_type[i] == rhs.m_type[i]) || (lhs.m_runtimeParameters[i] == rhs.m_runtimeParameters[i]))
         {
@@ -171,7 +171,7 @@ ION_INLINE ionBool operator!=(const StorageBinding& lhs, const StorageBinding& r
 // Anyway seems enough, you can pass matrix, vector, bool, float and integer as "float" representation
 struct ION_DLL ConstantsBindingDef final
 {
-    eosVector(ionFloat) m_values;
+    eosVector<ionFloat> m_values;
     EPushConstantStage m_shaderStages;
 
     const void* GetData() const { return m_values.data(); }
@@ -208,9 +208,9 @@ ION_INLINE ionBool operator!=(const ConstantsBindingDef& lhs, const ConstantsBin
 
 struct ION_DLL ShaderLayoutDef final
 {
-    eosVector(UniformBinding)   m_uniforms;
-    eosVector(SamplerBinding)   m_samplers;
-    eosVector(StorageBinding)   m_storages;
+    eosVector<UniformBinding>   m_uniforms;
+    eosVector<SamplerBinding>   m_samplers;
+    eosVector<StorageBinding>   m_storages;
 
     ~ShaderLayoutDef()
     {
@@ -227,8 +227,8 @@ struct ION_DLL ShaderLayoutDef final
 
 ION_INLINE ionBool operator==(const ShaderLayoutDef& lhs, const ShaderLayoutDef& rhs)
 {
-    const eosVector(UniformBinding)::size_type uniformCount = lhs.m_uniforms.size();
-    for (eosVector(UniformBinding)::size_type i = 0; i != uniformCount; ++i)
+    const eosVector<UniformBinding>::size_type uniformCount = lhs.m_uniforms.size();
+    for (eosVector<UniformBinding>::size_type i = 0; i != uniformCount; ++i)
     {
         if (lhs.m_uniforms[i] != rhs.m_uniforms[i])
         {
@@ -236,8 +236,8 @@ ION_INLINE ionBool operator==(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
         }
     }
 
-    const eosVector(SamplerBinding)::size_type samplerCount = lhs.m_samplers.size();
-    for (eosVector(SamplerBinding)::size_type i = 0; i != samplerCount; ++i)
+    const eosVector<SamplerBinding>::size_type samplerCount = lhs.m_samplers.size();
+    for (eosVector<SamplerBinding>::size_type i = 0; i != samplerCount; ++i)
     {
         if (lhs.m_samplers[i] != rhs.m_samplers[i])
         {
@@ -245,8 +245,8 @@ ION_INLINE ionBool operator==(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
         }
     }
 
-    const eosVector(StorageBinding)::size_type storageCount = lhs.m_storages.size();
-    for (eosVector(StorageBinding)::size_type i = 0; i != storageCount; ++i)
+    const eosVector<StorageBinding>::size_type storageCount = lhs.m_storages.size();
+    for (eosVector<StorageBinding>::size_type i = 0; i != storageCount; ++i)
     {
         if (lhs.m_storages[i] != rhs.m_storages[i])
         {
@@ -259,8 +259,8 @@ ION_INLINE ionBool operator==(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
 
 ION_INLINE ionBool operator!=(const ShaderLayoutDef& lhs, const ShaderLayoutDef& rhs)
 {
-    const eosVector(UniformBinding)::size_type uniformCount = lhs.m_uniforms.size();
-    for (eosVector(UniformBinding)::size_type i = 0; i != uniformCount; ++i)
+    const eosVector<UniformBinding>::size_type uniformCount = lhs.m_uniforms.size();
+    for (eosVector<UniformBinding>::size_type i = 0; i != uniformCount; ++i)
     {
         if (lhs.m_uniforms[i] == rhs.m_uniforms[i])
         {
@@ -268,8 +268,8 @@ ION_INLINE ionBool operator!=(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
         }
     }
 
-    const eosVector(SamplerBinding)::size_type samplerCount = lhs.m_samplers.size();
-    for (eosVector(SamplerBinding)::size_type i = 0; i != samplerCount; ++i)
+    const eosVector<SamplerBinding>::size_type samplerCount = lhs.m_samplers.size();
+    for (eosVector<SamplerBinding>::size_type i = 0; i != samplerCount; ++i)
     {
         if (lhs.m_samplers[i] == rhs.m_samplers[i])
         {
@@ -277,8 +277,8 @@ ION_INLINE ionBool operator!=(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
         }
     }
 
-    const eosVector(StorageBinding)::size_type storageCount = lhs.m_storages.size();
-    for (eosVector(StorageBinding)::size_type i = 0; i != storageCount; ++i)
+    const eosVector<StorageBinding>::size_type storageCount = lhs.m_storages.size();
+    for (eosVector<StorageBinding>::size_type i = 0; i != storageCount; ++i)
     {
         if (lhs.m_storages[i] == rhs.m_storages[i])
         {
@@ -302,7 +302,7 @@ layout (constant_id = 1) const float PARAM_TOON_DESATURATION = 0.0;
 */
 struct SpecializationConstants
 {
-    eosVector(ionFloat) m_values;
+    eosVector<ionFloat> m_values;
 
     // if the command "Generate" is not executed, this one is invalid!
     VkSpecializationInfo m_specializationInfo;
@@ -326,7 +326,7 @@ struct SpecializationConstants
 
     void Generate()
     {
-        eosVector(VkSpecializationMapEntry) specializations;
+        eosVector<VkSpecializationMapEntry> specializations;
         specializations.resize(m_values.size());
 
         const ionU32 count = static_cast<ionU32>(specializations.size());
@@ -405,8 +405,8 @@ struct ShaderProgram
                             VkShaderModule _vertexShader = VK_NULL_HANDLE, VkShaderModule _fragmentShader = VK_NULL_HANDLE, VkShaderModule _tessellationControlShader = VK_NULL_HANDLE, VkShaderModule _tessellationEvaluatorShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE,
                             SpecializationConstants* _vertexSpecConst = nullptr, SpecializationConstants* _fragmentSpecConst = nullptr, SpecializationConstants* _tessCtrlSpecConst = nullptr, SpecializationConstants* _tessEvalSpecConst = nullptr, SpecializationConstants* _geomSpecConst = nullptr);
 
-    eosVector(EShaderBinding)   m_bindings;
-    eosVector(PipelineState)    m_pipelines;
+    eosVector<EShaderBinding>   m_bindings;
+    eosVector<PipelineState>    m_pipelines;
     EVertexLayout               m_vertextLayoutType;
     VkPipelineLayout            m_pipelineLayout;
     VkDescriptorSetLayout       m_descriptorSetLayout;

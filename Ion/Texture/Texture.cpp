@@ -160,7 +160,7 @@ ionBool Texture::LoadCubeTextureFromFile(const eosString& _path)
     }
 }
 
-ionBool Texture::LoadCubeTextureFromFiles(const eosVector(eosString)& paths)
+ionBool Texture::LoadCubeTextureFromFiles(const eosVector<eosString>& paths)
 {
     ionS32 w = 0, h = 0, c = 0;
 
@@ -387,7 +387,7 @@ ionBool Texture::CreateFromFile(const eosString& _path)
             }
 
             eosString suffix[6] { "_right.", "_left.", "_top.", "_bottom.", "_front.", "_back." };
-            eosVector(eosString) paths; paths.resize(6);
+            eosVector<eosString> paths; paths.resize(6);
             for (ionU32 i = 0; i < 6; ++i)
             {
                 paths[i] = path + suffix[i] + ext;

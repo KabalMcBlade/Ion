@@ -36,7 +36,7 @@ private:
     void        DestroyMaterial(ionSize _hash);         // This call actually destroy/delete the material
 
 private:
-    eosMap(ionSize, Material*) m_hashMaterial;
+    eosMap<ionSize, Material*> m_hashMaterial;
 
     static MaterialManager *s_instance;
 };

@@ -24,7 +24,7 @@ ION_NAMESPACE_BEGIN
 ///
 void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
-    eosVector(Index) indices;
+    eosVector<Index> indices;
     indices.resize(3);
     indices = { 0, 1, 2 };
 
@@ -38,7 +38,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
     {
         MeshRendererPlain* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererPlain>();
 
-        eosVector(VertexPlain) vertices;
+        eosVector<VertexPlain> vertices;
         vertices.resize(3);
 
         vertices[0].SetPosition(positions[0]);
@@ -65,7 +65,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
     {
         MeshRendererColored* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererColored>();
 
-        eosVector(VertexColored) vertices;
+        eosVector<VertexColored> vertices;
         vertices.resize(3);
 
         vertices[0].SetPosition(positions[0]);
@@ -96,7 +96,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
     {
         MeshRendererUV* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererUV>();
 
-        eosVector(VertexUV) vertices;
+        eosVector<VertexUV> vertices;
         vertices.resize(3);
 
         vertices[0].SetPosition(positions[0]);
@@ -130,7 +130,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
     {
         MeshRendererSimple* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererSimple>();
 
-        eosVector(VertexSimple) vertices;
+        eosVector<VertexSimple> vertices;
         vertices.resize(3);
 
         vertices[0].SetPosition(positions[0]);
@@ -171,7 +171,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
     {
         MeshRendererNormal* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererNormal>();
 
-        eosVector(VertexNormal) vertices;
+        eosVector<VertexNormal> vertices;
         vertices.resize(3);
 
         vertices[0].SetPosition(positions[0]);
@@ -205,7 +205,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
     {
         MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
 
-        eosVector(Vertex) vertices;
+        eosVector<Vertex> vertices;
         vertices.resize(3);
 
         vertices[0].SetPosition(positions[0]);
@@ -291,7 +291,7 @@ void PrimitiveFactory::GenerateTriangle(EVertexLayout _layout, ObjectHandler& _e
 ///
 void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
-    eosVector(Index) indices;
+    eosVector<Index> indices;
     indices.resize(6);
     indices = { 0, 1, 2, 2, 3, 0 };
 
@@ -305,7 +305,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
     {
         MeshRendererPlain* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererPlain>();
 
-        eosVector(VertexPlain) vertices;
+        eosVector<VertexPlain> vertices;
         vertices.resize(4);
 
         vertices[0].SetPosition(positions[0]);
@@ -337,7 +337,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
     {
         MeshRendererColored* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererColored>();
 
-        eosVector(VertexColored) vertices;
+        eosVector<VertexColored> vertices;
         vertices.resize(4);
 
         vertices[0].SetPosition(positions[0]);
@@ -374,7 +374,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
     {
         MeshRendererUV* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererUV>();
 
-        eosVector(VertexUV) vertices;
+        eosVector<VertexUV> vertices;
         vertices.resize(4);
 
         vertices[0].SetPosition(positions[0]);
@@ -413,7 +413,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
     {
         MeshRendererNormal* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererNormal>();
 
-        eosVector(VertexNormal) vertices;
+        eosVector<VertexNormal> vertices;
         vertices.resize(4);
 
         vertices[0].SetPosition(positions[0]);
@@ -452,7 +452,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
     {
         MeshRendererSimple* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererSimple>();
 
-        eosVector(VertexSimple) vertices;
+        eosVector<VertexSimple> vertices;
         vertices.resize(4);
 
         vertices[0].SetPosition(positions[0]);
@@ -498,7 +498,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
     {
         MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
 
-        eosVector(Vertex) vertices;
+        eosVector<Vertex> vertices;
         vertices.resize(4);
 
         vertices[0].SetPosition(positions[0]);
@@ -593,7 +593,7 @@ void PrimitiveFactory::GenerateQuad(EVertexLayout _layout, ObjectHandler& _entit
 ///
 void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
-    eosVector(Index) indices;
+    eosVector<Index> indices;
     indices.resize(36);
     indices = {
         0,1,2,0,2,3,
@@ -643,7 +643,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
     {
         MeshRendererPlain* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererPlain>();
 
-        eosVector(VertexPlain) vertices;
+        eosVector<VertexPlain> vertices;
         vertices.resize(24);
 
         for (ionU32 i = 0; i < 24; ++i)
@@ -671,7 +671,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
     {
         MeshRendererColored* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererColored>();
 
-        eosVector(VertexColored) vertices;
+        eosVector<VertexColored> vertices;
         vertices.resize(24); 
 
         for (ionU32 i = 0; i < 24; ++i)
@@ -700,7 +700,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
     {
         MeshRendererUV* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererUV>();
 
-        eosVector(VertexUV) vertices;
+        eosVector<VertexUV> vertices;
         vertices.resize(24);
 
         for (ionU32 i = 0; i < 24; ++i)
@@ -736,7 +736,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
     {
         MeshRendererNormal* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererNormal>();
 
-        eosVector(VertexNormal) vertices;
+        eosVector<VertexNormal> vertices;
         vertices.resize(24);
 
         for (ionU32 i = 0; i < 24; ++i)
@@ -772,7 +772,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
     {
         MeshRendererSimple* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererSimple>();
 
-        eosVector(VertexSimple) vertices;
+        eosVector<VertexSimple> vertices;
         vertices.resize(24);
 
         for (ionU32 i = 0; i < 24; ++i)
@@ -815,7 +815,7 @@ void PrimitiveFactory::GenerateCube(EVertexLayout _layout, ObjectHandler& _entit
     {
         MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
 
-        eosVector(Vertex) vertices;
+        eosVector<Vertex> vertices;
         vertices.resize(24);
 
         for (ionU32 i = 0; i < 24; ++i)
@@ -947,7 +947,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
     {
         MeshRendererPlain* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererPlain>();
 
-        eosVector(VertexPlain) vertices;
+        eosVector<VertexPlain> vertices;
 
         const ionU32 verticesSize = static_cast<ionU32>(positions.size());
         const ionU32 indicesSize = static_cast<ionU32>(indices.size());
@@ -979,7 +979,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
     {
         MeshRendererColored* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererColored>();
 
-        eosVector(VertexColored) vertices;
+        eosVector<VertexColored> vertices;
 
         const ionU32 verticesSize = static_cast<ionU32>(positions.size());
         const ionU32 indicesSize = static_cast<ionU32>(indices.size());
@@ -1012,8 +1012,8 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
     {
         MeshRendererUV* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererUV>();
 
-        eosVector(VertexUV) vertices;
-        eosVector(Vector) uvuv;
+        eosVector<VertexUV> vertices;
+        eosVector<Vector> uvuv;
 
         const ionU32 verticesSize = static_cast<ionU32>(positions.size());
         const ionU32 indicesSize = static_cast<ionU32>(indices.size());
@@ -1050,8 +1050,8 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
     {
         MeshRendererNormal* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererNormal>();
 
-        eosVector(VertexNormal) vertices;
-        eosVector(Vector) normals;
+        eosVector<VertexNormal> vertices;
+        eosVector<Vector> normals;
 
         const ionU32 verticesSize = static_cast<ionU32>(positions.size());
         const ionU32 indicesSize = static_cast<ionU32>(indices.size());
@@ -1088,9 +1088,9 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
     {
         MeshRendererSimple* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererSimple>();
 
-        eosVector(VertexSimple) vertices;
-        eosVector(Vector) uvuv;
-        eosVector(Vector) normals;
+        eosVector<VertexSimple> vertices;
+        eosVector<Vector> uvuv;
+        eosVector<Vector> normals;
 
         const ionU32 verticesSize = static_cast<ionU32>(positions.size());
         const ionU32 indicesSize = static_cast<ionU32>(indices.size());
@@ -1130,11 +1130,11 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
     {
         MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
 
-        eosVector(Vertex) vertices;
-        eosVector(Vector) uvuv;
-        eosVector(Vector) normals;
-        eosVector(Vector) tangents;
-        eosVector(ionFloat) bitangentsign;
+        eosVector<Vertex> vertices;
+        eosVector<Vector> uvuv;
+        eosVector<Vector> normals;
+        eosVector<Vector> tangents;
+        eosVector<ionFloat> bitangentsign;
 
         const ionU32 verticesSize = static_cast<ionU32>(positions.size());
         const ionU32 indicesSize = static_cast<ionU32>(indices.size());
@@ -1211,7 +1211,7 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, ObjectHandler& _ent
 ///
 void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
-    eosVector(Index) indices;
+    eosVector<Index> indices;
     indices.resize(18);
     indices = { 
         0, 1, 2, 
@@ -1257,7 +1257,7 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
     {
         MeshRendererPlain* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererPlain>();
 
-        eosVector(VertexPlain) vertices;
+        eosVector<VertexPlain> vertices;
         vertices.resize(16);
 
         for (ionU32 i = 0; i < 16; ++i)
@@ -1285,7 +1285,7 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
     {
         MeshRendererColored* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererColored>();
 
-        eosVector(VertexColored) vertices;
+        eosVector<VertexColored> vertices;
         vertices.resize(16);
 
         for (ionU32 i = 0; i < 16; ++i)
@@ -1314,7 +1314,7 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
     {
         MeshRendererUV* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererUV>();
 
-        eosVector(VertexUV) vertices;
+        eosVector<VertexUV> vertices;
         vertices.resize(16);
 
         for (ionU32 i = 0; i < 16; ++i)
@@ -1350,7 +1350,7 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
     {
         MeshRendererNormal* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererNormal>();
 
-        eosVector(VertexNormal) vertices;
+        eosVector<VertexNormal> vertices;
         vertices.resize(16);
 
         for (ionU32 i = 0; i < 16; ++i)
@@ -1386,7 +1386,7 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
     {
         MeshRendererSimple* meshRenderer = entityPtr->AddMeshRenderer<MeshRendererSimple>();
 
-        eosVector(VertexSimple) vertices;
+        eosVector<VertexSimple> vertices;
         vertices.resize(16);
 
         for (ionU32 i = 0; i < 16; ++i)
@@ -1429,7 +1429,7 @@ void PrimitiveFactory::GeneratePyramd(EVertexLayout _layout, ObjectHandler& _ent
     {
         MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
 
-        eosVector(Vertex) vertices;
+        eosVector<Vertex> vertices;
         vertices.resize(16);
 
         for (ionU32 i = 0; i < 16; ++i)

@@ -270,7 +270,7 @@ void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, Sha
 {
     // Descriptor Set Layout
     {
-        eosVector(VkDescriptorSetLayoutBinding) layoutBindings;
+        eosVector<VkDescriptorSetLayoutBinding> layoutBindings;
         VkDescriptorSetLayoutBinding binding = {};
         binding.descriptorCount = 1;
 
@@ -729,7 +729,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
     //    multisampleState.minSampleShading = 1.0f;
     //}
 
-    eosVector(VkPipelineShaderStageCreateInfo) stages;
+    eosVector<VkPipelineShaderStageCreateInfo> stages;
     VkPipelineShaderStageCreateInfo stage = {};
     stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     stage.pName = "main";
@@ -798,7 +798,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
         stages.push_back(stage);
     }
 
-    eosVector(VkDynamicState) dynamic;
+    eosVector<VkDynamicState> dynamic;
     dynamic.push_back(VK_DYNAMIC_STATE_SCISSOR);
     dynamic.push_back(VK_DYNAMIC_STATE_VIEWPORT);
 

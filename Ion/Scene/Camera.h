@@ -77,7 +77,7 @@ public:
 
     void SetViewport(RenderCore& _renderCore, VkCommandBuffer _commandBuffer);
     void SetScissor(RenderCore& _renderCore, VkCommandBuffer _commandBuffer);
-    void StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues);
+    void StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector<VkClearValue>& _clearValues);
     void EndRenderPass(RenderCore& _renderCore, VkCommandBuffer _commandBuffer);
 
 public:
@@ -101,7 +101,7 @@ private:
 
     // render pass and framebuffer depending on camera type
     VkRenderPass                m_vkRenderPass;
-    eosVector(VkFramebuffer)    m_vkFrameBuffers;
+    eosVector<VkFramebuffer>    m_vkFrameBuffers;
 
     Frustum m_frustum;
 

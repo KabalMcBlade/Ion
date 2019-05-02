@@ -43,7 +43,7 @@ public:
     void Expande(const BoundingBox& _bbox);
     void Expande(const Vector& _min, const Vector& _max);
 
-    void GetCorners(eosVector(Vector)& _corners) const;
+    void GetCorners(eosVector<Vector>& _corners) const;
 
     BoundingBox GetTransformed(const Matrix& _matrix);
 

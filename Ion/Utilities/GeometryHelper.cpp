@@ -120,7 +120,7 @@ struct SMikkTSpaceFace
 
 struct SMikkTSpaceConverter
 {
-    eosVector(SMikkTSpaceFace) m_faces;
+    eosVector<SMikkTSpaceFace> m_faces;
     ionU32 m_faceCount;
 };
 

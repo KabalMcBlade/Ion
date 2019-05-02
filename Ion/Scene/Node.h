@@ -132,12 +132,12 @@ public:
     const Transform &GetTransform() const { return m_transform; }
     Transform &GetTransform() { return m_transform; }
 
-    eosVector(ObjectHandler) &GetChildren() { return m_children; };
+    eosVector<ObjectHandler> &GetChildren() { return m_children; };
 
-    eosVector(ObjectHandler)::const_iterator ChildrenIteratorBeginConst() { return m_children.begin();}
-    eosVector(ObjectHandler)::const_iterator ChildrenIteratorEndConst() { return m_children.end(); }
-    eosVector(ObjectHandler)::iterator ChildrenIteratorBegin() { return m_children.begin(); }
-    eosVector(ObjectHandler)::iterator ChildrenIteratorEnd() { return m_children.end(); }
+    eosVector<ObjectHandler>::const_iterator ChildrenIteratorBeginConst() { return m_children.begin();}
+    eosVector<ObjectHandler>::const_iterator ChildrenIteratorEndConst() { return m_children.end(); }
+    eosVector<ObjectHandler>::iterator ChildrenIteratorBegin() { return m_children.begin(); }
+    eosVector<ObjectHandler>::iterator ChildrenIteratorEnd() { return m_children.end(); }
 
     //////////////////////////////////////////////////////////////////////////
 
@@ -161,7 +161,7 @@ private:
 
     eosString m_name;
     
-    eosVector(ObjectHandler) m_children;
+    eosVector<ObjectHandler> m_children;
 
     ionBool m_active;
     ionBool m_visible;

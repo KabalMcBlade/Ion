@@ -73,7 +73,7 @@ void BoundingBox::Expande(const Vector& _min, const Vector& _max)
     Set(Helper::Min(m_min, _min), Helper::Max(m_max, _max));
 }
 
-void BoundingBox::GetCorners(eosVector(Vector)& _corners) const
+void BoundingBox::GetCorners(eosVector<Vector>& _corners) const
 {
     const nixFloat4 min = m_min;
     const nixFloat4 max = m_max;
@@ -119,7 +119,7 @@ BoundingBox BoundingBox::GetTransformed(const Matrix& _matrix)
 {
     BoundingBox transformedBoundingBox;
 
-    eosVector(Vector) corners;
+    eosVector<Vector> corners;
     GetCorners(corners);
 
     for (ionU32 i = 0; i < 8; ++i)

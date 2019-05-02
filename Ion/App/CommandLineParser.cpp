@@ -13,7 +13,7 @@ CommandLineParser::CommandLineParser()
 
 CommandLineParser::~CommandLineParser()
 {
-    eosMap(eosString, Option*)::iterator it;
+    eosMap<eosString, Option*>::iterator it;
     for (it = m_options.begin(); it != m_options.end(); ++it)
     {
         eosDelete(it->second);

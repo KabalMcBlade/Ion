@@ -60,7 +60,7 @@ private:
 
 private:
     VkDevice    m_vkDevice;
-    eosMap(ionSize, Texture*) m_hashTexture;
+    eosMap<ionSize, Texture*> m_hashTexture;
 
     ETextureSamplesPerBit   m_mainSamplesPerBit;
     VkFormat                m_depthFormat;

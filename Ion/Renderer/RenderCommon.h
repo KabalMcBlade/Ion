@@ -114,8 +114,8 @@ enum EVertexMask
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct ShaderVertexLayout
 {
     VkPipelineVertexInputStateCreateInfo            m_inputState;
-    eosVector(VkVertexInputBindingDescription)      m_bindinggDescription;
-    eosVector(VkVertexInputAttributeDescription)    m_attributegDescription;
+    eosVector<VkVertexInputBindingDescription>      m_bindinggDescription;
+    eosVector<VkVertexInputAttributeDescription>    m_attributegDescription;
 };
 
 //////////////////////////////////////////////////////////////////////////

@@ -25,7 +25,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-VkSurfaceFormatKHR RenderCore::SelectSurfaceFormat(eosVector(VkSurfaceFormatKHR)& _vkFormats) const
+VkSurfaceFormatKHR RenderCore::SelectSurfaceFormat(eosVector<VkSurfaceFormatKHR>& _vkFormats) const
 {
     VkSurfaceFormatKHR result;
 
@@ -48,7 +48,7 @@ VkSurfaceFormatKHR RenderCore::SelectSurfaceFormat(eosVector(VkSurfaceFormatKHR)
     return _vkFormats[0];
 }
 
-VkPresentModeKHR RenderCore::SelectPresentMode(eosVector(VkPresentModeKHR)& _vkModes) const
+VkPresentModeKHR RenderCore::SelectPresentMode(eosVector<VkPresentModeKHR>& _vkModes) const
 {
     for (ionSize i = 0; i < _vkModes.size(); i++)
     {
@@ -177,7 +177,7 @@ ionBool RenderCore::CreateInstance(ionBool _enableValidationLayer)
     createInfo.pNext = nullptr;
     createInfo.pApplicationInfo = &appInfo;
 
-    eosVector(const char*) enabledExtensions;
+    eosVector<const char*> enabledExtensions;
     enabledExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
     enabledExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 
@@ -185,13 +185,13 @@ ionBool RenderCore::CreateInstance(ionBool _enableValidationLayer)
     {
         enabledExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 
-        eosVector(const char*) enabledLayers;
+        eosVector<const char*> enabledLayers;
         enabledLayers.push_back(VK_LUNAR_VALIDATION_LAYER);
 
         ionU32 layerCount = 0;
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
-        eosVector(VkLayerProperties) layers;
+        eosVector<VkLayerProperties> layers;
         layers.resize(layerCount);
         vkEnumerateInstanceLayerProperties(&layerCount, layers.data());
 
@@ -239,14 +239,14 @@ ionBool RenderCore::CreatePhysicalDevice()
     ionAssertReturnValue(result == VK_SUCCESS, "vkEnumeratePhysicalDevices returned zero devices.!", false);
     ionAssertReturnValue(numDevices > 0, "vkEnumeratePhysicalDevices returned zero devices.", false);
 
-    eosVector(VkPhysicalDevice) devices;
+    eosVector<VkPhysicalDevice> devices;
     devices.resize(numDevices);
 
     result = vkEnumeratePhysicalDevices(m_vkInstance, &numDevices, devices.data());
     ionAssertReturnValue(result == VK_SUCCESS, "vkEnumeratePhysicalDevices returned zero devices.!", false);
     ionAssertReturnValue(numDevices > 0, "vkEnumeratePhysicalDevices returned zero devices.", false);
 
-    eosVector(GPU) gpuList;
+    eosVector<GPU> gpuList;
     gpuList.resize(numDevices);
     for (ionU32 i = 0; i < numDevices; ++i)
     {
@@ -340,11 +340,11 @@ ionBool RenderCore::CreateLogicalDeviceAndQueues()
 {
     const ionFloat priority = 1.0f;
 
-    eosVector(const char*) enabledExtensions;
+    eosVector<const char*> enabledExtensions;
     enabledExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
 
-    eosVector(VkDeviceQueueCreateInfo) deviceQueueInfo;
+    eosVector<VkDeviceQueueCreateInfo> deviceQueueInfo;
 
     if (m_vkGraphicsFamilyIndex != m_vkPresentFamilyIndex)
     {
@@ -400,7 +400,7 @@ ionBool RenderCore::CreateLogicalDeviceAndQueues()
 
     if (m_vkValidationEnabled)
     {
-        eosVector(const char*) enabledLayers;
+        eosVector<const char*> enabledLayers;
         enabledLayers.push_back(VK_LUNAR_VALIDATION_LAYER);
 
         createInfo.enabledLayerCount = (ionU32)enabledLayers.size();
@@ -952,7 +952,7 @@ ionBool RenderCore::CreateRenderPass(VkRenderPass& _vkRenderPass, EFramebufferLo
         subpass.pDepthStencilAttachment = &depthRef;
         subpass.pResolveAttachments = &resolveRef;
 
-        eosVector(VkSubpassDependency) dependencies;
+        eosVector<VkSubpassDependency> dependencies;
         dependencies.resize(2);
 
         dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -1028,7 +1028,7 @@ ionBool RenderCore::CreateRenderPass(VkRenderPass& _vkRenderPass, EFramebufferLo
         subpass.pPreserveAttachments = nullptr;
         subpass.pResolveAttachments = nullptr;
 
-        eosVector(VkSubpassDependency) dependencies;
+        eosVector<VkSubpassDependency> dependencies;
         dependencies.resize(2);
 
         dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -1074,7 +1074,7 @@ ionBool RenderCore::CreatePipelineCache()
     return true;
 }
 
-ionBool RenderCore::CreateFrameBuffers(VkRenderPass _vkRenderPass, eosVector(VkFramebuffer)& _vkFrameBuffers)
+ionBool RenderCore::CreateFrameBuffers(VkRenderPass _vkRenderPass, eosVector<VkFramebuffer>& _vkFrameBuffers)
 {
     VkImageView attachments[4] = {};
 
@@ -1124,7 +1124,7 @@ void RenderCore::DestroyFrameBuffer(VkFramebuffer _frameBuffer)
     vkDestroyFramebuffer(m_vkDevice, _frameBuffer, vkMemory);
 }
 
-void RenderCore::DestroyFrameBuffers(eosVector(VkFramebuffer)& _vkFrameBuffers)
+void RenderCore::DestroyFrameBuffers(eosVector<VkFramebuffer>& _vkFrameBuffers)
 {
     for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
     {
@@ -1456,7 +1456,7 @@ EFrameStatus RenderCore::StartFrame()
     return EFrameStatus_Success;
 }
 
-void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues, const VkRect2D& _renderArea)
+void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector<VkClearValue>& _clearValues, const VkRect2D& _renderArea)
 {
     VkRenderPassBeginInfo renderPassBeginInfo = {};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -1476,7 +1476,7 @@ void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameB
     ionAssertReturnVoid(_clearGreen >= 0.0f && _clearGreen <= 1.0f, "Clear green must be between 0 and 1!");
     ionAssertReturnVoid(_clearBlue >= 0.0f && _clearBlue <= 1.0f, "Clear blue must be between 0 and 1!");
 
-    eosVector(VkClearValue) clearValues;
+    eosVector<VkClearValue> clearValues;
     if (m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT)
     {
         clearValues.resize(3);
@@ -2031,7 +2031,7 @@ VkRenderPass RenderCore::CreateTexturedRenderPass(Texture* _texture, VkImageLayo
     subpassDescription.pColorAttachments = &colorReference;
 
     // Use subpass dependencies for layout transitions
-    eosVector(VkSubpassDependency) dependencies;
+    eosVector<VkSubpassDependency> dependencies;
     dependencies.resize(2);
 
     dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;

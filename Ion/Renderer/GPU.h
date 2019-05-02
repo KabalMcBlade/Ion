@@ -25,10 +25,10 @@ struct GPU final
     VkPhysicalDeviceMemoryProperties    m_vkPhysicalDeviceMemoryProperties;
     VkPhysicalDeviceFeatures            m_vkPhysicalDevFeatures;
     VkSurfaceCapabilitiesKHR            m_vkSurfaceCaps;
-    eosVector(VkSurfaceFormatKHR)        m_vkSurfaceFormats;
-    eosVector(VkPresentModeKHR)            m_vkPresentModes;
-    eosVector(VkQueueFamilyProperties)    m_vkQueueFamilyProps;
-    eosVector(VkExtensionProperties)    m_vkExtensionProps;
+    eosVector<VkSurfaceFormatKHR>        m_vkSurfaceFormats;
+    eosVector<VkPresentModeKHR>            m_vkPresentModes;
+    eosVector<VkQueueFamilyProperties>    m_vkQueueFamilyProps;
+    eosVector<VkExtensionProperties>    m_vkExtensionProps;
 };
 
 ION_NAMESPACE_END

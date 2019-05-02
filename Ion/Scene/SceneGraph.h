@@ -67,8 +67,8 @@ private:
     BoundingBox                                 m_sceneBoundingBox;
     ObjectHandler                               m_directionalLight;
     ObjectHandler                               m_root;
-    eosMap(Camera*, eosVector(DrawSurface))     m_drawSurfaces;
-    eosVector(ObjectHandler)                    m_registeredInput;
+    eosMap<Camera*, eosVector<DrawSurface>>     m_drawSurfaces;
+    eosVector<ObjectHandler>                    m_registeredInput;
     ionBool                                     m_isMeshGeneratedFirstTime;  // is an helper
 };
 

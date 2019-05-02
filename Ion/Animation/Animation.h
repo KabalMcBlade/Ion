@@ -72,12 +72,12 @@ public:
     void SetInterpolation(EAnimationInterpolationType _interpolation);
     const EAnimationInterpolationType GetInterpolation() const { return m_interpolation; }
     
-    const eosVector(ionFloat)& GetInputs() const { return m_inputs; }
-    eosVector(ionFloat)& GetInputs() { return m_inputs; }
-    eosVector(ionFloat)::const_iterator InputsIteratorBeginConst() { return m_inputs.begin(); }
-    eosVector(ionFloat)::const_iterator InputsIteratorEndConst() { return m_inputs.end(); }
-    eosVector(ionFloat)::iterator InputsIteratorBegin() { return m_inputs.begin(); }
-    eosVector(ionFloat)::iterator InputsIteratorEnd() { return m_inputs.end(); }
+    const eosVector<ionFloat>& GetInputs() const { return m_inputs; }
+    eosVector<ionFloat>& GetInputs() { return m_inputs; }
+    eosVector<ionFloat>::const_iterator InputsIteratorBeginConst() { return m_inputs.begin(); }
+    eosVector<ionFloat>::const_iterator InputsIteratorEndConst() { return m_inputs.end(); }
+    eosVector<ionFloat>::iterator InputsIteratorBegin() { return m_inputs.begin(); }
+    eosVector<ionFloat>::iterator InputsIteratorEnd() { return m_inputs.end(); }
 
     ION_INLINE ionFloat GetMorphTarget(ionU32 _index)
     {
@@ -85,12 +85,12 @@ public:
         return m_outputsMorphTarget[_index];
     }
 
-    const eosVector(ionFloat)& GetMorphTargets() const { return m_outputsMorphTarget; }
-    eosVector(ionFloat)& GetMorphTargets() { return m_outputsMorphTarget; }
-    eosVector(ionFloat)::const_iterator MorphTargetsIteratorBeginConst() { return m_outputsMorphTarget.begin(); }
-    eosVector(ionFloat)::const_iterator MorphTargetsIteratorEndConst() { return m_outputsMorphTarget.end(); }
-    eosVector(ionFloat)::iterator MorphTargetsIteratorBegin() { return m_outputsMorphTarget.begin(); }
-    eosVector(ionFloat)::iterator MorphTargetsIteratorEnd() { return m_outputsMorphTarget.end(); }
+    const eosVector<ionFloat>& GetMorphTargets() const { return m_outputsMorphTarget; }
+    eosVector<ionFloat>& GetMorphTargets() { return m_outputsMorphTarget; }
+    eosVector<ionFloat>::const_iterator MorphTargetsIteratorBeginConst() { return m_outputsMorphTarget.begin(); }
+    eosVector<ionFloat>::const_iterator MorphTargetsIteratorEndConst() { return m_outputsMorphTarget.end(); }
+    eosVector<ionFloat>::iterator MorphTargetsIteratorBegin() { return m_outputsMorphTarget.begin(); }
+    eosVector<ionFloat>::iterator MorphTargetsIteratorEnd() { return m_outputsMorphTarget.end(); }
 
     ION_INLINE Vector GetLinearPath(ionU32 _index)
     {
@@ -98,17 +98,17 @@ public:
         return m_outputsLinearPath[_index];
     }
 
-    const eosVector(Vector)& GetLinearPaths() const { return m_outputsLinearPath; }
-    eosVector(Vector)& GetLinearPaths() { return m_outputsLinearPath; }
-    eosVector(Vector)::const_iterator LinearPathsIteratorBeginConst() { return m_outputsLinearPath.begin(); }
-    eosVector(Vector)::const_iterator LinearPathsIteratorEndConst() { return m_outputsLinearPath.end(); }
-    eosVector(Vector)::iterator LinearPathsIteratorBegin() { return m_outputsLinearPath.begin(); }
-    eosVector(Vector)::iterator LinearPathsIteratorEnd() { return m_outputsLinearPath.end(); }
+    const eosVector<Vector>& GetLinearPaths() const { return m_outputsLinearPath; }
+    eosVector<Vector>& GetLinearPaths() { return m_outputsLinearPath; }
+    eosVector<Vector>::const_iterator LinearPathsIteratorBeginConst() { return m_outputsLinearPath.begin(); }
+    eosVector<Vector>::const_iterator LinearPathsIteratorEndConst() { return m_outputsLinearPath.end(); }
+    eosVector<Vector>::iterator LinearPathsIteratorBegin() { return m_outputsLinearPath.begin(); }
+    eosVector<Vector>::iterator LinearPathsIteratorEnd() { return m_outputsLinearPath.end(); }
 
 private:
-    eosVector(ionFloat)         m_inputs;
-    eosVector(ionFloat)         m_outputsMorphTarget;   // can be normalized integer, unified to floats: each output element stores values with a count equal to the number of morph targets.
-    eosVector(Vector)           m_outputsLinearPath;
+    eosVector<ionFloat>         m_inputs;
+    eosVector<ionFloat>         m_outputsMorphTarget;   // can be normalized integer, unified to floats: each output element stores values with a count equal to the number of morph targets.
+    eosVector<Vector>           m_outputsLinearPath;
     EAnimationInterpolationType m_interpolation;
 };
 
@@ -136,23 +136,23 @@ public:
     void PushBackSampler(const AnimationSampler& _sampler);
     void PushBackChannel(const AnimationChannel& _channel);
 
-    const eosVector(AnimationSampler)& GetSamplers() const { return m_samplers; }
-    eosVector(AnimationSampler)& GetSamplers() { return m_samplers; }
-    eosVector(AnimationSampler)::const_iterator SamplersIteratorBeginConst() { return m_samplers.begin(); }
-    eosVector(AnimationSampler)::const_iterator SamplersIteratorEndConst() { return m_samplers.end(); }
-    eosVector(AnimationSampler)::iterator SamplersIteratorBegin() { return m_samplers.begin(); }
-    eosVector(AnimationSampler)::iterator SamplersIteratorEnd() { return m_samplers.end(); }
+    const eosVector<AnimationSampler>& GetSamplers() const { return m_samplers; }
+    eosVector<AnimationSampler>& GetSamplers() { return m_samplers; }
+    eosVector<AnimationSampler>::const_iterator SamplersIteratorBeginConst() { return m_samplers.begin(); }
+    eosVector<AnimationSampler>::const_iterator SamplersIteratorEndConst() { return m_samplers.end(); }
+    eosVector<AnimationSampler>::iterator SamplersIteratorBegin() { return m_samplers.begin(); }
+    eosVector<AnimationSampler>::iterator SamplersIteratorEnd() { return m_samplers.end(); }
 
-    const eosVector(AnimationChannel)& GetChannels() const { return m_channels; }
-    eosVector(AnimationChannel)& GetChannels() { return m_channels; }
-    eosVector(AnimationChannel)::const_iterator ChannelsIteratorBeginConst() { return m_channels.begin(); }
-    eosVector(AnimationChannel)::const_iterator ChannelsIteratorEndConst() { return m_channels.end(); }
-    eosVector(AnimationChannel)::iterator ChannelsIteratorBegin() { return m_channels.begin(); }
-    eosVector(AnimationChannel)::iterator ChannelsIteratorEnd() { return m_channels.end(); }
+    const eosVector<AnimationChannel>& GetChannels() const { return m_channels; }
+    eosVector<AnimationChannel>& GetChannels() { return m_channels; }
+    eosVector<AnimationChannel>::const_iterator ChannelsIteratorBeginConst() { return m_channels.begin(); }
+    eosVector<AnimationChannel>::const_iterator ChannelsIteratorEndConst() { return m_channels.end(); }
+    eosVector<AnimationChannel>::iterator ChannelsIteratorBegin() { return m_channels.begin(); }
+    eosVector<AnimationChannel>::iterator ChannelsIteratorEnd() { return m_channels.end(); }
 
 private:
-    eosVector(AnimationSampler) m_samplers;
-    eosVector(AnimationChannel) m_channels;
+    eosVector<AnimationSampler> m_samplers;
+    eosVector<AnimationChannel> m_channels;
     eosString                   m_name;
     eosSize                     m_hash;
     ionFloat                    m_start;

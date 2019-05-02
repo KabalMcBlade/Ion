@@ -64,8 +64,8 @@ void UpdateBoundingBox(const ObjectHandler& _node, BoundingBox& _mainBoundingBox
         return;
     }
 
-    const eosVector(ObjectHandler)& children = _node->GetChildren();
-    eosVector(ObjectHandler)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
+    const eosVector<ObjectHandler>& children = _node->GetChildren();
+    eosVector<ObjectHandler>::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
     for (; it != end; ++it)
     {
         ObjectHandler nh = (*it);
@@ -74,7 +74,7 @@ void UpdateBoundingBox(const ObjectHandler& _node, BoundingBox& _mainBoundingBox
 }
 
 // for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
-void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRenderer* _meshRenderer, ObjectHandler& _entityHandle, eosMap(ionU32, Node*)& _nodeIndexToNodePointer, eosMap(ionS32, eosString)& _textureIndexToTextureName, eosMap(ionS32, eosString)& _materialIndexToMaterialName
+void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRenderer* _meshRenderer, ObjectHandler& _entityHandle, eosMap<ionU32, Node*>& _nodeIndexToNodePointer, eosMap<ionS32, eosString>& _textureIndexToTextureName, eosMap<ionS32, eosString>& _materialIndexToMaterialName
     /*, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign*/)
 {
     Vector position(0.0f, 0.0f, 0.0f, 1.0f);
@@ -192,11 +192,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
             ionMesh.SetIndexStart(_meshRenderer->GetIndexDataCount());
             ionU32 vertexStart = _meshRenderer->GetVertexDataCount();       // 0?
 
-            eosVector(Vector) positionToCompute;
-            eosVector(Vector) normalToCompute;
-            eosVector(Vector) uvuvToCompute;
-            eosVector(Vector) tangentsToCompute;
-            eosVector(ionFloat) bitangentsSignToCompute;
+            eosVector<Vector> positionToCompute;
+            eosVector<Vector> normalToCompute;
+            eosVector<Vector> uvuvToCompute;
+            eosVector<Vector> tangentsToCompute;
+            eosVector<ionFloat> bitangentsSignToCompute;
 
             ionBool normalsAreMissing = true;
             ionBool uvAreMissing = true;
@@ -254,11 +254,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
                 if (usingMorphTarget)
                 {
-                    eosVector(const ionFloat*) morphTargetBufferPos;
-                    eosVector(const ionFloat*) morphTargetBufferNormals;
-                    eosVector(const ionFloat*) morphTargetBufferTangent;
+                    eosVector<const ionFloat*> morphTargetBufferPos;
+                    eosVector<const ionFloat*> morphTargetBufferNormals;
+                    eosVector<const ionFloat*> morphTargetBufferTangent;
 
-                    eosVector(ionSize) accessorCounts;
+                    eosVector<ionSize> accessorCounts;
                     const ionSize morphTargetCount = primitive.targets.size();
                     for (ionSize t = 0; t < morphTargetCount; ++t)
                     {
@@ -656,7 +656,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
             }
 
 
-            eosVector(Index) indexToCompute;
+            eosVector<Index> indexToCompute;
 
             // Indices
             {
@@ -1288,7 +1288,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 }
 
 
-void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _model, Entity* _entityPtr, eosMap(ionU32, Node*)& _nodeIndexToNodePointer)
+void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _model, Entity* _entityPtr, eosMap<ionU32, Node*>& _nodeIndexToNodePointer)
 {
     if (_model.animations.size() > 0)
     {
@@ -1408,7 +1408,7 @@ void LoadAnimations(const eosString& _filenameNoExt, const tinygltf::Model& _mod
                     }
 
 
-                    eosVector(ionFloat)::const_iterator begin = ionSampler.InputsIteratorBeginConst(), end = ionSampler.InputsIteratorEndConst(), it = begin;
+                    eosVector<ionFloat>::const_iterator begin = ionSampler.InputsIteratorBeginConst(), end = ionSampler.InputsIteratorEndConst(), it = begin;
                     for (; it != end; ++it)
                     {
                         ionFloat input = *it;
@@ -1633,9 +1633,9 @@ ionBool LoaderGLTF::Load(const eosString & _filePath, Camera* _camToUpdatePtr, O
     eosString filename;
     eosString filenameNoExt;
     eosString ext;
-    eosMap(ionS32, eosString) textureIndexToTextureName;
-    eosMap(ionS32, eosString) materialIndexToMaterialName;
-    eosMap(ionU32, Node*) nodeIndexToNodePointer;
+    eosMap<ionS32, eosString> textureIndexToTextureName;
+    eosMap<ionS32, eosString> materialIndexToMaterialName;
+    eosMap<ionU32, Node*> nodeIndexToNodePointer;
 
     //
     tinygltf::Model     model;

@@ -213,9 +213,9 @@ void ShaderProgramManager::SetRenderParamsMatrix(const eosString& _param, const 
     }
 }
 
-void ShaderProgramManager::SetRenderParamsMatrix(const eosString& _param, const eosVector(Matrix)& _values)
+void ShaderProgramManager::SetRenderParamsMatrix(const eosString& _param, const eosVector<Matrix>& _values)
 {
-    typedef eosVector(Matrix)::size_type count_type;
+    typedef eosVector<Matrix>::size_type count_type;
     const count_type count = _values.size();
     for (count_type i = 0; i < count; ++i)
     {
@@ -270,9 +270,9 @@ void ShaderProgramManager::SetRenderParamsVector(const eosString& _param, const 
     }
 }
 
-void ShaderProgramManager::SetRenderParamsVector(const eosString& _param, const eosVector(Vector)& _values)
+void ShaderProgramManager::SetRenderParamsVector(const eosString& _param, const eosVector<Vector>& _values)
 {
-    typedef eosVector(Vector)::size_type count_type;
+    typedef eosVector<Vector>::size_type count_type;
     const count_type count = _values.size();
     for (ionU32 i = 0; i < count; ++i)
     {
@@ -821,12 +821,12 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
 
 ionS32 ShaderProgramManager::FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage)
 {
-    eosVector(ionFloat) emptySpecializationConstants;
+    eosVector<ionFloat> emptySpecializationConstants;
     return FindShader(_path, _name, _stage, emptySpecializationConstants);
 }
 
 
-ionS32 ShaderProgramManager::FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage, const eosVector(ionFloat)& _specializationConstantValues)
+ionS32 ShaderProgramManager::FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage, const eosVector<ionFloat>& _specializationConstantValues)
 {
     for (ionS32 i = 0; i < m_shaders.size(); ++i)
     {
@@ -846,7 +846,7 @@ ionS32 ShaderProgramManager::FindShader(const eosString& _path, const eosString&
     // specialization constants
     if (_specializationConstantValues.size() > 0)
     {
-        for (eosVector(ionFloat)::size_type i = 0; i != _specializationConstantValues.size(); i++) 
+        for (eosVector<ionFloat>::size_type i = 0; i != _specializationConstantValues.size(); i++) 
         {
             shader.m_specializationConstants.m_values.push_back(_specializationConstantValues[i]);
         }

@@ -33,7 +33,7 @@ public:
 
     ionBool ParseCommandLine(ionS32 &argc, char **argv);
 
-    ionBool Create(WNDPROC _wndproc, const eosTString& _name);
+    ionBool Create(WNDPROC _wndproc, const TCHAR* _name);
     ionBool Loop();
 
     const HINSTANCE& GetInstance() const { return m_instance; }
@@ -68,7 +68,6 @@ private:
 
 private:
     eosString           m_macAddress;
-    eosTString          m_name;
     ionU64              m_macAddressNum;
     MouseState          m_mouse;
     KeyboardState       m_keyboard;

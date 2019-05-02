@@ -78,9 +78,9 @@ private:
     BoundingBox             m_boundingBox;
     BaseMeshRenderer*       m_meshRenderer; // if has this one, means that this one is the root and any other children nodes can potentially contains meshes
     AnimationRenderer*      m_animationRenderer;
-    eosVector(Mesh)         m_meshes;
-    eosVector(ionFloat)     m_initialMorphTargetWeights;
-    eosVector(ionFloat)     m_morphTargetWeights;
+    eosVector<Mesh>         m_meshes;
+    eosVector<ionFloat>     m_initialMorphTargetWeights;
+    eosVector<ionFloat>     m_morphTargetWeights;
 };
 
 ION_NAMESPACE_END

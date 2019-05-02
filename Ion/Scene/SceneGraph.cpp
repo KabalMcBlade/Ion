@@ -27,9 +27,9 @@ SceneGraph::~SceneGraph()
 {
     DestroyDirectionalLightToScene();
 
-    for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+    for (eosMap<Camera*, eosVector<DrawSurface>>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
-        eosVector(DrawSurface)& drawSurfaces = iter->second;
+        eosVector<DrawSurface>& drawSurfaces = iter->second;
         drawSurfaces.clear();
     }
     m_drawSurfaces.clear();
@@ -78,7 +78,7 @@ void SceneGraph::RemoveFromScene(const ObjectHandler& _node)
 
 void SceneGraph::RemoveAll(const std::function< void(const ObjectHandler& _node) >& _lambda /*= nullptr*/)
 {
-    eosVector(ObjectHandler)::const_iterator begin = m_root->ChildrenIteratorBeginConst(), end = m_root->ChildrenIteratorEndConst(), it = begin;
+    eosVector<ObjectHandler>::const_iterator begin = m_root->ChildrenIteratorBeginConst(), end = m_root->ChildrenIteratorEndConst(), it = begin;
     for (; it != end; ++it)
     {
         if (_lambda != nullptr)
@@ -92,7 +92,7 @@ void SceneGraph::RemoveAll(const std::function< void(const ObjectHandler& _node)
 
 void SceneGraph::UpdateAllCameraAspectRatio(RenderCore& _renderCore)
 {
-    for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+    for (eosMap<Camera*, eosVector<DrawSurface>>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
         Camera* cam = iter->first;
 
@@ -114,7 +114,7 @@ void SceneGraph::Begin()
             Camera* cam = dynamic_cast<Camera*>(_node.GetPtr());
             if (m_drawSurfaces.find(cam) == m_drawSurfaces.end())
             {
-                m_drawSurfaces.insert(std::pair<Camera*, eosVector(DrawSurface)>(cam, eosVector(DrawSurface)()));
+                m_drawSurfaces.insert(std::pair<Camera*, eosVector<DrawSurface>>(cam, eosVector<DrawSurface>()));
             }
         }
     }
@@ -126,7 +126,7 @@ void SceneGraph::Begin()
     {
         if (_node->GetNodeType() == ENodeType_Entity)
         {
-            for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+            for (eosMap<Camera*, eosVector<DrawSurface>>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
             {
                 Camera* cam = iter->first;
 
@@ -214,15 +214,15 @@ void SceneGraph::End()
 
 void SceneGraph::SortDrawSurfaces()
 {
-    for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+    for (eosMap<Camera*, eosVector<DrawSurface>>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
-        eosVector(DrawSurface)& drawSurfaces = iter->second;
+        eosVector<DrawSurface>& drawSurfaces = iter->second;
 
-        eosVector(DrawSurface)::size_type miniPos;
-        for (eosVector(DrawSurface)::size_type i = 0; i < drawSurfaces.size(); ++i)
+        eosVector<DrawSurface>::size_type miniPos;
+        for (eosVector<DrawSurface>::size_type i = 0; i < drawSurfaces.size(); ++i)
         {
             miniPos = i;
-            for (eosVector(DrawSurface)::size_type j = i + 1; j < drawSurfaces.size(); ++j)
+            for (eosVector<DrawSurface>::size_type j = i + 1; j < drawSurfaces.size(); ++j)
             {
                 if (drawSurfaces[j] < drawSurfaces[miniPos])
                 {
@@ -243,7 +243,7 @@ void SceneGraph::Update(ionFloat _deltaTime)
 
     // mapping
     //ionVertexCacheManager().BeginMapping();
-    for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+    for (eosMap<Camera*, eosVector<DrawSurface>>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
         Camera* cam = iter->first;
 
@@ -254,8 +254,8 @@ void SceneGraph::Update(ionFloat _deltaTime)
 
         const Vector& cameraPos = cam->GetTransform().GetPosition();
 
-        eosVector(DrawSurface)& drawSurfaces = iter->second;
-        eosVector(DrawSurface)::iterator beginDS = drawSurfaces.begin(), endDS = drawSurfaces.end(), itDS = beginDS;
+        eosVector<DrawSurface>& drawSurfaces = iter->second;
+        eosVector<DrawSurface>::iterator beginDS = drawSurfaces.begin(), endDS = drawSurfaces.end(), itDS = beginDS;
         for (; itDS != endDS; ++itDS)
         {
             DrawSurface& drawSurface = (*itDS);
@@ -286,7 +286,7 @@ void SceneGraph::Update(ionFloat _deltaTime)
 
 void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _width, ionU32 _height)
 {
-    for (eosMap(Camera*, eosVector(DrawSurface))::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+    for (eosMap<Camera*, eosVector<DrawSurface>>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
         Camera* cam = iter->first;
 
@@ -298,9 +298,9 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
 
         cam->RenderSkybox(_renderCore);
 
-        const eosVector(DrawSurface)& surfaces = iter->second;
+        const eosVector<DrawSurface>& surfaces = iter->second;
 
-        eosVector(DrawSurface)::const_iterator begin = surfaces.cbegin(), end = surfaces.cend(), it = begin;
+        eosVector<DrawSurface>::const_iterator begin = surfaces.cbegin(), end = surfaces.cend(), it = begin;
         for (; it != end; ++it)
         {
             const DrawSurface& drawSurface = (*it);
@@ -338,7 +338,7 @@ void SceneGraph::UnregisterFromInput(const ObjectHandler& _node)
 
 void SceneGraph::UpdateMouseInput(const MouseState& _mouseState, ionFloat _deltaTime)
 {
-    eosVector(ObjectHandler)::const_iterator begin = m_registeredInput.cbegin(), end = m_registeredInput.cend(), it = begin;
+    eosVector<ObjectHandler>::const_iterator begin = m_registeredInput.cbegin(), end = m_registeredInput.cend(), it = begin;
     for (; it != end; ++it)
     {
         const ObjectHandler& node = (*it);
@@ -348,7 +348,7 @@ void SceneGraph::UpdateMouseInput(const MouseState& _mouseState, ionFloat _delta
 
 void SceneGraph::UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime)
 {
-    eosVector(ObjectHandler)::const_iterator begin = m_registeredInput.cbegin(), end = m_registeredInput.cend(), it = begin;
+    eosVector<ObjectHandler>::const_iterator begin = m_registeredInput.cbegin(), end = m_registeredInput.cend(), it = begin;
     for (; it != end; ++it)
     {
         const ObjectHandler& node = (*it);

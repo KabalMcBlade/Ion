@@ -128,8 +128,8 @@ void UpdateAllShadersCascade(const ObjectHandler& _node, ionS32 _vertexShaderInd
         return;
     }
 
-    const eosVector(ObjectHandler)& children = _node->GetChildren();
-    eosVector(ObjectHandler)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
+    const eosVector<ObjectHandler>& children = _node->GetChildren();
+    eosVector<ObjectHandler>::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
     for (; it != end; ++it)
     {
         ObjectHandler nh = (*it);
@@ -163,8 +163,8 @@ void CheckIfAllMaterialsAreUnlit(const ObjectHandler& _node, ionBool& _areUnlit)
         return;
     }
 
-    const eosVector(ObjectHandler)& children = _node->GetChildren();
-    eosVector(ObjectHandler)::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
+    const eosVector<ObjectHandler>& children = _node->GetChildren();
+    eosVector<ObjectHandler>::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
     for (; it != end; ++it)
     {
         ObjectHandler nh = (*it);

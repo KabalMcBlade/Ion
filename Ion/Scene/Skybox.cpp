@@ -27,7 +27,7 @@ Skybox::~Skybox()
 
 void Skybox::GenerateMesh()
 {
-    eosVector(Index) indices;
+    eosVector<Index> indices;
     indices.resize(36);
     indices = {
         0,1,2,0,2,3,
@@ -69,7 +69,7 @@ void Skybox::GenerateMesh()
         Vector(0.5f, -0.5f, 0.5f, 1.0f)
     };
 
-    eosVector(VertexPlain) vertices;
+    eosVector<VertexPlain> vertices;
     vertices.resize(24);
 
     for (ionU32 i = 0; i < 24; ++i)

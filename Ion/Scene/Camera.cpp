@@ -291,7 +291,7 @@ void Camera::SetScissor(RenderCore& _renderCore, VkCommandBuffer _commandBuffer)
     _renderCore.SetScissor(_commandBuffer, m_scissor);
 }
 
-void Camera::StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector(VkClearValue)& _clearValues)
+void Camera::StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector<VkClearValue>& _clearValues)
 {
     _renderCore.StartRenderPass(_renderPass, _frameBuffer, _commandBuffer, _clearValues, m_renderArea);
 }

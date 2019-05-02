@@ -92,12 +92,12 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
 {
     Animation& anim = m_aninimations[_animationIndex];
 
-    eosVector(AnimationChannel)::iterator begin = anim.ChannelsIteratorBegin(), end = anim.ChannelsIteratorEnd(), it = begin;
+    eosVector<AnimationChannel>::iterator begin = anim.ChannelsIteratorBegin(), end = anim.ChannelsIteratorEnd(), it = begin;
     for (; it != end; ++it)
     {
         AnimationChannel& channel = *it;
 
-        eosVector(AnimationSampler)& samplers = anim.GetSamplers();
+        eosVector<AnimationSampler>& samplers = anim.GetSamplers();
 
         // Sanity check
         AnimationSampler& sampler = samplers[channel.GetSamplerIndex()];
@@ -125,7 +125,7 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
         }
 
         // logic
-        eosVector(ionFloat)& inputs = sampler.GetInputs();
+        eosVector<ionFloat>& inputs = sampler.GetInputs();
         const ionU32 inputSize = static_cast<ionU32>(inputs.size());
         for (ionU32 i = 0; i < inputSize - 1; ++i)
         {

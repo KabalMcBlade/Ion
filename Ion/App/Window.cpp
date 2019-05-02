@@ -72,7 +72,11 @@ Window::~Window()
 
     if (m_instance)
     {
-        UnregisterClass(m_name.c_str(), m_instance);
+        eosVector<TCHAR> className;
+        className.resize(256);
+        GetClassName(m_handle, className.data(), static_cast<int>(className.size()));
+
+        UnregisterClass(className.data(), m_instance);
     }
 }
 
@@ -82,7 +86,7 @@ ionBool Window::ParseCommandLine(ionS32 &argc, char **argv)
     return m_commandLineParse.Parse(argc, argv);
 }
 
-ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name)
+ionBool Window::Create(WNDPROC _wndproc, const TCHAR* _name)
 {
     Tools::GetPhysicalAddress(m_macAddress, m_macAddressNum);
 
@@ -90,7 +94,6 @@ ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name)
     s_physicalAddressNumHigh = ION_BIT_GET(m_macAddressNum, 0xFFFFFFFF);
     s_physicalAddressNumLow = ION_BIT_GET(m_macAddressNum >> 32, 0xFFFFFFFF);
 
-    m_name = _name;
     m_width = m_commandLineParse.GetValue<ionS32>(ION_WND_PARAM_WIDTH);
     m_height = m_commandLineParse.GetValue<ionS32>(ION_WND_PARAM_HEIGHT);
     m_fullScreen = m_commandLineParse.GetValue<ionBool>(ION_WND_PARAM_FULLSCREEN);
@@ -111,7 +114,7 @@ ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name)
     wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);//(HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszMenuName = nullptr;
-    wcex.lpszClassName = m_name.c_str();
+    wcex.lpszClassName = _name;
     wcex.hIconSm = LoadIcon(nullptr, IDI_WINLOGO);
 
     if (!RegisterClassEx(&wcex))
@@ -166,8 +169,8 @@ ionBool Window::Create(WNDPROC _wndproc, const eosTString& _name)
 
     // Create window
     m_handle = CreateWindowEx(0,
-        m_name.c_str(),
-        m_name.c_str(),
+        _name,
+        _name,
         dwStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         0,
         0,

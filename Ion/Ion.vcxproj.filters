@@ -54,9 +54,6 @@
     <ClInclude Include="Dependencies\Eos\Eos\StlAllocators.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\StlAllocatorsMacro.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Dependencies\Nix\Nix\Architecture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -310,6 +307,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryForward.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Eos\Eos\StlAllocatorsTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

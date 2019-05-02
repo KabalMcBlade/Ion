@@ -235,14 +235,14 @@ namespace _private
                     const eosString& name = animation.GetName();
                     const eosSize hash = animation.GetHashName();
 
-                    const eosVector(AnimationChannel)& channels = animation.GetChannels();
-                    const eosVector(AnimationSampler)& samplers = animation.GetSamplers();
+                    const eosVector<AnimationChannel>& channels = animation.GetChannels();
+                    const eosVector<AnimationSampler>& samplers = animation.GetSamplers();
 
-                    eosVector(AnimationChannel)::size_type channelsCount = channels.size();
-                    eosVector(AnimationSampler)::size_type samplersCount = samplers.size();
+                    eosVector<AnimationChannel>::size_type channelsCount = channels.size();
+                    eosVector<AnimationSampler>::size_type samplersCount = samplers.size();
 
                     std::vector<json> channelsJson;
-                    for (eosVector(AnimationChannel)::size_type j = 0; j < channelsCount; ++j)
+                    for (eosVector<AnimationChannel>::size_type j = 0; j < channelsCount; ++j)
                     {
                         const AnimationChannel& channel = channels[j];
 
@@ -263,34 +263,34 @@ namespace _private
                     }
 
                     std::vector<json> samplersJson;
-                    for (eosVector(AnimationSampler)::size_type j = 0; j < samplersCount; ++j)
+                    for (eosVector<AnimationSampler>::size_type j = 0; j < samplersCount; ++j)
                     {
                         const AnimationSampler& sampler = samplers[j];
 
                         const EAnimationInterpolationType& interpolation = sampler.GetInterpolation();
-                        const eosVector(ionFloat)& inputs = sampler.GetInputs();
-                        const eosVector(Vector)& linearPath = sampler.GetLinearPaths();
-                        const eosVector(ionFloat)& morphTarget = sampler.GetMorphTargets();
+                        const eosVector<ionFloat>& inputs = sampler.GetInputs();
+                        const eosVector<Vector>& linearPath = sampler.GetLinearPaths();
+                        const eosVector<ionFloat>& morphTarget = sampler.GetMorphTargets();
 
                         std::vector<ionFloat> _input;
-                        eosVector(ionFloat)::size_type inputCount = inputs.size();
-                        for (eosVector(ionFloat)::size_type a = 0; a < inputCount; ++a)
+                        eosVector<ionFloat>::size_type inputCount = inputs.size();
+                        for (eosVector<ionFloat>::size_type a = 0; a < inputCount; ++a)
                         {
                             const ionFloat& v = inputs[a];
                             _input.push_back(v);
                         }
 
                         std::vector<Vector> _linearPath;
-                        eosVector(Vector)::size_type linearPathCount = linearPath.size();
-                        for (eosVector(Vector)::size_type a = 0; a < linearPathCount; ++a)
+                        eosVector<Vector>::size_type linearPathCount = linearPath.size();
+                        for (eosVector<Vector>::size_type a = 0; a < linearPathCount; ++a)
                         {
                             const Vector& v = linearPath[a];
                             _linearPath.push_back(v);
                         }
 
                         std::vector<ionFloat> _morphTarget;
-                        eosVector(ionFloat)::size_type morphTargetCount = morphTarget.size();
-                        for (eosVector(ionFloat)::size_type a = 0; a < morphTargetCount; ++a)
+                        eosVector<ionFloat>::size_type morphTargetCount = morphTarget.size();
+                        for (eosVector<ionFloat>::size_type a = 0; a < morphTargetCount; ++a)
                         {
                             const ionFloat& v = morphTarget[a];
                             _morphTarget.push_back(v);

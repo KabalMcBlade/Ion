@@ -485,7 +485,7 @@ const Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
 
     if (m_renderCore.BeginCustomCommandBuffer(cmdBuffer))
     {
-        eosVector(VkClearValue) clearValues;
+        eosVector<VkClearValue> clearValues;
         clearValues.resize(1);
         clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
 
@@ -630,7 +630,7 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
 
     if (m_renderCore.BeginCustomCommandBuffer(cmdBuffer))
     {
-        eosVector(VkClearValue) clearValues;
+        eosVector<VkClearValue> clearValues;
         clearValues.resize(1);
         clearValues[0].color = { { 0.0f, 0.0f, 0.2f, 0.0f } };
 
@@ -658,7 +658,7 @@ const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
             vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
         }
 
-        eosVector(Quaternion) rotations;
+        eosVector<Quaternion> rotations;
         rotations.push_back(Quaternion(0.0f, 0.0f, 0.0f));
         rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(90.0f), 0.0f));
         rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(180.0f), 0.0f));
@@ -906,7 +906,7 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
 
     if (m_renderCore.BeginCustomCommandBuffer(cmdBuffer))
     {
-        eosVector(VkClearValue) clearValues;
+        eosVector<VkClearValue> clearValues;
         clearValues.resize(1);
         clearValues[0].color = { { 0.0f, 0.0f, 0.2f, 0.0f } };
 
@@ -934,7 +934,7 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
             vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
         }
 
-        eosVector(Quaternion) rotations;
+        eosVector<Quaternion> rotations;
         rotations.push_back(Quaternion(0.0f, 0.0f, 0.0f));
         rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(90.0f), 0.0f));
         rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(180.0f), 0.0f));

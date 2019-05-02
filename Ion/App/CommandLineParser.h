@@ -249,7 +249,7 @@ public:
     T GetValue(const eosString& _option);
 
 private:
-    eosMap(eosString, Option*) m_options;
+    eosMap<eosString, Option*> m_options;
 };
 
 template <class T>
