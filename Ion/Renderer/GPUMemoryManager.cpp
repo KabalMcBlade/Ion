@@ -2,7 +2,6 @@
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
-#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryForward.h"
 
 EOS_USING_NAMESPACE
 

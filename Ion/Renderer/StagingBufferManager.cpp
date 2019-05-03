@@ -3,7 +3,6 @@
 
 
 #include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
-#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryForward.h"
 
 
 EOS_USING_NAMESPACE

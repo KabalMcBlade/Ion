@@ -3,7 +3,7 @@
 #include "GPUMemoryManager.h"
 #include "StagingBufferManager.h"
 
-#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryForward.h"
+#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
 ION_NAMESPACE_BEGIN
 
