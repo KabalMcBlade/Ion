@@ -71,16 +71,14 @@ For instance:
 #### Controls
 
 The controls in this demo test are:
-* If you move the mouse without press any button, your rotate the camera and:
-	* Press **W**,**A**,**S**,**D** to move around the camera
 
-Otherwise the action is on the object
 * Hold **left mouse button** in order to rotate the object
 * Hold **right mouse button** in order to pan right or left and up or down the object
 * Use the **mouse wheel** to go toward or far away the object
 * Press **R** to auto rotate the model
 * Hold key **J** increase x 10 the wheel speed of the mouse and **K** to increase x 100
-* Press **U** will decrease the scale by 10, press **I** will increase the scale by 10
+* Press **I** will decrease the scale by 10, press **O** will increase the scale by 10
+* Press **Return** key (**Enter** key) to reset the model transform
 
 Pressing the key **L**, you can change the control from the model to the light
 In this case, toggling the **L** key you will have:

@@ -119,6 +119,17 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
     {
         if (_keyboardState.m_state == ion::EKeyboardState_Up)
         {
+            if (_keyboardState.m_key == ion::EKeyboardKey_Return)
+            {
+                // Reset the object matrix
+                GetTransform().SetScale(1.0f);
+
+                Quaternion qIdentity;
+                GetTransform().SetRotation(qIdentity);
+
+                GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
+            }
+
             if (_keyboardState.m_key == ion::EKeyboardKey_R)
             {
                 m_rotating = !m_rotating;
@@ -129,13 +140,13 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
                 m_incresingWheelSpeed = 1.0f;
             }
 
-            if (_keyboardState.m_key == ion::EKeyboardKey_U)
+            if (_keyboardState.m_key == ion::EKeyboardKey_I)
             {
                 Vector scale = GetTransform().GetScale() / 10.0f;
                 GetTransform().SetScale(scale);
             }
 
-            if (_keyboardState.m_key == ion::EKeyboardKey_I)
+            if (_keyboardState.m_key == ion::EKeyboardKey_O)
             {
                 Vector scale = GetTransform().GetScale() * 10.0f;
                 GetTransform().SetScale(scale);
@@ -253,11 +264,11 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
             ionFloat velocity = m_movementSpeed * _deltaTime;
 
-            const Quaternion& orientation = GetTransform().GetRotation().Conjugate(); //m_camera->GetTransform().GetRotation();
-            const Vector newRight =  orientation * right;
-            const Vector newUp = orientation * up;
+            const Matrix& matrix = m_camera->GetTransform().GetMatrixWS();
+            Vector right = matrix.GetOrtX();
+            Vector up = matrix.GetOrtY();
 
-            const Vector dir = newRight * xOffset + newUp * yOffset;
+            const Vector dir = right * xOffset + up * yOffset;
 
             const Vector pos = GetTransform().GetPosition() + dir * velocity;
 
@@ -268,10 +279,10 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
         {
             ionFloat velocity = m_movementSpeed * m_incresingWheelSpeed * _deltaTime;
 
-            const Quaternion& orientation = GetTransform().GetRotation().Conjugate(); //m_camera->GetTransform().GetRotation();
-            const Vector newForward = forward * orientation;
+            const Matrix& matrix = m_camera->GetTransform().GetMatrixWS();
+            Vector forward = matrix.GetOrtZ();
 
-            const Vector dir = newForward * _mouseState.m_wheel.m_distance;
+            const Vector dir = forward * _mouseState.m_wheel.m_distance;
 
             const Vector pos = GetTransform().GetPosition() + dir * velocity;
 
@@ -284,7 +295,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 //////////////////////////////////////////////////////////////////////////
 // CAMERA
 
-MainCamera::MainCamera() : Camera("Main Camera"), m_mouseSensitivity(0.05f), m_movementSpeed(0.001f), m_mouseNotUsed(true)
+MainCamera::MainCamera() : Camera("Main Camera"), m_mouseSensitivity(0.05f), m_movementSpeed(0.001f)
 {
     m_pbrDebug = EPBRDebugType_Exposure;
     std::cout << std::endl << "Control applied to the object" << std::endl;
@@ -296,8 +307,6 @@ MainCamera::~MainCamera()
 
 void MainCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime)
 {
-    m_mouseNotUsed = !_mouseState.m_buttons[0].IsPressed && !_mouseState.m_buttons[1].IsPressed && !_mouseState.m_wheel.m_wasMoved;
-
     if (MainCamera::m_toggleLightRotation)
     {
         ion::DirectionalLight* directionalLight = ionRenderManager().GetDirectionalLight();
@@ -316,62 +325,12 @@ void MainCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _delt
 
         directionalLight->GetTransform().SetRotation(currRot);
     }
-    else
-    {
-        if (m_mouseNotUsed)
-        {
-            ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
-            ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
-
-            xOffset *= m_mouseSensitivity;
-            yOffset *= m_mouseSensitivity;
-
-            const Quaternion& prevRot = GetTransform().GetRotation();
-
-            Quaternion currRot(NIX_DEG_TO_RAD(yOffset), NIX_DEG_TO_RAD(-xOffset), 0.0f);
-
-            currRot = prevRot * currRot;
-
-            GetTransform().SetRotation(currRot);
-        }
-    }
 }
 
 void MainCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime)
 {
     if (_keyboardState.m_state == ion::EKeyboardState_Down)
     {
-        if (m_mouseNotUsed)
-        {
-            static const Vector right(1.0f, 0.0f, 0.0f, 1.0f);
-            static const Vector up(0.0f, 1.0f, 0.0f, 1.0f);
-            static const Vector forward(0.0f, 0.0f, 1.0f, 1.0f);
-
-            Vector pos = GetTransform().GetPosition();
-
-            ionFloat velocity = m_movementSpeed * _deltaTime;
-
-
-            if (_keyboardState.m_key == ion::EKeyboardKey_W)
-            {
-                pos += forward * velocity;
-            }
-            else if (_keyboardState.m_key == ion::EKeyboardKey_S)
-            {
-                pos -= forward * velocity;
-            }
-            else if (_keyboardState.m_key == ion::EKeyboardKey_D)
-            {
-                pos -= right * velocity;
-            }
-            else if (_keyboardState.m_key == ion::EKeyboardKey_A)
-            {
-                pos += right * velocity;
-            }
-
-            GetTransform().SetPosition(pos);
-        }
-
         if (_keyboardState.m_key == ion::EKeyboardKey_Prior)
         {
             switch (m_pbrDebug)

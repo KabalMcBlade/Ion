@@ -81,6 +81,4 @@ private:
         EPBRDebugType_PrefilteredCubeMipLevels
     };
     EPBRDebugType m_pbrDebug;
-
-    ionBool m_mouseNotUsed;
 };
