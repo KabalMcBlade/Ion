@@ -89,7 +89,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>VK_EXPORTS;NIX_EXPORTS;EOS_EXPORTS;ION_EXPORTS;WIN32;_DEBUG;_WINDOWS;_USRDLL;ION_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VK_EXPORTS;EOS_EXPORTS;ION_EXPORTS;WIN32;_DEBUG;_WINDOWS;_USRDLL;ION_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(VK_SDK_PATH)\Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -105,7 +105,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>VK_EXPORTS;NIX_EXPORTS;EOS_EXPORTS;ION_EXPORTS;_DEBUG;_WINDOWS;_USRDLL;ION_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VK_EXPORTS;EOS_EXPORTS;ION_EXPORTS;_DEBUG;_WINDOWS;_USRDLL;ION_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(VK_SDK_PATH)\Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -123,7 +123,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>VK_EXPORTS;NIX_EXPORTS;EOS_EXPORTS;ION_EXPORTS;WIN32;NDEBUG;_WINDOWS;_USRDLL;ION_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VK_EXPORTS;EOS_EXPORTS;ION_EXPORTS;WIN32;NDEBUG;_WINDOWS;_USRDLL;ION_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(VK_SDK_PATH)\Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -143,7 +143,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>VK_EXPORTS;NIX_EXPORTS;EOS_EXPORTS;ION_EXPORTS;NDEBUG;_WINDOWS;_USRDLL;ION_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VK_EXPORTS;EOS_EXPORTS;ION_EXPORTS;NDEBUG;_WINDOWS;_USRDLL;ION_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(VK_SDK_PATH)\Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -163,6 +163,7 @@
     <ClInclude Include="App\Window.h" />
     <ClInclude Include="Core\CoreDefs.h" />
     <ClInclude Include="Core\FileSystemManager.h" />
+    <ClInclude Include="Core\Managers.h" />
     <ClInclude Include="Core\StandardIncludes.h" />
     <ClInclude Include="Core\UUID.h" />
     <ClInclude Include="Dependencies\Eos\Eos\CoreDefs.h" />
@@ -170,8 +171,8 @@
     <ClInclude Include="Dependencies\Eos\Eos\HeapAllocator.h" />
     <ClInclude Include="Dependencies\Eos\Eos\LinearAllocator.h" />
     <ClInclude Include="Dependencies\Eos\Eos\Log.h" />
+    <ClInclude Include="Dependencies\Eos\Eos\MemoryDefines.h" />
     <ClInclude Include="Dependencies\Eos\Eos\MemoryFunctions.h" />
-    <ClInclude Include="Dependencies\Eos\Eos\MemoryManager.h" />
     <ClInclude Include="Dependencies\Eos\Eos\SmartPointer.h" />
     <ClInclude Include="Dependencies\Eos\Eos\StackAllocator.h" />
     <ClInclude Include="Dependencies\Eos\Eos\StlAllocators.h" />
@@ -254,7 +255,6 @@
     <ClInclude Include="Utilities\GeometryHelper.h" />
     <ClInclude Include="Utilities\Serializer.h" />
     <ClInclude Include="Utilities\Tools.h" />
-    <ClInclude Include="Wrapper\Memory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Animation\Animation.cpp" />
@@ -262,8 +262,9 @@
     <ClCompile Include="App\CommandLineParser.cpp" />
     <ClCompile Include="App\Window.cpp" />
     <ClCompile Include="Core\FileSystemManager.cpp" />
+    <ClCompile Include="Core\Managers.cpp" />
     <ClCompile Include="Core\UUID.cpp" />
-    <ClCompile Include="Dependencies\Eos\Eos\MemoryManager.cpp" />
+    <ClCompile Include="Dependencies\Eos\Eos\MemoryAllocators.cpp" />
     <ClCompile Include="Dependencies\Miscellaneous\mikktspace.c" />
     <ClCompile Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkGpuMemory.cpp" />
     <ClCompile Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryFunctions.cpp" />
@@ -320,7 +321,6 @@
     <ClCompile Include="Utilities\GeometryHelper.cpp" />
     <ClCompile Include="Utilities\Serializer.cpp" />
     <ClCompile Include="Utilities\Tools.cpp" />
-    <ClCompile Include="Wrapper\Memory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

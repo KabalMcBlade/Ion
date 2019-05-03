@@ -1,4 +1,4 @@
-#include "Memory.h"
+#include "Managers.h"
 
 #include "../Core/FileSystemManager.h"
 #include "../Renderer/GPUMemoryManager.h"
@@ -13,20 +13,6 @@
 
 ION_NAMESPACE_BEGIN
 
-
-ION_DLL void InitializeAllocators(eosSize _uiHeapSize, eosSize _uiLinearSize, eosSize _uiStackBlockSize, eosSize _uiStackBlockCount)
-{
-    MemoryManager::Instance().GetHeapAllocator().Init(_uiHeapSize);
-    MemoryManager::Instance().GetLinearAllocator().Init(_uiLinearSize);
-    MemoryManager::Instance().GetStackAllocator().Init(_uiStackBlockSize, _uiStackBlockCount);
-}
-
-ION_DLL void ShutdownAllocators()
-{
-    MemoryManager::Instance().GetHeapAllocator().Shutdown();
-    MemoryManager::Instance().GetLinearAllocator().Shutdown();
-    MemoryManager::Instance().GetStackAllocator().Shutdown();
-}
 
 ION_DLL void InitializeManagers()
 {

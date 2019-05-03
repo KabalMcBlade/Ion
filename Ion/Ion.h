@@ -74,8 +74,8 @@
 #include "Utilities/GeometryHelper.h"
 #include "Utilities/Serializer.h"
 
-#include "Wrapper/Memory.h"
-
 #include "App/Mode.h"
 #include "App/CommandLineParser.h"
 #include "App/Window.h"
+
+#include "Core/Managers.h"
