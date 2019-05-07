@@ -78,13 +78,16 @@ void SceneGraph::RemoveFromScene(const ObjectHandler& _node)
 
 void SceneGraph::RemoveAll(const std::function< void(const ObjectHandler& _node) >& _lambda /*= nullptr*/)
 {
-    eosVector<ObjectHandler>::const_iterator begin = m_root->ChildrenIteratorBeginConst(), end = m_root->ChildrenIteratorEndConst(), it = begin;
-    for (; it != end; ++it)
+    eosVector<ObjectHandler> myCopy = m_root->GetChildren();
+    std::vector<ObjectHandler>::const_iterator it = myCopy.begin();
+    while (it != myCopy.end())
     {
         if (_lambda != nullptr)
         {
             _lambda((*it));
         }
+
+        ++it;
     }
 
     // do nothing here: maybe add later a "detach all" ?

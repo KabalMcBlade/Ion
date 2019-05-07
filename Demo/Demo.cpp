@@ -152,8 +152,6 @@ int main(int argc, char **argv)
 
     InitializeManagers();
 
-    ION_SCOPE_BEGIN
-
     ionFileSystemManager().Init("Assets", "Shaders", "Textures", "Models");
 
     ionBool rendererInitialized = false;
@@ -242,6 +240,7 @@ int main(int argc, char **argv)
     skyboxMaterial->GetState().SetCullingMode(ECullingMode_Front);
     skyboxMaterial->GetState().SetDepthFunctionMode(EDepthFunction_Less);
     skyboxMaterial->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
+
 
     //////////////////////////////////////////////////////////////////////////
     // Continue texture generation
@@ -337,7 +336,7 @@ int main(int argc, char **argv)
 
     // set camera to rotating object
     test->SetCameraReference(camera);
-    
+
     // first full the scene graph
     ionRenderManager().AddToSceneGraph(cameraHandle);
     ionRenderManager().AddToSceneGraph(testHandle);
@@ -347,7 +346,6 @@ int main(int argc, char **argv)
     ionRenderManager().RegisterToInput(cameraHandle);
     ionRenderManager().RegisterToInput(testHandle);
 
-    
     ionRenderManager().AddDirectionalLight();
     DirectionalLight* directionalLight = ionRenderManager().GetDirectionalLight();
 
@@ -359,6 +357,7 @@ int main(int argc, char **argv)
     directionalLight->SetColor(lightCol);
     //////////////////////////////////////////////////////////////////////////
 
+    
     //////////////////////////////////////////////////////////////////////////
     // Create new camera for the arrow to debug light if something is not unlit!
     // If all are unlit, does not use light!
@@ -404,11 +403,11 @@ int main(int argc, char **argv)
         dirlLightDebugEntity->GetTransform().SetRotation(lightRot);
     }
 
-    
     if (rendererInitialized)
     {
         window.Loop();
     }
+    
 
     ionRenderManager().PrepareToShutDown();
     ionRenderManager().RemoveAllSceneGraph();
@@ -416,8 +415,6 @@ int main(int argc, char **argv)
     ionRenderManager().Shutdown();
 
     ionFileSystemManager().Shutdown();
-
-    ION_SCOPE_END
 
     ShutdownManagers();
 

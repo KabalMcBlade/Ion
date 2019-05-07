@@ -57,7 +57,19 @@ void Node::DetachFromParent()
 
     if (m_parent != nullptr)
     {
-        m_parent->GetChildren().erase(std::remove(m_parent->GetChildren().begin(), m_parent->GetChildren().end(), this), m_parent->GetChildren().end());
+        eosVector<ObjectHandler>::iterator pendingRemove = std::remove_if(m_parent->GetChildren().begin(), m_parent->GetChildren().end(), 
+            [&](ObjectHandler& _object)
+        {
+            return this == _object;
+        }
+        );
+
+        if (pendingRemove != m_parent->GetChildren().end())
+        {
+            m_parent->GetChildren().erase(pendingRemove, m_parent->GetChildren().end());
+        }
+
+        //m_parent->GetChildren().erase(std::remove(m_parent->GetChildren().begin(), m_parent->GetChildren().end(), this), m_parent->GetChildren().end());
     }
 }
 

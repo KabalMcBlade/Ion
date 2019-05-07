@@ -302,11 +302,7 @@ void RenderManager::RemoveAllSceneGraph()
     m_sceneGraph.RemoveAll(
         [&](const ObjectHandler& _node)
     { 
-        if (_node->GetNodeType() == ENodeType_Camera)
-        {
-            Camera* camera = dynamic_cast<Camera*>(_node.GetPtr());
-            camera->DestroyRenderPassAndFrameBuffers(m_renderCore);
-        }
+        RemoveFromSceneGraph(_node);
     }
     );
 }

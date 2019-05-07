@@ -200,6 +200,8 @@ public:
     Material(const eosString& _name);
     ~Material();
 
+    const eosString& GetName() const { return m_name; }
+
     ionBool Create();
     void Destroy();
 
