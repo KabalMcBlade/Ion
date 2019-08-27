@@ -49,8 +49,6 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-RenderManager *RenderManager::s_instance = nullptr;
-
 
 RenderManager::RenderManager() : m_deltaTime(ION_FPS_LIMIT), m_running(false)
 {
@@ -83,34 +81,18 @@ void RenderManager::Shutdown()
     m_renderCore.Shutdown();
 }
 
-void RenderManager::Create()
-{
-    if (!s_instance)
-    {
-        s_instance = eosNew(RenderManager, ION_MEMORY_ALIGNMENT_SIZE);
-    }
-}
-
-void RenderManager::Destroy()
-{
-    if (s_instance)
-    {
-        eosDelete(s_instance);
-        s_instance = nullptr;
-    }
-}
-
 RenderManager& RenderManager::Instance()
 {
-    return *s_instance;
+    static RenderManager instance;
+    return instance;
 }
 
-ionBool RenderManager::LoadModelFromFile(const eosString& _filePath, Camera* _camToUpdate, ObjectHandler& _entity)
+ionBool RenderManager::LoadModelFromFile(const ionString& _filePath, Camera* _camToUpdate, ObjectHandler& _entity)
 {
     return m_loader.Load(_filePath, _camToUpdate, _entity);
 }
 
-void RenderManager::DumpModelToFile(const eosString& _filePath, const ObjectHandler& _entity, LoaderGLTF::ESerializationLevel _level /*= LoaderGLTF::ESerializationLevel_Normal*/)
+void RenderManager::DumpModelToFile(const ionString& _filePath, const ObjectHandler& _entity, LoaderGLTF::ESerializationLevel _level /*= LoaderGLTF::ESerializationLevel_Normal*/)
 {
     m_loader.Dump(_filePath, _entity, _level);
 }
@@ -137,12 +119,34 @@ void RenderManager::GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _typ
     }
 }
 
+void RenderManager::GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _type, Entity* _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
+{
+	switch (_type)
+	{
+	case EPrimitiveType_Triangle:
+		PrimitiveFactory::GenerateTriangle(_layout, _entity, _r, _g, _b, _a);
+		break;
+	case EPrimitiveType_Quad:
+		PrimitiveFactory::GenerateQuad(_layout, _entity, _r, _g, _b, _a);
+		break;
+	case EPrimitiveType_Cube:
+		PrimitiveFactory::GenerateCube(_layout, _entity, _r, _g, _b, _a);
+		break;
+	case EPrimitiveType_Sphere:
+		PrimitiveFactory::GenerateSphere(_layout, _entity, _r, _g, _b, _a);
+		break;
+	case EPrimitiveType_Pyramid:
+		PrimitiveFactory::GeneratePyramd(_layout, _entity, _r, _g, _b, _a);
+		break;
+	}
+}
+
 void RenderManager::LoadColoredTriangle(ObjectHandler& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Triangle, _entity, _r, _g, _b, _a);
 
     Material* material = ionMaterialManger().CreateMaterial("ION#Triangle", 0u);
-    _entity->GetMesh(0)->SetMaterial(material);
+    _entity()->GetMesh(0)->SetMaterial(material);
 
     LoadCommonMaterialForIntegratedPrimitive(_entity, material);
 
@@ -155,7 +159,7 @@ void RenderManager::LoadColoredQuad(ObjectHandler& _entity, ionFloat _r /*= 1.0f
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Quad, _entity, _r, _g, _b, _a);
 
     Material* material = ionMaterialManger().CreateMaterial("ION#Quad", 0u);
-    _entity->GetMesh(0)->SetMaterial(material);
+    _entity()->GetMesh(0)->SetMaterial(material);
 
     LoadCommonMaterialForIntegratedPrimitive(_entity, material);
 
@@ -168,7 +172,7 @@ void RenderManager::LoadColoredCube(ObjectHandler& _entity, ionFloat _r /*= 1.0f
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Cube, _entity, _r, _g, _b, _a);
 
     Material* material = ionMaterialManger().CreateMaterial("ION#Cube", 0u);
-    _entity->GetMesh(0)->SetMaterial(material);
+    _entity()->GetMesh(0)->SetMaterial(material);
 
     LoadCommonMaterialForIntegratedPrimitive(_entity, material);
 }
@@ -178,7 +182,7 @@ void RenderManager::LoadColoredSphere(ObjectHandler& _entity, ionFloat _r /*= 1.
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Sphere, _entity, _r, _g, _b, _a);
 
     Material* material = ionMaterialManger().CreateMaterial("ION#Sphere", 0u);
-    _entity->GetMesh(0)->SetMaterial(material);
+    _entity()->GetMesh(0)->SetMaterial(material);
 
     LoadCommonMaterialForIntegratedPrimitive(_entity, material);
 }
@@ -188,7 +192,7 @@ void RenderManager::LoadColoredPyramid(ObjectHandler& _entity, ionFloat _r /*= 1
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Pyramid, _entity, _r, _g, _b, _a);
 
     Material* material = ionMaterialManger().CreateMaterial("ION#Pyramid", 0u);
-    _entity->GetMesh(0)->SetMaterial(material);
+    _entity()->GetMesh(0)->SetMaterial(material);
 
     LoadCommonMaterialForIntegratedPrimitive(_entity, material);
 }
@@ -205,22 +209,22 @@ void RenderManager::LoadCommonMaterialForIntegratedPrimitive(ObjectHandler& _ent
     //
     UniformBinding uniformVertex;
     uniformVertex.m_bindingIndex = 0;
-    uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
-    uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
-    uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-    uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
+    uniformVertex.m_parameters->push_back(ION_MODEL_MATRIX_PARAM);
+    uniformVertex.m_type->push_back(EBufferParameterType_Matrix);
+    uniformVertex.m_parameters->push_back(ION_VIEW_MATRIX_PARAM);
+    uniformVertex.m_type->push_back(EBufferParameterType_Matrix);
+    uniformVertex.m_parameters->push_back(ION_PROJ_MATRIX_PARAM);
+    uniformVertex.m_type->push_back(EBufferParameterType_Matrix);
 
     //
     UniformBinding uniformFragment;
     uniformFragment.m_bindingIndex = 1;
-    uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EBufferParameterType_Vector);
-    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EBufferParameterType_Vector);
-    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-    uniformFragment.m_type.push_back(EBufferParameterType_Vector);
+    uniformFragment.m_parameters->push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
+    uniformFragment.m_type->push_back(EBufferParameterType_Vector);
+    uniformFragment.m_parameters->push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
+    uniformFragment.m_type->push_back(EBufferParameterType_Vector);
+    uniformFragment.m_parameters->push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
+    uniformFragment.m_type->push_back(EBufferParameterType_Vector);
 
     //
     SamplerBinding albedoMap;
@@ -234,28 +238,28 @@ void RenderManager::LoadCommonMaterialForIntegratedPrimitive(ObjectHandler& _ent
 
     // set the shaders layout
     ShaderLayoutDef vertexLayout;
-    vertexLayout.m_uniforms.push_back(uniformVertex);
+    vertexLayout.m_uniforms->push_back(uniformVertex);
 
     ShaderLayoutDef fragmentLayout;
-    fragmentLayout.m_uniforms.push_back(uniformFragment);
-    fragmentLayout.m_samplers.push_back(albedoMap);
-    fragmentLayout.m_samplers.push_back(normalMap);
+    fragmentLayout.m_uniforms->push_back(uniformFragment);
+    fragmentLayout.m_samplers->push_back(albedoMap);
+    fragmentLayout.m_samplers->push_back(normalMap);
 
     //
     ConstantsBindingDef constants;
     constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-    constants.m_values.push_back(_material->GetBasePBR().GetColor()[0]);
-    constants.m_values.push_back(_material->GetBasePBR().GetColor()[1]);
-    constants.m_values.push_back(_material->GetBasePBR().GetColor()[2]);
-    constants.m_values.push_back(_material->GetBasePBR().GetColor()[3]);
-    constants.m_values.push_back(0.0f);
-    constants.m_values.push_back(0.0f);
-    constants.m_values.push_back(_material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
-    constants.m_values.push_back(_material->GetAdvancePBR().GetAlphaCutoff());
+    constants.m_values->push_back(_material->GetBasePBR().GetColor()[0]);
+    constants.m_values->push_back(_material->GetBasePBR().GetColor()[1]);
+    constants.m_values->push_back(_material->GetBasePBR().GetColor()[2]);
+    constants.m_values->push_back(_material->GetBasePBR().GetColor()[3]);
+    constants.m_values->push_back(0.0f);
+    constants.m_values->push_back(0.0f);
+    constants.m_values->push_back(_material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
+    constants.m_values->push_back(_material->GetAdvancePBR().GetAlphaCutoff());
 
     _material->SetVertexShaderLayout(vertexLayout);
     _material->SetFragmentShaderLayout(fragmentLayout);
-    _material->SetVertexLayout(_entity->GetMeshRenderer()->GetLayout());
+    _material->SetVertexLayout(_entity()->GetMeshRenderer()->GetLayout());
     _material->SetConstantsShaders(constants);
 
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_PBR_SHADER_NAME, EShaderStage_Vertex);
@@ -275,9 +279,9 @@ void RenderManager::AddToSceneGraph(ObjectHandler _node)
 {
     // A camera has the render pass and the frames buffer
     // So create them!
-    if (_node->GetNodeType() == ENodeType_Camera)
+    if (_node()->GetNodeType() == ENodeType_Camera)
     {
-        Camera* camera = dynamic_cast<Camera*>(_node.GetPtr());
+        Camera* camera = dynamic_cast<Camera*>(_node());
         camera->CreateRenderPassAndFrameBuffers(m_renderCore);
     }
 
@@ -288,9 +292,9 @@ void RenderManager::RemoveFromSceneGraph(ObjectHandler _node)
 {
     // A camera has the render pass and the frames buffer
     // So destroy them!
-    if (_node->GetNodeType() == ENodeType_Camera)
+    if (_node()->GetNodeType() == ENodeType_Camera)
     {
-        Camera* camera = dynamic_cast<Camera*>(_node.GetPtr());
+        Camera* camera = dynamic_cast<Camera*>(_node());
         camera->DestroyRenderPassAndFrameBuffers(m_renderCore);
     }
 
@@ -442,14 +446,14 @@ const Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
 {
     Texture* brdflut = ionTextureManger().GenerateTexture(ION_BRDFLUT_TEXTURENAME, 512, 512, ETextureFormat_BRDF, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp);
 
-    Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
+    Camera* cameraPtr = dynamic_cast<Camera*>(_camera());
 
     cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(brdflut->GetWidth()) / static_cast<ionFloat>(brdflut->GetHeight()), 0.1f, 100.0f);
 
-    Entity* brdflutEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
-    ObjectHandler brdflutEntityHandle(brdflutEntity);
+	Entity brdflutEntityObj;
+	Entity* brdflutEntity = &brdflutEntityObj;
 
-    GeneratePrimitive(EVertexLayout_Empty, EPrimitiveType_Quad, brdflutEntityHandle);
+    GeneratePrimitive(EVertexLayout_Empty, EPrimitiveType_Quad, brdflutEntity);
 
     Material* material = ionMaterialManger().CreateMaterial(ION_BRDFLUT_TEXTURENAME, 0u);
     brdflutEntity->GetMesh(0)->SetMaterial(material);
@@ -481,8 +485,8 @@ const Texture* RenderManager::GenerateBRDF(ObjectHandler _camera)
 
     if (m_renderCore.BeginCustomCommandBuffer(cmdBuffer))
     {
-        eosVector<VkClearValue> clearValues;
-        clearValues.resize(1);
+        ionVector<VkClearValue> clearValues;
+        clearValues->resize(1);
         clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
 
         cameraPtr->ConputeRenderAreaViewportScissor(0, 0, brdflut->GetWidth(), brdflut->GetHeight());
@@ -520,267 +524,268 @@ const Texture* RenderManager::GetBRDF() const
 
 const Texture* RenderManager::GenerateIrradianceCubemap(ObjectHandler _camera)
 {
-    const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(64))) + 1;
+	const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(64))) + 1;
 
-    Texture* irradiance = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME, 64, 64, ETextureFormat_Irradiance, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp, ETextureType_Cubic, mipMapsLevel);
-    Texture* offscreen = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME_OFFSCREEN, 64, 64, ETextureFormat_Irradiance, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp, ETextureType_2D);
+	Texture* irradiance = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME, 64, 64, ETextureFormat_Irradiance, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp, ETextureType_Cubic, mipMapsLevel);
+	Texture* offscreen = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME_OFFSCREEN, 64, 64, ETextureFormat_Irradiance, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp, ETextureType_2D);
 
-    //
-    // Transition between irradiance and offscreen
-    VkRenderPass renderPass = m_renderCore.CreateTexturedRenderPass(irradiance, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-    VkFramebuffer framebuffer = m_renderCore.CreateTexturedFrameBuffer(renderPass, offscreen);  // frame buffer on the offscreen
+	//
+	// Transition between irradiance and offscreen
+	VkRenderPass renderPass = m_renderCore.CreateTexturedRenderPass(irradiance, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	VkFramebuffer framebuffer = m_renderCore.CreateTexturedFrameBuffer(renderPass, offscreen);  // frame buffer on the offscreen
 
-    VkCommandBuffer layoutCmd = m_renderCore.CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+	VkCommandBuffer layoutCmd = m_renderCore.CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
-    if (m_renderCore.BeginCustomCommandBuffer(layoutCmd))
-    {
-        VkImageMemoryBarrier imageMemoryBarrier{};
-        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        imageMemoryBarrier.image = offscreen->GetImage();
-        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        imageMemoryBarrier.srcAccessMask = 0;
-        imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-        vkCmdPipelineBarrier(layoutCmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+	if (m_renderCore.BeginCustomCommandBuffer(layoutCmd))
+	{
+		VkImageMemoryBarrier imageMemoryBarrier{};
+		imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		imageMemoryBarrier.image = offscreen->GetImage();
+		imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		imageMemoryBarrier.srcAccessMask = 0;
+		imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		vkCmdPipelineBarrier(layoutCmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 
-        m_renderCore.EndCustomCommandBuffer(layoutCmd);
-        m_renderCore.FlushCustomCommandBuffer(layoutCmd);
-    }
+		m_renderCore.EndCustomCommandBuffer(layoutCmd);
+		m_renderCore.FlushCustomCommandBuffer(layoutCmd);
+	}
 
-    //
+	//
     // generation of the entity and camera render
-    Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
+    Camera* cameraPtr = dynamic_cast<Camera*>(_camera->GetPtr());
 
     cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(irradiance->GetWidth()) / static_cast<ionFloat>(irradiance->GetHeight()), 0.1f, 100.0f);
 
-    Entity* irradianceEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
+    Entity* irradianceEntity = ionNew(Entity);
     ObjectHandler irradianceEntityHandle(irradianceEntity);
 
-    irradianceEntityHandle->AttachToParent(_camera);
+	irradianceEntity->AttachToParent(_camera);
 
     // shader has position input
     GeneratePrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, irradianceEntityHandle);
 
-    Material* material = ionMaterialManger().CreateMaterial(ION_IRRADIANCE_TEXTURENAME, 0u);
-    irradianceEntity->GetMesh(0)->SetMaterial(material);
 
-    //
-    UniformBinding uniform;
-    uniform.m_bindingIndex = 0;
-    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-    uniform.m_type.push_back(EBufferParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-    uniform.m_type.push_back(EBufferParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-    uniform.m_type.push_back(EBufferParameterType_Matrix);
+	Material* material = ionMaterialManger().CreateMaterial(ION_IRRADIANCE_TEXTURENAME, 0u);
+	irradianceEntity->GetMesh(0)->SetMaterial(material);
 
-    //
-    SamplerBinding sampler;
-    sampler.m_bindingIndex = 1;
-    sampler.m_texture = cameraPtr->GetSkybox()->GetMaterial()->GetBasePBR().GetBaseColorTexture();
+	//
+	UniformBinding uniform;
+	uniform.m_bindingIndex = 0;
+	uniform.m_parameters->push_back(ION_MODEL_MATRIX_PARAM);
+	uniform.m_type->push_back(EBufferParameterType_Matrix);
+	uniform.m_parameters->push_back(ION_VIEW_MATRIX_PARAM);
+	uniform.m_type->push_back(EBufferParameterType_Matrix);
+	uniform.m_parameters->push_back(ION_PROJ_MATRIX_PARAM);
+	uniform.m_type->push_back(EBufferParameterType_Matrix);
 
-    //
-    ConstantsBindingDef constants;
-    constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-    constants.m_values.push_back((2.0f * kfPI) / 180.0f);
-    constants.m_values.push_back((0.5f * kfPI) / 64.0f);
+	//
+	SamplerBinding sampler;
+	sampler.m_bindingIndex = 1;
+	sampler.m_texture = cameraPtr->GetSkybox()->GetMaterial()->GetBasePBR().GetBaseColorTexture();
 
-
-    ShaderLayoutDef vertexLayout;
-    vertexLayout.m_uniforms.push_back(uniform);
-
-    ShaderLayoutDef fragmentLayout;
-    fragmentLayout.m_samplers.push_back(sampler);
-
-    irradianceEntity->GetMesh(0)->GetMaterial()->SetVertexShaderLayout(vertexLayout);
-    irradianceEntity->GetMesh(0)->GetMaterial()->SetFragmentShaderLayout(fragmentLayout);
-
-    ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_PREFILTERED_VERTEX_SHADER_NAME, EShaderStage_Vertex);
-    ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_FRAGMENT_SHADER_NAME, EShaderStage_Fragment);
-
-    irradianceEntity->GetMesh(0)->GetMaterial()->SetConstantsShaders(constants);
-    irradianceEntity->GetMesh(0)->GetMaterial()->SetVertexLayout(irradianceEntity->GetMeshRenderer()->GetLayout());
-
-    irradianceEntity->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
-
-    irradianceEntity->GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ECullingMode_TwoSide);
-    irradianceEntity->GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(EColorMask_Depth);
-    irradianceEntity->GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(EDepthFunction_Less);
-    irradianceEntity->GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_Always);
-
-    //
-    // render phase
-    VkCommandBuffer cmdBuffer = m_renderCore.CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-
-    ionStagingBufferManager().Submit();
-    ionShaderProgramManager().StartFrame();
-
-    DrawSurface drawSurface;
-    drawSurface.m_indexStart = irradianceEntity->GetMesh(0)->GetIndexStart();
-    drawSurface.m_indexCount = irradianceEntity->GetMesh(0)->GetIndexCount();
-    drawSurface.m_material = irradianceEntity->GetMesh(0)->GetMaterial();
-    drawSurface.m_visible = irradianceEntity->IsVisible();
-    drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(irradianceEntity->GetMeshRenderer()->GetVertexData(), irradianceEntity->GetMeshRenderer()->GetVertexDataCount(), irradianceEntity->GetMeshRenderer()->GetSizeOfVertex());
-    drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(irradianceEntity->GetMeshRenderer()->GetIndexData(), irradianceEntity->GetMeshRenderer()->GetIndexDataCount(), irradianceEntity->GetMeshRenderer()->GetSizeOfIndex());
-
-    if (m_renderCore.BeginCustomCommandBuffer(cmdBuffer))
-    {
-        eosVector<VkClearValue> clearValues;
-        clearValues.resize(1);
-        clearValues[0].color = { { 0.0f, 0.0f, 0.2f, 0.0f } };
-
-        cameraPtr->ConputeRenderAreaViewportScissor(0, 0, irradiance->GetWidth(), irradiance->GetHeight());
-        cameraPtr->SetViewport(m_renderCore, cmdBuffer);
-        cameraPtr->SetScissor(m_renderCore, cmdBuffer);
+	//
+	ConstantsBindingDef constants;
+	constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
+	constants.m_values->push_back((2.0f * kfPI) / 180.0f);
+	constants.m_values->push_back((0.5f * kfPI) / 64.0f);
 
 
-        // Swap
-        VkImageSubresourceRange subresourceRange{};
-        subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        subresourceRange.baseMipLevel = 0;
-        subresourceRange.levelCount = mipMapsLevel;
-        subresourceRange.layerCount = 6;
+	ShaderLayoutDef vertexLayout;
+	vertexLayout.m_uniforms->push_back(uniform);
 
-        {
-            VkImageMemoryBarrier imageMemoryBarrier{};
-            imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            imageMemoryBarrier.image = irradiance->GetImage();
-            imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-            imageMemoryBarrier.srcAccessMask = 0;
-            imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            imageMemoryBarrier.subresourceRange = subresourceRange;
-            vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-        }
+	ShaderLayoutDef fragmentLayout;
+	fragmentLayout.m_samplers->push_back(sampler);
 
-        eosVector<Quaternion> rotations;
-        rotations.push_back(Quaternion(0.0f, 0.0f, 0.0f));
-        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(90.0f), 0.0f));
-        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(180.0f), 0.0f));
-        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(270.0f), 0.0f));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), 0.0f, 0.0f));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(270.0f), 0.0f, 0.0f));
+	irradianceEntity->GetMesh(0)->GetMaterial()->SetVertexShaderLayout(vertexLayout);
+	irradianceEntity->GetMesh(0)->GetMaterial()->SetFragmentShaderLayout(fragmentLayout);
 
-        for (ionU32 m = 0; m < mipMapsLevel; ++m)
-        {
-            for (ionU32 f = 0; f < 6; ++f)
-            {
-                cameraPtr->ConputeRenderAreaViewportScissor(0, 0, static_cast<ionS32>(irradiance->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(irradiance->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
-                cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues);
- 
-                cameraPtr->SetViewport(m_renderCore, cmdBuffer);
-                cameraPtr->SetScissor(m_renderCore, cmdBuffer);
+	ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_PREFILTERED_VERTEX_SHADER_NAME, EShaderStage_Vertex);
+	ionS32 fragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_IRRADIANCE_FRAGMENT_SHADER_NAME, EShaderStage_Fragment);
 
-                cameraPtr->GetTransform().SetRotation(rotations[f]);
-                cameraPtr->Update(0.0f);
-                cameraPtr->UpdateView();
+	irradianceEntity->GetMesh(0)->GetMaterial()->SetConstantsShaders(constants);
+	irradianceEntity->GetMesh(0)->GetMaterial()->SetVertexLayout(irradianceEntity->GetMeshRenderer()->GetLayout());
 
-                // draw irradiance
-                {
-                    drawSurface.m_projectionMatrix = cameraPtr->GetPerspectiveProjection();
-                    drawSurface.m_viewMatrix = cameraPtr->GetView();
-                    drawSurface.m_modelMatrix = irradianceEntity->GetTransform().GetMatrixWS();
+	irradianceEntity->GetMesh(0)->GetMaterial()->SetShaders(vertexShaderIndex, fragmentShaderIndex);
 
-                    m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
-                    m_renderCore.Draw(cmdBuffer, renderPass, drawSurface);
-                }
+	irradianceEntity->GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ECullingMode_TwoSide);
+	irradianceEntity->GetMesh(0)->GetMaterial()->GetState().SetColorMaskMode(EColorMask_Depth);
+	irradianceEntity->GetMesh(0)->GetMaterial()->GetState().SetDepthFunctionMode(EDepthFunction_Less);
+	irradianceEntity->GetMesh(0)->GetMaterial()->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_Always);
 
-                cameraPtr->CustomRenderSkybox(m_renderCore, cmdBuffer, renderPass);
+	//
+	// render phase
+	VkCommandBuffer cmdBuffer = m_renderCore.CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
-                cameraPtr->EndRenderPass(m_renderCore, cmdBuffer);
+	ionStagingBufferManager().Submit();
+	ionShaderProgramManager().StartFrame();
+
+	DrawSurface drawSurface;
+	drawSurface.m_indexStart = irradianceEntity->GetMesh(0)->GetIndexStart();
+	drawSurface.m_indexCount = irradianceEntity->GetMesh(0)->GetIndexCount();
+	drawSurface.m_material = irradianceEntity->GetMesh(0)->GetMaterial();
+	drawSurface.m_visible = irradianceEntity->IsVisible();
+	drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(irradianceEntity->GetMeshRenderer()->GetVertexData(), irradianceEntity->GetMeshRenderer()->GetVertexDataCount(), irradianceEntity->GetMeshRenderer()->GetSizeOfVertex());
+	drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(irradianceEntity->GetMeshRenderer()->GetIndexData(), irradianceEntity->GetMeshRenderer()->GetIndexDataCount(), irradianceEntity->GetMeshRenderer()->GetSizeOfIndex());
+
+	if (m_renderCore.BeginCustomCommandBuffer(cmdBuffer))
+	{
+		ionVector<VkClearValue> clearValues;
+		clearValues->resize(1);
+		clearValues[0].color = { { 0.0f, 0.0f, 0.2f, 0.0f } };
+
+		cameraPtr->ConputeRenderAreaViewportScissor(0, 0, irradiance->GetWidth(), irradiance->GetHeight());
+		cameraPtr->SetViewport(m_renderCore, cmdBuffer);
+		cameraPtr->SetScissor(m_renderCore, cmdBuffer);
 
 
+		// Swap
+		VkImageSubresourceRange subresourceRange{};
+		subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		subresourceRange.baseMipLevel = 0;
+		subresourceRange.levelCount = mipMapsLevel;
+		subresourceRange.layerCount = 6;
 
-                VkImageSubresourceRange subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-                subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                subresourceRange.baseMipLevel = 0;
-                subresourceRange.levelCount = mipMapsLevel;
-                subresourceRange.layerCount = 6;
+		{
+			VkImageMemoryBarrier imageMemoryBarrier{};
+			imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			imageMemoryBarrier.image = irradiance->GetImage();
+			imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			imageMemoryBarrier.srcAccessMask = 0;
+			imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			imageMemoryBarrier.subresourceRange = subresourceRange;
+			vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+		}
 
-                {
-                    VkImageMemoryBarrier imageMemoryBarrier{};
-                    imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-                    imageMemoryBarrier.image = offscreen->GetImage();
-                    imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-                    imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                    imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-                    imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-                    imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-                    vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-                }
+		ionVector<Quaternion> rotations;
+		rotations->push_back(Quaternion(0.0f, 0.0f, 0.0f));
+		rotations->push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(90.0f), 0.0f));
+		rotations->push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(180.0f), 0.0f));
+		rotations->push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(270.0f), 0.0f));
+		rotations->push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), 0.0f, 0.0f));
+		rotations->push_back(Quaternion(NIX_DEG_TO_RAD(270.0f), 0.0f, 0.0f));
 
-                // Copy region for transfer from framebuffer to cube face
-                VkImageCopy copyRegion{};
+		for (ionU32 m = 0; m < mipMapsLevel; ++m)
+		{
+			for (ionU32 f = 0; f < 6; ++f)
+			{
+				cameraPtr->ConputeRenderAreaViewportScissor(0, 0, static_cast<ionS32>(irradiance->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(irradiance->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
+				cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues);
 
-                copyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                copyRegion.srcSubresource.baseArrayLayer = 0;
-                copyRegion.srcSubresource.mipLevel = 0;
-                copyRegion.srcSubresource.layerCount = 1;
-                copyRegion.srcOffset = { 0, 0, 0 };
+				cameraPtr->SetViewport(m_renderCore, cmdBuffer);
+				cameraPtr->SetScissor(m_renderCore, cmdBuffer);
 
-                copyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                copyRegion.dstSubresource.baseArrayLayer = f;
-                copyRegion.dstSubresource.mipLevel = m;
-                copyRegion.dstSubresource.layerCount = 1;
-                copyRegion.dstOffset = { 0, 0, 0 };
+				cameraPtr->GetTransform().SetRotation(rotations[f]);
+				cameraPtr->Update(0.0f);
+				cameraPtr->UpdateView();
 
-                copyRegion.extent.width = static_cast<ionU32>(irradiance->GetWidth()* std::powf(0.5f, static_cast<ionFloat>(m)));
-                copyRegion.extent.height = static_cast<ionU32>(irradiance->GetHeight()* std::powf(0.5f, static_cast<ionFloat>(m)));
-                copyRegion.extent.depth = 1;
+				// draw irradiance
+				{
+					drawSurface.m_projectionMatrix = cameraPtr->GetPerspectiveProjection();
+					drawSurface.m_viewMatrix = cameraPtr->GetView();
+					drawSurface.m_modelMatrix = irradianceEntity->GetTransform().GetMatrixWS();
 
-                vkCmdCopyImage(
-                    cmdBuffer,
-                    offscreen->GetImage(),
-                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    irradiance->GetImage(),
-                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    1,
-                    &copyRegion);
+					m_renderCore.SetState(drawSurface.m_material->GetState().GetStateBits());
+					m_renderCore.Draw(cmdBuffer, renderPass, drawSurface);
+				}
 
-                {
-                    VkImageMemoryBarrier imageMemoryBarrier{};
-                    imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-                    imageMemoryBarrier.image = offscreen->GetImage();
-                    imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                    imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-                    imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-                    imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-                    imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-                    vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-                }
-            }
-        }
+				cameraPtr->CustomRenderSkybox(m_renderCore, cmdBuffer, renderPass);
+
+				cameraPtr->EndRenderPass(m_renderCore, cmdBuffer);
 
 
-        // Swap back
-        {
-            VkImageMemoryBarrier imageMemoryBarrier{};
-            imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            imageMemoryBarrier.image = irradiance->GetImage();
-            imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-            imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            imageMemoryBarrier.dstAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-            imageMemoryBarrier.subresourceRange = subresourceRange;
-            vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-        }
+
+				VkImageSubresourceRange subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+				subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				subresourceRange.baseMipLevel = 0;
+				subresourceRange.levelCount = mipMapsLevel;
+				subresourceRange.layerCount = 6;
+
+				{
+					VkImageMemoryBarrier imageMemoryBarrier{};
+					imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+					imageMemoryBarrier.image = offscreen->GetImage();
+					imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+					imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+					imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+					imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+					imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+					vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+				}
+
+				// Copy region for transfer from framebuffer to cube face
+				VkImageCopy copyRegion{};
+
+				copyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				copyRegion.srcSubresource.baseArrayLayer = 0;
+				copyRegion.srcSubresource.mipLevel = 0;
+				copyRegion.srcSubresource.layerCount = 1;
+				copyRegion.srcOffset = { 0, 0, 0 };
+
+				copyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				copyRegion.dstSubresource.baseArrayLayer = f;
+				copyRegion.dstSubresource.mipLevel = m;
+				copyRegion.dstSubresource.layerCount = 1;
+				copyRegion.dstOffset = { 0, 0, 0 };
+
+				copyRegion.extent.width = static_cast<ionU32>(irradiance->GetWidth()* std::powf(0.5f, static_cast<ionFloat>(m)));
+				copyRegion.extent.height = static_cast<ionU32>(irradiance->GetHeight()* std::powf(0.5f, static_cast<ionFloat>(m)));
+				copyRegion.extent.depth = 1;
+
+				vkCmdCopyImage(
+					cmdBuffer,
+					offscreen->GetImage(),
+					VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+					irradiance->GetImage(),
+					VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+					1,
+					&copyRegion);
+
+				{
+					VkImageMemoryBarrier imageMemoryBarrier{};
+					imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+					imageMemoryBarrier.image = offscreen->GetImage();
+					imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+					imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+					imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+					imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+					imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+					vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+				}
+			}
+		}
 
 
-        m_renderCore.EndCustomCommandBuffer(cmdBuffer);
-        m_renderCore.FlushCustomCommandBuffer(cmdBuffer);
-    }
+		// Swap back
+		{
+			VkImageMemoryBarrier imageMemoryBarrier{};
+			imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			imageMemoryBarrier.image = irradiance->GetImage();
+			imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			imageMemoryBarrier.dstAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+			imageMemoryBarrier.subresourceRange = subresourceRange;
+			vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+		}
 
-    m_renderCore.DestroyRenderPass(renderPass);
-    m_renderCore.DestroyFrameBuffer(framebuffer);
 
-    ionTextureManger().DestroyTexture(ION_IRRADIANCE_TEXTURENAME_OFFSCREEN);
+		m_renderCore.EndCustomCommandBuffer(cmdBuffer);
+		m_renderCore.FlushCustomCommandBuffer(cmdBuffer);
+	}
 
-    irradianceEntityHandle->DetachFromParent();
+	m_renderCore.DestroyRenderPass(renderPass);
+	m_renderCore.DestroyFrameBuffer(framebuffer);
 
-    ionShaderProgramManager().Restart();
+	ionTextureManger().DestroyTexture(ION_IRRADIANCE_TEXTURENAME_OFFSCREEN);
 
-    return irradiance;
+	irradianceEntity->DetachFromParent();
+
+	ionShaderProgramManager().Restart();
+
+	return irradiance;
 }
 
 const Texture* RenderManager::GetIrradianceCubemap() const
@@ -818,19 +823,19 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
         m_renderCore.FlushCustomCommandBuffer(layoutCmd);
     }
 
-    //
-    // generation of the entity and camera render
-    Camera* cameraPtr = dynamic_cast<Camera*>(_camera.GetPtr());
+	//
+	// generation of the entity and camera render
+	Camera* cameraPtr = dynamic_cast<Camera*>(_camera->GetPtr());
 
-    cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(prefilteredEnvironment->GetWidth()) / static_cast<ionFloat>(prefilteredEnvironment->GetHeight()), 0.1f, 100.0f);
+	cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(prefilteredEnvironment->GetWidth()) / static_cast<ionFloat>(prefilteredEnvironment->GetHeight()), 0.1f, 100.0f);
 
-    Entity* prefilteredEntity = eosNew(Entity, ION_MEMORY_ALIGNMENT_SIZE);
-    ObjectHandler prefilteredEntityHandle(prefilteredEntity);
+	Entity* prefilteredEntity = ionNew(Entity);
+	ObjectHandler irradianceEntityHandle(prefilteredEntity);
 
-    prefilteredEntityHandle->AttachToParent(_camera);
+	prefilteredEntity->AttachToParent(_camera);
 
-    // shader has position input
-    GeneratePrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, prefilteredEntityHandle);
+	// shader has position input
+	GeneratePrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, prefilteredEntity);
 
     Material* material = ionMaterialManger().CreateMaterial(ION_IRRADIANCE_TEXTURENAME, 0u);
     prefilteredEntity->GetMesh(0)->SetMaterial(material);
@@ -838,18 +843,18 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
     //
     UniformBinding uniform;
     uniform.m_bindingIndex = 0;
-    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-    uniform.m_type.push_back(EBufferParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-    uniform.m_type.push_back(EBufferParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-    uniform.m_type.push_back(EBufferParameterType_Matrix);
+    uniform.m_parameters->push_back(ION_MODEL_MATRIX_PARAM);
+    uniform.m_type->push_back(EBufferParameterType_Matrix);
+    uniform.m_parameters->push_back(ION_VIEW_MATRIX_PARAM);
+    uniform.m_type->push_back(EBufferParameterType_Matrix);
+    uniform.m_parameters->push_back(ION_PROJ_MATRIX_PARAM);
+    uniform.m_type->push_back(EBufferParameterType_Matrix);
 
     //
     UniformBinding uniformFragment;
     uniformFragment.m_bindingIndex = 1;
-    uniformFragment.m_parameters.push_back("roughness");
-    uniformFragment.m_type.push_back(EBufferParameterType_Float);
+    uniformFragment.m_parameters->push_back("roughness");
+    uniformFragment.m_type->push_back(EBufferParameterType_Float);
    
     SamplerBinding sampler;
     sampler.m_bindingIndex = 2;
@@ -858,15 +863,15 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
     //
     ConstantsBindingDef constants;
     constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-    constants.m_values.push_back(m_prefilteredCubeMipLevels);
+    constants.m_values->push_back(m_prefilteredCubeMipLevels);
 
 
     ShaderLayoutDef vertexLayout;
-    vertexLayout.m_uniforms.push_back(uniform);
+    vertexLayout.m_uniforms->push_back(uniform);
 
     ShaderLayoutDef fragmentLayout;
-    fragmentLayout.m_uniforms.push_back(uniformFragment);
-    fragmentLayout.m_samplers.push_back(sampler);
+    fragmentLayout.m_uniforms->push_back(uniformFragment);
+    fragmentLayout.m_samplers->push_back(sampler);
 
     prefilteredEntity->GetMesh(0)->GetMaterial()->SetVertexShaderLayout(vertexLayout);
     prefilteredEntity->GetMesh(0)->GetMaterial()->SetFragmentShaderLayout(fragmentLayout);
@@ -902,8 +907,8 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
 
     if (m_renderCore.BeginCustomCommandBuffer(cmdBuffer))
     {
-        eosVector<VkClearValue> clearValues;
-        clearValues.resize(1);
+        ionVector<VkClearValue> clearValues;
+        clearValues->resize(1);
         clearValues[0].color = { { 0.0f, 0.0f, 0.2f, 0.0f } };
 
         cameraPtr->ConputeRenderAreaViewportScissor(0, 0, prefilteredEnvironment->GetWidth(), prefilteredEnvironment->GetHeight());
@@ -930,13 +935,13 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
             vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
         }
 
-        eosVector<Quaternion> rotations;
-        rotations.push_back(Quaternion(0.0f, 0.0f, 0.0f));
-        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(90.0f), 0.0f));
-        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(180.0f), 0.0f));
-        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(270.0f), 0.0f));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), 0.0f, 0.0f));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(270.0f), 0.0f, 0.0f));
+        ionVector<Quaternion> rotations;
+        rotations->push_back(Quaternion(0.0f, 0.0f, 0.0f));
+        rotations->push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(90.0f), 0.0f));
+        rotations->push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(180.0f), 0.0f));
+        rotations->push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(270.0f), 0.0f));
+        rotations->push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), 0.0f, 0.0f));
+        rotations->push_back(Quaternion(NIX_DEG_TO_RAD(270.0f), 0.0f, 0.0f));
 
         for (ionU32 m = 0; m < mipMapsLevel; ++m)
         {
@@ -1055,7 +1060,7 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(ObjectHandle
 
     ionTextureManger().DestroyTexture(ION_PREFILTEREDENVIRONMENT_TEXTURENAME_OFFSCREEN);
 
-    prefilteredEntityHandle->DetachFromParent();
+    prefilteredEntity->DetachFromParent();
 
     ionShaderProgramManager().Restart();
 
@@ -1092,7 +1097,7 @@ DirectionalLight* RenderManager::GetDirectionalLight()
     return m_sceneGraph.GetDirectionalLightPtr();
 }
 
-ObjectHandler RenderManager::GetObjectByName(const eosString& _name)
+ObjectHandler RenderManager::GetObjectByName(const ionString& _name)
 {
     return m_sceneGraph.GetObjectByName(_name);
 }

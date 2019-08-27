@@ -15,8 +15,8 @@ ION_NAMESPACE_BEGIN
 class ION_DLL DirectionalLight : public Node
 {
 public:
-    explicit DirectionalLight();
-    explicit DirectionalLight(const eosString & _name);
+    DirectionalLight();
+    explicit DirectionalLight(const ionString & _name);
     virtual ~DirectionalLight();
 
     void SetColor(const Vector& _color) { m_color = _color; }

@@ -9,8 +9,6 @@ EOS_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 
-TextureManager *TextureManager::s_instance = nullptr;
-
 TextureManager::TextureManager()
 {
 }
@@ -19,26 +17,10 @@ TextureManager::~TextureManager()
 {
 }
 
-void TextureManager::Create()
-{
-    if (!s_instance)
-    {
-        s_instance = eosNew(TextureManager, ION_MEMORY_ALIGNMENT_SIZE);
-    }
-}
-
-void TextureManager::Destroy()
-{
-    if (s_instance)
-    {
-        eosDelete(s_instance);
-        s_instance = nullptr;
-    }
-}
-
 TextureManager& TextureManager::Instance()
 {
-    return *s_instance;
+    static TextureManager instance;
+    return instance;
 }
 
 void TextureManager::Init(VkDevice _vkDevice, ETextureSamplesPerBit _textureSample)
@@ -49,15 +31,15 @@ void TextureManager::Init(VkDevice _vkDevice, ETextureSamplesPerBit _textureSamp
 
 void TextureManager::Shutdown()
 {
-    auto begin = m_hashTexture.begin(), end = m_hashTexture.end();
-    std::map<ionSize, Texture*, StlAllocator<ionSize, HeapAllocPolicy<ionSize> > >::iterator it = begin;
+    auto begin = m_hashTexture->begin(), end = m_hashTexture->end();
+    std::map<ionSize, Texture*>::iterator it = begin;
     for (; it != end; ++it)
     {
         DestroyTexture(it->second);
-        eosDelete(it->second);
+        ionDelete(it->second);
     }
 
-    m_hashTexture.clear();
+    m_hashTexture->clear();
 }
 
 VkSamplerAddressMode TextureManager::ConvertAddressMode(ETextureRepeat _repeat)
@@ -76,7 +58,7 @@ VkSamplerAddressMode TextureManager::ConvertAddressMode(ETextureRepeat _repeat)
     }
 }
 
-Texture* TextureManager::CreateTextureFromFile(const eosString& _name, const eosString& _path, ETextureFilterMin _filterMin /*= ETextureFilterMin_Linear_MipMap_Linear*/, ETextureFilterMag _filterMag /*= ETextureFilterMag_Linear*/, ETextureRepeat _repeat /*= ETextureRepeat_Repeat*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/, ETextureRepeat _customRepeatU /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatV /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatW /*= ETextureRepeat_Repeat*/)
+Texture* TextureManager::CreateTextureFromFile(const ionString& _name, const ionString& _path, ETextureFilterMin _filterMin /*= ETextureFilterMin_Linear_MipMap_Linear*/, ETextureFilterMag _filterMag /*= ETextureFilterMag_Linear*/, ETextureRepeat _repeat /*= ETextureRepeat_Repeat*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/, ETextureRepeat _customRepeatU /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatV /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatW /*= ETextureRepeat_Repeat*/)
 {
     if (_name.empty() || _path.empty())
     {
@@ -113,7 +95,7 @@ Texture* TextureManager::CreateTextureFromFile(const eosString& _name, const eos
     }
 }
 
-Texture* TextureManager::CreateTextureFromBuffer(const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilterMin _filterMin /*= ETextureFilterMin_Linear_MipMap_Linear*/, ETextureFilterMag _filterMag /*= ETextureFilterMag_Linear*/, ETextureRepeat _repeat /*= ETextureRepeat_Repeat*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/, ETextureRepeat _customRepeatU /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatV /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatW /*= ETextureRepeat_Repeat*/)
+Texture* TextureManager::CreateTextureFromBuffer(const ionString& _name, ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilterMin _filterMin /*= ETextureFilterMin_Linear_MipMap_Linear*/, ETextureFilterMag _filterMag /*= ETextureFilterMag_Linear*/, ETextureRepeat _repeat /*= ETextureRepeat_Repeat*/, ETextureUsage _usage /*= ETextureUsage_RGBA*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _maxAnisotrpy /*= 1*/, ETextureRepeat _customRepeatU /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatV /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatW /*= ETextureRepeat_Repeat*/)
 {
     if (_name.empty())
     {
@@ -150,7 +132,7 @@ Texture* TextureManager::CreateTextureFromBuffer(const eosString& _name, ionU32 
     }
 }
 
-Texture* TextureManager::GenerateTexture(const eosString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureFilterMin _filterMin /*= ETextureFilterMin_Linear_MipMap_Linear*/, ETextureFilterMag _filterMag /*= ETextureFilterMag_Linear*/, ETextureRepeat _repeat/*= ETextureRepeat_Repeat*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _numLevel /*= 1*/, ionU32 _maxAnisotrpy /*= 1*/, ETextureRepeat _customRepeatU /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatV /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatW /*= ETextureRepeat_Repeat*/)
+Texture* TextureManager::GenerateTexture(const ionString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureFilterMin _filterMin /*= ETextureFilterMin_Linear_MipMap_Linear*/, ETextureFilterMag _filterMag /*= ETextureFilterMag_Linear*/, ETextureRepeat _repeat/*= ETextureRepeat_Repeat*/, ETextureType _type /*= ETextureType_2D*/, ionU32 _numLevel /*= 1*/, ionU32 _maxAnisotrpy /*= 1*/, ETextureRepeat _customRepeatU /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatV /*= ETextureRepeat_Repeat*/, ETextureRepeat _customRepeatW /*= ETextureRepeat_Repeat*/)
 {
     if (_name.empty())
     {
@@ -183,17 +165,17 @@ Texture* TextureManager::GenerateTexture(const eosString& _name, ionU32 _width, 
     }
 }
 
-Texture* TextureManager::GetTexture(const eosString& _name) const
+Texture* TextureManager::GetTexture(const ionString& _name) const
 {
     if (_name.empty())
     {
         return nullptr;
     }
     
-    ionSize hash = std::hash<eosString>{}(_name);   // from the original with extension
+    ionSize hash = std::hash<ionString>{}(_name);   // from the original with extension
 
-    auto search = m_hashTexture.find(hash);
-    if (search != m_hashTexture.end())
+    auto search = m_hashTexture->find(hash);
+    if (search != m_hashTexture->end())
     {
         return search->second;
     }
@@ -203,7 +185,7 @@ Texture* TextureManager::GetTexture(const eosString& _name) const
     }
 }
 
-ionBool TextureManager::SaveTexture(const eosString& _path, const Texture* _texture) const
+ionBool TextureManager::SaveTexture(const ionString& _path, const Texture* _texture) const
 {
     if (_path.empty() || _texture == nullptr)
     {
@@ -213,26 +195,26 @@ ionBool TextureManager::SaveTexture(const eosString& _path, const Texture* _text
     return _texture->Save(_path);
 }
 
-void TextureManager::DestroyTexture(const eosString& _name)
+void TextureManager::DestroyTexture(const ionString& _name)
 {
-    ionSize hash = std::hash<eosString>{}(_name);
+    ionSize hash = std::hash<ionString>{}(_name);
     DestroyTexture(hash);
 }
 
-Texture* TextureManager::CreateTexture(VkDevice _vkDevice, const eosString& _name)
+Texture* TextureManager::CreateTexture(VkDevice _vkDevice, const ionString& _name)
 {
     if (_name.empty())
     {
         return nullptr;
     }
 
-    ionSize hash = std::hash<eosString>{}(_name);
+    ionSize hash = std::hash<ionString>{}(_name);
 
     // just to inform the user
-    auto search = m_hashTexture.find(hash);
-    ionAssert(!(search != m_hashTexture.end()), "An image with the same name has already added!");
+    auto search = m_hashTexture->find(hash);
+    ionAssert(!(search != m_hashTexture->end()), "An image with the same name has already added!");
 
-    Texture* texture = eosNew(Texture, ION_MEMORY_ALIGNMENT_SIZE, _vkDevice, _name);
+    Texture* texture = ionNew(Texture, _vkDevice, _name);
 
     m_hashTexture[hash] = texture;
 
@@ -241,12 +223,12 @@ Texture* TextureManager::CreateTexture(VkDevice _vkDevice, const eosString& _nam
 
 void TextureManager::DestroyTexture(ionSize _hash)
 {
-    auto search = m_hashTexture.find(_hash);
-    if (search != m_hashTexture.end())
+    auto search = m_hashTexture->find(_hash);
+    if (search != m_hashTexture->end())
     {
         DestroyTexture(search->second);
-        eosDelete(search->second);
-        m_hashTexture.erase(_hash);
+        ionDelete(search->second);
+        m_hashTexture->erase(_hash);
     }
 }
 

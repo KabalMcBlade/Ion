@@ -91,7 +91,7 @@ namespace Tools
 #define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
 #define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
 
-    void GetPhysicalAddress(eosString& _outAddress, ionU64& _outAddressNum)
+    void GetPhysicalAddress(ionString& _outAddress, ionU64& _outAddressNum)
     {
         DWORD dwRetVal = 0;
 

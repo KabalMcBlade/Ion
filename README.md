@@ -4,6 +4,16 @@
 - Using an newest version of the SDK may not work!
 ```
 
+```diff
+- IMPORTANT
+- This project is not maintained  anymore!
+```
+
+```diff
+- IMPORTANT ABOUT EOS MEMORY ALLOCATOR USED
+- Eos (https://github.com/KabalMcBlade/Eos) has been completely rewritten in order to speed up the performance.
+- The problem is I wouldn't maintain this project anymore, so I have rewritten the minimal requirement in order to let it run, but with memory leaks.
+```
 
 # Ion
 

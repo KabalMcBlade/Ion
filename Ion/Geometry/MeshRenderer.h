@@ -43,11 +43,11 @@ public:
     const void* GetMorphTargetData() const;
     ionSize GetSizeOfMorphTarget() const;
 
-    ionBool IsUsingMorphTarget() const { return m_morphTargets.size() > 0; }
+    ionBool IsUsingMorphTarget() const { return m_morphTargets->size() > 0; }
 
 protected:
-    eosVector<Index>                m_indices;
-    eosVector<VertexMorphTarget>    m_morphTargets;
+    ionVector<Index>                m_indices;
+    ionVector<VertexMorphTarget>    m_morphTargets;
 };
 
 
@@ -67,7 +67,7 @@ public:
     virtual ionSize GetSizeOfVertex() const override final;
 
 private:
-    eosVector<VertexPlain>   m_vertices;
+    ionVector<VertexPlain>   m_vertices;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ public:
     virtual ionSize GetSizeOfVertex() const override final;
 
 private:
-    eosVector<VertexColored>   m_vertices;
+    ionVector<VertexColored>   m_vertices;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ public:
     virtual ionSize GetSizeOfVertex() const override final;
 
 private:
-    eosVector<VertexUV>   m_vertices;
+    ionVector<VertexUV>   m_vertices;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -124,7 +124,7 @@ public:
     virtual ionSize GetSizeOfVertex() const override final;
 
 private:
-    eosVector<VertexNormal>   m_vertices;
+    ionVector<VertexNormal>   m_vertices;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -143,7 +143,7 @@ public:
     virtual ionSize GetSizeOfVertex() const override final;
 
 private:
-    eosVector<VertexSimple>   m_vertices;
+    ionVector<VertexSimple>   m_vertices;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -166,7 +166,7 @@ public:
     const Vertex& GetVertex(ionSize _index) const;
 
 private:
-    eosVector<Vertex>   m_vertices;
+    ionVector<Vertex>   m_vertices;
 };
 
 

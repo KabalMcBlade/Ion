@@ -7,6 +7,7 @@
 #include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
 #include "../Core/CoreDefs.h"
+#include "../Core/MemoryWrapper.h"
 
 VK_ALLOCATOR_USING_NAMESPACE
 
@@ -15,10 +16,7 @@ ION_NAMESPACE_BEGIN
 class GPUMemoryManager final
 {
 public:
-    ION_NO_INLINE static void Create();
-    ION_NO_INLINE static void Destroy();
-
-    ION_NO_INLINE static GPUMemoryManager& Instance();
+    static GPUMemoryManager& Instance();
 
     ION_INLINE vkGpuMemoryAllocator& GetAllocator() { return m_gpuAllocator; }
     ION_INLINE const vkGpuMemoryAllocator& GetAllocator() const { return m_gpuAllocator; }
@@ -32,8 +30,6 @@ private:
 
 private:
     vkGpuMemoryAllocator m_gpuAllocator;
-
-    static GPUMemoryManager *s_instance;
 };
 
 ION_NAMESPACE_END

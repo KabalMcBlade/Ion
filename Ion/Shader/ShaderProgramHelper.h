@@ -22,11 +22,11 @@ struct ConstantsBindingDef;
 struct SpecializationConstants;
 class Material;
 class RenderCore;
-class ShaderProgramHelper
+class ION_DLL ShaderProgramHelper
 {
 public:
-    ION_NO_INLINE static void Create();
-    ION_NO_INLINE static void Destroy();
+    static void Create();
+    static void Destroy();
 
     static void CreateVertexDescriptor();
     static void CreateDescriptorPools(const VkDevice& _device, VkDescriptorPool& _pool);
@@ -39,7 +39,7 @@ private:
     static VkStencilOpState GetStencilOpState(ionU64 _stencilStateBits);
 
 private:
-    static ShaderVertexLayout** m_vertexLayouts;
+	static ShaderVertexLayout* m_vertexLayouts[EVertexLayout_Count];
 };
 
 ION_NAMESPACE_END

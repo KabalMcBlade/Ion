@@ -30,7 +30,8 @@
 
 // Memory alignment
 #define ION_MEMORY_ALIGNMENT(x)    __declspec(align(x))
-#define ION_IS_ALIGNED(ptr, alignment)    ((uint_fast64_t)ptr & (alignment - 1)) == 0
+#define ION_IS_ALIGNED(ptr, alignment)    ((std::uintptr_t)ptr & (alignment - 1)) == 0
+#define ION_MEMORY_ALIGNED		ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE)
 
 // BIT MANIPULATION
 #define ION_BIT_SET(value, bitpos)          ((value) |= (1<<(bitpos)))

@@ -15,13 +15,13 @@ ION_NAMESPACE_BEGIN
 class ION_DLL Transform final
 {
 public:
-    explicit Transform();
+    Transform();
 
-    explicit Transform(const Vector& _position, const nixFloat& _scale, const Quaternion& _rotation);
-    explicit Transform(const Vector& _position, const nixFloat& _scale, const nixFloat& _radians, const Vector& _axis);
+    Transform(const Vector& _position, const nixFloat& _scale, const Quaternion& _rotation);
+    Transform(const Vector& _position, const nixFloat& _scale, const nixFloat& _radians, const Vector& _axis);
 
-    explicit Transform(const Vector& _position, const Vector& _scale, const Quaternion& _rotation);
-    explicit Transform(const Vector& _position, const Vector& _scale, const nixFloat& _radians, const Vector& _axis);
+    Transform(const Vector& _position, const Vector& _scale, const Quaternion& _rotation);
+    Transform(const Vector& _position, const Vector& _scale, const nixFloat& _radians, const Vector& _axis);
 
     ~Transform();
 

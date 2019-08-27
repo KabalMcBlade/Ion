@@ -32,7 +32,7 @@ CubemapHelper::~CubemapHelper()
     Clear();
 }
 
-ionBool CubemapHelper::Load(const eosString& _path, ETextureFormat _format)
+ionBool CubemapHelper::Load(const ionString& _path, ETextureFormat _format)
 {
     m_format = _format;
 
@@ -63,7 +63,7 @@ void CubemapHelper::Unload()
     {
         if (m_output[i] != nullptr)
         {
-            eosDeleteRaw(m_output[i]);
+            ionDeleteRaw(m_output[i]);
         }
     }
     Clear();
@@ -157,27 +157,27 @@ void CubemapHelper::GenerateCubemapFromCrossVertical(const void* _source, void* 
     const ionU32 perChannel = _bpp / 32;
 
     // right
-    _dest[0] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    _dest[0] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
     CopyBufferRegion(_source, _dest[0], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace * 2, m_sizePerFace);
 
     // left
-    _dest[1] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    _dest[1] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
     CopyBufferRegion(_source, _dest[1], m_width, m_component, perChannel, m_sizePerFace, 0, m_sizePerFace);
 
     // top
-    _dest[2] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    _dest[2] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
     CopyBufferRegion(_source, _dest[2], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace, 0);
 
     // bottom
-    _dest[3] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    _dest[3] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
     CopyBufferRegion(_source, _dest[3], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace, m_sizePerFace * 2);
 
     // front
-    _dest[4] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    _dest[4] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
     CopyBufferRegion(_source, _dest[4], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace, m_sizePerFace);
 
     // back
-    _dest[5] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    _dest[5] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
 
     // here I need to read from bottom to top and  right to left....
     const ionU8* sourceFace = (const ionU8*)_source;
@@ -209,27 +209,27 @@ void CubemapHelper::GenerateCubemapFromCrossHorizontal(const void* _source, void
     const ionU32 perChannel = _bpp / 32;
 
     // right
-    _dest[0] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    _dest[0] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
     CopyBufferRegion(_source, _dest[0], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace * 2, m_sizePerFace);
 
     // left
-    _dest[1] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    _dest[1] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
     CopyBufferRegion(_source, _dest[1], m_width, m_component, perChannel, m_sizePerFace, 0, m_sizePerFace);
 
     // top
-    _dest[2] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    _dest[2] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
     CopyBufferRegion(_source, _dest[2], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace, 0);
 
     // bottom
-    _dest[3] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    _dest[3] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
     CopyBufferRegion(_source, _dest[3], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace, m_sizePerFace * 2);
 
     // front
-    _dest[4] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    _dest[4] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
     CopyBufferRegion(_source, _dest[4], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace, m_sizePerFace);
 
     // back
-    _dest[5] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    _dest[5] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
     CopyBufferRegion(_source, _dest[5], m_width, m_component, perChannel, m_sizePerFace, m_sizePerFace * 3, m_sizePerFace);
 }
 
@@ -269,7 +269,7 @@ void CubemapHelper::CubemapFromLatLong()
 
         ionU32 bppPerChannel = Texture::BitsPerFormat(m_format) / 32;
 
-        void* rgba = eosNewRaw(m_width * m_height * m_component * bppPerChannel, ION_MEMORY_ALIGNMENT_SIZE);
+        void* rgba = ionNewRaw(m_width * m_height * m_component * bppPerChannel);
 
         if (m_isHDR)
         {
@@ -304,7 +304,7 @@ void CubemapHelper::CubemapFromLatLong()
             GenerateCubemapFromLatLong<ionU8>(rgba, m_output, Texture::BitsPerFormat(m_format));
         }
 
-        eosDeleteRaw(rgba);
+        ionDeleteRaw(rgba);
     }
     else
     {

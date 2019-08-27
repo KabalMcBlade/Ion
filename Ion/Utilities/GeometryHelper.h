@@ -2,6 +2,8 @@
 
 #include "../Core/CoreDefs.h"
 
+#include "../Core/MemoryWrapper.h"
+
 #include "../Dependencies/Nix/Nix/Nix.h"
 
 NIX_USING_NAMESPACE

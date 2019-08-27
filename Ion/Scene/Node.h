@@ -45,18 +45,23 @@ enum ENodeRenderLayer : ionU32
 };
 
 
-class Node;
-typedef SmartPointer<Node> ObjectHandler;
+// class Node;
+// typedef ionSmartPointer<Node> ObjectHandler;
+// 
+// // special template 
+// template<typename T> using ionObjectHandler = ionSmartPointer<T>;
+
+
 
 class BoundingBox;
 class Mesh;
 class BaseMeshRenderer;
 class AnimationRenderer;
-class ION_DLL Node : public SmartObject
+class ION_DLL Node : public eosSmartObject
 {
 public:
-    explicit Node();
-    explicit Node(const eosString & _name);
+    Node();
+    explicit Node(const ionString & _name);
     virtual ~Node();
 
     //////////////////////////////////////////////////////////////////////////
@@ -101,13 +106,14 @@ public:
     //
     // USER CALLS
 
-    void SetName(const eosString & _name);
+    void SetName(const ionString & _name);
     void SetActive(ionBool _isActive);
     ionBool IsActive() const { return m_active; }
 
     void SetVisible(ionBool _isVisible);
     ionBool IsVisible() const { return m_visible; }
 
+	//void AttachToParent(Node* _parent);
     void AttachToParent(ObjectHandler& _parent);
     void DetachFromParent();
 
@@ -123,7 +129,7 @@ public:
     const UUID& GetUUID() const { return m_uuid;  }
 
     ENodeType GetNodeType() const { return m_nodeType; }
-    const eosString &GetName() const  { return m_name; }
+    const ionString &GetName() const  { return m_name; }
 
     void Update(ionFloat _deltaTime);
 
@@ -132,12 +138,12 @@ public:
     const Transform &GetTransform() const { return m_transform; }
     Transform &GetTransform() { return m_transform; }
 
-    eosVector<ObjectHandler> &GetChildren() { return m_children; };
+    ionVector<ObjectHandler> &GetChildren() { return m_children; };
 
-    eosVector<ObjectHandler>::const_iterator ChildrenIteratorBeginConst() { return m_children.begin();}
-    eosVector<ObjectHandler>::const_iterator ChildrenIteratorEndConst() { return m_children.end(); }
-    eosVector<ObjectHandler>::iterator ChildrenIteratorBegin() { return m_children.begin(); }
-    eosVector<ObjectHandler>::iterator ChildrenIteratorEnd() { return m_children.end(); }
+    ionVector<ObjectHandler>::const_iterator ChildrenIteratorBeginConst() { return m_children->begin();}
+    ionVector<ObjectHandler>::const_iterator ChildrenIteratorEndConst() { return m_children->end(); }
+    ionVector<ObjectHandler>::iterator ChildrenIteratorBegin() { return m_children->begin(); }
+    ionVector<ObjectHandler>::iterator ChildrenIteratorEnd() { return m_children->end(); }
 
     //////////////////////////////////////////////////////////////////////////
 
@@ -159,9 +165,9 @@ private:
     Node* m_parent; // to avoid cross reference is a ptr instead of a smart object
     Transform m_transform;
 
-    eosString m_name;
+    ionString m_name;
     
-    eosVector<ObjectHandler> m_children;
+    ionVector<ObjectHandler> m_children;
 
     ionBool m_active;
     ionBool m_visible;

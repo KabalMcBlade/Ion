@@ -78,4 +78,5 @@
 #include "App/CommandLineParser.h"
 #include "App/Window.h"
 
-#include "Core/Managers.h"
+#include "Core/MemoryManager.h"
+#include "Core/MemoryWrapper.h"

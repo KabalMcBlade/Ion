@@ -7,6 +7,8 @@
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
+#include "../Core/MemoryWrapper.h"
+
 #include "TextureCommon.h"
 
 
@@ -21,7 +23,7 @@ public:
     CubemapHelper();
     ~CubemapHelper();
 
-    ionBool Load(const eosString& _path, ETextureFormat _format);
+    ionBool Load(const ionString& _path, ETextureFormat _format);
     void    Unload();
 
     ionBool Convert();
@@ -131,12 +133,12 @@ void CubemapHelper::GenerateCubemapFromLatLong(const void* _source, void* _dest[
 {
     const ionU32 perChannel = _bpp / 32;
 
-    _dest[0] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
-    _dest[1] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
-    _dest[2] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
-    _dest[3] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
-    _dest[4] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
-    _dest[5] = eosNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, ION_MEMORY_ALIGNMENT_SIZE);
+    _dest[0] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
+    _dest[1] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
+    _dest[2] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
+    _dest[3] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
+    _dest[4] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
+    _dest[5] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
 
     for (ionU32 i = 0; i < 6; ++i)
     {

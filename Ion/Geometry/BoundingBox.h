@@ -6,6 +6,8 @@
 #include "../Dependencies/Eos/Eos/Eos.h"
 #include "../Dependencies/Nix/Nix/Nix.h"
 
+#include "../Core/MemoryWrapper.h"
+
 
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
@@ -18,8 +20,8 @@ class Transform;
 class ION_DLL BoundingBox
 {
 public:
-    explicit BoundingBox();
-    explicit BoundingBox(const Vector& _min, const Vector& _max);
+    BoundingBox();
+    BoundingBox(const Vector& _min, const Vector& _max);
     ~BoundingBox();
 
     ION_INLINE const Vector& GetMin() const { return m_min; }
@@ -43,7 +45,7 @@ public:
     void Expande(const BoundingBox& _bbox);
     void Expande(const Vector& _min, const Vector& _max);
 
-    void GetCorners(eosVector<Vector>& _corners) const;
+    void GetCorners(ionVector<Vector>& _corners) const;
 
     BoundingBox GetTransformed(const Matrix& _matrix);
 

@@ -18,7 +18,7 @@ Node::Node() : m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_D
     m_nodeType = ENodeType_EmptyNode;
 }
 
-Node::Node(const eosString & _name) : m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_Default), m_parent(nullptr)
+Node::Node(const ionString & _name) : m_active(true), m_visible(true), m_renderLayer(ENodeRenderLayer_Default), m_parent(nullptr)
 {
     m_uuid.GenerateUUID();
     SetName(_name);
@@ -30,7 +30,7 @@ Node::~Node()
     DetachFromParent();
 }
 
-void Node::SetName(const eosString& _name)
+void Node::SetName(const ionString& _name)
 {
     m_name = _name;
 }
@@ -42,14 +42,39 @@ void Node::AttachToParent(ObjectHandler& _parent)
         DetachFromParent();
     }
 
-    m_parent = _parent.GetPtr();
+    m_parent = _parent();
     if (m_parent != nullptr)
     {
-        m_parent->GetChildren().push_back(this);
+		ionVector<ObjectHandler> &children = m_parent->GetChildren();
+		ObjectHandler self(this);
+
+		children->push_back(self);
+        //m_parent->GetChildren()->push_back(this);
 
         OnAttachToParent(_parent);
     }
 }
+
+// void Node::AttachToParent(Node* _parent)
+// {
+// 	if (m_parent != nullptr)
+// 	{
+// 		DetachFromParent();
+// 	}
+// 
+// 	m_parent = _parent;
+// 	if (m_parent != nullptr)
+// 	{
+// 		ionVector<ObjectHandler> &children = m_parent->GetChildren();
+// 		ObjectHandler self(this);
+// 
+// 		children->push_back(self);
+// 		//m_parent->GetChildren()->push_back(this);
+// 
+// 		ObjectHandler p(_parent);
+// 		OnAttachToParent(p);
+// 	}
+// }
 
 void Node::DetachFromParent()
 {
@@ -57,19 +82,19 @@ void Node::DetachFromParent()
 
     if (m_parent != nullptr)
     {
-        eosVector<ObjectHandler>::iterator pendingRemove = std::remove_if(m_parent->GetChildren().begin(), m_parent->GetChildren().end(), 
+        ionVector<ObjectHandler>::iterator pendingRemove = std::remove_if(m_parent->GetChildren()->begin(), m_parent->GetChildren()->end(), 
             [&](ObjectHandler& _object)
         {
-            return this == _object;
+            return this == _object();
         }
         );
 
-        if (pendingRemove != m_parent->GetChildren().end())
+        if (pendingRemove != m_parent->GetChildren()->end())
         {
-            m_parent->GetChildren().erase(pendingRemove, m_parent->GetChildren().end());
+            m_parent->GetChildren()->erase(pendingRemove, m_parent->GetChildren()->end());
         }
 
-        //m_parent->GetChildren().erase(std::remove(m_parent->GetChildren().begin(), m_parent->GetChildren().end(), this), m_parent->GetChildren().end());
+        //m_parent->GetChildren()->erase(std::remove(m_parent->GetChildren()->begin(), m_parent->GetChildren()->end(), this), m_parent->GetChildren()->end());
     }
 }
 
@@ -97,10 +122,10 @@ void Node::Update(ionFloat _deltaTime)
             m_transform.SetMatrixWS(m_transform.GetMatrix());
         }
 
-        eosVector<ObjectHandler>::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
+        ionVector<ObjectHandler>::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
         for (; it != end; ++it)
         {
-            (*it)->Update(_deltaTime);
+            (*it)->GetPtr()->Update(_deltaTime);
         }
 
         OnLateUpdate(_deltaTime);
@@ -112,10 +137,10 @@ void Node::SetActive(ionBool _isActive)
 {
     m_active = _isActive;
 
-    eosVector<ObjectHandler>::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
+    ionVector<ObjectHandler>::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
     for (; it != end; ++it)
     {
-        (*it)->SetActive(_isActive);
+        (*it)->GetPtr()->SetActive(_isActive);
     }
 }
 
@@ -123,10 +148,10 @@ void Node::SetVisible(ionBool _isVisible)
 {
     m_visible = _isVisible; 
 
-    eosVector<ObjectHandler>::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
+    ionVector<ObjectHandler>::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
     for (; it != end; ++it)
     {
-        (*it)->SetVisible(_isVisible);
+        (*it)->GetPtr()->SetVisible(_isVisible);
     }
 }
 
@@ -134,10 +159,10 @@ void Node::AddToRenderLayer(ENodeRenderLayer _layer)
 {
     m_renderLayer |= _layer; 
 
-    eosVector<ObjectHandler>::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
+    ionVector<ObjectHandler>::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
     for (; it != end; ++it)
     {
-        (*it)->AddToRenderLayer(_layer);
+        (*it)->GetPtr()->AddToRenderLayer(_layer);
     }
 }
 
@@ -145,10 +170,10 @@ void Node::RemoveFromRenderLayer(ENodeRenderLayer _layer)
 {
     m_renderLayer &= ~_layer; 
 
-    eosVector<ObjectHandler>::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
+    ionVector<ObjectHandler>::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
     for (; it != end; ++it)
     {
-        (*it)->RemoveFromRenderLayer(_layer);
+        (*it)->GetPtr()->RemoveFromRenderLayer(_layer);
     }
 }
 
@@ -157,11 +182,11 @@ void Node::IterateAll(const std::function< void(const ObjectHandler& _node) >& _
 {
     if (_lambda != nullptr)
     {
-        eosVector<ObjectHandler>::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
+        ionVector<ObjectHandler>::const_iterator begin = ChildrenIteratorBeginConst(), end = ChildrenIteratorEndConst(), it = begin;
         for (; it != end; ++it)
         {
             _lambda((*it));
-            (*it)->IterateAll(_lambda);
+            (*it)->GetPtr()->IterateAll(_lambda);
         }
     }
 }

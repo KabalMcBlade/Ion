@@ -41,24 +41,24 @@ AnimationSampler::AnimationSampler() : m_interpolation(EAnimationInterpolationTy
 
 AnimationSampler::~AnimationSampler()
 {
-    m_inputs.clear();
-    m_outputsLinearPath.clear();
-    m_outputsMorphTarget.clear();
+    m_inputs->clear();
+    m_outputsLinearPath->clear();
+    m_outputsMorphTarget->clear();
 }
 
 void AnimationSampler::PushBackInput(ionFloat _input)
 {
-    m_inputs.push_back(_input);
+    m_inputs->push_back(_input);
 }
 
 void AnimationSampler::PushBackOutputMorphTarget(ionFloat _input)
 {
-    m_outputsMorphTarget.push_back(_input);
+    m_outputsMorphTarget->push_back(_input);
 }
 
 void AnimationSampler::PushBackOutputLinearPath(const Vector& _input)
 {
-    m_outputsLinearPath.push_back(_input);
+    m_outputsLinearPath->push_back(_input);
 }
 
 void AnimationSampler::SetInterpolation(EAnimationInterpolationType _interpolation)
@@ -75,24 +75,24 @@ Animation::Animation() : m_name(""), m_hash(-1), m_start(std::numeric_limits<ion
 
 Animation::~Animation()
 {
-    m_samplers.clear();
-    m_channels.clear();
+    m_samplers->clear();
+    m_channels->clear();
 }
 
-void Animation::SetName(const eosString& _name)
+void Animation::SetName(const ionString& _name)
 {
     m_name = _name;
-    m_hash = std::hash<eosString>{}(m_name);
+    m_hash = std::hash<ionString>{}(m_name);
 }
 
 void Animation::PushBackSampler(const AnimationSampler& _sampler)
 {
-    m_samplers.push_back(_sampler);
+    m_samplers->push_back(_sampler);
 }
 
 void Animation::PushBackChannel(const AnimationChannel& _channel)
 {
-    m_channels.push_back(_channel);
+    m_channels->push_back(_channel);
 }
 
 void Animation::SetStart(ionFloat _value)

@@ -197,10 +197,10 @@ struct DrawSurface;
 class ION_DLL Material
 {
 public:
-    Material(const eosString& _name);
+    Material(const ionString& _name);
     ~Material();
 
-    const eosString& GetName() const { return m_name; }
+    const ionString& GetName() const { return m_name; }
 
     ionBool Create();
     void Destroy();
@@ -263,7 +263,7 @@ public:
     VkPrimitiveTopology GetTopology() const { return m_topology; }
 
 private:
-    eosString       m_name;
+    ionString       m_name;
 
     std::function<void(const DrawSurface& _surface)> m_customDrawFunction;
 

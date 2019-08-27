@@ -55,7 +55,7 @@ RotatingEntity::RotatingEntity() : m_rotating(false), m_mouseSensitivity(0.05f),
 
 };
 
-RotatingEntity::RotatingEntity(const eosString & _name) : Entity(_name), m_rotating(false), m_mouseSensitivity(0.05f), m_movementSpeed(10.0f), m_incresingWheelSpeed(1.0f), m_animationCount(0), m_currentAnimationIndex(0), m_animationSpeedMultiplier(0.25f)
+RotatingEntity::RotatingEntity(const ion::ionString & _name) : Entity(_name), m_rotating(false), m_mouseSensitivity(0.05f), m_movementSpeed(10.0f), m_incresingWheelSpeed(1.0f), m_animationCount(0), m_currentAnimationIndex(0), m_animationSpeedMultiplier(0.25f)
 {
 }
 

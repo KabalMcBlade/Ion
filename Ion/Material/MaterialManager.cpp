@@ -8,9 +8,6 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-
-MaterialManager *MaterialManager::s_instance = nullptr;
-
 MaterialManager::MaterialManager()
 {
 }
@@ -19,26 +16,10 @@ MaterialManager::~MaterialManager()
 {
 }
 
-void MaterialManager::Create()
-{
-    if (!s_instance)
-    {
-        s_instance = eosNew(MaterialManager, ION_MEMORY_ALIGNMENT_SIZE);
-    }
-}
-
-void MaterialManager::Destroy()
-{
-    if (s_instance)
-    {
-        eosDelete(s_instance);
-        s_instance = nullptr;
-    }
-}
-
 MaterialManager& MaterialManager::Instance()
 {
-    return *s_instance;
+    static MaterialManager instance;
+    return instance;
 }
 
 void MaterialManager::Init()
@@ -48,17 +29,17 @@ void MaterialManager::Init()
 
 void MaterialManager::Shutdown()
 {
-    auto begin = m_hashMaterial.begin(), end = m_hashMaterial.end();
-    std::map<ionSize, Material*, StlAllocator<ionSize, HeapAllocPolicy<ionSize> > >::iterator it = begin;
+    auto begin = m_hashMaterial->begin(), end = m_hashMaterial->end();
+    std::map<ionSize, Material*>::iterator it = begin;
     for (; it != end; ++it)
     {
         DestroyMaterial(it->second);
-        eosDelete(it->second);
+        ionDelete(it->second);
     }
-    m_hashMaterial.clear();
+    m_hashMaterial->clear();
 }
 
-Material* MaterialManager::CreateMaterial(const eosString& _name, ionU64 _stateBits /*= 0*/)
+Material* MaterialManager::CreateMaterial(const ionString& _name, ionU64 _stateBits /*= 0*/)
 {
     if (_name.empty())
     {
@@ -86,17 +67,17 @@ Material* MaterialManager::CreateMaterial(const eosString& _name, ionU64 _stateB
     }
 }
 
-Material* MaterialManager::GetMaterial(const eosString& _name) const
+Material* MaterialManager::GetMaterial(const ionString& _name) const
 {
     if (_name.empty())
     {
         return nullptr;
     }
 
-    ionSize hash = std::hash<eosString>{}(_name);
+    ionSize hash = std::hash<ionString>{}(_name);
 
-    auto search = m_hashMaterial.find(hash);
-    if (search != m_hashMaterial.end())
+    auto search = m_hashMaterial->find(hash);
+    if (search != m_hashMaterial->end())
     {
         return search->second;
     }
@@ -106,45 +87,45 @@ Material* MaterialManager::GetMaterial(const eosString& _name) const
     }
 }
 
-Material* MaterialManager::InternalCreateMaterial(const eosString& _name)
+Material* MaterialManager::InternalCreateMaterial(const ionString& _name)
 {
     if (_name.empty())
     {
         return nullptr;
     }
 
-    ionSize hash = std::hash<eosString>{}(_name);
+    ionSize hash = std::hash<ionString>{}(_name);
 
     // just to inform the user
-    auto search = m_hashMaterial.find(hash);
-    ionAssert(!(search != m_hashMaterial.end()), "A material with the same name has already added!");
+    auto search = m_hashMaterial->find(hash);
+    ionAssert(!(search != m_hashMaterial->end()), "A material with the same name has already added!");
 
-    Material* material = eosNew(Material, ION_MEMORY_ALIGNMENT_SIZE, _name);
+    Material* material = ionNew(Material, _name);
 
     m_hashMaterial[hash] = material;
 
     return material;
 }
 
-void MaterialManager::DestroyMaterial(const eosString& _name)
+void MaterialManager::DestroyMaterial(const ionString& _name)
 {
     if (_name.empty())
     {
         return;
     }
 
-    ionSize hash = std::hash<eosString>{}(_name);
+    ionSize hash = std::hash<ionString>{}(_name);
     DestroyMaterial(hash);
 }
 
 void MaterialManager::DestroyMaterial(ionSize _hash)
 {
-    auto search = m_hashMaterial.find(_hash);
-    if (search != m_hashMaterial.end())
+    auto search = m_hashMaterial->find(_hash);
+    if (search != m_hashMaterial->end())
     {
         DestroyMaterial(search->second);
-        eosDelete(search->second);
-        m_hashMaterial.erase(_hash);
+        ionDelete(search->second);
+        m_hashMaterial->erase(_hash);
     }
 }
 

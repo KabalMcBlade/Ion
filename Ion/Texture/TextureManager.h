@@ -4,6 +4,8 @@
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
+#include "../Core/MemoryWrapper.h"
+
 #include "TextureCommon.h"
 #include "Texture.h"
 
@@ -19,10 +21,7 @@ class RenderCore;
 class ION_DLL TextureManager final
 {
 public:
-    ION_NO_INLINE static void Create();
-    ION_NO_INLINE static void Destroy();
-
-    ION_NO_INLINE static TextureManager& Instance();
+    static TextureManager& Instance();
 
     TextureManager();
     ~TextureManager();
@@ -36,37 +35,35 @@ public:
     void        SetSamplerAnysotropy(ionBool _samplerAnysotrpy) { m_samplerAnisotropy = _samplerAnysotrpy; }
     ionBool     GetSamplerAnysotropy() const { return m_samplerAnisotropy; }
 
-    Texture*    CreateTextureFromFile(const eosString& _name, const eosString& _path, ETextureFilterMin _filterMin = ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag _filterMag = ETextureFilterMag_Linear, ETextureRepeat _repeat = ETextureRepeat_Repeat, ETextureUsage _usage = ETextureUsage_RGBA, ETextureType _type = ETextureType_2D, ionU32 _maxAnisotrpy = 1, ETextureRepeat _customRepeatU = ETextureRepeat_Repeat, ETextureRepeat _customRepeatV = ETextureRepeat_Repeat, ETextureRepeat _customRepeatW = ETextureRepeat_Repeat);
-    Texture*    CreateTextureFromBuffer(const eosString& _name, ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilterMin _filterMin = ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag _filterMag = ETextureFilterMag_Linear, ETextureRepeat _repeat = ETextureRepeat_Repeat, ETextureUsage _usage = ETextureUsage_RGBA, ETextureType _type = ETextureType_2D, ionU32 _maxAnisotrpy = 1, ETextureRepeat _customRepeatU = ETextureRepeat_Repeat, ETextureRepeat _customRepeatV = ETextureRepeat_Repeat, ETextureRepeat _customRepeatW = ETextureRepeat_Repeat);
-    Texture*    GenerateTexture(const eosString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureFilterMin _filterMin = ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag _filterMag = ETextureFilterMag_Linear, ETextureRepeat _repeat = ETextureRepeat_Repeat, ETextureType _type = ETextureType_2D, ionU32 _numLevel = 1, ionU32 _maxAnisotrpy = 1, ETextureRepeat _customRepeatU = ETextureRepeat_Repeat, ETextureRepeat _customRepeatV = ETextureRepeat_Repeat, ETextureRepeat _customRepeatW = ETextureRepeat_Repeat);
+    Texture*    CreateTextureFromFile(const ionString& _name, const ionString& _path, ETextureFilterMin _filterMin = ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag _filterMag = ETextureFilterMag_Linear, ETextureRepeat _repeat = ETextureRepeat_Repeat, ETextureUsage _usage = ETextureUsage_RGBA, ETextureType _type = ETextureType_2D, ionU32 _maxAnisotrpy = 1, ETextureRepeat _customRepeatU = ETextureRepeat_Repeat, ETextureRepeat _customRepeatV = ETextureRepeat_Repeat, ETextureRepeat _customRepeatW = ETextureRepeat_Repeat);
+    Texture*    CreateTextureFromBuffer(const ionString& _name, ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer, VkDeviceSize _bufferSize, ETextureFilterMin _filterMin = ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag _filterMag = ETextureFilterMag_Linear, ETextureRepeat _repeat = ETextureRepeat_Repeat, ETextureUsage _usage = ETextureUsage_RGBA, ETextureType _type = ETextureType_2D, ionU32 _maxAnisotrpy = 1, ETextureRepeat _customRepeatU = ETextureRepeat_Repeat, ETextureRepeat _customRepeatV = ETextureRepeat_Repeat, ETextureRepeat _customRepeatW = ETextureRepeat_Repeat);
+    Texture*    GenerateTexture(const ionString& _name, ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureFilterMin _filterMin = ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag _filterMag = ETextureFilterMag_Linear, ETextureRepeat _repeat = ETextureRepeat_Repeat, ETextureType _type = ETextureType_2D, ionU32 _numLevel = 1, ionU32 _maxAnisotrpy = 1, ETextureRepeat _customRepeatU = ETextureRepeat_Repeat, ETextureRepeat _customRepeatV = ETextureRepeat_Repeat, ETextureRepeat _customRepeatW = ETextureRepeat_Repeat);
 
-    Texture*    GetTexture(const eosString& _name) const;
+    Texture*    GetTexture(const ionString& _name) const;
 
-    ionBool     SaveTexture(const eosString& _path, const Texture* _texture) const;
+    ionBool     SaveTexture(const ionString& _path, const Texture* _texture) const;
 
     void        GenerateMipMaps(Texture* _texture);
 
     // this one actually destroy/delete the texture!
-    void        DestroyTexture(const eosString& _name);
+    void        DestroyTexture(const ionString& _name);
 
     const ETextureSamplesPerBit& GetMainSamplePerBits() const { return m_mainSamplesPerBit; }
 
 private:
     VkSamplerAddressMode ConvertAddressMode(ETextureRepeat _repeat);
 
-    Texture*    CreateTexture(VkDevice _vkDevice, const eosString& _name);
+    Texture*    CreateTexture(VkDevice _vkDevice, const ionString& _name);
     void        DestroyTexture(Texture* _texture);
     void        DestroyTexture(ionSize _hash);          // this one actually destroy/delete the texture!
 
 private:
     VkDevice    m_vkDevice;
-    eosMap<ionSize, Texture*> m_hashTexture;
+    ionMap<ionSize, Texture*> m_hashTexture;
 
     ETextureSamplesPerBit   m_mainSamplesPerBit;
     VkFormat                m_depthFormat;
     ionBool                 m_samplerAnisotropy;
-
-    static TextureManager *s_instance;
 };
 
 ION_NAMESPACE_END

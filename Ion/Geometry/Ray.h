@@ -17,9 +17,9 @@ ION_NAMESPACE_BEGIN
 class ION_DLL Ray
 {
 public:
-    explicit Ray();
-    explicit Ray(const Vector& _origin, const Vector& _direction);
-    explicit Ray(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector& _worldRayOrigin, const Matrix& _inverseMatrix);
+    Ray();
+    Ray(const Vector& _origin, const Vector& _direction);
+    Ray(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector& _worldRayOrigin, const Matrix& _inverseMatrix);
     ~Ray();
 
     ION_INLINE const Vector& GetOrigin() const { return m_origin;}

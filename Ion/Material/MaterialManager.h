@@ -13,10 +13,7 @@ ION_NAMESPACE_BEGIN
 class ION_DLL MaterialManager final
 {
 public:
-    ION_NO_INLINE static void Create();
-    ION_NO_INLINE static void Destroy();
-
-    ION_NO_INLINE static MaterialManager& Instance();
+    static MaterialManager& Instance();
 
     MaterialManager();
     ~MaterialManager();
@@ -24,21 +21,19 @@ public:
     void        Init();
     void        Shutdown();
 
-    Material*   CreateMaterial(const eosString& _name, ionU64 _stateBits = 0);
-    Material*   GetMaterial(const eosString& _name) const;
+    Material*   CreateMaterial(const ionString& _name, ionU64 _stateBits = 0);
+    Material*   GetMaterial(const ionString& _name) const;
 
     // This call actually destroy/delete the material
-    void        DestroyMaterial(const eosString& _name);
+    void        DestroyMaterial(const ionString& _name);
 
 private:
-    Material*   InternalCreateMaterial(const eosString& _name);
+    Material*   InternalCreateMaterial(const ionString& _name);
     void        DestroyMaterial(Material* _material);
     void        DestroyMaterial(ionSize _hash);         // This call actually destroy/delete the material
 
 private:
-    eosMap<ionSize, Material*> m_hashMaterial;
-
-    static MaterialManager *s_instance;
+    ionMap<ionSize, Material*> m_hashMaterial;
 };
 
 ION_NAMESPACE_END

@@ -25,7 +25,7 @@ VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-Texture::Texture(VkDevice _vkDevice, const eosString& _name) :
+Texture::Texture(VkDevice _vkDevice, const ionString& _name) :
     m_vkDevice(_vkDevice),
     m_name(_name)
 {
@@ -68,11 +68,11 @@ void Texture::UploadTextureBuffer(const ionU8* _buffer, ionU32 _component, ionU3
     if (_component == 3)
     {
         ionSize newBufferSize = m_width * m_height * 4;
-        ionU8* newBuffer = (ionU8*)eosNewRaw(sizeof(ionU8) * newBufferSize, ION_MEMORY_ALIGNMENT_SIZE);
+        ionU8* newBuffer = (ionU8*)ionNewRaw(sizeof(ionU8) * newBufferSize);
         memset(newBuffer, 0, sizeof(ionU8) * newBufferSize);
         ConvertFrom3ChannelTo4Channel(m_width, m_height, _buffer, newBuffer);
         UploadTextureToMemory(m_numLevels, m_width, m_height, newBuffer, _index);
-        eosDeleteRaw(newBuffer);
+        ionDeleteRaw(newBuffer);
     }
     else
     {
@@ -99,7 +99,7 @@ ionBool Texture::LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _co
     return result;
 }
 
-ionBool Texture::LoadTextureFromFile(const eosString& _path)
+ionBool Texture::LoadTextureFromFile(const ionString& _path)
 {
     ionS32 w = 0, h = 0, c = 0;
     ionU8* buffer = stbi_load(_path.c_str(), &w, &h, &c, 0);
@@ -123,7 +123,7 @@ ionBool Texture::LoadTextureFromFile(const eosString& _path)
     return result;
 }
 
-ionBool Texture::LoadCubeTextureFromFile(const eosString& _path)
+ionBool Texture::LoadCubeTextureFromFile(const ionString& _path)
 {
     GenerateOptions();
 
@@ -159,7 +159,7 @@ ionBool Texture::LoadCubeTextureFromFile(const eosString& _path)
     }
 }
 
-ionBool Texture::LoadCubeTextureFromFiles(const eosVector<eosString>& paths)
+ionBool Texture::LoadCubeTextureFromFiles(const ionVector<ionString>& paths)
 {
     ionS32 w = 0, h = 0, c = 0;
 
@@ -342,7 +342,7 @@ void Texture::GenerateOptions()
     }
 }
 
-ionBool Texture::CreateFromFile(const eosString& _path)
+ionBool Texture::CreateFromFile(const ionString& _path)
 {
     if (m_optTextureType == ETextureType_Cubic)
     {
@@ -371,8 +371,8 @@ ionBool Texture::CreateFromFile(const eosString& _path)
         else
         {
             // Adding the side name to the file with "_": for instance: "test.png" become "test_left.png", "test_top.png" etc etc
-            eosString ext;
-            eosString path;
+            ionString ext;
+            ionString path;
             ionSize i = _path.rfind('.', _path.length());
             if (i != std::string::npos)
             {
@@ -385,8 +385,8 @@ ionBool Texture::CreateFromFile(const eosString& _path)
                 ionAssertReturnValue(false, "Extension is not provided!", false);
             }
 
-            eosString suffix[6] { "_right.", "_left.", "_top.", "_bottom.", "_front.", "_back." };
-            eosVector<eosString> paths; paths.resize(6);
+            ionString suffix[6] { "_right.", "_left.", "_top.", "_bottom.", "_front.", "_back." };
+            ionVector<ionString> paths; paths->resize(6);
             for (ionU32 i = 0; i < 6; ++i)
             {
                 paths[i] = path + suffix[i] + ext;
@@ -803,10 +803,10 @@ void Texture::Destroy()
     }
 }
 
-ionBool Texture::Save(const eosString& _path) const
+ionBool Texture::Save(const ionString& _path) const
 {
-    eosString ext;
-    eosString path;
+    ionString ext;
+    ionString path;
     ionSize i = _path.rfind('.', _path.length());
     if (i != std::string::npos)
     {

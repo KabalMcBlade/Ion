@@ -8,6 +8,7 @@
 #include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
 #include "../Core/CoreDefs.h"
+#include "../Core/MemoryWrapper.h"
 
 #include "../Texture/TextureCommon.h"
 
@@ -63,7 +64,7 @@ public:
     VkRenderPass CreateTexturedRenderPass(Texture* _texture, VkImageLayout _finalLayout);
     VkFramebuffer CreateTexturedFrameBuffer(VkRenderPass _renderPass, Texture* _texture);
 
-    void StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector<VkClearValue>& _clearValues, const VkRect2D& _renderArea);
+    void StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const ionVector<VkClearValue>& _clearValues, const VkRect2D& _renderArea);
     void EndRenderPass(VkCommandBuffer _commandBuffer);
 
     void SetScissor(VkCommandBuffer _commandBuffer, const VkRect2D& _scissor);
@@ -105,8 +106,8 @@ public:
     ionU32 GetHeight() const { return m_height; }
 
     ionBool CreateRenderPass(VkRenderPass& _vkRenderPass, EFramebufferLoad _load = EFramebufferLoad_Clear);
-    ionBool CreateFrameBuffers(VkRenderPass _vkRenderPass, eosVector<VkFramebuffer>& _vkFrameBuffers);
-    void    DestroyFrameBuffers(eosVector<VkFramebuffer>& _vkFrameBuffers);
+    ionBool CreateFrameBuffers(VkRenderPass _vkRenderPass, ionVector<VkFramebuffer>& _vkFrameBuffers);
+    void    DestroyFrameBuffers(ionVector<VkFramebuffer>& _vkFrameBuffers);
 
 private:
     RenderCore(const RenderCore& _Orig) = delete;
@@ -114,8 +115,8 @@ private:
 
 private:
     // Utility functions
-    VkSurfaceFormatKHR SelectSurfaceFormat(eosVector<VkSurfaceFormatKHR>& _vkFormats) const;
-    VkPresentModeKHR SelectPresentMode(eosVector<VkPresentModeKHR>& _vkModes) const;
+    VkSurfaceFormatKHR SelectSurfaceFormat(ionVector<VkSurfaceFormatKHR>& _vkFormats) const;
+    VkPresentModeKHR SelectPresentMode(ionVector<VkPresentModeKHR>& _vkModes) const;
     VkExtent2D SelectSurfaceExtent(VkSurfaceCapabilitiesKHR& _vkCaps, ionU32& _width, ionU32& _height) const;
     VkFormat SelectSupportedFormat(VkPhysicalDevice _vkPhysicalDevice, VkFormat* _vkFormats, ionU32 _vkNumFormats, VkImageTiling _vkTiling, VkFormatFeatureFlags _vkFeatures) const;
 
@@ -169,10 +170,10 @@ private:
     VkImage                     m_vkDepthStencilImage;
     VkImageView                 m_vkDepthStencilImageView;
 
-    eosVector<VkCommandBuffer>  m_vkCommandBuffers;
-    eosVector<VkFence>          m_vkCommandBufferFences;
-    eosVector<VkImage>          m_vkSwapchainImages;
-    eosVector<VkImageView>      m_vkSwapchainViews;
+    ionVector<VkCommandBuffer>  m_vkCommandBuffers;
+    ionVector<VkFence>          m_vkCommandBufferFences;
+    ionVector<VkImage>          m_vkSwapchainImages;
+    ionVector<VkImageView>      m_vkSwapchainViews;
 
     VertexCacheHandler          m_jointCacheHandler;
 

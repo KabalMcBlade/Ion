@@ -13,17 +13,17 @@ CommandLineParser::CommandLineParser()
 
 CommandLineParser::~CommandLineParser()
 {
-    eosMap<eosString, Option*>::iterator it;
-    for (it = m_options.begin(); it != m_options.end(); ++it)
+    ionMap<ionString, Option*>::iterator it;
+    for (it = m_options->begin(); it != m_options->end(); ++it)
     {
-        eosDelete(it->second);
+        ionDelete(it->second);
     }
-    m_options.clear();
+    m_options->clear();
 }
 
-void CommandLineParser::Add(const eosString& _option, ionBool _mandatory /*= true*/)
+void CommandLineParser::Add(const ionString& _option, ionBool _mandatory /*= true*/)
 {
-    Option* opt = eosNew(Option, ION_MEMORY_ALIGNMENT_SIZE);
+    Option* opt = ionNew(Option);
     opt->SetOption(_option);
     opt->SetMandatory(_mandatory);
     
@@ -38,8 +38,8 @@ ionBool CommandLineParser::Parse(ionS32 argc, const char * const argv[])
     {
         if (strncmp(argv[i], "-", 1) == 0) 
         {
-            eosString name(argv[i]);
-            if (m_options.count(name) == 0)
+            ionString name(argv[i]);
+            if (m_options->count(name) == 0)
             {
                 if (m_options[name]->IsMandatory())
                 {
@@ -91,15 +91,15 @@ ionBool CommandLineParser::Parse(ionS32 argc, const char * const argv[])
     return true;
 }
 
-ionBool CommandLineParser::HasOption(const eosString& _option)
+ionBool CommandLineParser::HasOption(const ionString& _option)
 {
-    return m_options.count(_option) > 0;
+    return m_options->count(_option) > 0;
 }
 
-ionBool CommandLineParser::HasValue(const eosString& _option)
+ionBool CommandLineParser::HasValue(const ionString& _option)
 {
-    auto search = m_options.find(_option);
-    if (search != m_options.end())
+    auto search = m_options->find(_option);
+    if (search != m_options->end())
     {
         return search->second->HasValue();
     }
@@ -109,10 +109,10 @@ ionBool CommandLineParser::HasValue(const eosString& _option)
     }
 }
 
-ionBool CommandLineParser::IsSet(const eosString& _option)
+ionBool CommandLineParser::IsSet(const ionString& _option)
 {
-    auto search = m_options.find(_option);
-    if (search != m_options.end())
+    auto search = m_options->find(_option);
+    if (search != m_options->end())
     {
         return search->second->IsSet();
     }

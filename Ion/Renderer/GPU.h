@@ -7,7 +7,9 @@
 #include "../Dependencies/Eos/Eos/Eos.h"
 
 #include "../Core/CoreDefs.h"
+#include "../Core/MemoryWrapper.h"
 
+#include "../Core/MemoryWrapper.h"
 
 EOS_USING_NAMESPACE
 
@@ -25,10 +27,10 @@ struct GPU final
     VkPhysicalDeviceMemoryProperties    m_vkPhysicalDeviceMemoryProperties;
     VkPhysicalDeviceFeatures            m_vkPhysicalDevFeatures;
     VkSurfaceCapabilitiesKHR            m_vkSurfaceCaps;
-    eosVector<VkSurfaceFormatKHR>        m_vkSurfaceFormats;
-    eosVector<VkPresentModeKHR>            m_vkPresentModes;
-    eosVector<VkQueueFamilyProperties>    m_vkQueueFamilyProps;
-    eosVector<VkExtensionProperties>    m_vkExtensionProps;
+    ionVector<VkSurfaceFormatKHR>        m_vkSurfaceFormats;
+    ionVector<VkPresentModeKHR>            m_vkPresentModes;
+    ionVector<VkQueueFamilyProperties>    m_vkQueueFamilyProps;
+    ionVector<VkExtensionProperties>    m_vkExtensionProps;
 };
 
 ION_NAMESPACE_END

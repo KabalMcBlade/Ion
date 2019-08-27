@@ -210,7 +210,7 @@ namespace _private
         for (ionU32 i = 0; i < morphTargetCount; ++i)
         {
             const ionFloat weight = _inData.GetMorphTargetWeight(i);
-            morphTargetWeight.push_back(weight);
+            morphTargetWeight->push_back(weight);
         }
         */
 
@@ -232,22 +232,22 @@ namespace _private
 
                     const ionFloat start = animation.GetStart();
                     const ionFloat end = animation.GetEnd();
-                    const eosString& name = animation.GetName();
+                    const ionString& name = animation.GetName();
                     const eosSize hash = animation.GetHashName();
 
-                    const eosVector<AnimationChannel>& channels = animation.GetChannels();
-                    const eosVector<AnimationSampler>& samplers = animation.GetSamplers();
+                    const ionVector<AnimationChannel>& channels = animation.GetChannels();
+                    const ionVector<AnimationSampler>& samplers = animation.GetSamplers();
 
-                    eosVector<AnimationChannel>::size_type channelsCount = channels.size();
-                    eosVector<AnimationSampler>::size_type samplersCount = samplers.size();
+                    ionVector<AnimationChannel>::size_type channelsCount = channels->size();
+                    ionVector<AnimationSampler>::size_type samplersCount = samplers->size();
 
                     std::vector<json> channelsJson;
-                    for (eosVector<AnimationChannel>::size_type j = 0; j < channelsCount; ++j)
+                    for (ionVector<AnimationChannel>::size_type j = 0; j < channelsCount; ++j)
                     {
                         const AnimationChannel& channel = channels[j];
 
-                        const eosString& belongingNodeName = channel.GetNode()->GetName();
-                        const eosString& belongingNodeUUID = channel.GetNode()->GetUUID().ToString();
+                        const ionString& belongingNodeName = channel.GetNode()->GetName();
+                        const ionString& belongingNodeUUID = channel.GetNode()->GetUUID().ToString();
                         const EAnimationPathType& animationPath = channel.GetPath();
                         const ionU32 samplerIndex = channel.GetSamplerIndex();
 
@@ -263,34 +263,34 @@ namespace _private
                     }
 
                     std::vector<json> samplersJson;
-                    for (eosVector<AnimationSampler>::size_type j = 0; j < samplersCount; ++j)
+                    for (ionVector<AnimationSampler>::size_type j = 0; j < samplersCount; ++j)
                     {
                         const AnimationSampler& sampler = samplers[j];
 
                         const EAnimationInterpolationType& interpolation = sampler.GetInterpolation();
-                        const eosVector<ionFloat>& inputs = sampler.GetInputs();
-                        const eosVector<Vector>& linearPath = sampler.GetLinearPaths();
-                        const eosVector<ionFloat>& morphTarget = sampler.GetMorphTargets();
+                        const ionVector<ionFloat>& inputs = sampler.GetInputs();
+                        const ionVector<Vector>& linearPath = sampler.GetLinearPaths();
+                        const ionVector<ionFloat>& morphTarget = sampler.GetMorphTargets();
 
                         std::vector<ionFloat> _input;
-                        eosVector<ionFloat>::size_type inputCount = inputs.size();
-                        for (eosVector<ionFloat>::size_type a = 0; a < inputCount; ++a)
+                        ionVector<ionFloat>::size_type inputCount = inputs->size();
+                        for (ionVector<ionFloat>::size_type a = 0; a < inputCount; ++a)
                         {
                             const ionFloat& v = inputs[a];
                             _input.push_back(v);
                         }
 
                         std::vector<Vector> _linearPath;
-                        eosVector<Vector>::size_type linearPathCount = linearPath.size();
-                        for (eosVector<Vector>::size_type a = 0; a < linearPathCount; ++a)
+                        ionVector<Vector>::size_type linearPathCount = linearPath->size();
+                        for (ionVector<Vector>::size_type a = 0; a < linearPathCount; ++a)
                         {
                             const Vector& v = linearPath[a];
                             _linearPath.push_back(v);
                         }
 
                         std::vector<ionFloat> _morphTarget;
-                        eosVector<ionFloat>::size_type morphTargetCount = morphTarget.size();
-                        for (eosVector<ionFloat>::size_type a = 0; a < morphTargetCount; ++a)
+                        ionVector<ionFloat>::size_type morphTargetCount = morphTarget->size();
+                        for (ionVector<ionFloat>::size_type a = 0; a < morphTargetCount; ++a)
                         {
                             const ionFloat& v = morphTarget[a];
                             _morphTarget.push_back(v);
@@ -364,30 +364,30 @@ namespace _private
         _inData.IterateAll(
             [&](const ObjectHandler& _node)
         {
-            if (_node->GetNodeType() == ENodeType_Entity)
+            if (_node->GetPtr()->GetNodeType() == ENodeType_Entity)
             {
-                if (Entity* entityPtr = dynamic_cast<Entity*>(_node.GetPtr()))
+                if (Entity* entityPtr = dynamic_cast<Entity*>(_node->GetPtr()))
                 {
                     _private::NodeToJSON(child, *entityPtr);
                 }
             }
-            else if (_node->GetNodeType() == ENodeType_Camera)
+            else if (_node->GetPtr()->GetNodeType() == ENodeType_Camera)
             {
 
             }
-            else if (_node->GetNodeType() == ENodeType_DirectionalLight)
+            else if (_node->GetPtr()->GetNodeType() == ENodeType_DirectionalLight)
             {
 
             }
-            else if (_node->GetNodeType() == ENodeType_PointLight)
+            else if (_node->GetPtr()->GetNodeType() == ENodeType_PointLight)
             {
 
             }
-            else if (_node->GetNodeType() == ENodeType_SpotLight)
+            else if (_node->GetPtr()->GetNodeType() == ENodeType_SpotLight)
             {
 
             }
-            else if (_node->GetNodeType() == ENodeType_EmptyNode)
+            else if (_node->GetPtr()->GetNodeType() == ENodeType_EmptyNode)
             {
 
             }
@@ -525,9 +525,9 @@ void to_json(json& _json, const ObjectHandler& _input)
     json rendererJSON;
     json nodesJSON;
 
-    if (_input->GetNodeType() == ENodeType_Entity)
+    if (_input->GetPtr()->GetNodeType() == ENodeType_Entity)
     {
-        if (Entity* entityPtr = dynamic_cast<Entity*>(_input.GetPtr()))
+        if (Entity* entityPtr = dynamic_cast<Entity*>(_input->GetPtr()))
         {
             // if the serialization level is the max I serialize the vertex either
             if (_private::g_serializationLevel > 1)
@@ -541,23 +541,23 @@ void to_json(json& _json, const ObjectHandler& _input)
             _private::NodeToJSON(nodesJSON, *entityPtr);
         }
     }
-    else if (_input->GetNodeType() == ENodeType_Camera)
+    else if (_input->GetPtr()->GetNodeType() == ENodeType_Camera)
     {
 
     }
-    else if (_input->GetNodeType() == ENodeType_DirectionalLight)
+    else if (_input->GetPtr()->GetNodeType() == ENodeType_DirectionalLight)
     {
 
     }
-    else if (_input->GetNodeType() == ENodeType_PointLight)
+    else if (_input->GetPtr()->GetNodeType() == ENodeType_PointLight)
     {
 
     }
-    else if (_input->GetNodeType() == ENodeType_SpotLight)
+    else if (_input->GetPtr()->GetNodeType() == ENodeType_SpotLight)
     {
 
     }
-    else if (_input->GetNodeType() == ENodeType_EmptyNode)
+    else if (_input->GetPtr()->GetNodeType() == ENodeType_EmptyNode)
     {
 
     }

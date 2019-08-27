@@ -20,67 +20,69 @@ ION_NAMESPACE_BEGIN
 
 SceneGraph::SceneGraph()
 {
-    m_root = eosNew(Node, ION_MEMORY_ALIGNMENT_SIZE, "ION_SCENEGRAPH_ROOT");
+    //m_root = ionNew(Node, "ION_SCENEGRAPH_ROOT");
 }
 
 SceneGraph::~SceneGraph()
 {
     DestroyDirectionalLightToScene();
 
-    for (eosMap<Camera*, eosVector<DrawSurface>>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+    for (ionMap<Camera*, ionVector<DrawSurface>>::iterator iter = m_drawSurfaces->begin(); iter != m_drawSurfaces->end(); ++iter)
     {
-        eosVector<DrawSurface>& drawSurfaces = iter->second;
-        drawSurfaces.clear();
+        ionVector<DrawSurface>& drawSurfaces = iter->second;
+        drawSurfaces->clear();
     }
-    m_drawSurfaces.clear();
+    m_drawSurfaces->clear();
 
-    m_registeredInput.clear();
+    m_registeredInput->clear();
 
     // force last release
-    m_root.Release();
+    //m_root.Release();
 }
 
 void SceneGraph::CreateDirectionalLightToScene()
 {
-    if (!m_directionalLight.IsValid())
+	DirectionalLight* directionalLight = dynamic_cast<DirectionalLight*>(m_directionalLight->GetPtr());
+    if (directionalLight == nullptr)
     {
-        m_directionalLight = eosNew(DirectionalLight, ION_MEMORY_ALIGNMENT_SIZE, "MainDirectionalLight");
+        m_directionalLight = ionNew(DirectionalLight, "MainDirectionalLight");
     }
 }
 
 void SceneGraph::DestroyDirectionalLightToScene()
 {
-    if (m_directionalLight.IsValid())
+	DirectionalLight* directionalLight = reinterpret_cast<DirectionalLight*>(m_directionalLight->GetPtr());
+    if (directionalLight)
     {
-        m_directionalLight.Release();
+        m_directionalLight->Release();
     }
 }
 
-ObjectHandler& SceneGraph::GetDirectionalLight()
+ionObjectHandler<DirectionalLight>& SceneGraph::GetDirectionalLight()
 {
     return m_directionalLight;
 }
 
 DirectionalLight* SceneGraph::GetDirectionalLightPtr()
 {
-    return dynamic_cast<DirectionalLight*>(m_directionalLight.GetPtr());
+    return dynamic_cast<DirectionalLight*>(m_directionalLight());
 }
 
 void SceneGraph::AddToScene(const ObjectHandler& _node)
 {
-    _node->AttachToParent(m_root);
+    _node->GetPtr()->AttachToParent(m_root);
 }
 
 void SceneGraph::RemoveFromScene(const ObjectHandler& _node)
 {
-    _node->DetachFromParent();
+    _node->GetPtr()->DetachFromParent();
 }
 
 void SceneGraph::RemoveAll(const std::function< void(const ObjectHandler& _node) >& _lambda /*= nullptr*/)
 {
-    eosVector<ObjectHandler> myCopy = m_root->GetChildren();
-    std::vector<ObjectHandler>::const_iterator it = myCopy.begin();
-    while (it != myCopy.end())
+    ionVector<ObjectHandler> myCopy = m_root->GetPtr()->GetChildren();
+    std::vector<ObjectHandler>::const_iterator it = myCopy->begin();
+    while (it != myCopy->end())
     {
         if (_lambda != nullptr)
         {
@@ -95,7 +97,7 @@ void SceneGraph::RemoveAll(const std::function< void(const ObjectHandler& _node)
 
 void SceneGraph::UpdateAllCameraAspectRatio(RenderCore& _renderCore)
 {
-    for (eosMap<Camera*, eosVector<DrawSurface>>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+    for (ionMap<Camera*, ionVector<DrawSurface>>::iterator iter = m_drawSurfaces->begin(); iter != m_drawSurfaces->end(); ++iter)
     {
         Camera* cam = iter->first;
 
@@ -109,36 +111,39 @@ void SceneGraph::Begin()
     // I do 2 iterations for clearness
 
     // first camera
-    m_root->IterateAll(
+    m_root->GetPtr()->IterateAll(
         [&](const ObjectHandler& _node)
     {
-        if (_node->GetNodeType() == ENodeType_Camera)
+        if (_node->GetPtr()->GetNodeType() == ENodeType_Camera)
         {
-            Camera* cam = dynamic_cast<Camera*>(_node.GetPtr());
-            if (m_drawSurfaces.find(cam) == m_drawSurfaces.end())
+            Camera* cam = dynamic_cast<Camera*>(_node->GetPtr());
+            if (m_drawSurfaces->find(cam) == m_drawSurfaces->end())
             {
-                m_drawSurfaces.insert(std::pair<Camera*, eosVector<DrawSurface>>(cam, eosVector<DrawSurface>()));
+				ionVector<DrawSurface> drawSurfacesVector;
+				std::pair<Camera*, ionVector<DrawSurface>> pairCamPerDrawsurfaces(cam, drawSurfacesVector);
+				m_drawSurfaces->insert(pairCamPerDrawsurfaces);
+				//m_drawSurfaces->insert(std::pair<Camera*, ionVector<DrawSurface>>(cam, ionVector<DrawSurface>()));
             }
         }
     }
     );
 
     // second objects
-    m_root->IterateAll(
+    m_root->GetPtr()->IterateAll(
         [&](const ObjectHandler& _node)
     {
-        if (_node->GetNodeType() == ENodeType_Entity)
+        if (_node->GetPtr()->GetNodeType() == ENodeType_Entity)
         {
-            for (eosMap<Camera*, eosVector<DrawSurface>>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+            for (ionMap<Camera*, ionVector<DrawSurface>>::iterator iter = m_drawSurfaces->begin(); iter != m_drawSurfaces->end(); ++iter)
             {
                 Camera* cam = iter->first;
 
-                if (_node->IsInRenderLayer(cam->GetRenderLayer()))
+                if (_node->GetPtr()->IsInRenderLayer(cam->GetRenderLayer()))
                 {
                     ObjectHandler entity = _node;
 
                     // is the root of the mesh (because just the "root" has the mesh renderer)
-                    const BaseMeshRenderer* renderer = entity->GetMeshRenderer();
+                    const BaseMeshRenderer* renderer = entity->GetPtr()->GetMeshRenderer();
                     if (renderer != nullptr)
                     {
                         m_isMeshGeneratedFirstTime = false;
@@ -148,10 +153,10 @@ void SceneGraph::Begin()
                         drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(renderer->GetVertexData(), renderer->GetVertexDataCount(), renderer->GetSizeOfVertex());
                         drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(renderer->GetIndexData(), renderer->GetIndexDataCount(), renderer->GetSizeOfIndex());
 
-                        m_drawSurfaces[cam].push_back(drawSurface);
+                        m_drawSurfaces[cam]->push_back(drawSurface);
                     }
 
-                    const ionU32 meshCount = entity->GetMeshCount();
+                    const ionU32 meshCount = entity->GetPtr()->GetMeshCount();
                     if (meshCount > 0)
                     {
                         for (ionU32 i = 0; i < meshCount; i++)
@@ -159,33 +164,33 @@ void SceneGraph::Begin()
                             DrawSurface* drawSurface = nullptr;
                             if (!m_isMeshGeneratedFirstTime)
                             {
-                                drawSurface = &m_drawSurfaces[cam].back();
+                                drawSurface = &m_drawSurfaces[cam]->back();
                                 m_isMeshGeneratedFirstTime = true;
                             }
                             else
                             {
-                                const DrawSurface& drawSurfacePrev = m_drawSurfaces[cam].back();
+                                const DrawSurface& drawSurfacePrev = m_drawSurfaces[cam]->back();
 
                                 DrawSurface drawSurfaceTmp;
                                 drawSurfaceTmp.m_vertexCache = drawSurfacePrev.m_vertexCache;
                                 drawSurfaceTmp.m_indexCache = drawSurfacePrev.m_indexCache;
 
-                                m_drawSurfaces[cam].push_back(drawSurfaceTmp);
+                                m_drawSurfaces[cam]->push_back(drawSurfaceTmp);
 
-                                drawSurface = &m_drawSurfaces[cam].back();
+                                drawSurface = &m_drawSurfaces[cam]->back();
                             }
 
 
-                            drawSurface->m_nodeRef = entity.GetPtr();
-                            drawSurface->m_visible = entity->IsVisible();    // this one is updated x frame, just set for the beginning
+                            drawSurface->m_nodeRef = entity();
+                            drawSurface->m_visible = entity()->IsVisible();    // this one is updated x frame, just set for the beginning
                             drawSurface->m_meshIndexRef = i;
-                            drawSurface->m_indexStart = entity->GetMesh(i)->GetIndexStart();
-                            drawSurface->m_indexCount = entity->GetMesh(i)->GetIndexCount();
-                            drawSurface->m_material = entity->GetMesh(i)->GetMaterial();
+                            drawSurface->m_indexStart = entity()->GetMesh(i)->GetIndexStart();
+                            drawSurface->m_indexCount = entity()->GetMesh(i)->GetIndexCount();
+                            drawSurface->m_material = entity()->GetMesh(i)->GetMaterial();
                             drawSurface->m_sortingIndex = static_cast<ionU8>(drawSurface->m_material->GetAlphaMode());
 
-                            BoundingBox* bb = entity->GetBoundingBox();
-                            m_sceneBoundingBox.Expande(bb->GetTransformed(entity->GetTransform().GetMatrix()));
+                            BoundingBox* bb = entity()->GetBoundingBox();
+                            m_sceneBoundingBox.Expande(bb->GetTransformed(entity()->GetTransform().GetMatrix()));
                         }
                     }
                 }
@@ -197,35 +202,35 @@ void SceneGraph::Begin()
 
     SortDrawSurfaces();
 
-    m_root->IterateAll(
+    m_root->GetPtr()->IterateAll(
         [&](const ObjectHandler& _node)
     {
-        _node->OnBegin();
+        _node->GetPtr()->OnBegin();
     }
     );
 }
 
 void SceneGraph::End()
 {  
-    m_root->IterateAll(
+    m_root->GetPtr()->IterateAll(
         [&](const ObjectHandler& _node)
     {
-        _node->OnEnd();
+        _node->GetPtr()->OnEnd();
     }
     );
 }
 
 void SceneGraph::SortDrawSurfaces()
 {
-    for (eosMap<Camera*, eosVector<DrawSurface>>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+    for (ionMap<Camera*, ionVector<DrawSurface>>::iterator iter = m_drawSurfaces->begin(); iter != m_drawSurfaces->end(); ++iter)
     {
-        eosVector<DrawSurface>& drawSurfaces = iter->second;
+        ionVector<DrawSurface>& drawSurfaces = iter->second;
 
-        eosVector<DrawSurface>::size_type miniPos;
-        for (eosVector<DrawSurface>::size_type i = 0; i < drawSurfaces.size(); ++i)
+        ionVector<DrawSurface>::size_type miniPos;
+        for (ionVector<DrawSurface>::size_type i = 0; i < drawSurfaces->size(); ++i)
         {
             miniPos = i;
-            for (eosVector<DrawSurface>::size_type j = i + 1; j < drawSurfaces.size(); ++j)
+            for (ionVector<DrawSurface>::size_type j = i + 1; j < drawSurfaces->size(); ++j)
             {
                 if (drawSurfaces[j] < drawSurfaces[miniPos])
                 {
@@ -242,11 +247,11 @@ void SceneGraph::SortDrawSurfaces()
 
 void SceneGraph::Update(ionFloat _deltaTime)
 {
-    m_root->Update(_deltaTime);
+    m_root->GetPtr()->Update(_deltaTime);
 
     // mapping
     //ionVertexCacheManager().BeginMapping();
-    for (eosMap<Camera*, eosVector<DrawSurface>>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+    for (ionMap<Camera*, ionVector<DrawSurface>>::iterator iter = m_drawSurfaces->begin(); iter != m_drawSurfaces->end(); ++iter)
     {
         Camera* cam = iter->first;
 
@@ -257,8 +262,8 @@ void SceneGraph::Update(ionFloat _deltaTime)
 
         const Vector& cameraPos = cam->GetTransform().GetPosition();
 
-        eosVector<DrawSurface>& drawSurfaces = iter->second;
-        eosVector<DrawSurface>::iterator beginDS = drawSurfaces.begin(), endDS = drawSurfaces.end(), itDS = beginDS;
+        ionVector<DrawSurface>& drawSurfaces = iter->second;
+        ionVector<DrawSurface>::iterator beginDS = drawSurfaces->begin(), endDS = drawSurfaces->end(), itDS = beginDS;
         for (; itDS != endDS; ++itDS)
         {
             DrawSurface& drawSurface = (*itDS);
@@ -267,7 +272,7 @@ void SceneGraph::Update(ionFloat _deltaTime)
             drawSurface.m_projectionMatrix = projection;
             drawSurface.m_mainCameraPos = cameraPos;
 
-            if (m_directionalLight.IsValid())
+            if (m_directionalLight->IsValid())
             {
                 drawSurface.m_directionalLight = GetDirectionalLightPtr()->GetLightDirection();
                 drawSurface.m_directionalLightColor = GetDirectionalLightPtr()->GetColor();
@@ -289,7 +294,7 @@ void SceneGraph::Update(ionFloat _deltaTime)
 
 void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _width, ionU32 _height)
 {
-    for (eosMap<Camera*, eosVector<DrawSurface>>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
+    for (ionMap<Camera*, ionVector<DrawSurface>>::iterator iter = m_drawSurfaces->begin(); iter != m_drawSurfaces->end(); ++iter)
     {
         Camera* cam = iter->first;
 
@@ -301,9 +306,9 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
 
         cam->RenderSkybox(_renderCore);
 
-        const eosVector<DrawSurface>& surfaces = iter->second;
+        const ionVector<DrawSurface>& surfaces = iter->second;
 
-        eosVector<DrawSurface>::const_iterator begin = surfaces.cbegin(), end = surfaces.cend(), it = begin;
+        ionVector<DrawSurface>::const_iterator begin = surfaces->cbegin(), end = surfaces->cend(), it = begin;
         for (; it != end; ++it)
         {
             const DrawSurface& drawSurface = (*it);
@@ -330,43 +335,43 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
 
 void SceneGraph::RegisterToInput(const ObjectHandler& _node)
 {
-    m_registeredInput.push_back(_node);
+    m_registeredInput->push_back(_node);
 }
 
 void SceneGraph::UnregisterFromInput(const ObjectHandler& _node)
 {
-    //m_registeredInput.erase(std::remove(m_registeredInput.begin(), m_registeredInput.end(), _node), m_registeredInput.end());
-    std::remove(m_registeredInput.begin(), m_registeredInput.end(), _node);
+    //m_registeredInput->erase(std::remove(m_registeredInput->begin(), m_registeredInput->end(), _node), m_registeredInput->end());
+    std::remove(m_registeredInput->begin(), m_registeredInput->end(), _node);
 }
 
 void SceneGraph::UpdateMouseInput(const MouseState& _mouseState, ionFloat _deltaTime)
 {
-    eosVector<ObjectHandler>::const_iterator begin = m_registeredInput.cbegin(), end = m_registeredInput.cend(), it = begin;
+    ionVector<ObjectHandler>::const_iterator begin = m_registeredInput->cbegin(), end = m_registeredInput->cend(), it = begin;
     for (; it != end; ++it)
     {
         const ObjectHandler& node = (*it);
-        node->OnMouseInput(_mouseState, _deltaTime);
+        node->GetPtr()->OnMouseInput(_mouseState, _deltaTime);
     }
 }
 
 void SceneGraph::UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime)
 {
-    eosVector<ObjectHandler>::const_iterator begin = m_registeredInput.cbegin(), end = m_registeredInput.cend(), it = begin;
+    ionVector<ObjectHandler>::const_iterator begin = m_registeredInput->cbegin(), end = m_registeredInput->cend(), it = begin;
     for (; it != end; ++it)
     {
         const ObjectHandler& node = (*it);
-        node->OnKeyboardInput(_keyboardState, _deltaTime);
+        node->GetPtr()->OnKeyboardInput(_keyboardState, _deltaTime);
     }
 }
 
-ObjectHandler SceneGraph::GetObjectByName(const eosString& _name)
+ObjectHandler SceneGraph::GetObjectByName(const ionString& _name)
 {
     ObjectHandler nodeToFind;   // default is empty/invalid
 
-    m_root->IterateAll(
+    m_root->GetPtr()->IterateAll(
         [&](const ObjectHandler& _node)
     {
-        if (_node->GetName() == _name)
+        if (_node->GetPtr()->GetName() == _name)
         {
             nodeToFind = _node;
             return;
@@ -381,10 +386,10 @@ ObjectHandler SceneGraph::GetObjectByUUID(const UUID& _uuid)
 {
     ObjectHandler nodeToFind;   // default is empty/invalid
 
-    m_root->IterateAll(
+    m_root->GetPtr()->IterateAll(
         [&](const ObjectHandler& _node)
     {
-        if (_node->GetUUID() == _uuid)
+        if (_node->GetPtr()->GetUUID() == _uuid)
         {
             nodeToFind = _node;
             return;

@@ -5,6 +5,7 @@
 #include "../Dependencies/Nix/Nix/Nix.h"
 
 #include "../Core/CoreDefs.h"
+#include "../Core/MemoryWrapper.h"
 
 #include "RenderDefs.h"
 
@@ -114,8 +115,8 @@ enum EVertexMask
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct ShaderVertexLayout
 {
     VkPipelineVertexInputStateCreateInfo            m_inputState;
-    eosVector<VkVertexInputBindingDescription>      m_bindinggDescription;
-    eosVector<VkVertexInputAttributeDescription>    m_attributegDescription;
+    ionVector<VkVertexInputBindingDescription>      m_bindinggDescription;
+    ionVector<VkVertexInputAttributeDescription>    m_attributegDescription;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -1102,7 +1103,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
 //////////////////////////////////////////////////////////////////////////
 
 // vertex indices
-typedef ionU32 Index;
+typedef ionU32 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) Index;
 
 
 //////////////////////////////////////////////////////////////////////////

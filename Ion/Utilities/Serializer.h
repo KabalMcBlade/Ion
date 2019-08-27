@@ -64,11 +64,13 @@ namespace nlohmann {
     struct adl_serializer<Vector> {
         static void to_json(json& j, const Vector& opt)
         {
+#ifdef _DEBUG
             std::ostringstream oss;
             oss << opt;
             std::string value = oss.str();
 
             j = value;
+#endif
         }
 
         static void from_json(const json& j, Vector& opt) 
@@ -82,11 +84,13 @@ namespace nlohmann {
     struct adl_serializer<Quaternion> {
         static void to_json(json& j, const Quaternion& opt)
         {
+#ifdef _DEBUG
             std::ostringstream oss;
             oss << opt;
             std::string value = oss.str();
 
             j = value;
+#endif
         }
 
         static void from_json(const json& j, Quaternion& opt)
@@ -96,11 +100,13 @@ namespace nlohmann {
 
         static void to_json(json& j, const Matrix& opt)
         {
+#ifdef _DEBUG
             std::ostringstream oss;
             oss << opt;
             std::string value = oss.str();
 
             j = value;
+#endif
         }
 
         static void from_json(const json& j, Matrix& opt)
@@ -114,11 +120,13 @@ namespace nlohmann {
     struct adl_serializer<Matrix> {
         static void to_json(json& j, const Matrix& opt)
         {
+#ifdef _DEBUG
             std::ostringstream oss;
             oss << opt;
             std::string value = oss.str();
 
             j = value;
+#endif
         }
 
         static void from_json(const json& j, Matrix& opt)

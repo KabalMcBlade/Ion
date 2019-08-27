@@ -51,15 +51,13 @@ class DirectionalLight;
 class ION_DLL RenderManager final
 {
 public:
-    ION_NO_INLINE static void Create();
-    ION_NO_INLINE static void Destroy();
+    static RenderManager& Instance();
 
-    ION_NO_INLINE static RenderManager& Instance();
-
-    ionBool LoadModelFromFile(const eosString& _filePath, Camera* _camToUpdate, ObjectHandler& _entity);
-    void DumpModelToFile(const eosString& _filePath, const ObjectHandler& _entity, LoaderGLTF::ESerializationLevel _level = LoaderGLTF::ESerializationLevel_Normal);
+    ionBool LoadModelFromFile(const ionString& _filePath, Camera* _camToUpdate, ObjectHandler& _entity);
+    void DumpModelToFile(const ionString& _filePath, const ObjectHandler& _entity, LoaderGLTF::ESerializationLevel _level = LoaderGLTF::ESerializationLevel_Normal);
 
     void GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _type, ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
+	void GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _type, Entity* _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
 
     void LoadColoredTriangle(ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
     void LoadColoredQuad(ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
@@ -98,7 +96,7 @@ public:
     void    RegisterToInput(const ObjectHandler& _node);
     void    UnregisterFromInput(const ObjectHandler& _node);
 
-    ObjectHandler GetObjectByName(const eosString& _name);
+    ObjectHandler GetObjectByName(const ionString& _name);
     ObjectHandler GetObjectByUUID(const UUID& _uuid);
 
     void    Quit();
@@ -146,9 +144,6 @@ private:
     ionFloat    m_deltaTime;
 
     ionBool     m_running;
-
-private:
-    static RenderManager *s_instance;
 };
 
 ION_NAMESPACE_END

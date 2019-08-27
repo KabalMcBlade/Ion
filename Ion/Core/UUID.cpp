@@ -20,10 +20,10 @@ void UUID::GenerateUUID()
     ++g_counter;
 
     // generate to string
-    eosString hight = std::to_string(m_highBites).c_str();
-    eosString low = std::to_string(m_lowBites).c_str();
+    ionString hight = std::to_string(m_highBites).c_str();
+    ionString low = std::to_string(m_lowBites).c_str();
 
-    m_uuidString = hight + low;
+    m_uuidString = hight.append(low);
 }
 
 

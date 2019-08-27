@@ -33,6 +33,10 @@ void BoundingBox::Set(const Vector& _min, const Vector& _max)
 {
     m_min = _min;
     m_max = _max;
+
+	ionAssertReturnVoid((((uintptr_t)(&m_min)) & 15) == 0, "Pointer is misaligned");
+	ionAssertReturnVoid((((uintptr_t)(&m_max)) & 15) == 0, "Pointer is misaligned");
+
     m_halfExtent = (m_max - m_min) * 0.5f;
     m_center = (m_max + m_min) * 0.5f;
     m_size = m_max - m_min;
@@ -73,7 +77,7 @@ void BoundingBox::Expande(const Vector& _min, const Vector& _max)
     Set(Helper::Min(m_min, _min), Helper::Max(m_max, _max));
 }
 
-void BoundingBox::GetCorners(eosVector<Vector>& _corners) const
+void BoundingBox::GetCorners(ionVector<Vector>& _corners) const
 {
     const nixFloat4 min = m_min;
     const nixFloat4 max = m_max;
@@ -81,45 +85,45 @@ void BoundingBox::GetCorners(eosVector<Vector>& _corners) const
     const nixFloat4 _minX_maxX_minY_maxY = _mm_unpacklo_ps(min, max);
     const nixFloat4 _minZ_maxZ_minW_maxW = _mm_unpackhi_ps(min, max);
 
-    _corners.clear();
-    _corners.reserve(8);
+    _corners->clear();
+    _corners->reserve(8);
 
     // corner 0
-    _corners.push_back(m_min);
+    _corners->push_back(m_min);
 
     // corner 1
     const nixFloat4 _minX_maxY_minZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(0, 3, 0, 3));
-    _corners.push_back(_minX_maxY_minZ_maxW);
+    _corners->push_back(_minX_maxY_minZ_maxW);
 
     // corner 2
     const nixFloat4 _maxX_maxY_minZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(1, 3, 0, 3));
-    _corners.push_back(_maxX_maxY_minZ_maxW);
+    _corners->push_back(_maxX_maxY_minZ_maxW);
 
     // corner 3
     const nixFloat4 _maxX_minY_minZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(1, 2, 0, 3));
-    _corners.push_back(_maxX_minY_minZ_maxW);
+    _corners->push_back(_maxX_minY_minZ_maxW);
 
     // corner 4
-    _corners.push_back(m_max);
+    _corners->push_back(m_max);
 
     // corner 5
     const nixFloat4 _minX_maxY_maxZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(0, 3, 1, 3));
-    _corners.push_back(_minX_maxY_maxZ_maxW);
+    _corners->push_back(_minX_maxY_maxZ_maxW);
 
     // corner 6
     const nixFloat4 _minX_minY_maxZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(0, 2, 1, 3));
-    _corners.push_back(_minX_minY_maxZ_maxW);
+    _corners->push_back(_minX_minY_maxZ_maxW);
 
     // corner 7
     const nixFloat4 _maxX_minY_maxZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(1, 2, 1, 3));
-    _corners.push_back(_maxX_minY_maxZ_maxW);
+    _corners->push_back(_maxX_minY_maxZ_maxW);
 }
 
 BoundingBox BoundingBox::GetTransformed(const Matrix& _matrix)
 {
     BoundingBox transformedBoundingBox;
 
-    eosVector<Vector> corners;
+    ionVector<Vector> corners;
     GetCorners(corners);
 
     for (ionU32 i = 0; i < 8; ++i)

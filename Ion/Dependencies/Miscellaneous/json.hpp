@@ -1217,12 +1217,12 @@ void from_json_array_impl(const BasicJsonType& j, CompatibleArrayType& arr, prio
 template<typename BasicJsonType, typename CompatibleArrayType>
 auto from_json_array_impl(const BasicJsonType& j, CompatibleArrayType& arr, priority_tag<1> /*unused*/)
 -> decltype(
-    arr.reserve(std::declval<typename CompatibleArrayType::size_type>()),
+    arr->reserve(std::declval<typename CompatibleArrayType::size_type>()),
     void())
 {
     using std::end;
 
-    arr.reserve(j.size());
+    arr->reserve(j.size());
     std::transform(j.begin(), j.end(),
                    std::inserter(arr, end(arr)), [](const BasicJsonType & i)
     {

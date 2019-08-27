@@ -7,6 +7,8 @@
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
+#include "../Core/MemoryWrapper.h"
+
 #include "TextureCommon.h"
 
 #include "../Renderer/GPUMemoryManager.h"
@@ -19,10 +21,10 @@ ION_NAMESPACE_BEGIN
 class Texture final
 {
 public:
-    Texture(VkDevice _vkDevice, const eosString& _name);
+    Texture(VkDevice _vkDevice, const ionString& _name);
     ~Texture();
 
-    const eosString& GetName() const { return m_name; }
+    const ionString& GetName() const { return m_name; }
     const VkImageView& GetView() const { return m_view; }
     const VkImageLayout& GetLayout() const { return m_layout; }
     const VkSampler& GetSampler() const { return m_sampler; }
@@ -40,11 +42,11 @@ public:
 private:
     friend class TextureManager;
 
-    ionBool CreateFromFile(const eosString& _path);
+    ionBool CreateFromFile(const ionString& _path);
     ionBool CreateFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer, VkDeviceSize _bufferSize);
     ionBool Create();
 
-    ionBool Save(const eosString& _path) const;
+    ionBool Save(const ionString& _path) const;
 
     ionBool GenerateTexture(ionU32 _width, ionU32 _height, ETextureFormat _format, ETextureRepeat _repeat, ETextureType _type = ETextureType_2D, ionU32 _numLevel = 1);
 
@@ -58,9 +60,9 @@ private:
     VkComponentMapping GetVulkanComponentMappingFromTextureFormat(ETextureFormat _format);
     void GetVulkanFiltersFromTextureFilters(ETextureFilterMin _min0, ETextureFilterMag _mag0, VkFilter& _min, VkFilter& _mag, VkSamplerMipmapMode& _mipmap);
 
-    ionBool LoadTextureFromFile(const eosString& _path);
-    ionBool LoadCubeTextureFromFile(const eosString& _path);
-    ionBool LoadCubeTextureFromFiles(const eosVector<eosString>& paths);
+    ionBool LoadTextureFromFile(const ionString& _path);
+    ionBool LoadCubeTextureFromFile(const ionString& _path);
+    ionBool LoadCubeTextureFromFiles(const ionVector<ionString>& paths);
 
     ionBool LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer);
 
@@ -73,7 +75,7 @@ private:
     void UploadTextureBuffer(const ionU8* _buffer, ionU32 _component, ionU32 _index = 0 /* index of texture for cube-map, 0 by default */);
 
 private:
-    eosString               m_name;
+    ionString               m_name;
     VkDevice                m_vkDevice;
     vkGpuMemoryAllocation   m_allocation;
 

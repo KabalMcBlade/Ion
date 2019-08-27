@@ -76,10 +76,7 @@ public:
 class VertexCacheManager final
 {
 public:
-    ION_NO_INLINE static void Create();
-    ION_NO_INLINE static void Destroy();
-
-    ION_NO_INLINE static VertexCacheManager& Instance();
+    static VertexCacheManager& Instance();
 
     ionBool Init(const VkDevice& _device, VkDeviceSize _uniformBufferOffsetAlignment);
     void    Shutdown();
@@ -148,9 +145,6 @@ private:
     VkDevice            m_device;
     GeometryBufferSet    m_staticData;
     GeometryBufferSet    m_frameData;
-
-private:
-    static VertexCacheManager *s_instance;
 };
 
 ION_NAMESPACE_END

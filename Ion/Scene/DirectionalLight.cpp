@@ -16,7 +16,7 @@ DirectionalLight::DirectionalLight() :  Node(ION_BASE_DIRECTIONAL_LIGHT)
     m_color = kOne.m_simdf;
 }
 
-DirectionalLight::DirectionalLight(const eosString & _name) : Node(_name)
+DirectionalLight::DirectionalLight(const ionString & _name) : Node(_name)
 {
     m_nodeType = ENodeType_DirectionalLight;
     m_color = kOne.m_simdf;

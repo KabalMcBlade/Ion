@@ -24,18 +24,18 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-VkSurfaceFormatKHR RenderCore::SelectSurfaceFormat(eosVector<VkSurfaceFormatKHR>& _vkFormats) const
+VkSurfaceFormatKHR RenderCore::SelectSurfaceFormat(ionVector<VkSurfaceFormatKHR>& _vkFormats) const
 {
     VkSurfaceFormatKHR result;
 
-    if (_vkFormats.size() == 1 && _vkFormats[0].format == VK_FORMAT_UNDEFINED)
+    if (_vkFormats->size() == 1 && _vkFormats[0].format == VK_FORMAT_UNDEFINED)
     {
         result.format = VK_FORMAT_B8G8R8A8_UNORM;
         result.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         return result;
     }
 
-    for (ionSize i = 0; i < _vkFormats.size(); ++i)
+    for (ionSize i = 0; i < _vkFormats->size(); ++i)
     {
         VkSurfaceFormatKHR& surfaceFormat = _vkFormats[i];
         if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM && surfaceFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
@@ -47,9 +47,9 @@ VkSurfaceFormatKHR RenderCore::SelectSurfaceFormat(eosVector<VkSurfaceFormatKHR>
     return _vkFormats[0];
 }
 
-VkPresentModeKHR RenderCore::SelectPresentMode(eosVector<VkPresentModeKHR>& _vkModes) const
+VkPresentModeKHR RenderCore::SelectPresentMode(ionVector<VkPresentModeKHR>& _vkModes) const
 {
-    for (ionSize i = 0; i < _vkModes.size(); i++)
+    for (ionSize i = 0; i < _vkModes->size(); i++)
     {
         if (_vkModes[i] == VK_PRESENT_MODE_MAILBOX_KHR) // I WANT THIS FOR TRIPLE BUFFERING!, BUT IF NOT POSSIBLE....
         {
@@ -113,7 +113,7 @@ VkFormat RenderCore::SelectSupportedFormat(VkPhysicalDevice _vkPhysicalDevice, V
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char* layerPrefix, const char* msg, void* userData) 
 {
-    eosString prefix("");
+    ionString prefix("");
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
     {
         prefix += "[ERROR]";
@@ -176,23 +176,23 @@ ionBool RenderCore::CreateInstance(ionBool _enableValidationLayer)
     createInfo.pNext = nullptr;
     createInfo.pApplicationInfo = &appInfo;
 
-    eosVector<const char*> enabledExtensions;
-    enabledExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-    enabledExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+    ionVector<const char*> enabledExtensions;
+    enabledExtensions->push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+    enabledExtensions->push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 
+	ionVector<const char*> enabledLayers;
     if (m_vkValidationEnabled)
     {
-        enabledExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+        enabledExtensions->push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 
-        eosVector<const char*> enabledLayers;
-        enabledLayers.push_back(VK_LUNAR_VALIDATION_LAYER);
+        enabledLayers->push_back(VK_LUNAR_VALIDATION_LAYER);
 
         ionU32 layerCount = 0;
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
-        eosVector<VkLayerProperties> layers;
-        layers.resize(layerCount);
-        vkEnumerateInstanceLayerProperties(&layerCount, layers.data());
+        ionVector<VkLayerProperties> layers;
+        layers->resize(layerCount);
+        vkEnumerateInstanceLayerProperties(&layerCount, layers->data());
 
         bool found = false;
         for (ionU32 i = 0; i < layerCount; ++i)
@@ -206,12 +206,12 @@ ionBool RenderCore::CreateInstance(ionBool _enableValidationLayer)
         ionAssertReturnValue(found, "Cannot find validation layer", false);
         // here break
 
-        createInfo.enabledLayerCount = (ionU32)enabledLayers.size();
-        createInfo.ppEnabledLayerNames = enabledLayers.data();
+        createInfo.enabledLayerCount = (ionU32)enabledLayers->size();
+        createInfo.ppEnabledLayerNames = enabledLayers->data();
     }
 
-    createInfo.enabledExtensionCount = (ionU32)enabledExtensions.size();
-    createInfo.ppEnabledExtensionNames = enabledExtensions.data();
+    createInfo.enabledExtensionCount = (ionU32)enabledExtensions->size();
+    createInfo.ppEnabledExtensionNames = enabledExtensions->data();
 
     VkResult result = vkCreateInstance(&createInfo, vkMemory, &m_vkInstance);
 
@@ -238,21 +238,21 @@ ionBool RenderCore::CreatePhysicalDevice()
     ionAssertReturnValue(result == VK_SUCCESS, "vkEnumeratePhysicalDevices returned zero devices.!", false);
     ionAssertReturnValue(numDevices > 0, "vkEnumeratePhysicalDevices returned zero devices.", false);
 
-    eosVector<VkPhysicalDevice> devices;
-    devices.resize(numDevices);
+    ionVector<VkPhysicalDevice> devices;
+    devices->resize(numDevices);
 
-    result = vkEnumeratePhysicalDevices(m_vkInstance, &numDevices, devices.data());
+    result = vkEnumeratePhysicalDevices(m_vkInstance, &numDevices, devices->data());
     ionAssertReturnValue(result == VK_SUCCESS, "vkEnumeratePhysicalDevices returned zero devices.!", false);
     ionAssertReturnValue(numDevices > 0, "vkEnumeratePhysicalDevices returned zero devices.", false);
 
-    eosVector<GPU> gpuList;
-    gpuList.resize(numDevices);
+    ionVector<GPU> gpuList;
+    gpuList->resize(numDevices);
     for (ionU32 i = 0; i < numDevices; ++i)
     {
         gpuList[i].Set(m_vkInstance, m_vkSurface, devices[i]);
     }
 
-    const ionSize& gpuSize = gpuList.size();
+    const ionSize& gpuSize = gpuList->size();
     for(ionSize i = 0; i < gpuSize; ++i)
     {
          const GPU& gpu = gpuList[i];
@@ -262,7 +262,7 @@ ionBool RenderCore::CreatePhysicalDevice()
 
          //////////////////////////////////////////////////////////////////////////
          bool found = false;
-         const ionSize& extensionPropsCount = gpu.m_vkExtensionProps.size();
+         const ionSize& extensionPropsCount = gpu.m_vkExtensionProps->size();
          for (ionSize j = 0; j < extensionPropsCount; ++j)
          {
              if (std::strcmp(VK_KHR_SWAPCHAIN_EXTENSION_NAME, gpu.m_vkExtensionProps[j].extensionName) == 0)
@@ -276,18 +276,18 @@ ionBool RenderCore::CreatePhysicalDevice()
              continue;
          }
 
-         if (gpu.m_vkSurfaceFormats.size() == 0)
+         if (gpu.m_vkSurfaceFormats->size() == 0)
          {
              continue;
          }
 
-         if (gpu.m_vkPresentModes.size() == 0)
+         if (gpu.m_vkPresentModes->size() == 0)
          {
              continue;
          }
 
          //////////////////////////////////////////////////////////////////////////
-         const ionSize& queueFamilySize = gpu.m_vkQueueFamilyProps.size();
+         const ionSize& queueFamilySize = gpu.m_vkQueueFamilyProps->size();
          for (ionSize j = 0; j < queueFamilySize; ++j)
          {
              const VkQueueFamilyProperties& props = gpu.m_vkQueueFamilyProps[j];
@@ -339,11 +339,11 @@ ionBool RenderCore::CreateLogicalDeviceAndQueues()
 {
     const ionFloat priority = 1.0f;
 
-    eosVector<const char*> enabledExtensions;
-    enabledExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    ionVector<const char*> enabledExtensions;
+    enabledExtensions->push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
 
-    eosVector<VkDeviceQueueCreateInfo> deviceQueueInfo;
+    ionVector<VkDeviceQueueCreateInfo> deviceQueueInfo;
 
     if (m_vkGraphicsFamilyIndex != m_vkPresentFamilyIndex)
     {
@@ -355,7 +355,7 @@ ionBool RenderCore::CreateLogicalDeviceAndQueues()
             createInfo.pQueuePriorities = &priority;
             createInfo.pNext = nullptr;
 
-            deviceQueueInfo.push_back(createInfo);
+            deviceQueueInfo->push_back(createInfo);
         }
 
         {
@@ -366,7 +366,7 @@ ionBool RenderCore::CreateLogicalDeviceAndQueues()
             createInfo.pQueuePriorities = &priority;
             createInfo.pNext = nullptr;
 
-            deviceQueueInfo.push_back(createInfo);
+            deviceQueueInfo->push_back(createInfo);
         }
     }
     else
@@ -378,7 +378,7 @@ ionBool RenderCore::CreateLogicalDeviceAndQueues()
         createInfo.pQueuePriorities = &priority;
         createInfo.pNext = nullptr;
 
-        deviceQueueInfo.push_back(createInfo);
+        deviceQueueInfo->push_back(createInfo);
     }
 
     VkPhysicalDeviceFeatures deviceFeatures = {};
@@ -391,19 +391,19 @@ ionBool RenderCore::CreateLogicalDeviceAndQueues()
 
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.queueCreateInfoCount = (ionU32)deviceQueueInfo.size();
-    createInfo.pQueueCreateInfos = deviceQueueInfo.data();
+    createInfo.queueCreateInfoCount = (ionU32)deviceQueueInfo->size();
+    createInfo.pQueueCreateInfos = deviceQueueInfo->data();
     createInfo.pEnabledFeatures = &deviceFeatures;
-    createInfo.enabledExtensionCount = (ionU32)enabledExtensions.size();
-    createInfo.ppEnabledExtensionNames = enabledExtensions.data();
+    createInfo.enabledExtensionCount = (ionU32)enabledExtensions->size();
+    createInfo.ppEnabledExtensionNames = enabledExtensions->data();
 
+	ionVector<const char*> enabledLayers;
     if (m_vkValidationEnabled)
-    {
-        eosVector<const char*> enabledLayers;
-        enabledLayers.push_back(VK_LUNAR_VALIDATION_LAYER);
+    {  
+        enabledLayers->push_back(VK_LUNAR_VALIDATION_LAYER);
 
-        createInfo.enabledLayerCount = (ionU32)enabledLayers.size();
-        createInfo.ppEnabledLayerNames = enabledLayers.data();
+        createInfo.enabledLayerCount = (ionU32)enabledLayers->size();
+        createInfo.ppEnabledLayerNames = enabledLayers->data();
     }
     else
     {
@@ -512,13 +512,13 @@ ionBool RenderCore::CreateSwapChain()
     ionAssertReturnValue(result == VK_SUCCESS, "Cannot get swap chain image!", false);
     ionAssertReturnValue(m_swapChainImageCount > 0, "vkGetSwapchainImagesKHR returned a zero image count.", false);
 
-    m_vkSwapchainImages.resize(m_swapChainImageCount, VK_NULL_HANDLE);
+    m_vkSwapchainImages->resize(m_swapChainImageCount, VK_NULL_HANDLE);
 
-    result = vkGetSwapchainImagesKHR(m_vkDevice, m_vkSwapchain, &m_swapChainImageCount, m_vkSwapchainImages.data());
+    result = vkGetSwapchainImagesKHR(m_vkDevice, m_vkSwapchain, &m_swapChainImageCount, m_vkSwapchainImages->data());
     ionAssertReturnValue(result == VK_SUCCESS, "Cannot get swap chain image!", false);
     ionAssertReturnValue(m_swapChainImageCount > 0, "vkGetSwapchainImagesKHR returned a zero image count.", false);
 
-    m_vkSwapchainViews.resize(m_swapChainImageCount, VK_NULL_HANDLE);
+    m_vkSwapchainViews->resize(m_swapChainImageCount, VK_NULL_HANDLE);
 
     for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
     {
@@ -554,7 +554,7 @@ void RenderCore::DestroySwapChain()
             vkDestroyImageView(m_vkDevice, m_vkSwapchainViews[i], vkMemory);
         }
     }
-    m_vkSwapchainViews.clear();
+    m_vkSwapchainViews->clear();
 
     if (m_vkSwapchain != VK_NULL_HANDLE)
     {
@@ -565,7 +565,7 @@ void RenderCore::DestroySwapChain()
 
 ionBool RenderCore::CreateCommandBuffer()
 {
-    m_vkCommandBuffers.resize(m_swapChainImageCount, VK_NULL_HANDLE);
+    m_vkCommandBuffers->resize(m_swapChainImageCount, VK_NULL_HANDLE);
     {
         VkCommandBufferAllocateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -573,11 +573,11 @@ ionBool RenderCore::CreateCommandBuffer()
         createInfo.commandPool = m_vkCommandPool;
         createInfo.commandBufferCount = m_swapChainImageCount;
 
-        VkResult result = vkAllocateCommandBuffers(m_vkDevice, &createInfo, m_vkCommandBuffers.data());
+        VkResult result = vkAllocateCommandBuffers(m_vkDevice, &createInfo, m_vkCommandBuffers->data());
         ionAssertReturnValue(result == VK_SUCCESS, "Cannot create command buffer!", false);
     }
 
-    m_vkCommandBufferFences.resize(m_swapChainImageCount, VK_NULL_HANDLE);
+    m_vkCommandBufferFences->resize(m_swapChainImageCount, VK_NULL_HANDLE);
     {
         VkFenceCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -951,8 +951,8 @@ ionBool RenderCore::CreateRenderPass(VkRenderPass& _vkRenderPass, EFramebufferLo
         subpass.pDepthStencilAttachment = &depthRef;
         subpass.pResolveAttachments = &resolveRef;
 
-        eosVector<VkSubpassDependency> dependencies;
-        dependencies.resize(2);
+        ionVector<VkSubpassDependency> dependencies;
+        dependencies->resize(2);
 
         dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
         dependencies[0].dstSubpass = 0;
@@ -976,8 +976,8 @@ ionBool RenderCore::CreateRenderPass(VkRenderPass& _vkRenderPass, EFramebufferLo
         renderPassCreateInfo.pAttachments = attachments;
         renderPassCreateInfo.subpassCount = 1;
         renderPassCreateInfo.pSubpasses = &subpass;
-        renderPassCreateInfo.dependencyCount = static_cast<ionU32>(dependencies.size());
-        renderPassCreateInfo.pDependencies = dependencies.data();
+        renderPassCreateInfo.dependencyCount = static_cast<ionU32>(dependencies->size());
+        renderPassCreateInfo.pDependencies = dependencies->data();
 
         VkResult result = vkCreateRenderPass(m_vkDevice, &renderPassCreateInfo, vkMemory, &_vkRenderPass);
         ionAssertReturnValue(result == VK_SUCCESS, "Cannot create render pass!", false);
@@ -1027,8 +1027,8 @@ ionBool RenderCore::CreateRenderPass(VkRenderPass& _vkRenderPass, EFramebufferLo
         subpass.pPreserveAttachments = nullptr;
         subpass.pResolveAttachments = nullptr;
 
-        eosVector<VkSubpassDependency> dependencies;
-        dependencies.resize(2);
+        ionVector<VkSubpassDependency> dependencies;
+        dependencies->resize(2);
 
         dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
         dependencies[0].dstSubpass = 0;
@@ -1052,8 +1052,8 @@ ionBool RenderCore::CreateRenderPass(VkRenderPass& _vkRenderPass, EFramebufferLo
         renderPassCreateInfo.pAttachments = attachments;
         renderPassCreateInfo.subpassCount = 1;
         renderPassCreateInfo.pSubpasses = &subpass;
-        renderPassCreateInfo.dependencyCount = static_cast<ionU32>(dependencies.size());
-        renderPassCreateInfo.pDependencies = dependencies.data();
+        renderPassCreateInfo.dependencyCount = static_cast<ionU32>(dependencies->size());
+        renderPassCreateInfo.pDependencies = dependencies->data();
 
         VkResult result = vkCreateRenderPass(m_vkDevice, &renderPassCreateInfo, vkMemory, &_vkRenderPass);
         ionAssertReturnValue(result == VK_SUCCESS, "Cannot create render pass!", false);
@@ -1073,7 +1073,7 @@ ionBool RenderCore::CreatePipelineCache()
     return true;
 }
 
-ionBool RenderCore::CreateFrameBuffers(VkRenderPass _vkRenderPass, eosVector<VkFramebuffer>& _vkFrameBuffers)
+ionBool RenderCore::CreateFrameBuffers(VkRenderPass _vkRenderPass, ionVector<VkFramebuffer>& _vkFrameBuffers)
 {
     VkImageView attachments[4] = {};
 
@@ -1098,8 +1098,8 @@ ionBool RenderCore::CreateFrameBuffers(VkRenderPass _vkRenderPass, eosVector<VkF
     frameBufferCreateInfo.height = m_height;
     frameBufferCreateInfo.layers = 1;
 
-    _vkFrameBuffers.clear();
-    _vkFrameBuffers.resize(m_swapChainImageCount, VK_NULL_HANDLE);
+    _vkFrameBuffers->clear();
+    _vkFrameBuffers->resize(m_swapChainImageCount, VK_NULL_HANDLE);
     for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
     {
         if (resolve)
@@ -1123,13 +1123,13 @@ void RenderCore::DestroyFrameBuffer(VkFramebuffer _frameBuffer)
     vkDestroyFramebuffer(m_vkDevice, _frameBuffer, vkMemory);
 }
 
-void RenderCore::DestroyFrameBuffers(eosVector<VkFramebuffer>& _vkFrameBuffers)
+void RenderCore::DestroyFrameBuffers(ionVector<VkFramebuffer>& _vkFrameBuffers)
 {
     for (ionU32 i = 0; i < m_swapChainImageCount; ++i)
     {
         DestroyFrameBuffer(_vkFrameBuffers[i]);
     }
-    _vkFrameBuffers.clear();
+    _vkFrameBuffers->clear();
 }
 
 RenderCore::RenderCore() : m_instance(nullptr), m_window(nullptr)
@@ -1140,10 +1140,10 @@ RenderCore::RenderCore() : m_instance(nullptr), m_window(nullptr)
 
 RenderCore::~RenderCore()
 {
-    m_vkSwapchainViews.clear();
-    m_vkSwapchainImages.clear();
-    m_vkCommandBufferFences.clear();
-    m_vkCommandBuffers.clear();
+    m_vkSwapchainViews->clear();
+    m_vkSwapchainImages->clear();
+    m_vkCommandBufferFences->clear();
+    m_vkCommandBuffers->clear();
 }
 
 void RenderCore::Clear()
@@ -1186,12 +1186,12 @@ void RenderCore::Clear()
 
     m_vkSwapchainExtent.width = m_width;
     m_vkSwapchainExtent.height = m_height;
-    m_vkSwapchainImages.clear();
-    m_vkSwapchainViews.clear();
+    m_vkSwapchainImages->clear();
+    m_vkSwapchainViews->clear();
     m_currentSwapIndex = 0;
 
-    m_vkCommandBuffers.clear();
-    m_vkCommandBufferFences.clear();
+    m_vkCommandBuffers->clear();
+    m_vkCommandBufferFences->clear();
 }
 
 ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
@@ -1302,7 +1302,7 @@ void RenderCore::DestroyRenderPass(VkRenderPass _renderPass)
 void RenderCore::DestroyCommandBuffers()
 {
     vkDeviceWaitIdle(m_vkDevice);
-    vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
+    vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers->size()), m_vkCommandBuffers->data());
 }
 
 void RenderCore::Shutdown()
@@ -1334,7 +1334,7 @@ void RenderCore::Shutdown()
         }
     }
 
-    //vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
+    //vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers->size()), m_vkCommandBuffers->data());
 
     if (m_vkCommandPool != VK_NULL_HANDLE)
     {
@@ -1398,7 +1398,7 @@ void RenderCore::Recreate()
         }
     }
 
-    vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers.size()), m_vkCommandBuffers.data());
+    vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, static_cast<ionU32>(m_vkCommandBuffers->size()), m_vkCommandBuffers->data());
 
     CreateSwapChain();
     CreateCommandBuffer();
@@ -1455,15 +1455,15 @@ EFrameStatus RenderCore::StartFrame()
     return EFrameStatus_Success;
 }
 
-void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector<VkClearValue>& _clearValues, const VkRect2D& _renderArea)
+void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const ionVector<VkClearValue>& _clearValues, const VkRect2D& _renderArea)
 {
     VkRenderPassBeginInfo renderPassBeginInfo = {};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassBeginInfo.renderPass = _renderPass;
     renderPassBeginInfo.framebuffer = _frameBuffer;
     renderPassBeginInfo.renderArea = _renderArea;
-    renderPassBeginInfo.clearValueCount = static_cast<ionU32>(_clearValues.size());
-    renderPassBeginInfo.pClearValues = _clearValues.data();
+    renderPassBeginInfo.clearValueCount = static_cast<ionU32>(_clearValues->size());
+    renderPassBeginInfo.pClearValues = _clearValues->data();
 
     vkCmdBeginRenderPass(_commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
@@ -1475,17 +1475,17 @@ void RenderCore::StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameB
     ionAssertReturnVoid(_clearGreen >= 0.0f && _clearGreen <= 1.0f, "Clear green must be between 0 and 1!");
     ionAssertReturnVoid(_clearBlue >= 0.0f && _clearBlue <= 1.0f, "Clear blue must be between 0 and 1!");
 
-    eosVector<VkClearValue> clearValues;
+    ionVector<VkClearValue> clearValues;
     if (m_vkSampleCount > VK_SAMPLE_COUNT_1_BIT)
     {
-        clearValues.resize(3);
+        clearValues->resize(3);
         clearValues[0].color = { { _clearRed, _clearGreen, _clearBlue, 1.0f } };
         clearValues[1].color = { { _clearRed, _clearGreen, _clearBlue, 1.0f } };
         clearValues[2].depthStencil = { _clearDepthValue, _clearStencilValue };
     }
     else 
     {
-        clearValues.resize(2);
+        clearValues->resize(2);
         clearValues[0].color = { { _clearRed, _clearGreen, _clearBlue, 1.0f } };
         clearValues[1].depthStencil = { _clearDepthValue, _clearStencilValue };
     }
@@ -2030,8 +2030,8 @@ VkRenderPass RenderCore::CreateTexturedRenderPass(Texture* _texture, VkImageLayo
     subpassDescription.pColorAttachments = &colorReference;
 
     // Use subpass dependencies for layout transitions
-    eosVector<VkSubpassDependency> dependencies;
-    dependencies.resize(2);
+    ionVector<VkSubpassDependency> dependencies;
+    dependencies->resize(2);
 
     dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
     dependencies[0].dstSubpass = 0;
@@ -2055,8 +2055,8 @@ VkRenderPass RenderCore::CreateTexturedRenderPass(Texture* _texture, VkImageLayo
     renderPassCreateInfo.pAttachments = &attDesc;
     renderPassCreateInfo.subpassCount = 1;
     renderPassCreateInfo.pSubpasses = &subpassDescription;
-    renderPassCreateInfo.dependencyCount = static_cast<ionU32>(dependencies.size());
-    renderPassCreateInfo.pDependencies = dependencies.data();
+    renderPassCreateInfo.dependencyCount = static_cast<ionU32>(dependencies->size());
+    renderPassCreateInfo.pDependencies = dependencies->data();
 
     VkRenderPass renderpass;
     VkResult result = vkCreateRenderPass(m_vkDevice, &renderPassCreateInfo, vkMemory, &renderpass);

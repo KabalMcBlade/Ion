@@ -38,11 +38,11 @@ Camera::Camera(ionBool _clearBackground /*= true*/) :
     m_vkRenderPass(VK_NULL_HANDLE)
 {
     m_framebufferLoadType = _clearBackground ? EFramebufferLoad_Clear : EFramebufferLoad_Load;
-    m_vkFrameBuffers.clear();
+    m_vkFrameBuffers->clear();
     m_nodeType = ENodeType_Camera;
 }
 
-Camera::Camera(const eosString & _name, ionBool _clearBackground/* = true*/) :
+Camera::Camera(const ionString & _name, ionBool _clearBackground/* = true*/) :
     Node(_name), 
     m_type(ECameraType::ECameraType_LookAt),
     m_fov(60.0f),
@@ -67,14 +67,14 @@ Camera::Camera(const eosString & _name, ionBool _clearBackground/* = true*/) :
     m_vkRenderPass(VK_NULL_HANDLE)
 {
     m_framebufferLoadType = _clearBackground ? EFramebufferLoad_Clear : EFramebufferLoad_Undefined;
-    m_vkFrameBuffers.clear();
+    m_vkFrameBuffers->clear();
     m_nodeType = ENodeType_Camera;
 }
 
 Camera::~Camera()
 {
     RemoveSkybox();
-    m_vkFrameBuffers.clear();
+    m_vkFrameBuffers->clear();
 }
 
 Matrix Camera::PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar)
@@ -150,7 +150,7 @@ Skybox* Camera::AddSkybox()
 {
     if (m_skybox == nullptr)
     {
-        m_skybox = eosNew(Skybox, ION_MEMORY_ALIGNMENT_SIZE);
+        m_skybox = ionNew(Skybox);
     }
 
     return m_skybox;
@@ -165,7 +165,7 @@ void Camera::RemoveSkybox()
 {
     if (m_skybox != nullptr)
     {
-        eosDelete(m_skybox);
+        ionDelete(m_skybox);
         m_skybox = nullptr;
     }
 }
@@ -291,7 +291,7 @@ void Camera::SetScissor(RenderCore& _renderCore, VkCommandBuffer _commandBuffer)
     _renderCore.SetScissor(_commandBuffer, m_scissor);
 }
 
-void Camera::StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const eosVector<VkClearValue>& _clearValues)
+void Camera::StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const ionVector<VkClearValue>& _clearValues)
 {
     _renderCore.StartRenderPass(_renderPass, _frameBuffer, _commandBuffer, _clearValues, m_renderArea);
 }

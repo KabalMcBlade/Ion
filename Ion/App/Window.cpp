@@ -72,11 +72,11 @@ Window::~Window()
 
     if (m_instance)
     {
-        eosVector<TCHAR> className;
-        className.resize(256);
-        GetClassName(m_handle, className.data(), static_cast<int>(className.size()));
+        ionVector<TCHAR> className;
+        className->resize(256);
+        GetClassName(m_handle, className->data(), static_cast<int>(className->size()));
 
-        UnregisterClass(className.data(), m_instance);
+        UnregisterClass(className->data(), m_instance);
     }
 }
 

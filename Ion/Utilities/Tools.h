@@ -4,6 +4,7 @@
 #include "../Core/StandardIncludes.h"
 
 #include "../Dependencies/Eos/Eos/Eos.h"
+#include "../Core/MemoryWrapper.h"
 
 
 EOS_USING_NAMESPACE
@@ -16,7 +17,7 @@ namespace Tools
     ionU64 Hash64(const void* _data, ionU32 _size, ionU64 _seed = 0);
 
     // very windows Dependant
-    void GetPhysicalAddress(eosString& _outAddress, ionU64& _outAddressNum);
+    void GetPhysicalAddress(ionString& _outAddress, ionU64& _outAddressNum);
 }
 
 ION_NAMESPACE_END

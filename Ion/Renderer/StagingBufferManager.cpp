@@ -11,9 +11,6 @@ VK_ALLOCATOR_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 
-StagingBufferManager *StagingBufferManager::s_instance = nullptr;
-
-
 StagingBufferManager::StagingBufferManager() :
     m_maxBufferSize(0),
     m_vkGraphicsFamilyIndex(-1),
@@ -142,26 +139,10 @@ void StagingBufferManager::Shutdown()
     m_maxBufferSize = 0;
 }
 
-void StagingBufferManager::Create()
-{
-    if (!s_instance)
-    {
-        s_instance = eosNew(StagingBufferManager, ION_MEMORY_ALIGNMENT_SIZE);
-    }
-}
-
-void StagingBufferManager::Destroy()
-{
-    if (s_instance)
-    {
-        eosDelete(s_instance);
-        s_instance = nullptr;
-    }
-}
-
 StagingBufferManager& StagingBufferManager::Instance()
 {
-    return *s_instance;
+    static StagingBufferManager instance;
+    return instance;
 }
 
 

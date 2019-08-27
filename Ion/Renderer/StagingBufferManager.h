@@ -37,10 +37,7 @@ struct StagingBuffer
 class StagingBufferManager final
 {
 public:
-    ION_NO_INLINE static void Create();
-    ION_NO_INLINE static void Destroy();
-
-    ION_NO_INLINE static StagingBufferManager& Instance();
+    static StagingBufferManager& Instance();
 
     ionBool Init(ionSize _vkMaxBufferSize, VkDevice _vkDevice, VkQueue _vkGraphicsQueue, ionS32 _vkGraphicsFamilyIndex);
     void    Shutdown();
@@ -64,8 +61,6 @@ private:
     VkDeviceMemory    m_vkMemory;
     VkCommandPool    m_vkCommandPool;
     StagingBuffer   m_buffer;
-
-    static StagingBufferManager *s_instance;
 };
 
 ION_NAMESPACE_END

@@ -11,10 +11,24 @@
 //////////////////////////////////////////////////////////////////////////
 // APP VULKAN MEMORY
 
-#define VULKAN_GPU_DEVICE_LOCAL_MB  EOS_MEMORY_1024_MB
-#define VULKAN_GPU_HOST_VISIBLE_MB  EOS_MEMORY_1024_MB
+#define MEMORY_1_MB             1048576ULL
+#define MEMORY_4_MB             MEMORY_1_MB * 4ULL
+#define MEMORY_8_MB             MEMORY_4_MB * 2ULL
+#define MEMORY_16_MB            MEMORY_8_MB * 2ULL
+#define MEMORY_32_MB            MEMORY_16_MB * 2ULL
+#define MEMORY_64_MB            MEMORY_32_MB * 2ULL
+#define MEMORY_128_MB           MEMORY_64_MB * 2ULL
+#define MEMORY_256_MB           MEMORY_128_MB * 2ULL
+#define MEMORY_512_MB           MEMORY_256_MB * 2ULL
+#define MEMORY_1024_MB          MEMORY_512_MB * 2ULL
+#define MEMORY_2048_MB          MEMORY_1024_MB * 2ULL
+#define MEMORY_4096_MB          MEMORY_2048_MB * 2ULL
+#define MEMORY_8192_MB          MEMORY_4096_MB * 2ULL
 
-#define VULKAN_STAGING_BUFFER_MB    EOS_MEMORY_512_MB
+#define VULKAN_GPU_DEVICE_LOCAL_MB  MEMORY_1024_MB
+#define VULKAN_GPU_HOST_VISIBLE_MB  MEMORY_1024_MB
+
+#define VULKAN_STAGING_BUFFER_MB    MEMORY_512_MB
 
 #ifdef _DEBUG
 #   define ION_VULKAN_VALIDATION_LAYER true
@@ -82,9 +96,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 // update all shaders in the entity in cascade
 void UpdateAllShadersCascade(const ObjectHandler& _node, ionS32 _vertexShaderIndex, ionS32 _fragmentShaderIndex)
 {
-    if (_node->GetNodeType() == ENodeType_Entity)
+    if (_node->GetPtr()->GetNodeType() == ENodeType_Entity)
     {
-        Entity* entity = dynamic_cast<Entity*>(_node.GetPtr());
+        Entity* entity = dynamic_cast<Entity*>(_node());
 
         const ionU32 meshCount = entity->GetMeshCount();
         for (ionU32 i = 0; i < meshCount; ++i)
@@ -97,13 +111,13 @@ void UpdateAllShadersCascade(const ObjectHandler& _node, ionS32 _vertexShaderInd
         }
     }
 
-    if (_node->GetChildren().empty())
+    if (_node->GetPtr()->GetChildren()->empty())
     {
         return;
     }
 
-    const eosVector<ObjectHandler>& children = _node->GetChildren();
-    eosVector<ObjectHandler>::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
+    const ionVector<ObjectHandler>& children = _node->GetPtr()->GetChildren();
+    ionVector<ObjectHandler>::const_iterator begin = children->cbegin(), end = children->cend(), it = begin;
     for (; it != end; ++it)
     {
         ObjectHandler nh = (*it);
@@ -114,9 +128,9 @@ void UpdateAllShadersCascade(const ObjectHandler& _node, ionS32 _vertexShaderInd
 // need to start from false in order to work!
 void CheckIfAllMaterialsAreUnlit(const ObjectHandler& _node, ionBool& _areUnlit)
 {
-    if (_node->GetNodeType() == ENodeType_Entity)
+    if (_node->GetPtr()->GetNodeType() == ENodeType_Entity)
     {
-        Entity* entity = dynamic_cast<Entity*>(_node.GetPtr());
+        Entity* entity = dynamic_cast<Entity*>(_node());
 
         const ionU32 meshCount = entity->GetMeshCount();
         for (ionU32 i = 0; i < meshCount; ++i)
@@ -132,13 +146,13 @@ void CheckIfAllMaterialsAreUnlit(const ObjectHandler& _node, ionBool& _areUnlit)
         }
     }
 
-    if (_node->GetChildren().empty())
+    if (_node->GetPtr()->GetChildren()->empty())
     {
         return;
     }
 
-    const eosVector<ObjectHandler>& children = _node->GetChildren();
-    eosVector<ObjectHandler>::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
+    const ionVector<ObjectHandler>& children = _node->GetPtr()->GetChildren();
+    ionVector<ObjectHandler>::const_iterator begin = children->cbegin(), end = children->cend(), it = begin;
     for (; it != end; ++it)
     {
         ObjectHandler nh = (*it);
@@ -146,21 +160,32 @@ void CheckIfAllMaterialsAreUnlit(const ObjectHandler& _node, ionBool& _areUnlit)
     }
 }
 
+struct TestMalloc
+{
+	ionU32 a;
+	ionU32 b;
+	ionU32 c;
+	ionU32 d;
+};
+
 int main(int argc, char **argv)
 {
     vkMemoryInit();
 
-    InitializeManagers();
+    ShaderProgramHelper::Create();
 
     ionFileSystemManager().Init("Assets", "Shaders", "Textures", "Models");
 
     ionBool rendererInitialized = false;
     Window window;
 
-    window.GetCommandLineParse().AddWithValue<eosString>("-model", false);
-    window.GetCommandLineParse().AddWithValue<eosString>("-primitive", false);
+    window.GetCommandLineParse().AddWithValue<ionString>("-model", false);
+    window.GetCommandLineParse().AddWithValue<ionString>("-primitive", false);
     window.GetCommandLineParse().Add("-usepath", false);
+
+#ifdef _DEBUG
     window.GetCommandLineParse().AddWithValueAndDefault<ionU32>("-dumpgltf", false, 1);
+#endif
 
     if (!window.ParseCommandLine(argc, argv))
     {
@@ -187,7 +212,8 @@ int main(int argc, char **argv)
     // Create Camera
     static const Vector cameraPos(0.0f, 0.0f, -3.0f, 0.0f);
 
-    MainCamera* camera = eosNew(MainCamera, ION_MEMORY_ALIGNMENT_SIZE);
+    
+    MainCamera* camera = ionNew(MainCamera);
     ObjectHandler cameraHandle(camera);
     camera->SetCameraType(ion::Camera::ECameraType::ECameraType_LookAt);
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 100.0f);
@@ -205,12 +231,12 @@ int main(int argc, char **argv)
     // one uniform structure bound in the index 0 in the shader stage
     ion::UniformBinding uniform;
     uniform.m_bindingIndex = 0;
-    uniform.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
-    uniform.m_type.push_back(ion::EBufferParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
-    uniform.m_type.push_back(ion::EBufferParameterType_Matrix);
-    uniform.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
-    uniform.m_type.push_back(ion::EBufferParameterType_Matrix);
+    uniform.m_parameters->push_back(ION_MODEL_MATRIX_PARAM);
+    uniform.m_type->push_back(ion::EBufferParameterType_Matrix);
+    uniform.m_parameters->push_back(ION_VIEW_MATRIX_PARAM);
+    uniform.m_type->push_back(ion::EBufferParameterType_Matrix);
+    uniform.m_parameters->push_back(ION_PROJ_MATRIX_PARAM);
+    uniform.m_type->push_back(ion::EBufferParameterType_Matrix);
 
     // one sampler bound in the index 1 in the shader stage
     ion::SamplerBinding sampler;
@@ -220,15 +246,15 @@ int main(int argc, char **argv)
     // constants
     ConstantsBindingDef constants;
     constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-    constants.m_values.push_back(4.5f);
-    constants.m_values.push_back(2.2f);
+    constants.m_values->push_back(4.5f);
+    constants.m_values->push_back(2.2f);
 
     // set the shaders layout
     ion::ShaderLayoutDef vertexLayout;
-    vertexLayout.m_uniforms.push_back(uniform);
+    vertexLayout.m_uniforms->push_back(uniform);
 
     ion::ShaderLayoutDef fragmentLayout;
-    fragmentLayout.m_samplers.push_back(sampler);
+    fragmentLayout.m_samplers->push_back(sampler);
 
     skyboxMaterial->SetVertexShaderLayout(vertexLayout);
     skyboxMaterial->SetFragmentShaderLayout(fragmentLayout);
@@ -257,7 +283,7 @@ int main(int argc, char **argv)
     
     //////////////////////////////////////////////////////////////////////////
     // Create Entity to render
-    RotatingEntity* test = eosNew(RotatingEntity, ION_MEMORY_ALIGNMENT_SIZE, "GameEntity");
+    RotatingEntity* test = ionNew(RotatingEntity, "GameEntity");
     ObjectHandler testHandle(test);
 
 
@@ -265,8 +291,8 @@ int main(int argc, char **argv)
 
     if (window.GetCommandLineParse().HasValue("-model"))
     {
-        const eosString modelVar = window.GetCommandLineParse().GetValue<eosString>("-model");
-        eosString model;
+        const ionString modelVar = window.GetCommandLineParse().GetValue<ionString>("-model");
+        ionString model;
         if (window.GetCommandLineParse().IsSet("-usepath"))
         {
             model = modelVar;
@@ -278,6 +304,7 @@ int main(int argc, char **argv)
 
         ionRenderManager().LoadModelFromFile(model, camera, testHandle);
 
+#ifdef _DEBUG
         if (window.GetCommandLineParse().IsSet("-dumpgltf"))
         {
             const ionU32 serializationLevelNum = window.GetCommandLineParse().GetValue<ionU32>("-dumpgltf");
@@ -285,9 +312,10 @@ int main(int argc, char **argv)
 
             ionRenderManager().DumpModelToFile(model, testHandle, serializationLevel);
             
-            eosString dumpFile = model + ".json";
-            std::cout << "Model " << testHandle->GetName() << " dumped in " << dumpFile << std::endl;
+            ionString dumpFile = model + ".json";
+            std::cout << "Model " << testHandle->GetPtr()->GetName() << " dumped in " << dumpFile << std::endl;
         }
+#endif
     }
     else if (window.GetCommandLineParse().HasValue("-primitive"))
     {
@@ -297,7 +325,7 @@ int main(int argc, char **argv)
         ionFloat b = static_cast<ionFloat>(std::rand()) / static_cast<ionFloat>(RAND_MAX);
         ionFloat a = 1.0f;
 
-        const eosString primitive = window.GetCommandLineParse().GetValue<eosString>("-primitive");
+        const ionString primitive = window.GetCommandLineParse().GetValue<ionString>("-primitive");
         if (primitive == "triangle")
         {
             ionRenderManager().LoadColoredTriangle(testHandle, r, g, b, a);
@@ -366,7 +394,7 @@ int main(int argc, char **argv)
 
     if (!areAllModelMaterialsUnlit && test->GetMeshRenderer() != nullptr)
     {
-        ion::Camera* cameraLightDebug = eosNew(Camera, ION_MEMORY_ALIGNMENT_SIZE, "DebugLightCamera", false);
+        ion::Camera* cameraLightDebug = ionNew(Camera, "DebugLightCamera", false);
         ObjectHandler cameraLightDebugHandle(cameraLightDebug);
         cameraLightDebug->SetCameraType(ion::Camera::ECameraType::ECameraType_LookAt);
         cameraLightDebug->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 100.0f);
@@ -379,7 +407,7 @@ int main(int argc, char **argv)
 
         //
         // Arrow for directional lighting debug
-        DirectionalLightDebugEntity* dirlLightDebugEntity = eosNew(DirectionalLightDebugEntity, ION_MEMORY_ALIGNMENT_SIZE);
+        DirectionalLightDebugEntity* dirlLightDebugEntity = ionNew(DirectionalLightDebugEntity);
         ObjectHandler dirlLightDebugEntityHandle(dirlLightDebugEntity);
         ionRenderManager().LoadColoredPyramid(dirlLightDebugEntityHandle, 0.8f, 0.2f, 0.2f, 1.0f);
         dirlLightDebugEntity->RemoveFromRenderLayer(ENodeRenderLayer_Default);
@@ -416,7 +444,7 @@ int main(int argc, char **argv)
 
     ionFileSystemManager().Shutdown();
 
-    ShutdownManagers();
+    ShaderProgramHelper::Destroy();
 
     vkMemoryShutdown();
 

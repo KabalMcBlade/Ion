@@ -24,14 +24,14 @@ class DirectionalLight;
 class ION_DLL SceneGraph final
 {
 public:
-    explicit SceneGraph();
+    SceneGraph();
     ~SceneGraph();
 
     const BoundingBox& GetBoundingBox() { return m_sceneBoundingBox; }
 
     void CreateDirectionalLightToScene();
     void DestroyDirectionalLightToScene();
-    ObjectHandler& GetDirectionalLight();
+	ionObjectHandler<DirectionalLight>& GetDirectionalLight();
     DirectionalLight* GetDirectionalLightPtr();
 
     void AddToScene(const ObjectHandler& _node);
@@ -54,7 +54,7 @@ public:
     void UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime);
 
     // Utilities
-    ObjectHandler GetObjectByName(const eosString& _name);
+    ObjectHandler GetObjectByName(const ionString& _name);
     ObjectHandler GetObjectByUUID(const UUID& _uuid);
 
 private:
@@ -65,10 +65,10 @@ private:
 
 private:
     BoundingBox                                 m_sceneBoundingBox;
-    ObjectHandler                               m_directionalLight;
+	ionObjectHandler<DirectionalLight>          m_directionalLight;
     ObjectHandler                               m_root;
-    eosMap<Camera*, eosVector<DrawSurface>>     m_drawSurfaces;
-    eosVector<ObjectHandler>                    m_registeredInput;
+    ionMap<Camera*, ionVector<DrawSurface>>     m_drawSurfaces;
+    ionVector<ObjectHandler>                    m_registeredInput;
     ionBool                                     m_isMeshGeneratedFirstTime;  // is an helper
 };
 

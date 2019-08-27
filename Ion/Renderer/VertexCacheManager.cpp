@@ -8,10 +8,6 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-
-VertexCacheManager *VertexCacheManager::s_instance = nullptr;
-
-
 VertexCacheManager::VertexCacheManager()
 {
 }
@@ -52,26 +48,10 @@ void VertexCacheManager::Shutdown()
     m_frameData.m_jointBuffer.Free();
 }
 
-void VertexCacheManager::Create()
-{
-    if (!s_instance)
-    {
-        s_instance = eosNew(VertexCacheManager, ION_MEMORY_ALIGNMENT_SIZE);
-    }
-}
-
-void VertexCacheManager::Destroy()
-{
-    if (s_instance)
-    {
-        eosDelete(s_instance);
-        s_instance = nullptr;
-    }
-}
-
 VertexCacheManager& VertexCacheManager::Instance()
 {
-    return *s_instance;
+    static VertexCacheManager instance;
+    return instance;
 }
 
 void VertexCacheManager::PurgeAll()
@@ -162,7 +142,7 @@ VertexCacheHandler VertexCacheManager::Alloc(GeometryBufferSet& _buffer, const v
     {
         return (VertexCacheHandler)0;
     }
-    
+
     ionAssertReturnValue((((uintptr_t)(_data)) & 15) == 0, "Pointer is misaligned", (VertexCacheHandler)0);
     ionAssertReturnValue((_bytes & 15) == 0, "size is misaligned", (VertexCacheHandler)0);
 
@@ -182,7 +162,7 @@ VertexCacheHandler VertexCacheManager::Alloc(GeometryBufferSet& _buffer, const v
 
         offset = endPos - _bytes;
 
-        if (_data != nullptr) 
+        if (_data != nullptr)
         {
             if (_buffer.m_indexBuffer.GetUsage() == EBufferUsage_Dynamic)
             {
@@ -204,7 +184,7 @@ VertexCacheHandler VertexCacheManager::Alloc(GeometryBufferSet& _buffer, const v
 
         offset = endPos - _bytes;
 
-        if (_data != nullptr) 
+        if (_data != nullptr)
         {
             if (_buffer.m_vertexBuffer.GetUsage() == EBufferUsage_Dynamic)
             {
@@ -248,7 +228,7 @@ VertexCacheHandler VertexCacheManager::Alloc(GeometryBufferSet& _buffer, const v
 
         offset = endPos - _bytes;
 
-        if (_data != nullptr) 
+        if (_data != nullptr)
         {
             if (_buffer.m_jointBuffer.GetUsage() == EBufferUsage_Dynamic)
             {

@@ -1,10 +1,12 @@
 #pragma once
 
+#define _WINSOCKAPI_    // stops windows.h including winsock.h
 #include <windows.h>
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
 #include "../Core/CoreDefs.h"
+#include "../Core/MemoryWrapper.h"
 
 
 EOS_USING_NAMESPACE
@@ -20,20 +22,20 @@ public:
     ION_INLINE virtual ionBool NeedValue() const { return false; }
     ION_INLINE virtual ionBool HasDefault() const { return false; }
 
-    ION_INLINE void SetOption(const eosString& _option);       // -width, -height, etc etc
+    ION_INLINE void SetOption(const ionString& _option);       // -width, -height, etc etc
     ION_INLINE ionBool IsSet() const;
     ION_INLINE ionBool IsMandatory() const;
 
     ION_INLINE void Set();
     ION_INLINE void SetMandatory(ionBool _isMandatory);
 
-    ION_INLINE const eosString& GetOption() const { return m_option; }
+    ION_INLINE const ionString& GetOption() const { return m_option; }
 
-    ION_INLINE void SetStringValue(const eosString& _value);
+    ION_INLINE void SetStringValue(const ionString& _value);
 
 protected:
-    eosString m_option;
-    eosString m_stringValue;
+    ionString m_option;
+    ionString m_stringValue;
     ionBool m_isMandatory;
     ionBool m_isSet;
 };
@@ -49,7 +51,7 @@ ION_INLINE Option::~Option()
 
 }
 
-ION_INLINE void Option::SetOption(const eosString& _option)
+ION_INLINE void Option::SetOption(const ionString& _option)
 {
     m_option = _option;
 }
@@ -69,7 +71,7 @@ ION_INLINE void Option::SetMandatory(ionBool _isMandatory)
     m_isMandatory = _isMandatory;
 }
 
-ION_INLINE void Option::SetStringValue(const eosString& _value)
+ION_INLINE void Option::SetStringValue(const ionString& _value)
 {
     m_stringValue =  _value;
     std::transform(m_stringValue.begin(), m_stringValue.end(), m_stringValue.begin(), ::tolower);
@@ -119,8 +121,9 @@ template <class T>
 void OptionValue<T>::Parse()
 {
     T var;
-    eosIStringStream iss;
-    iss.str(m_stringValue);
+    //eosIStringStream iss;
+    std::istringstream iss; // issue with the inherited one in EOS
+    iss.str(m_stringValue.c_str());
     iss >> var;
     m_value = var;
 }
@@ -159,7 +162,7 @@ const T& OptionValue<T>::GetValue() const
 //////////////////////////////////////////////////////////////////////////
 
 template <>
-class OptionValue<eosString> : public Option
+class OptionValue<ionString> : public Option
 {
 public:
     ION_INLINE OptionValue();
@@ -169,53 +172,53 @@ public:
     ION_INLINE virtual ionBool HasValue() const override;
     ION_INLINE virtual ionBool HasDefault() const override;
 
-    ION_INLINE void SetDefault(eosString _value);
-    ION_INLINE const eosString& GetValue() const;
+    ION_INLINE void SetDefault(ionString _value);
+    ION_INLINE const ionString& GetValue() const;
     ION_INLINE void Parse();
 
 private:
-    eosString m_value;
-    eosString m_default;
+    ionString m_value;
+    ionString m_default;
     ionBool m_hasDefault;
 };
 
-ION_INLINE OptionValue<eosString>::OptionValue() : Option(), m_hasDefault(false)
+ION_INLINE OptionValue<ionString>::OptionValue() : Option(), m_hasDefault(false)
 {
 
 }
 
-ION_INLINE OptionValue<eosString>::~OptionValue()
+ION_INLINE OptionValue<ionString>::~OptionValue()
 {
 
 }
 
-ION_INLINE void OptionValue<eosString>::Parse()
+ION_INLINE void OptionValue<ionString>::Parse()
 {
     m_value = m_stringValue;
 }
 
-ION_INLINE ionBool OptionValue<eosString>::NeedValue() const
+ION_INLINE ionBool OptionValue<ionString>::NeedValue() const
 {
     return true;
 }
 
-ION_INLINE ionBool OptionValue<eosString>::HasValue() const
+ION_INLINE ionBool OptionValue<ionString>::HasValue() const
 {
     return !m_stringValue.empty();
 }
 
-ION_INLINE ionBool OptionValue<eosString>::HasDefault() const
+ION_INLINE ionBool OptionValue<ionString>::HasDefault() const
 {
     return m_hasDefault;
 }
 
-ION_INLINE void OptionValue<eosString>::SetDefault(eosString _value)
+ION_INLINE void OptionValue<ionString>::SetDefault(ionString _value)
 {
     m_default = _value;
     m_hasDefault = true;
 }
 
-ION_INLINE const eosString& OptionValue<eosString>::GetValue() const
+ION_INLINE const ionString& OptionValue<ionString>::GetValue() const
 {
     return HasValue() ? m_value : m_default;
 }
@@ -229,33 +232,33 @@ public:
     CommandLineParser();
     ~CommandLineParser();
 
-    void Add(const eosString& _option, ionBool _mandatory = true);
+    void Add(const ionString& _option, ionBool _mandatory = true);
 
     template <class T>
-    void AddWithValue(const eosString& _option, ionBool _mandatory = true);
+    void AddWithValue(const ionString& _option, ionBool _mandatory = true);
 
     template <class T>
-    void AddWithValueAndDefault(const eosString& _option, ionBool _mandatory = true, const T _default = T());
+    void AddWithValueAndDefault(const ionString& _option, ionBool _mandatory = true, const T _default = T());
 
 
     ionBool Parse(ionS32 argc, const char * const argv[]);
 
-    ionBool HasOption(const eosString& _option);
+    ionBool HasOption(const ionString& _option);
 
-    ionBool HasValue(const eosString& _option);
-    ionBool IsSet(const eosString& _option);
+    ionBool HasValue(const ionString& _option);
+    ionBool IsSet(const ionString& _option);
 
     template <class T>
-    T GetValue(const eosString& _option);
+    T GetValue(const ionString& _option);
 
 private:
-    eosMap<eosString, Option*> m_options;
+    ionMap<ionString, Option*> m_options;
 };
 
 template <class T>
-void CommandLineParser::AddWithValue(const eosString& _option, ionBool _mandatory /*= true*/)
+void CommandLineParser::AddWithValue(const ionString& _option, ionBool _mandatory /*= true*/)
 {
-    OptionValue<T>* opt = eosNew(OptionValue<T>, ION_MEMORY_ALIGNMENT_SIZE);
+    OptionValue<T>* opt = ionNew(OptionValue<T>);
     opt->SetOption(_option);
     opt->SetMandatory(_mandatory);
 
@@ -263,9 +266,9 @@ void CommandLineParser::AddWithValue(const eosString& _option, ionBool _mandator
 }
 
 template <class T>
-void CommandLineParser::AddWithValueAndDefault(const eosString& _option, ionBool _mandatory /*= true*/, const T _default /*= T()*/)
+void CommandLineParser::AddWithValueAndDefault(const ionString& _option, ionBool _mandatory /*= true*/, const T _default /*= T()*/)
 {
-    OptionValue<T>* opt = eosNew(OptionValue<T>, ION_MEMORY_ALIGNMENT_SIZE);
+    OptionValue<T>* opt = ionNew(OptionValue<T>);
     opt->SetOption(_option);
     opt->SetMandatory(_mandatory);
     opt->SetDefault(_default);
@@ -275,10 +278,10 @@ void CommandLineParser::AddWithValueAndDefault(const eosString& _option, ionBool
 }
 
 template <class T>
-T CommandLineParser::GetValue(const eosString& _option)
+T CommandLineParser::GetValue(const ionString& _option)
 {
-    auto search = m_options.find(_option);
-    if (search != m_options.end())
+    auto search = m_options->find(_option);
+    if (search != m_options->end())
     {
         OptionValue<T>* opt = dynamic_cast<OptionValue<T>*>(search->second);
         if (opt->HasValue())

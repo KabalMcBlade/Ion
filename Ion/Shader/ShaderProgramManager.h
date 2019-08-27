@@ -7,6 +7,8 @@
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
+#include "../Core/MemoryWrapper.h"
+
 #include "../Renderer/RenderCommon.h"
 #include "../Renderer/UniformBufferObject.h"
 
@@ -21,10 +23,7 @@ class RenderCore;
 class ION_DLL ShaderProgramManager final
 {
 public:
-    ION_NO_INLINE static void Create();
-    ION_NO_INLINE static void Destroy();
-
-    ION_NO_INLINE static ShaderProgramManager& Instance();
+    static ShaderProgramManager& Instance();
 
     ionBool Init(VkDevice _vkDevice);
     void    Shutdown();
@@ -48,49 +47,49 @@ public:
 
     //////////////////////////////////////////////////////////////////////////
     // if parameter not found, return a vector 0 and create this new hash! BE CAREFUL!
-    const   Matrix& GetRenderParamMatrix(const eosString& _param);
+    const   Matrix& GetRenderParamMatrix(const ionString& _param);
     const   Matrix& GetRenderParamMatrix(ionSize _paramHash);
 
-    const   Vector& GetRenderParamVector(const eosString& _param);
+    const   Vector& GetRenderParamVector(const ionString& _param);
     const   Vector& GetRenderParamVector(ionSize _paramHash);
 
-    const   ionFloat GetRenderParamFloat(const eosString& _param);
+    const   ionFloat GetRenderParamFloat(const ionString& _param);
     const   ionFloat GetRenderParamFloat(ionSize _paramHash);
 
-    const   ionS32 GetRenderParamInteger(const eosString& _param);
+    const   ionS32 GetRenderParamInteger(const ionString& _param);
     const   ionS32 GetRenderParamInteger(ionSize _paramHash);
 
-    void    SetRenderParamMatrix(const eosString& _param, const Matrix& _value);
+    void    SetRenderParamMatrix(const ionString& _param, const Matrix& _value);
     void    SetRenderParamMatrix(ionSize _paramHash, const Matrix& _value);
-    void    SetRenderParamMatrix(const eosString& _param, const ionFloat* _value);
+    void    SetRenderParamMatrix(const ionString& _param, const ionFloat* _value);
     void    SetRenderParamMatrix(ionSize _paramHash, const ionFloat* _value);
-    void    SetRenderParamsMatrix(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
-    void    SetRenderParamsMatrix(const eosString& _param, const eosVector<Matrix>& _values);
+    void    SetRenderParamsMatrix(const ionString& _param, const ionFloat* _values, ionU32 _numValues);
+    void    SetRenderParamsMatrix(const ionString& _param, const ionVector<Matrix>& _values);
     //void    SetRenderParamsMatrix(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
 
-    void    SetRenderParamVector(const eosString& _param, const Vector& _value);
+    void    SetRenderParamVector(const ionString& _param, const Vector& _value);
     void    SetRenderParamVector(ionSize _paramHash, const Vector& _value);
-    void    SetRenderParamVector(const eosString& _param, const ionFloat* _value);
+    void    SetRenderParamVector(const ionString& _param, const ionFloat* _value);
     void    SetRenderParamVector(ionSize _paramHash, const ionFloat* _value);
-    void    SetRenderParamsVector(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
-    void    SetRenderParamsVector(const eosString& _param, const eosVector<Vector>& _values);
+    void    SetRenderParamsVector(const ionString& _param, const ionFloat* _values, ionU32 _numValues);
+    void    SetRenderParamsVector(const ionString& _param, const ionVector<Vector>& _values);
     //void    SetRenderParamsVector(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
 
-    void    SetRenderParamFloat(const eosString& _param, const ionFloat _value);
+    void    SetRenderParamFloat(const ionString& _param, const ionFloat _value);
     void    SetRenderParamFloat(ionSize _paramHash, const ionFloat _value);
-    void    SetRenderParamsFloat(const eosString& _param, const ionFloat* _values, ionU32 _numValues);
+    void    SetRenderParamsFloat(const ionString& _param, const ionFloat* _values, ionU32 _numValues);
     //void    SetRenderParamsFloat(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
 
-    void    SetRenderParamInteger(const eosString& _param, const ionS32 _value);
+    void    SetRenderParamInteger(const ionString& _param, const ionS32 _value);
     void    SetRenderParamInteger(ionSize _paramHash, const ionS32 _value);
-    void    SetRenderParamsInteger(const eosString& _param, const ionS32* _values, ionU32 _numValues);
+    void    SetRenderParamsInteger(const ionString& _param, const ionS32* _values, ionU32 _numValues);
     //void    SetRenderParamsInteger(ionSize _paramHash, const ionS32* _values, ionU32 _numValues);
 
     //////////////////////////////////////////////////////////////////////////
 
     // Shader name WITHOUT extension, because is chose by the shader stage!
-    ionS32  FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage);
-    ionS32  FindShader(const eosString& _path, const eosString& _name, EShaderStage _stage, const eosVector<ionFloat>& _specializationConstantValues);
+    ionS32  FindShader(const ionString& _path, const ionString& _name, EShaderStage _stage);
+    ionS32  FindShader(const ionString& _path, const ionString& _name, EShaderStage _stage, const ionVector<ionFloat>& _specializationConstantValues);
 
     void    StartFrame();
     void    EndFrame();
@@ -112,18 +111,18 @@ private:
     void    AllocUniformParametersBlockBuffer(const RenderCore& _render, const UniformBinding& _uniform, UniformBuffer& _ubo);
 
 public:
-    eosVector<ShaderProgram> m_shaderPrograms;
+    ionVector<ShaderProgram> m_shaderPrograms;
 
 private:
     VkDevice                m_vkDevice;
     ionS32                  m_current;
-    eosVector<Shader>       m_shaders;
+    ionVector<Shader>       m_shaders;
 
     // are a map where the key is the hash of the name of the uniform in the shader and the value the vector associated
-    eosMap<ionSize, Vector>     m_uniformsVector; 
-    eosMap<ionSize, Matrix>     m_uniformsMatrix;
-    eosMap<ionSize, ionFloat>   m_uniformsFloat; 
-    eosMap<ionSize, ionS32>     m_uniformsInteger;
+    ionMap<ionSize, Vector>     m_uniformsVector; 
+    ionMap<ionSize, Matrix>     m_uniformsMatrix;
+    ionMap<ionSize, ionFloat>   m_uniformsFloat; 
+    ionMap<ionSize, ionS32>     m_uniformsInteger;
 
     ionS32                  m_currentDescSet;
     ionSize                 m_currentParmBufferOffset;
@@ -132,8 +131,6 @@ private:
 
     UniformBuffer*          m_skinningUniformBuffer;
     UniformBuffer*          m_uniformBuffer;
-private:
-    static ShaderProgramManager *s_instance;
 };
 
 ION_NAMESPACE_END

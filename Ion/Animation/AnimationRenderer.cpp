@@ -17,12 +17,12 @@ AnimationRenderer::AnimationRenderer() : m_enabled(true), m_timer(0.0f), m_anima
 
 AnimationRenderer::~AnimationRenderer()
 {
-    m_aninimations.clear();
+    m_aninimations->clear();
 }
 
 void AnimationRenderer::PushBackAnimation(const Animation& _animation)
 {
-    m_aninimations.push_back(_animation);
+    m_aninimations->push_back(_animation);
 }
 
 void AnimationRenderer::OnUpateAll(ionFloat _deltaTime)
@@ -92,25 +92,25 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
 {
     Animation& anim = m_aninimations[_animationIndex];
 
-    eosVector<AnimationChannel>::iterator begin = anim.ChannelsIteratorBegin(), end = anim.ChannelsIteratorEnd(), it = begin;
+    ionVector<AnimationChannel>::iterator begin = anim.ChannelsIteratorBegin(), end = anim.ChannelsIteratorEnd(), it = begin;
     for (; it != end; ++it)
     {
         AnimationChannel& channel = *it;
 
-        eosVector<AnimationSampler>& samplers = anim.GetSamplers();
+        ionVector<AnimationSampler>& samplers = anim.GetSamplers();
 
         // Sanity check
         AnimationSampler& sampler = samplers[channel.GetSamplerIndex()];
         if (channel.GetPath() == EAnimationPathType_WeightMorphTarget)
         {
-            if (sampler.GetInputs().size() > sampler.GetMorphTargets().size())
+            if (sampler.GetInputs()->size() > sampler.GetMorphTargets()->size())
             {
                 continue;
             }
         }
         else
         {
-            if (sampler.GetInputs().size() > sampler.GetLinearPaths().size())
+            if (sampler.GetInputs()->size() > sampler.GetLinearPaths()->size())
             {
                 continue;
             }
@@ -125,8 +125,8 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
         }
 
         // logic
-        eosVector<ionFloat>& inputs = sampler.GetInputs();
-        const ionU32 inputSize = static_cast<ionU32>(inputs.size());
+        ionVector<ionFloat>& inputs = sampler.GetInputs();
+        const ionU32 inputSize = static_cast<ionU32>(inputs->size());
         for (ionU32 i = 0; i < inputSize - 1; ++i)
         {
             if ((_animationTimer >= inputs[i]) && (_animationTimer <= inputs[i + 1]))

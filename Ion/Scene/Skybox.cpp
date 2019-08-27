@@ -14,7 +14,7 @@ ION_NAMESPACE_BEGIN
 
 Skybox::Skybox()
 {
-    m_meshRenderer = eosNew(MeshRendererPlain, ION_MEMORY_ALIGNMENT_SIZE);
+    m_meshRenderer = ionNew(MeshRendererPlain);
 
     GenerateMesh();
 }
@@ -22,13 +22,13 @@ Skybox::Skybox()
 Skybox::~Skybox()
 {
     m_drawSurface.Clear();
-    eosDelete(m_meshRenderer);
+    ionDelete(m_meshRenderer);
 }
 
 void Skybox::GenerateMesh()
 {
-    eosVector<Index> indices;
-    indices.resize(36);
+    ionVector<Index> indices;
+    indices->resize(36);
     indices = {
         0,1,2,0,2,3,
         4,5,6,4,6,7,
@@ -69,8 +69,8 @@ void Skybox::GenerateMesh()
         Vector(0.5f, -0.5f, 0.5f, 1.0f)
     };
 
-    eosVector<VertexPlain> vertices;
-    vertices.resize(24);
+    ionVector<VertexPlain> vertices;
+    vertices->resize(24);
 
     for (ionU32 i = 0; i < 24; ++i)
     {

@@ -27,7 +27,7 @@ class MeshRendererPlain;
 class ION_DLL Skybox
 {
 public:
-    explicit Skybox();
+    Skybox();
     virtual ~Skybox();
 
     static EVertexLayout GetVertexLayout() { return EVertexLayout_Pos; }

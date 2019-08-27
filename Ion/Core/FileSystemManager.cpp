@@ -6,10 +6,6 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-
-FileSystemManager *FileSystemManager::s_instance = nullptr;
-
-
 FileSystemManager::FileSystemManager()
 {
 }
@@ -19,39 +15,23 @@ FileSystemManager::~FileSystemManager()
 
 }
 
-void FileSystemManager::Create()
-{
-    if (!s_instance)
-    {
-        s_instance = eosNew(FileSystemManager, ION_MEMORY_ALIGNMENT_SIZE);
-    }
-}
-
-void FileSystemManager::Destroy()
-{
-    if (s_instance)
-    {
-        eosDelete(s_instance);
-        s_instance = nullptr;
-    }
-}
-
 FileSystemManager& FileSystemManager::Instance()
 {
-    return *s_instance;
+    static FileSystemManager instance;
+    return instance;
 }
 
-ionBool FileSystemManager::Init(const eosString& _mainPath, const eosString& _shadersPath, const eosString& _texturesPath, const eosString& _modelsPath)
+ionBool FileSystemManager::Init(const ionString& _mainPath, const ionString& _shadersPath, const ionString& _texturesPath, const ionString& _modelsPath)
 {
     GetFullPath("./", m_mainPath);
 
-    const eosString from = "\\";
-    const eosString to = "/";
+    const ionString from = "\\";
+    const ionString to = "/";
 
     ionSize start_pos = 0;
     while ((start_pos = m_mainPath.find(from, start_pos)) != std::string::npos)
     {
-        m_mainPath.replace(start_pos, from.length(), to);
+		m_mainPath.replace(start_pos, from.length(), to);
         start_pos += to.length();
     }
 
@@ -78,12 +58,12 @@ void FileSystemManager::Shutdown()
 
 }
 
-ionBool FileSystemManager::GetFullPath(const eosString& partialPath, eosString& fullPath)
+ionBool FileSystemManager::GetFullPath(const ionString& partialPath, ionString& fullPath)
 {
-    char full[_MAX_PATH];
-    if (_fullpath(full, partialPath.c_str(), _MAX_PATH) != NULL)
+	char tmp[256];
+    if (_fullpath(tmp, partialPath.c_str(), _MAX_PATH) != NULL)
     {
-        fullPath = full;
+		fullPath = tmp;
         return true;
     }
     return false;

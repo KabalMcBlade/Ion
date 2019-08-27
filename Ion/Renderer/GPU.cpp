@@ -11,10 +11,11 @@ GPU::GPU() :  m_vkPhysicalDevice(VK_NULL_HANDLE)
 
 GPU::~GPU()
 {
-    m_vkSurfaceFormats.clear();
-    m_vkPresentModes.clear();
-    m_vkQueueFamilyProps.clear();
-    m_vkExtensionProps.clear();
+    m_vkSurfaceFormats->clear();
+    //m_vkSurfaceFormats->clear();
+    m_vkPresentModes->clear();
+    m_vkQueueFamilyProps->clear();
+    m_vkExtensionProps->clear();
 }
 
 ionBool GPU::Set(const VkInstance& _vkInstance, const VkSurfaceKHR& _vkSurface, const VkPhysicalDevice& _vkDevice)
@@ -25,8 +26,8 @@ ionBool GPU::Set(const VkInstance& _vkInstance, const VkSurfaceKHR& _vkSurface, 
     vkGetPhysicalDeviceQueueFamilyProperties(m_vkPhysicalDevice, &numQueues, nullptr);
     ionAssertReturnValue(numQueues > 0, "vkGetPhysicalDeviceQueueFamilyProperties returned zero queues.", false);
 
-    m_vkQueueFamilyProps.resize(numQueues);
-    vkGetPhysicalDeviceQueueFamilyProperties(m_vkPhysicalDevice, &numQueues, m_vkQueueFamilyProps.data());
+    m_vkQueueFamilyProps->resize(numQueues);
+    vkGetPhysicalDeviceQueueFamilyProperties(m_vkPhysicalDevice, &numQueues, m_vkQueueFamilyProps->data());
     ionAssertReturnValue(numQueues > 0, "vkGetPhysicalDeviceQueueFamilyProperties returned zero queues.", false);
 
     ionU32 numExtension = 0;
@@ -34,8 +35,8 @@ ionBool GPU::Set(const VkInstance& _vkInstance, const VkSurfaceKHR& _vkSurface, 
     ionAssertReturnValue(result == VK_SUCCESS, "Cannot enumerate device extension!", false);
     ionAssertReturnValue(numExtension > 0, "vkEnumerateDeviceExtensionProperties returned zero extensions.", false);
    
-    m_vkExtensionProps.resize(numExtension);
-    result = vkEnumerateDeviceExtensionProperties(m_vkPhysicalDevice, nullptr, &numExtension, m_vkExtensionProps.data());
+    m_vkExtensionProps->resize(numExtension);
+    result = vkEnumerateDeviceExtensionProperties(m_vkPhysicalDevice, nullptr, &numExtension, m_vkExtensionProps->data());
     ionAssertReturnValue(result == VK_SUCCESS, "Cannot enumerate device extension!", false);
     ionAssertReturnValue(numExtension > 0, "vkEnumerateDeviceExtensionProperties returned zero extensions.", false);
     
@@ -47,8 +48,8 @@ ionBool GPU::Set(const VkInstance& _vkInstance, const VkSurfaceKHR& _vkSurface, 
     ionAssertReturnValue(result == VK_SUCCESS, "vkGetPhysicalDeviceSurfaceFormatsKHR returned surface formats.", false);
     ionAssertReturnValue(numFormats > 0, "vkGetPhysicalDeviceSurfaceFormatsKHR returned surface formats.", false);
 
-    m_vkSurfaceFormats.resize(numFormats);
-    result = vkGetPhysicalDeviceSurfaceFormatsKHR(m_vkPhysicalDevice, _vkSurface, &numFormats, m_vkSurfaceFormats.data());
+    m_vkSurfaceFormats->resize(numFormats);
+    result = vkGetPhysicalDeviceSurfaceFormatsKHR(m_vkPhysicalDevice, _vkSurface, &numFormats, m_vkSurfaceFormats->data());
     ionAssertReturnValue(result == VK_SUCCESS, "vkGetPhysicalDeviceSurfaceFormatsKHR returned surface formats.", false);
     ionAssertReturnValue(numFormats > 0, "vkGetPhysicalDeviceSurfaceFormatsKHR returned zero surface formats.", false);
 
@@ -57,8 +58,8 @@ ionBool GPU::Set(const VkInstance& _vkInstance, const VkSurfaceKHR& _vkSurface, 
     ionAssertReturnValue(result == VK_SUCCESS, "vkGetPhysicalDeviceSurfacePresentModesKHR returned zero present modes.", false);
     ionAssertReturnValue(numPresentModes > 0, "vkGetPhysicalDeviceSurfacePresentModesKHR returned zero present modes.", false);
 
-    m_vkPresentModes.resize(numPresentModes);
-    result = vkGetPhysicalDeviceSurfacePresentModesKHR(m_vkPhysicalDevice, _vkSurface, &numPresentModes, m_vkPresentModes.data());
+    m_vkPresentModes->resize(numPresentModes);
+    result = vkGetPhysicalDeviceSurfacePresentModesKHR(m_vkPhysicalDevice, _vkSurface, &numPresentModes, m_vkPresentModes->data());
     ionAssertReturnValue(result == VK_SUCCESS, "vkGetPhysicalDeviceSurfacePresentModesKHR returned zero present modes.", false);
     ionAssertReturnValue(numPresentModes > 0, "vkGetPhysicalDeviceSurfacePresentModesKHR returned zero present modes.", false);
 

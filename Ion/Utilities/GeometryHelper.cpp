@@ -120,7 +120,7 @@ struct SMikkTSpaceFace
 
 struct SMikkTSpaceConverter
 {
-    eosVector<SMikkTSpaceFace> m_faces;
+    ionVector<SMikkTSpaceFace> m_faces;
     ionU32 m_faceCount;
 };
 
@@ -202,7 +202,7 @@ void GeometryHelper::CalculateTangents(
     SMikkTSpaceConverter converter;
 
     converter.m_faceCount = _indexCount / 3;
-    converter.m_faces.resize(converter.m_faceCount);
+    converter.m_faces->resize(converter.m_faceCount);
 
     for (ionU32 i = 0; i < converter.m_faceCount; ++i)
     {

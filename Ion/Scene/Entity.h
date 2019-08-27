@@ -22,21 +22,21 @@ class AnimationRenderer;
 class ION_DLL Entity : public Node
 {
 public:
-    explicit Entity();
-    explicit Entity(const eosString & _name);
+    Entity();
+    explicit Entity(const ionString & _name);
     virtual ~Entity();
 
     template<typename T>
     T* AddMeshRenderer()
     {
         m_boundingBox.Reset();
-        m_meshes.clear();
+        m_meshes->clear();
         if (m_meshRenderer != nullptr)
         {
-            eosDelete(m_meshRenderer);
+            ionDelete(m_meshRenderer);
             m_meshRenderer = nullptr;
         }
-        m_meshRenderer = eosNew(T, ION_MEMORY_ALIGNMENT_SIZE);
+        m_meshRenderer = ionNew(T);
         return dynamic_cast<T*>(m_meshRenderer);
     }
 
@@ -75,12 +75,12 @@ private:
     Entity& operator = (const Entity&) = delete;
 
 private:
-    BoundingBox             m_boundingBox;
+    BoundingBox				m_boundingBox;
     BaseMeshRenderer*       m_meshRenderer; // if has this one, means that this one is the root and any other children nodes can potentially contains meshes
     AnimationRenderer*      m_animationRenderer;
-    eosVector<Mesh>         m_meshes;
-    eosVector<ionFloat>     m_initialMorphTargetWeights;
-    eosVector<ionFloat>     m_morphTargetWeights;
+    ionVector<Mesh>         m_meshes;
+    ionVector<ionFloat>     m_initialMorphTargetWeights;
+    ionVector<ionFloat>     m_morphTargetWeights;
 };
 
 ION_NAMESPACE_END

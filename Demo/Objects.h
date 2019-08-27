@@ -26,7 +26,7 @@ class RotatingEntity : public ion::Entity
 {
 public:
     RotatingEntity();
-    RotatingEntity(const eosString & _name);
+    RotatingEntity(const ion::ionString & _name);
     virtual ~RotatingEntity();
 
     virtual void OnBegin() override;

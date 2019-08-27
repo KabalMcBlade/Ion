@@ -4,6 +4,7 @@
 #include "../Core/StandardIncludes.h"
 
 #include "../Dependencies/Eos/Eos/Eos.h"
+#include "../Core/MemoryWrapper.h"
 
 
 EOS_USING_NAMESPACE
@@ -28,10 +29,12 @@ public:
     bool operator== (const UUID& rhs) const { return m_highBites == rhs.m_highBites && m_lowBites == rhs.m_lowBites; }
     bool operator!= (const UUID& rhs) const { return m_highBites != rhs.m_highBites || m_lowBites != rhs.m_lowBites; }
 
-    const eosString& ToString() const { return m_uuidString; }
+    const ionString& ToString() const { return m_uuidString; }
+
+    ionU32 GetIndex() const { return m_index; }
 
 private:
-    eosString m_uuidString;
+    ionString m_uuidString;
 
     union
     {
