@@ -1,9 +1,6 @@
 [submodule "Ion/Dependencies/Eos"]
 	path = Ion/Dependencies/Eos
 	url = https://github.com/KabalMcBlade/Eos.git
-[submodule "Ion/Dependencies/vkMemoryAllocator"]
-	path = Ion/Dependencies/vkMemoryAllocator
-	url = https://github.com/KabalMcBlade/vkMemoryAllocator.git
 [submodule "Ion/Dependencies/Nix"]
 	path = Ion/Dependencies/Nix
 	url = https://github.com/KabalMcBlade/Nix.git
