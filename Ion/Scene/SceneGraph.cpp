@@ -18,71 +18,73 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+
+SceneGraphAllocator* SceneGraph::GetAllocator()
+{
+	static HeapArea<Settings::kSceneGraphAllocatorSize> memoryArea;
+	static SceneGraphAllocator memoryAllocator(memoryArea, "SceneGraphFreeListAllocator");
+
+	return &memoryAllocator;
+}
+
+
 SceneGraph::SceneGraph()
 {
-    //m_root = ionNew(Node, "ION_SCENEGRAPH_ROOT");
+    m_root = CreateNode(Node, "ION_SCENEGRAPH_ROOT");
 }
 
 SceneGraph::~SceneGraph()
 {
     DestroyDirectionalLightToScene();
 
-    for (ionMap<Camera*, ionVector<DrawSurface>>::iterator iter = m_drawSurfaces->begin(); iter != m_drawSurfaces->end(); ++iter)
+    for (ionMap<Camera*, ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>, SceneGraphAllocator, GetAllocator>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
-        ionVector<DrawSurface>& drawSurfaces = iter->second;
-        drawSurfaces->clear();
+        ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>& drawSurfaces = iter->second;
+        drawSurfaces.clear();
     }
-    m_drawSurfaces->clear();
+    m_drawSurfaces.clear();
 
-    m_registeredInput->clear();
+    m_registeredInput.clear();
 
-    // force last release
-    //m_root.Release();
+	DestroyNode(m_root);
 }
 
 void SceneGraph::CreateDirectionalLightToScene()
 {
-	DirectionalLight* directionalLight = dynamic_cast<DirectionalLight*>(m_directionalLight->GetPtr());
-    if (directionalLight == nullptr)
+    if (m_directionalLight == nullptr)
     {
-        m_directionalLight = ionNew(DirectionalLight, "MainDirectionalLight");
+        m_directionalLight = ionNew(DirectionalLight, GetAllocator(), "MainDirectionalLight");
     }
 }
 
 void SceneGraph::DestroyDirectionalLightToScene()
 {
-	DirectionalLight* directionalLight = reinterpret_cast<DirectionalLight*>(m_directionalLight->GetPtr());
-    if (directionalLight)
+    if (m_directionalLight != nullptr)
     {
-        m_directionalLight->Release();
+        ionDelete(m_directionalLight, GetAllocator());
+		m_directionalLight = nullptr;
     }
 }
-
-ionObjectHandler<DirectionalLight>& SceneGraph::GetDirectionalLight()
+DirectionalLight* SceneGraph::GetDirectionalLight()
 {
     return m_directionalLight;
 }
 
-DirectionalLight* SceneGraph::GetDirectionalLightPtr()
+void SceneGraph::AddToScene(Node* _node)
 {
-    return dynamic_cast<DirectionalLight*>(m_directionalLight());
+    _node->AttachToParent(m_root);
 }
 
-void SceneGraph::AddToScene(const ObjectHandler& _node)
+void SceneGraph::RemoveFromScene(Node* _node)
 {
-    _node->GetPtr()->AttachToParent(m_root);
+    _node->DetachFromParent();
 }
 
-void SceneGraph::RemoveFromScene(const ObjectHandler& _node)
+void SceneGraph::RemoveAll(const std::function< void(Node* _node) >& _lambda /*= nullptr*/)
 {
-    _node->GetPtr()->DetachFromParent();
-}
-
-void SceneGraph::RemoveAll(const std::function< void(const ObjectHandler& _node) >& _lambda /*= nullptr*/)
-{
-    ionVector<ObjectHandler> myCopy = m_root->GetPtr()->GetChildren();
-    std::vector<ObjectHandler>::const_iterator it = myCopy->begin();
-    while (it != myCopy->end())
+    ionVector<Node*, NodeAllocator, Node::GetAllocator> myCopy = m_root->GetChildren();
+	ionVector<Node*, NodeAllocator, Node::GetAllocator>::const_iterator it = myCopy.begin();
+    while (it != myCopy.end())
     {
         if (_lambda != nullptr)
         {
@@ -97,7 +99,7 @@ void SceneGraph::RemoveAll(const std::function< void(const ObjectHandler& _node)
 
 void SceneGraph::UpdateAllCameraAspectRatio(RenderCore& _renderCore)
 {
-    for (ionMap<Camera*, ionVector<DrawSurface>>::iterator iter = m_drawSurfaces->begin(); iter != m_drawSurfaces->end(); ++iter)
+    for (ionMap<Camera*, ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>, SceneGraphAllocator, GetAllocator>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
         Camera* cam = iter->first;
 
@@ -111,17 +113,17 @@ void SceneGraph::Begin()
     // I do 2 iterations for clearness
 
     // first camera
-    m_root->GetPtr()->IterateAll(
-        [&](const ObjectHandler& _node)
+    m_root->IterateAll(
+        [&](Node* _node)
     {
-        if (_node->GetPtr()->GetNodeType() == ENodeType_Camera)
+        if (_node->GetNodeType() == ENodeType_Camera)
         {
-            Camera* cam = dynamic_cast<Camera*>(_node->GetPtr());
-            if (m_drawSurfaces->find(cam) == m_drawSurfaces->end())
+            Camera* cam = dynamic_cast<Camera*>(_node);
+            if (m_drawSurfaces.find(cam) == m_drawSurfaces.end())
             {
-				ionVector<DrawSurface> drawSurfacesVector;
-				std::pair<Camera*, ionVector<DrawSurface>> pairCamPerDrawsurfaces(cam, drawSurfacesVector);
-				m_drawSurfaces->insert(pairCamPerDrawsurfaces);
+				ionVector<DrawSurface, SceneGraphAllocator, GetAllocator> drawSurfacesVector;
+				std::pair<Camera*, ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>> pairCamPerDrawsurfaces(cam, drawSurfacesVector);
+				m_drawSurfaces.insert(pairCamPerDrawsurfaces);
 				//m_drawSurfaces->insert(std::pair<Camera*, ionVector<DrawSurface>>(cam, ionVector<DrawSurface>()));
             }
         }
@@ -129,21 +131,19 @@ void SceneGraph::Begin()
     );
 
     // second objects
-    m_root->GetPtr()->IterateAll(
-        [&](const ObjectHandler& _node)
+    m_root->IterateAll(
+        [&](Node* _node)
     {
-        if (_node->GetPtr()->GetNodeType() == ENodeType_Entity)
+        if (_node->GetNodeType() == ENodeType_Entity)
         {
-            for (ionMap<Camera*, ionVector<DrawSurface>>::iterator iter = m_drawSurfaces->begin(); iter != m_drawSurfaces->end(); ++iter)
+            for (ionMap<Camera*, ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>, SceneGraphAllocator, GetAllocator>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
             {
                 Camera* cam = iter->first;
 
-                if (_node->GetPtr()->IsInRenderLayer(cam->GetRenderLayer()))
+                if (_node->IsInRenderLayer(cam->GetRenderLayer()))
                 {
-                    ObjectHandler entity = _node;
-
                     // is the root of the mesh (because just the "root" has the mesh renderer)
-                    const BaseMeshRenderer* renderer = entity->GetPtr()->GetMeshRenderer();
+                    const BaseMeshRenderer* renderer = _node->GetMeshRenderer();
                     if (renderer != nullptr)
                     {
                         m_isMeshGeneratedFirstTime = false;
@@ -153,10 +153,10 @@ void SceneGraph::Begin()
                         drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(renderer->GetVertexData(), renderer->GetVertexDataCount(), renderer->GetSizeOfVertex());
                         drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(renderer->GetIndexData(), renderer->GetIndexDataCount(), renderer->GetSizeOfIndex());
 
-                        m_drawSurfaces[cam]->push_back(drawSurface);
+                        m_drawSurfaces[cam].push_back(drawSurface);
                     }
 
-                    const ionU32 meshCount = entity->GetPtr()->GetMeshCount();
+                    const ionU32 meshCount = _node->GetMeshCount();
                     if (meshCount > 0)
                     {
                         for (ionU32 i = 0; i < meshCount; i++)
@@ -164,33 +164,33 @@ void SceneGraph::Begin()
                             DrawSurface* drawSurface = nullptr;
                             if (!m_isMeshGeneratedFirstTime)
                             {
-                                drawSurface = &m_drawSurfaces[cam]->back();
+                                drawSurface = &m_drawSurfaces[cam].back();
                                 m_isMeshGeneratedFirstTime = true;
                             }
                             else
                             {
-                                const DrawSurface& drawSurfacePrev = m_drawSurfaces[cam]->back();
+                                const DrawSurface& drawSurfacePrev = m_drawSurfaces[cam].back();
 
                                 DrawSurface drawSurfaceTmp;
                                 drawSurfaceTmp.m_vertexCache = drawSurfacePrev.m_vertexCache;
                                 drawSurfaceTmp.m_indexCache = drawSurfacePrev.m_indexCache;
 
-                                m_drawSurfaces[cam]->push_back(drawSurfaceTmp);
+                                m_drawSurfaces[cam].push_back(drawSurfaceTmp);
 
-                                drawSurface = &m_drawSurfaces[cam]->back();
+                                drawSurface = &m_drawSurfaces[cam].back();
                             }
 
 
-                            drawSurface->m_nodeRef = entity();
-                            drawSurface->m_visible = entity()->IsVisible();    // this one is updated x frame, just set for the beginning
+                            drawSurface->m_nodeRef = _node;
+                            drawSurface->m_visible = _node->IsVisible();    // this one is updated x frame, just set for the beginning
                             drawSurface->m_meshIndexRef = i;
-                            drawSurface->m_indexStart = entity()->GetMesh(i)->GetIndexStart();
-                            drawSurface->m_indexCount = entity()->GetMesh(i)->GetIndexCount();
-                            drawSurface->m_material = entity()->GetMesh(i)->GetMaterial();
+                            drawSurface->m_indexStart = _node->GetMesh(i)->GetIndexStart();
+                            drawSurface->m_indexCount = _node->GetMesh(i)->GetIndexCount();
+                            drawSurface->m_material = _node->GetMesh(i)->GetMaterial();
                             drawSurface->m_sortingIndex = static_cast<ionU8>(drawSurface->m_material->GetAlphaMode());
 
-                            BoundingBox* bb = entity()->GetBoundingBox();
-                            m_sceneBoundingBox.Expande(bb->GetTransformed(entity()->GetTransform().GetMatrix()));
+                            BoundingBox* bb = _node->GetBoundingBox();
+                            m_sceneBoundingBox.Expande(bb->GetTransformed(_node->GetTransform().GetMatrix()));
                         }
                     }
                 }
@@ -202,35 +202,35 @@ void SceneGraph::Begin()
 
     SortDrawSurfaces();
 
-    m_root->GetPtr()->IterateAll(
-        [&](const ObjectHandler& _node)
+    m_root->IterateAll(
+        [&](Node* _node)
     {
-        _node->GetPtr()->OnBegin();
+        _node->OnBegin();
     }
     );
 }
 
 void SceneGraph::End()
 {  
-    m_root->GetPtr()->IterateAll(
-        [&](const ObjectHandler& _node)
+    m_root->IterateAll(
+        [&](Node* _node)
     {
-        _node->GetPtr()->OnEnd();
+        _node->OnEnd();
     }
     );
 }
 
 void SceneGraph::SortDrawSurfaces()
 {
-    for (ionMap<Camera*, ionVector<DrawSurface>>::iterator iter = m_drawSurfaces->begin(); iter != m_drawSurfaces->end(); ++iter)
+    for (ionMap<Camera*, ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>, SceneGraphAllocator, GetAllocator>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
-        ionVector<DrawSurface>& drawSurfaces = iter->second;
+        ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>& drawSurfaces = iter->second;
 
-        ionVector<DrawSurface>::size_type miniPos;
-        for (ionVector<DrawSurface>::size_type i = 0; i < drawSurfaces->size(); ++i)
+        ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>::size_type miniPos;
+        for (ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>::size_type i = 0; i < drawSurfaces.size(); ++i)
         {
             miniPos = i;
-            for (ionVector<DrawSurface>::size_type j = i + 1; j < drawSurfaces->size(); ++j)
+            for (ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>::size_type j = i + 1; j < drawSurfaces.size(); ++j)
             {
                 if (drawSurfaces[j] < drawSurfaces[miniPos])
                 {
@@ -247,23 +247,23 @@ void SceneGraph::SortDrawSurfaces()
 
 void SceneGraph::Update(ionFloat _deltaTime)
 {
-    m_root->GetPtr()->Update(_deltaTime);
+    m_root->Update(_deltaTime);
 
     // mapping
     //ionVertexCacheManager().BeginMapping();
-    for (ionMap<Camera*, ionVector<DrawSurface>>::iterator iter = m_drawSurfaces->begin(); iter != m_drawSurfaces->end(); ++iter)
+    for (ionMap<Camera*, ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>, SceneGraphAllocator, GetAllocator>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
         Camera* cam = iter->first;
 
-        cam->UpdateView();  // here is updated the skybox either
+        cam->UpdateView();  // here is updated the sky box either
 
         const Matrix& projection = cam->GetPerspectiveProjection();
         const Matrix& view = cam->GetView();
 
-        const Vector& cameraPos = cam->GetTransform().GetPosition();
+        const Vector4& cameraPos = cam->GetTransform().GetPosition();
 
-        ionVector<DrawSurface>& drawSurfaces = iter->second;
-        ionVector<DrawSurface>::iterator beginDS = drawSurfaces->begin(), endDS = drawSurfaces->end(), itDS = beginDS;
+        ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>& drawSurfaces = iter->second;
+        ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>::iterator beginDS = drawSurfaces.begin(), endDS = drawSurfaces.end(), itDS = beginDS;
         for (; itDS != endDS; ++itDS)
         {
             DrawSurface& drawSurface = (*itDS);
@@ -272,10 +272,10 @@ void SceneGraph::Update(ionFloat _deltaTime)
             drawSurface.m_projectionMatrix = projection;
             drawSurface.m_mainCameraPos = cameraPos;
 
-            if (m_directionalLight->IsValid())
+            if (m_directionalLight != nullptr)
             {
-                drawSurface.m_directionalLight = GetDirectionalLightPtr()->GetLightDirection();
-                drawSurface.m_directionalLightColor = GetDirectionalLightPtr()->GetColor();
+                drawSurface.m_directionalLight = m_directionalLight->GetLightDirection();
+                drawSurface.m_directionalLightColor = m_directionalLight->GetColor();
             }
 
             drawSurface.m_exposure = ionRenderManager().m_exposure;
@@ -294,7 +294,7 @@ void SceneGraph::Update(ionFloat _deltaTime)
 
 void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _width, ionU32 _height)
 {
-    for (ionMap<Camera*, ionVector<DrawSurface>>::iterator iter = m_drawSurfaces->begin(); iter != m_drawSurfaces->end(); ++iter)
+    for (ionMap<Camera*, ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>, SceneGraphAllocator, GetAllocator>::iterator iter = m_drawSurfaces.begin(); iter != m_drawSurfaces.end(); ++iter)
     {
         Camera* cam = iter->first;
 
@@ -306,9 +306,9 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
 
         cam->RenderSkybox(_renderCore);
 
-        const ionVector<DrawSurface>& surfaces = iter->second;
+        const ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>& surfaces = iter->second;
 
-        ionVector<DrawSurface>::const_iterator begin = surfaces->cbegin(), end = surfaces->cend(), it = begin;
+        ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>::const_iterator begin = surfaces.cbegin(), end = surfaces.cend(), it = begin;
         for (; it != end; ++it)
         {
             const DrawSurface& drawSurface = (*it);
@@ -333,45 +333,43 @@ void SceneGraph::Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _w
     }
 }
 
-void SceneGraph::RegisterToInput(const ObjectHandler& _node)
+void SceneGraph::RegisterToInput(Node*_node)
 {
-    m_registeredInput->push_back(_node);
+    m_registeredInput.push_back(_node);
 }
 
-void SceneGraph::UnregisterFromInput(const ObjectHandler& _node)
+void SceneGraph::UnregisterFromInput(Node* _node)
 {
     //m_registeredInput->erase(std::remove(m_registeredInput->begin(), m_registeredInput->end(), _node), m_registeredInput->end());
-    std::remove(m_registeredInput->begin(), m_registeredInput->end(), _node);
+    std::remove(m_registeredInput.begin(), m_registeredInput.end(), _node);
 }
 
 void SceneGraph::UpdateMouseInput(const MouseState& _mouseState, ionFloat _deltaTime)
 {
-    ionVector<ObjectHandler>::const_iterator begin = m_registeredInput->cbegin(), end = m_registeredInput->cend(), it = begin;
+    ionVector<Node*, SceneGraphAllocator, GetAllocator>::const_iterator begin = m_registeredInput.cbegin(), end = m_registeredInput.cend(), it = begin;
     for (; it != end; ++it)
     {
-        const ObjectHandler& node = (*it);
-        node->GetPtr()->OnMouseInput(_mouseState, _deltaTime);
+		(*it)->OnMouseInput(_mouseState, _deltaTime);
     }
 }
 
 void SceneGraph::UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime)
 {
-    ionVector<ObjectHandler>::const_iterator begin = m_registeredInput->cbegin(), end = m_registeredInput->cend(), it = begin;
+    ionVector<Node*, SceneGraphAllocator, GetAllocator>::const_iterator begin = m_registeredInput.cbegin(), end = m_registeredInput.cend(), it = begin;
     for (; it != end; ++it)
     {
-        const ObjectHandler& node = (*it);
-        node->GetPtr()->OnKeyboardInput(_keyboardState, _deltaTime);
+		(*it)->OnKeyboardInput(_keyboardState, _deltaTime);
     }
 }
 
-ObjectHandler SceneGraph::GetObjectByName(const ionString& _name)
+Node* SceneGraph::GetObjectByName(const ionString& _name)
 {
-    ObjectHandler nodeToFind;   // default is empty/invalid
+	Node* nodeToFind = nullptr;   // default is empty/invalid
 
-    m_root->GetPtr()->IterateAll(
-        [&](const ObjectHandler& _node)
+    m_root->IterateAll(
+        [&](Node* _node)
     {
-        if (_node->GetPtr()->GetName() == _name)
+        if (_node->GetName() == _name)
         {
             nodeToFind = _node;
             return;
@@ -382,14 +380,14 @@ ObjectHandler SceneGraph::GetObjectByName(const ionString& _name)
     return nodeToFind;
 }
 
-ObjectHandler SceneGraph::GetObjectByUUID(const UUID& _uuid)
+Node* SceneGraph::GetObjectByUUID(const UUID& _uuid)
 {
-    ObjectHandler nodeToFind;   // default is empty/invalid
+	Node* nodeToFind = nullptr;   // default is empty/invalid
 
-    m_root->GetPtr()->IterateAll(
-        [&](const ObjectHandler& _node)
+    m_root->IterateAll(
+        [&](Node* _node)
     {
-        if (_node->GetPtr()->GetUUID() == _uuid)
+        if (_node->GetUUID() == _uuid)
         {
             nodeToFind = _node;
             return;

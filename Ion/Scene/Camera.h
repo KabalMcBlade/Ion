@@ -10,16 +10,25 @@
 
 #include "../Renderer/RenderCommon.h"
 
+#include "../Core/MemorySettings.h"
+
+#include "../Renderer/RenderCore.h"
+
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
+
+using CameraAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
 
 
 class RenderCore;
 class Skybox;
 class ION_DLL Camera : public Node
 {
+public:
+	static CameraAllocator* GetAllocator();
+
 public:
     enum ECameraType 
     { 
@@ -35,7 +44,7 @@ public:
     void SetPerspectiveProjection(ionFloat _fovDeg, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar);
     void UpdateAspectRatio(ionFloat _aspect);
 
-    // for the nature of the skybox I need to call this function inside of the mapping!
+    // for the nature of the Skybox I need to call this function inside of the mapping!
     void UpdateView();
 
     ionFloat GetNear() const { return m_zNear; }
@@ -77,7 +86,7 @@ public:
 
     void SetViewport(RenderCore& _renderCore, VkCommandBuffer _commandBuffer);
     void SetScissor(RenderCore& _renderCore, VkCommandBuffer _commandBuffer);
-    void StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const ionVector<VkClearValue>& _clearValues);
+    void StartRenderPass(RenderCore& _renderCore, VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const ionVector<VkClearValue, RenderCoreAllocator, RenderCore::GetAllocator>& _clearValues);
     void EndRenderPass(RenderCore& _renderCore, VkCommandBuffer _commandBuffer);
 
 public:
@@ -101,7 +110,7 @@ private:
 
     // render pass and framebuffer depending on camera type
     VkRenderPass                m_vkRenderPass;
-    ionVector<VkFramebuffer>    m_vkFrameBuffers;
+    ionVector<VkFramebuffer, RenderCoreAllocator, RenderCore::GetAllocator>    m_vkFrameBuffers;
 
     Frustum m_frustum;
 

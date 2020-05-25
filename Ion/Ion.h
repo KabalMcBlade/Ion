@@ -20,6 +20,9 @@
 #include "Core/FileSystemManager.h"
 #include "Core/UUID.h"
 
+#include "Core/MemorySettings.h"
+#include "Core/MemoryWrapper.h"
+
 #include "Renderer/GPUMemoryManager.h"
 #include "Renderer/StagingBufferManager.h"
 #include "Renderer/VertexCacheManager.h"
@@ -72,11 +75,9 @@
 
 #include "Utilities/LoaderGLTF.h"
 #include "Utilities/GeometryHelper.h"
-#include "Utilities/Serializer.h"
+//#include "Utilities/Serializer.h"
 
 #include "App/Mode.h"
 #include "App/CommandLineParser.h"
 #include "App/Window.h"
 
-#include "Core/MemoryManager.h"
-#include "Core/MemoryWrapper.h"

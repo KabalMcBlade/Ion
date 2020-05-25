@@ -7,7 +7,7 @@
 #include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
 #include "../Core/CoreDefs.h"
-#include "../Core/MemoryWrapper.h"
+//#include "../Core/MemoryWrapper.h"
 
 VK_ALLOCATOR_USING_NAMESPACE
 

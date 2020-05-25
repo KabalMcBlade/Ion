@@ -24,7 +24,7 @@
 
 #include "../Animation/AnimationRenderer.h"
 
-#include "Serializer.h"
+//#include "Serializer.h"
 
 #define TINYGLTF_IMPLEMENTATION
 // #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
@@ -35,8 +35,15 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
-
 static ionU32 g_incrementalIndexLocalModelChild = 1;
+
+LoaderGLTFAllocator* LoaderGLTF::GetAllocator()
+{
+	static HeapArea<Settings::kLoaderGLTFAllocatorSize> memoryArea;
+	static LoaderGLTFAllocator memoryAllocator(memoryArea, "LoaderGLTFListAllocator");
+
+	return &memoryAllocator;
+}
 
 LoaderGLTF::LoaderGLTF()
 {
@@ -47,11 +54,11 @@ LoaderGLTF::~LoaderGLTF()
 }
 
 
-void UpdateBoundingBox(const ObjectHandler& _node, BoundingBox& _mainBoundingBoxToUpdate)
+void UpdateBoundingBox(Node* _node, BoundingBox& _mainBoundingBoxToUpdate)
 {
-    if (_node->GetPtr()->GetNodeType() == ENodeType_Entity)
+    if (_node->GetNodeType() == ENodeType_Entity)
     {
-        Entity* entity = dynamic_cast<Entity*>(_node->GetPtr());
+        Entity* entity = dynamic_cast<Entity*>(_node);
 
         if (entity->GetBoundingBox()->IsValid())
         {
@@ -59,27 +66,27 @@ void UpdateBoundingBox(const ObjectHandler& _node, BoundingBox& _mainBoundingBox
         }
     }
 
-    if (_node->GetPtr()->GetChildren()->empty())
+    if (_node->GetChildren().empty())
     {
         return;
     }
 
-    const ionVector<ObjectHandler>& children = _node->GetPtr()->GetChildren();
-    ionVector<ObjectHandler>::const_iterator begin = children->cbegin(), end = children->cend(), it = begin;
+    const ionVector<Node*, NodeAllocator, Node::GetAllocator>& children = _node->GetChildren();
+    ionVector<Node*, NodeAllocator, Node::GetAllocator>::const_iterator begin = children.cbegin(), end = children.cend(), it = begin;
     for (; it != end; ++it)
     {
-        ObjectHandler nh = (*it);
+		Node* nh = (*it);
         UpdateBoundingBox(nh, _mainBoundingBoxToUpdate);
     }
 }
 
 // for some reasons, tinygltf must be declared in source file: I was unable to declare any of its structures in header file
-void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRenderer* _meshRenderer, ObjectHandler& _entityHandle, ionMap<ionU32, Node*>& _nodeIndexToNodePointer, ionMap<ionS32, ionString>& _textureIndexToTextureName, ionMap<ionS32, ionString>& _materialIndexToMaterialName
+void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRenderer* _meshRenderer, Node*& _entityHandle, ionMap<ionU32, Node*, LoaderGLTFAllocator, LoaderGLTF::GetAllocator>& _nodeIndexToNodePointer, ionMap<ionS32, ionString, LoaderGLTFAllocator, LoaderGLTF::GetAllocator>& _textureIndexToTextureName, ionMap<ionS32, ionString, LoaderGLTFAllocator, LoaderGLTF::GetAllocator>& _materialIndexToMaterialName
     /*, ionBool _generateNormalWhenMissing, ionBool _generateTangentWhenMissing, ionBool _setBitangentSign*/)
 {
-    Vector position(0.0f, 0.0f, 0.0f, 1.0f);
+    Vector4 position(0.0f, 0.0f, 0.0f, 1.0f);
     Quaternion rotation;
-    Vector scale(1.0f, 1.0f, 1.0f);
+    Vector4 scale(1.0f, 1.0f, 1.0f);
 
     if (_node.matrix.size() == 16)
     {
@@ -100,7 +107,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
     {   
         if (_node.translation.size() == 3)
         {
-            position = Vector((ionFloat)_node.translation[0], (ionFloat)_node.translation[1], (ionFloat)_node.translation[2], 1.0f);
+            position = Vector4((ionFloat)_node.translation[0], (ionFloat)_node.translation[1], (ionFloat)_node.translation[2], 1.0f);
         }
 
         if (_node.rotation.size() == 4)
@@ -110,13 +117,13 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
         if (_node.scale.size() == 3)
         {
-            scale = Vector((ionFloat)_node.scale[0], (ionFloat)_node.scale[1], (ionFloat)_node.scale[2]);
+            scale = Vector4((ionFloat)_node.scale[0], (ionFloat)_node.scale[1], (ionFloat)_node.scale[2]);
         }
     }
     
-    _entityHandle->GetPtr()->GetTransform().SetPosition(position);
-    _entityHandle->GetPtr()->GetTransform().SetRotation(rotation);
-    _entityHandle->GetPtr()->GetTransform().SetScale(scale);
+    _entityHandle->GetTransform().SetPosition(position);
+    _entityHandle->GetTransform().SetRotation(rotation);
+    _entityHandle->GetTransform().SetScale(scale);
 
     //
     //  This one is the "NodeIndex" use to track the animation nodes
@@ -127,20 +134,20 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
     // calculate matrix for all children if any
     for (ionSize i = 0; i < _node.children.size(); ++i)
     {
-        Entity* child = ionNew(Entity, _model.nodes[_node.children[i]].name.c_str());
+		Entity* child = CreateNode(Entity, _model.nodes[_node.children[i]].name.c_str());
 
         if (child->GetName().empty())
         {
-            ionString newName = _entityHandle->GetPtr()->GetName().c_str();
+			ionString newName = _entityHandle->GetName().c_str();
             newName += std::to_string(g_incrementalIndexLocalModelChild).c_str();
             child->SetName(newName);
             ++g_incrementalIndexLocalModelChild;
         }
 
-        ObjectHandler childHandle(child);
+		Node* childHandle(child);
         child->AttachToParent(_entityHandle);
 
-        _nodeIndexToNodePointer->insert(std::pair<ionU32, Node*>((ionU32)_node.children[i], child));
+        _nodeIndexToNodePointer.insert(std::pair<ionU32, Node*>((ionU32)_node.children[i], child));
         LoadNode(_model.nodes[_node.children[i]], _model, _meshRenderer, childHandle, _nodeIndexToNodePointer, _textureIndexToTextureName, _materialIndexToMaterialName);
     }
     
@@ -148,7 +155,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
     {
         const tinygltf::Mesh mesh = _model.meshes[_node.mesh];
 
-        Entity* entityPtr = dynamic_cast<Entity*>(_entityHandle());
+        Entity* entityPtr = dynamic_cast<Entity*>(_entityHandle);
 
         ionBool usingMorphTarget = false;
         ionBool usingSkinningMesh = false;
@@ -192,11 +199,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
             ionMesh.SetIndexStart(_meshRenderer->GetIndexDataCount());
             ionU32 vertexStart = _meshRenderer->GetVertexDataCount();       // 0?
 
-            ionVector<Vector> positionToCompute;
-            ionVector<Vector> normalToCompute;
-            ionVector<Vector> uvuvToCompute;
-            ionVector<Vector> tangentsToCompute;
-            ionVector<ionFloat> bitangentsSignToCompute;
+            ionVector<Vector4, LoaderGLTFAllocator, LoaderGLTF::GetAllocator> positionToCompute;
+            ionVector<Vector4, LoaderGLTFAllocator, LoaderGLTF::GetAllocator> normalToCompute;
+            ionVector<Vector4, LoaderGLTFAllocator, LoaderGLTF::GetAllocator> uvuvToCompute;
+            ionVector<Vector4, LoaderGLTFAllocator, LoaderGLTF::GetAllocator> tangentsToCompute;
+            ionVector<ionFloat, LoaderGLTFAllocator, LoaderGLTF::GetAllocator> bitangentsSignToCompute;
 
             ionBool normalsAreMissing = true;
             ionBool uvAreMissing = true;
@@ -254,11 +261,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
                 if (usingMorphTarget)
                 {
-                    ionVector<const ionFloat*> morphTargetBufferPos;
-                    ionVector<const ionFloat*> morphTargetBufferNormals;
-                    ionVector<const ionFloat*> morphTargetBufferTangent;
+                    ionVector<const ionFloat*, LoaderGLTFAllocator, LoaderGLTF::GetAllocator> morphTargetBufferPos;
+                    ionVector<const ionFloat*, LoaderGLTFAllocator, LoaderGLTF::GetAllocator> morphTargetBufferNormals;
+                    ionVector<const ionFloat*, LoaderGLTFAllocator, LoaderGLTF::GetAllocator> morphTargetBufferTangent;
 
-                    ionVector<ionSize> accessorCounts;
+                    ionVector<ionSize, LoaderGLTFAllocator, LoaderGLTF::GetAllocator> accessorCounts;
                     const ionSize morphTargetCount = primitive.targets.size();
                     for (ionSize t = 0; t < morphTargetCount; ++t)
                     {
@@ -266,8 +273,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         {
                             const tinygltf::Accessor &posAccessor = _model.accessors[primitive.targets[t].find("POSITION")->second];
                             const tinygltf::BufferView &posView = _model.bufferViews[posAccessor.bufferView];
-                            morphTargetBufferPos->push_back(reinterpret_cast<const ionFloat *>(&(_model.buffers[posView.buffer].data[posAccessor.byteOffset + posView.byteOffset])));
-                            accessorCounts->push_back(posAccessor.count);
+                            morphTargetBufferPos.push_back(reinterpret_cast<const ionFloat *>(&(_model.buffers[posView.buffer].data[posAccessor.byteOffset + posView.byteOffset])));
+                            accessorCounts.push_back(posAccessor.count);
                         }
                     }
 
@@ -277,7 +284,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         {
                             const tinygltf::Accessor &normAccessor = _model.accessors[primitive.targets[t].find("NORMAL")->second];
                             const tinygltf::BufferView &normView = _model.bufferViews[normAccessor.bufferView];
-                            morphTargetBufferNormals->push_back(reinterpret_cast<const ionFloat *>(&(_model.buffers[normView.buffer].data[normAccessor.byteOffset + normView.byteOffset])));
+                            morphTargetBufferNormals.push_back(reinterpret_cast<const ionFloat *>(&(_model.buffers[normView.buffer].data[normAccessor.byteOffset + normView.byteOffset])));
                         }
                     }
 
@@ -287,7 +294,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         {
                             const tinygltf::Accessor &tangentAccessor = _model.accessors[primitive.targets[t].find("TANGENT")->second];
                             const tinygltf::BufferView &tangentView = _model.bufferViews[tangentAccessor.bufferView];
-                            morphTargetBufferTangent->push_back(reinterpret_cast<const ionFloat *>(&(_model.buffers[tangentView.buffer].data[tangentAccessor.byteOffset + tangentView.byteOffset])));
+                            morphTargetBufferTangent.push_back(reinterpret_cast<const ionFloat *>(&(_model.buffers[tangentView.buffer].data[tangentAccessor.byteOffset + tangentView.byteOffset])));
                         }
                     }
 
@@ -298,11 +305,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         {
                             VertexMorphTarget vert;
 
-                            Vector pos((&morphTargetBufferPos[t][v * 3])[0], ((&morphTargetBufferPos[t][v * 3])[1]), (&morphTargetBufferPos[t][v * 3])[2], 1.0f);
+                            Vector4 pos((&morphTargetBufferPos[t][v * 3])[0], ((&morphTargetBufferPos[t][v * 3])[1]), (&morphTargetBufferPos[t][v * 3])[2], 1.0f);
                             vert.SetPosition(pos);
 
-                            Vector normal;
-                            if (morphTargetBufferNormals->size() > 0)
+                            Vector4 normal;
+                            if (morphTargetBufferNormals.size() > 0)
                             {
                                 normal = Helper::Set((&morphTargetBufferNormals[t][v * 3])[0], ((&morphTargetBufferNormals[t][v * 3])[1]), (&morphTargetBufferNormals[t][v * 3])[2], 0.0f);
                             }
@@ -312,8 +319,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                             }
                             vert.SetNormal(normal);
 
-                            Vector tangent;
-                            if (morphTargetBufferTangent->size() > 0)
+                            Vector4 tangent;
+                            if (morphTargetBufferTangent.size() > 0)
                             {
                                 tangent = Helper::Set((&morphTargetBufferTangent[t][v * 3])[0], ((&morphTargetBufferTangent[t][v * 3])[1]), (&morphTargetBufferTangent[t][v * 3])[2], 0.0f);
                             }
@@ -486,17 +493,17 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 {
                     Vertex vert;
 
-                    Vector pos((&bufferPos[v * 3])[0], ((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2], 1.0f);
+                    Vector4 pos((&bufferPos[v * 3])[0], ((&bufferPos[v * 3])[1]), (&bufferPos[v * 3])[2], 1.0f);
 
                     if (normalsAreMissing || tangentsAreMissing)
                     {
-                        positionToCompute->push_back(pos);
+                        positionToCompute.push_back(pos);
                     }
                     vert.SetPosition(pos);
 
-                    _entityHandle->GetPtr()->GetBoundingBox()->Expande(vert.GetPosition(), vert.GetPosition());
+                    _entityHandle->GetBoundingBox()->Expande(vert.GetPosition(), vert.GetPosition());
                     
-                    Vector normal;
+                    Vector4 normal;
                     if (bufferNormals != nullptr)
                     {
                         normal = Helper::Set((&bufferNormals[v * 3])[0], ((&bufferNormals[v * 3])[1]) , (&bufferNormals[v * 3])[2], 0.0f);
@@ -508,12 +515,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
                     if (!normalsAreMissing && tangentsAreMissing)
                     {
-                        normalToCompute->push_back(normal);
+                        normalToCompute.push_back(normal);
                     }
 
                     vert.SetNormal(normal);
 
-                    Vector tangent;
+                    Vector4 tangent;
                     if (bufferTangent != nullptr)
                     {
                         tangent = Helper::Set((&bufferTangent[v * 3])[0], ((&bufferTangent[v * 3])[1]), (&bufferTangent[v * 3])[2], 0.0f);
@@ -529,8 +536,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     {
                         if (!uvAreMissing)
                         {
-                            Vector uvuv = Helper::Set((&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1], (&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1]);
-                            uvuvToCompute->push_back(uvuv);
+                            Vector4 uvuv = Helper::Set((&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1], (&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1]);
+                            uvuvToCompute.push_back(uvuv);
                         }
 
                         vert.SetTexCoordUV0((&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1]);
@@ -541,8 +548,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         {
                             if (!uvAreMissing)
                             {
-                                Vector uvuv = Helper::Set(ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f);
-                                uvuvToCompute->push_back(uvuv);
+                                Vector4 uvuv = Helper::Set(ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f);
+                                uvuvToCompute.push_back(uvuv);
                             }
 
                             vert.SetTexCoordUV0(ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f);
@@ -553,8 +560,8 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                             {
                                 if (!uvAreMissing)
                                 {
-                                    Vector uvuv = Helper::Set(ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f);
-                                    uvuvToCompute->push_back(uvuv);
+                                    Vector4 uvuv = Helper::Set(ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f);
+                                    uvuvToCompute.push_back(uvuv);
                                 }
 
                                 vert.SetTexCoordUV0(ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f);
@@ -656,7 +663,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
             }
 
 
-            ionVector<Index> indexToCompute;
+            ionVector<Index, LoaderGLTFAllocator, LoaderGLTF::GetAllocator> indexToCompute;
 
             // Indices
             {
@@ -670,48 +677,48 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 {
                 case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT:
                 {
-                    ionU32 *buf = (ionU32 *)ionNewRaw(sizeof(ionU32) * accessor.count);
+                    ionU32 *buf = (ionU32 *)ionNewRaw(sizeof(ionU32) * accessor.count, LoaderGLTF::GetAllocator());
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU32));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
                         if (normalsAreMissing || tangentsAreMissing)
                         {
-                            indexToCompute->push_back((Index)(buf[index]));
+                            indexToCompute.push_back((Index)(buf[index]));
                         }
                         _meshRenderer->PushBackIndex((Index)(buf[index] + vertexStart));
                     }
-                    ionDeleteRaw(buf);
+                    ionDeleteRaw(buf, LoaderGLTF::GetAllocator());
                     break;
                 }
 
                 case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
                 {
-                    ionU16 *buf = (ionU16 *)ionNewRaw(sizeof(ionU16) * accessor.count);
+                    ionU16 *buf = (ionU16 *)ionNewRaw(sizeof(ionU16) * accessor.count, LoaderGLTF::GetAllocator());
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU16));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
                         if (normalsAreMissing || tangentsAreMissing)
                         {
-                            indexToCompute->push_back((Index)(buf[index]));
+                            indexToCompute.push_back((Index)(buf[index]));
                         }
                         _meshRenderer->PushBackIndex(buf[index] + vertexStart);
                     }
-                    ionDeleteRaw(buf);
+                    ionDeleteRaw(buf, LoaderGLTF::GetAllocator());
                     break;
                 }
                 case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: 
                 {
-                    ionU8 *buf = (ionU8 *)ionNewRaw(sizeof(ionU8) * accessor.count);
+                    ionU8 *buf = (ionU8 *)ionNewRaw(sizeof(ionU8) * accessor.count, LoaderGLTF::GetAllocator());
                     memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU8));
                     for (ionSize index = 0; index < accessor.count; index++)
                     {
                         if (normalsAreMissing || tangentsAreMissing)
                         {
-                            indexToCompute->push_back((Index)(buf[index]));
+                            indexToCompute.push_back((Index)(buf[index]));
                         }
                         _meshRenderer->PushBackIndex((Index)(buf[index] + vertexStart));
                     }
-                    ionDeleteRaw(buf);
+                    ionDeleteRaw(buf, LoaderGLTF::GetAllocator());
                     break;
                 }
                 default:
@@ -722,10 +729,10 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
             // Write normal and tangent if they are missing
             if (normalsAreMissing)
             {
-                normalToCompute->resize(positionToCompute->size());
-                GeometryHelper::CalculateNormals(positionToCompute->data(), static_cast<ionU32>(positionToCompute->size()), indexToCompute->data(), static_cast<ionU32>(indexToCompute->size()), normalToCompute->data());
+                normalToCompute.resize(positionToCompute.size());
+                GeometryHelper::CalculateNormals(positionToCompute.data(), static_cast<ionU32>(positionToCompute.size()), indexToCompute.data(), static_cast<ionU32>(indexToCompute.size()), normalToCompute.data());
 
-                ionSize count = normalToCompute->size();
+                ionSize count = normalToCompute.size();
                 for (ionSize k = 0; k < count; ++k)
                 {
                     _meshRenderer->GetVertex(k).SetNormal(normalToCompute[k]);
@@ -738,11 +745,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
             // 2. so no tangent needs
             if (tangentsAreMissing && !uvAreMissing)
             {
-                tangentsToCompute->resize(positionToCompute->size());
-                bitangentsSignToCompute->resize(positionToCompute->size());
-                GeometryHelper::CalculateTangents(positionToCompute->data(), normalToCompute->data(), uvuvToCompute->data(), static_cast<ionU32>(positionToCompute->size()), indexToCompute->data(), static_cast<ionU32>(indexToCompute->size()), tangentsToCompute->data(), bitangentsSignToCompute->data());
+                tangentsToCompute.resize(positionToCompute.size());
+                bitangentsSignToCompute.resize(positionToCompute.size());
+                GeometryHelper::CalculateTangents(positionToCompute.data(), normalToCompute.data(), uvuvToCompute.data(), static_cast<ionU32>(positionToCompute.size()), indexToCompute.data(), static_cast<ionU32>(indexToCompute.size()), tangentsToCompute.data(), bitangentsSignToCompute.data());
 
-                ionSize count = tangentsToCompute->size();
+                ionSize count = tangentsToCompute.size();
                 for (ionSize k = 0; k < count; ++k)
                 {
                     _meshRenderer->GetVertex(k).SetTangent(tangentsToCompute[k]);
@@ -753,7 +760,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
             // add material and add all to primitive
             if (_model.materials.size() > 0)
             {
-                Material* material = ionMaterialManger().GetMaterial(_materialIndexToMaterialName[primitive.material]);
+                Material* material = ionMaterialManger().GetMaterial(_materialIndexToMaterialName[primitive.material].c_str());
 
                 switch (primitive.mode)
                 {
@@ -805,12 +812,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         //
                         UniformBinding uniformVertex;
                         uniformVertex.m_bindingIndex = bindingIndex++;
-                        uniformVertex.m_parameters->push_back(ION_MODEL_MATRIX_PARAM);
-                        uniformVertex.m_type->push_back(EBufferParameterType_Matrix);
-                        uniformVertex.m_parameters->push_back(ION_VIEW_MATRIX_PARAM);
-                        uniformVertex.m_type->push_back(EBufferParameterType_Matrix);
-                        uniformVertex.m_parameters->push_back(ION_PROJ_MATRIX_PARAM);
-                        uniformVertex.m_type->push_back(EBufferParameterType_Matrix);
+                        uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
+                        uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
+                        uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
+                        uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
 
 
                         UniformBinding morphWeightsVertex;
@@ -827,18 +834,18 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         //
                         UniformBinding uniformFragment;
                         uniformFragment.m_bindingIndex = bindingIndex++;
-                        uniformFragment.m_parameters->push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-                        uniformFragment.m_type->push_back(EBufferParameterType_Vector);
-                        uniformFragment.m_parameters->push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-                        uniformFragment.m_type->push_back(EBufferParameterType_Vector);
-                        uniformFragment.m_parameters->push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-                        uniformFragment.m_type->push_back(EBufferParameterType_Vector);
-                        uniformFragment.m_parameters->push_back(ION_EXPOSURE_FLOAT_PARAM);
-                        uniformFragment.m_type->push_back(EBufferParameterType_Float);
-                        uniformFragment.m_parameters->push_back(ION_GAMMA_FLOAT_PARAM);
-                        uniformFragment.m_type->push_back(EBufferParameterType_Float);
-                        uniformFragment.m_parameters->push_back(ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM);
-                        uniformFragment.m_type->push_back(EBufferParameterType_Float);
+                        uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EBufferParameterType_Vector);
+                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EBufferParameterType_Vector);
+                        uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
+                        uniformFragment.m_type.push_back(EBufferParameterType_Vector);
+                        uniformFragment.m_parameters.push_back(ION_EXPOSURE_FLOAT_PARAM);
+                        uniformFragment.m_type.push_back(EBufferParameterType_Float);
+                        uniformFragment.m_parameters.push_back(ION_GAMMA_FLOAT_PARAM);
+                        uniformFragment.m_type.push_back(EBufferParameterType_Float);
+                        uniformFragment.m_parameters.push_back(ION_PREFILTERED_CUBE_MIP_LEVELS_FLOAT_PARAM);
+                        uniformFragment.m_type.push_back(EBufferParameterType_Float);
 
                         //
                         SamplerBinding samplerIrradiance;
@@ -904,58 +911,58 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
                         // set the shaders layout
                         ShaderLayoutDef vertexLayout;
-                        vertexLayout.m_uniforms->push_back(uniformVertex);
+                        vertexLayout.m_uniforms.push_back(uniformVertex);
 
                         if (usingMorphTarget)
                         {
-                            vertexLayout.m_uniforms->push_back(morphWeightsVertex);
-                            vertexLayout.m_storages->push_back(storageMorphTargets);
+                            vertexLayout.m_uniforms.push_back(morphWeightsVertex);
+                            vertexLayout.m_storages.push_back(storageMorphTargets);
                         }
 
                         ShaderLayoutDef fragmentLayout;
-                        fragmentLayout.m_uniforms->push_back(uniformFragment);
-                        fragmentLayout.m_samplers->push_back(samplerIrradiance);
-                        fragmentLayout.m_samplers->push_back(prefilteredMap);
-                        fragmentLayout.m_samplers->push_back(samplerBRDFLUT);
-                        fragmentLayout.m_samplers->push_back(albedoMap);
-                        fragmentLayout.m_samplers->push_back(normalMap);
-                        fragmentLayout.m_samplers->push_back(aoMap);
-                        fragmentLayout.m_samplers->push_back(physicalDescriptorMap);
-                        fragmentLayout.m_samplers->push_back(emissiveMap);
+                        fragmentLayout.m_uniforms.push_back(uniformFragment);
+                        fragmentLayout.m_samplers.push_back(samplerIrradiance);
+                        fragmentLayout.m_samplers.push_back(prefilteredMap);
+                        fragmentLayout.m_samplers.push_back(samplerBRDFLUT);
+                        fragmentLayout.m_samplers.push_back(albedoMap);
+                        fragmentLayout.m_samplers.push_back(normalMap);
+                        fragmentLayout.m_samplers.push_back(aoMap);
+                        fragmentLayout.m_samplers.push_back(physicalDescriptorMap);
+						fragmentLayout.m_samplers.push_back(emissiveMap);
 
                         //
                         ConstantsBindingDef constants;
                         constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-                        constants.m_values->push_back(material->GetBasePBR().GetColor()[0]);
-                        constants.m_values->push_back(material->GetBasePBR().GetColor()[1]);
-                        constants.m_values->push_back(material->GetBasePBR().GetColor()[2]);
-                        constants.m_values->push_back(material->GetBasePBR().GetColor()[3]);
-                        constants.m_values->push_back(material->GetAdvancePBR().GetEmissiveColor()[0]);
-                        constants.m_values->push_back(material->GetAdvancePBR().GetEmissiveColor()[1]);
-                        constants.m_values->push_back(material->GetAdvancePBR().GetEmissiveColor()[2]);
-                        constants.m_values->push_back(material->GetAdvancePBR().GetEmissiveColor()[3]);
-                        constants.m_values->push_back(material->GetSpecularGlossiness().GetBaseColor()[0]);
-                        constants.m_values->push_back(material->GetSpecularGlossiness().GetBaseColor()[1]);
-                        constants.m_values->push_back(material->GetSpecularGlossiness().GetBaseColor()[2]);
-                        constants.m_values->push_back(material->GetSpecularGlossiness().GetBaseColor()[3]);
-                        constants.m_values->push_back(material->GetSpecularGlossiness().GetSpecularColor()[0]);
-                        constants.m_values->push_back(material->GetSpecularGlossiness().GetSpecularColor()[1]);
-                        constants.m_values->push_back(material->GetSpecularGlossiness().GetSpecularColor()[2]);
-                        constants.m_values->push_back(material->GetSpecularGlossiness().GetSpecularColor()[3]);
-                        constants.m_values->push_back(material->GetSpecularGlossiness().GetGlossinessColor()[0]);
-                        constants.m_values->push_back(material->GetSpecularGlossiness().GetGlossinessColor()[1]);
-                        constants.m_values->push_back(material->GetSpecularGlossiness().GetGlossinessColor()[2]);
-                        constants.m_values->push_back(material->GetSpecularGlossiness().GetGlossinessColor()[3]);
-                        constants.m_values->push_back(usingSpecularGlossiness);
-                        constants.m_values->push_back(constantTexturesSettings[ESettingType_Base]);
-                        constants.m_values->push_back(constantTexturesSettings[ESettingType_Physical]);
-                        constants.m_values->push_back(constantTexturesSettings[ESettingType_Normal]);
-                        constants.m_values->push_back(constantTexturesSettings[ESettingType_Occlusion]);
-                        constants.m_values->push_back(constantTexturesSettings[ESettingType_Emissive]);
-                        constants.m_values->push_back(material->GetBasePBR().GetMetallicFactor());
-                        constants.m_values->push_back(material->GetBasePBR().GetRoughnessFactor());
-                        constants.m_values->push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
-                        constants.m_values->push_back(material->GetAdvancePBR().GetAlphaCutoff());
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
+                        constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
+                        constants.m_values.push_back(material->GetAdvancePBR().GetEmissiveColor()[0]);
+                        constants.m_values.push_back(material->GetAdvancePBR().GetEmissiveColor()[1]);
+                        constants.m_values.push_back(material->GetAdvancePBR().GetEmissiveColor()[2]);
+                        constants.m_values.push_back(material->GetAdvancePBR().GetEmissiveColor()[3]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[0]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[1]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[2]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetBaseColor()[3]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[0]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[1]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[2]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetSpecularColor()[3]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[0]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[1]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[2]);
+                        constants.m_values.push_back(material->GetSpecularGlossiness().GetGlossinessColor()[3]);
+                        constants.m_values.push_back(usingSpecularGlossiness);
+                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Base]);
+                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Physical]);
+                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Normal]);
+                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Occlusion]);
+                        constants.m_values.push_back(constantTexturesSettings[ESettingType_Emissive]);
+                        constants.m_values.push_back(material->GetBasePBR().GetMetallicFactor());
+                        constants.m_values.push_back(material->GetBasePBR().GetRoughnessFactor());
+                        constants.m_values.push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
+                        constants.m_values.push_back(material->GetAdvancePBR().GetAlphaCutoff());
 
                         material->SetVertexShaderLayout(vertexLayout);
                         material->SetFragmentShaderLayout(fragmentLayout);
@@ -1000,12 +1007,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     //
                     UniformBinding uniformVertex;
                     uniformVertex.m_bindingIndex = bindingIndex++;
-                    uniformVertex.m_parameters->push_back(ION_MODEL_MATRIX_PARAM);
-                    uniformVertex.m_type->push_back(EBufferParameterType_Matrix);
-                    uniformVertex.m_parameters->push_back(ION_VIEW_MATRIX_PARAM);
-                    uniformVertex.m_type->push_back(EBufferParameterType_Matrix);
-                    uniformVertex.m_parameters->push_back(ION_PROJ_MATRIX_PARAM);
-                    uniformVertex.m_type->push_back(EBufferParameterType_Matrix);
+                    uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
+                    uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
+                    uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
+                    uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
+                    uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
+                    uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
 
                     UniformBinding morphWeightsVertex;
                     StorageBinding storageMorphTargets;
@@ -1021,12 +1028,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     //
                     UniformBinding uniformFragment;
                     uniformFragment.m_bindingIndex = bindingIndex++;
-                    uniformFragment.m_parameters->push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-                    uniformFragment.m_type->push_back(EBufferParameterType_Vector);
-                    uniformFragment.m_parameters->push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-                    uniformFragment.m_type->push_back(EBufferParameterType_Vector);
-                    uniformFragment.m_parameters->push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-                    uniformFragment.m_type->push_back(EBufferParameterType_Vector);
+                    uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
+                    uniformFragment.m_type.push_back(EBufferParameterType_Vector);
+                    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
+                    uniformFragment.m_type.push_back(EBufferParameterType_Vector);
+                    uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
+                    uniformFragment.m_type.push_back(EBufferParameterType_Vector);
 
                     //
                     SamplerBinding albedoMap;
@@ -1050,30 +1057,30 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
                     // set the shaders layout
                     ShaderLayoutDef vertexLayout;
-                    vertexLayout.m_uniforms->push_back(uniformVertex);
+                    vertexLayout.m_uniforms.push_back(uniformVertex);
 
                     if (usingMorphTarget)
                     {
-                        vertexLayout.m_uniforms->push_back(morphWeightsVertex);
-                        vertexLayout.m_storages->push_back(storageMorphTargets);
+                        vertexLayout.m_uniforms.push_back(morphWeightsVertex);
+                        vertexLayout.m_storages.push_back(storageMorphTargets);
                     }
 
                     ShaderLayoutDef fragmentLayout;
-                    fragmentLayout.m_uniforms->push_back(uniformFragment);
-                    fragmentLayout.m_samplers->push_back(albedoMap);
-                    fragmentLayout.m_samplers->push_back(normalMap);
+                    fragmentLayout.m_uniforms.push_back(uniformFragment);
+                    fragmentLayout.m_samplers.push_back(albedoMap);
+                    fragmentLayout.m_samplers.push_back(normalMap);
 
                     //
                     ConstantsBindingDef constants;
                     constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-                    constants.m_values->push_back(material->GetBasePBR().GetColor()[0]);
-                    constants.m_values->push_back(material->GetBasePBR().GetColor()[1]);
-                    constants.m_values->push_back(material->GetBasePBR().GetColor()[2]);
-                    constants.m_values->push_back(material->GetBasePBR().GetColor()[3]);
-                    constants.m_values->push_back(constantTexturesSettings[ESettingType_Base]);
-                    constants.m_values->push_back(constantTexturesSettings[ESettingType_Normal]);
-                    constants.m_values->push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
-                    constants.m_values->push_back(material->GetAdvancePBR().GetAlphaCutoff());
+                    constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
+                    constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
+                    constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
+                    constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
+                    constants.m_values.push_back(constantTexturesSettings[ESettingType_Base]);
+                    constants.m_values.push_back(constantTexturesSettings[ESettingType_Normal]);
+                    constants.m_values.push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
+                    constants.m_values.push_back(material->GetAdvancePBR().GetAlphaCutoff());
 
                     material->SetVertexShaderLayout(vertexLayout);
                     material->SetFragmentShaderLayout(fragmentLayout);
@@ -1164,12 +1171,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 //
                 UniformBinding uniformVertex;
                 uniformVertex.m_bindingIndex = bindingIndex++;
-                uniformVertex.m_parameters->push_back(ION_MODEL_MATRIX_PARAM);
-                uniformVertex.m_type->push_back(EBufferParameterType_Matrix);
-                uniformVertex.m_parameters->push_back(ION_VIEW_MATRIX_PARAM);
-                uniformVertex.m_type->push_back(EBufferParameterType_Matrix);
-                uniformVertex.m_parameters->push_back(ION_PROJ_MATRIX_PARAM);
-                uniformVertex.m_type->push_back(EBufferParameterType_Matrix);
+                uniformVertex.m_parameters.push_back(ION_MODEL_MATRIX_PARAM);
+                uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
+                uniformVertex.m_parameters.push_back(ION_VIEW_MATRIX_PARAM);
+                uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
+                uniformVertex.m_parameters.push_back(ION_PROJ_MATRIX_PARAM);
+                uniformVertex.m_type.push_back(EBufferParameterType_Matrix);
 
                 UniformBinding morphWeightsVertex;
                 StorageBinding storageMorphTargets;
@@ -1185,12 +1192,12 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                 //
                 UniformBinding uniformFragment;
                 uniformFragment.m_bindingIndex = bindingIndex++;
-                uniformFragment.m_parameters->push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
-                uniformFragment.m_type->push_back(EBufferParameterType_Vector);
-                uniformFragment.m_parameters->push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
-                uniformFragment.m_type->push_back(EBufferParameterType_Vector);
-                uniformFragment.m_parameters->push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
-                uniformFragment.m_type->push_back(EBufferParameterType_Vector);
+                uniformFragment.m_parameters.push_back(ION_MAIN_CAMERA_POSITION_VECTOR_PARAM);
+                uniformFragment.m_type.push_back(EBufferParameterType_Vector);
+                uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_DIR_VECTOR_PARAM);
+                uniformFragment.m_type.push_back(EBufferParameterType_Vector);
+                uniformFragment.m_parameters.push_back(ION_DIRECTIONAL_LIGHT_COL_VECTOR_PARAM);
+                uniformFragment.m_type.push_back(EBufferParameterType_Vector);
 
                 //
                 SamplerBinding albedoMap;
@@ -1214,30 +1221,30 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
                 // set the shaders layout
                 ShaderLayoutDef vertexLayout;
-                vertexLayout.m_uniforms->push_back(uniformVertex);
+                vertexLayout.m_uniforms.push_back(uniformVertex);
 
                 if (usingMorphTarget)
                 {
-                    vertexLayout.m_uniforms->push_back(morphWeightsVertex);
-                    vertexLayout.m_storages->push_back(storageMorphTargets);
+                    vertexLayout.m_uniforms.push_back(morphWeightsVertex);
+                    vertexLayout.m_storages.push_back(storageMorphTargets);
                 }
 
                 ShaderLayoutDef fragmentLayout;
-                fragmentLayout.m_uniforms->push_back(uniformFragment);
-                fragmentLayout.m_samplers->push_back(albedoMap);
-                fragmentLayout.m_samplers->push_back(normalMap);
+                fragmentLayout.m_uniforms.push_back(uniformFragment);
+                fragmentLayout.m_samplers.push_back(albedoMap);
+                fragmentLayout.m_samplers.push_back(normalMap);
 
                 //
                 ConstantsBindingDef constants;
                 constants.m_shaderStages = EPushConstantStage::EPushConstantStage_Fragment;
-                constants.m_values->push_back(material->GetBasePBR().GetColor()[0]);
-                constants.m_values->push_back(material->GetBasePBR().GetColor()[1]);
-                constants.m_values->push_back(material->GetBasePBR().GetColor()[2]);
-                constants.m_values->push_back(material->GetBasePBR().GetColor()[3]);
-                constants.m_values->push_back(constantTexturesSettings[ESettingType_Base]);
-                constants.m_values->push_back(constantTexturesSettings[ESettingType_Normal]);
-                constants.m_values->push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
-                constants.m_values->push_back(material->GetAdvancePBR().GetAlphaCutoff());
+                constants.m_values.push_back(material->GetBasePBR().GetColor()[0]);
+                constants.m_values.push_back(material->GetBasePBR().GetColor()[1]);
+                constants.m_values.push_back(material->GetBasePBR().GetColor()[2]);
+                constants.m_values.push_back(material->GetBasePBR().GetColor()[3]);
+                constants.m_values.push_back(constantTexturesSettings[ESettingType_Base]);
+                constants.m_values.push_back(constantTexturesSettings[ESettingType_Normal]);
+                constants.m_values.push_back(material->GetAlphaMode() == EAlphaMode_Mask ? 1.0f : 0.0f);
+                constants.m_values.push_back(material->GetAdvancePBR().GetAlphaCutoff());
 
                 material->SetVertexShaderLayout(vertexLayout);
                 material->SetFragmentShaderLayout(fragmentLayout);
@@ -1288,7 +1295,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 }
 
 
-void LoadAnimations(const ionString& _filenameNoExt, const tinygltf::Model& _model, Entity* _entityPtr, ionMap<ionU32, Node*>& _nodeIndexToNodePointer)
+void LoadAnimations(const char* _filenameNoExt, const tinygltf::Model& _model, Entity* _entityPtr, ionMap<ionU32, Node*, LoaderGLTFAllocator, LoaderGLTF::GetAllocator>& _nodeIndexToNodePointer)
 {
     if (_model.animations.size() > 0)
     {
@@ -1302,7 +1309,12 @@ void LoadAnimations(const ionString& _filenameNoExt, const tinygltf::Model& _mod
             ion::Animation ionAnim;
             if (gltfAnim.name.empty())
             {
-                ionAnim.SetName(_filenameNoExt + "#" + std::to_string(i + 1).c_str() + "#" + std::to_string(animSize).c_str());
+				ionString name(_filenameNoExt);
+				name.append("#");
+				name.append(std::to_string(i + 1).c_str());
+				name.append("#");
+				name.append(std::to_string(animSize).c_str());
+                ionAnim.SetName(name);
             }
             else
             {
@@ -1346,61 +1358,61 @@ void LoadAnimations(const ionString& _filenameNoExt, const tinygltf::Model& _mod
                     {
                     case TINYGLTF_PARAMETER_TYPE_BYTE:
                     {
-                        ionS8 *buf = (ionS8 *)ionNewRaw(sizeof(ionS8) * accessor.count);
+						ionS8 *buf = (ionS8 *)ionNewRaw(sizeof(ionS8) * accessor.count, LoaderGLTF::GetAllocator());
                         memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionS8));
                         for (ionSize index = 0; index < accessor.count; index++)
                         {
                             ionFloat value = std::max(buf[index] / 127.0f, -1.0f);
                             ionSampler.PushBackInput(value);
                         }
-                        ionDeleteRaw(buf);
+                        ionDeleteRaw(buf, LoaderGLTF::GetAllocator());
                         break;
                     }
                     case TINYGLTF_PARAMETER_TYPE_SHORT:
                     {
-                        ionS16 *buf = (ionS16 *)ionNewRaw(sizeof(ionS16) * accessor.count);
+                        ionS16 *buf = (ionS16 *)ionNewRaw(sizeof(ionS16) * accessor.count, LoaderGLTF::GetAllocator());
                         memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionS16));
                         for (ionSize index = 0; index < accessor.count; index++)
                         {
                             ionFloat value = std::max(buf[index] / 32767.0f, -1.0f);
                             ionSampler.PushBackInput(value);
                         }
-                        ionDeleteRaw(buf);
+                        ionDeleteRaw(buf, LoaderGLTF::GetAllocator());
                         break;
                     }
                     case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE:
                     {
-                        ionU8 *buf = (ionU8 *)ionNewRaw(sizeof(ionU8) * accessor.count);
+                        ionU8 *buf = (ionU8 *)ionNewRaw(sizeof(ionU8) * accessor.count, LoaderGLTF::GetAllocator());
                         memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU8));
                         for (ionSize index = 0; index < accessor.count; index++)
                         {
                             ionFloat value = buf[index] / 255.0f;
                             ionSampler.PushBackInput(value);
                         }
-                        ionDeleteRaw(buf);
+                        ionDeleteRaw(buf, LoaderGLTF::GetAllocator());
                         break;
                     }
                     case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT:
                     {
-                        ionU16 *buf = (ionU16 *)ionNewRaw(sizeof(ionU16) * accessor.count);
+                        ionU16 *buf = (ionU16 *)ionNewRaw(sizeof(ionU16) * accessor.count, LoaderGLTF::GetAllocator());
                         memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionU16));
                         for (ionSize index = 0; index < accessor.count; index++)
                         {
                             ionFloat value = buf[index] / 65535.0f;
                             ionSampler.PushBackInput(value);
                         }
-                        ionDeleteRaw(buf);
+                        ionDeleteRaw(buf, LoaderGLTF::GetAllocator());
                         break;
                     }
                     case TINYGLTF_PARAMETER_TYPE_FLOAT:
                     {
-                        ionFloat *buf = (ionFloat *)ionNewRaw(sizeof(ionFloat) * accessor.count);
+                        ionFloat *buf = (ionFloat *)ionNewRaw(sizeof(ionFloat) * accessor.count, LoaderGLTF::GetAllocator());
                         memcpy(buf, &buffer.data[accessor.byteOffset + bufferView.byteOffset], accessor.count * sizeof(ionFloat));
                         for (ionSize index = 0; index < accessor.count; index++)
                         {
                             ionSampler.PushBackInput(buf[index]);
                         }
-                        ionDeleteRaw(buf);
+                        ionDeleteRaw(buf, LoaderGLTF::GetAllocator());
                         break;
                     }
                     default:
@@ -1408,7 +1420,7 @@ void LoadAnimations(const ionString& _filenameNoExt, const tinygltf::Model& _mod
                     }
 
 
-                    ionVector<ionFloat>::const_iterator begin = ionSampler.InputsIteratorBeginConst(), end = ionSampler.InputsIteratorEndConst(), it = begin;
+                    ionVector<ionFloat, LoaderGLTFAllocator, LoaderGLTF::GetAllocator>::const_iterator begin = ionSampler.InputsIteratorBeginConst(), end = ionSampler.InputsIteratorEndConst(), it = begin;
                     for (; it != end; ++it)
                     {
                         ionFloat input = *it;
@@ -1438,7 +1450,7 @@ void LoadAnimations(const ionString& _filenameNoExt, const tinygltf::Model& _mod
                         const ionFloat *bufferVector = reinterpret_cast<const ionFloat *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
                         for (ionSize a = 0; a < accessor.count; ++a)
                         {
-                            Vector v((&bufferVector[a * 3])[0], ((&bufferVector[a * 3])[1]), (&bufferVector[a * 3])[2], 1.0f);
+                            Vector4 v((&bufferVector[a * 3])[0], ((&bufferVector[a * 3])[1]), (&bufferVector[a * 3])[2], 1.0f);
                             ionSampler.PushBackOutputLinearPath(v);
                         }
                         break;
@@ -1453,7 +1465,7 @@ void LoadAnimations(const ionString& _filenameNoExt, const tinygltf::Model& _mod
                                 const ionFloat *bufferVector = reinterpret_cast<const ionFloat *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
                                 for (ionSize a = 0; a < accessor.count; ++a)
                                 {
-                                    Vector v((&bufferVector[a * 4])[0], ((&bufferVector[a * 4])[1]), (&bufferVector[a * 4])[2], (&bufferVector[a * 4])[3]);
+                                    Vector4 v((&bufferVector[a * 4])[0], ((&bufferVector[a * 4])[1]), (&bufferVector[a * 4])[2], (&bufferVector[a * 4])[3]);
                                     ionSampler.PushBackOutputLinearPath(v);
                                 }
                                 break;
@@ -1464,7 +1476,7 @@ void LoadAnimations(const ionString& _filenameNoExt, const tinygltf::Model& _mod
                                 const ionU16 *bufferVector = reinterpret_cast<const ionU16 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
                                 for (ionSize a = 0; a < accessor.count; ++a)
                                 {
-                                    Vector v(ionFloat((&bufferVector[a * 4])[0]) / 65535.0f, ionFloat((&bufferVector[a * 4])[1]) / 65535.0f, ionFloat((&bufferVector[a * 4])[2]) / 65535.0f, ionFloat((&bufferVector[a * 4])[3]) / 65535.0f);
+                                    Vector4 v(ionFloat((&bufferVector[a * 4])[0]) / 65535.0f, ionFloat((&bufferVector[a * 4])[1]) / 65535.0f, ionFloat((&bufferVector[a * 4])[2]) / 65535.0f, ionFloat((&bufferVector[a * 4])[3]) / 65535.0f);
                                     ionSampler.PushBackOutputLinearPath(v);
                                 }
                                 break;
@@ -1475,7 +1487,7 @@ void LoadAnimations(const ionString& _filenameNoExt, const tinygltf::Model& _mod
                                 const ionU8 *bufferVector = reinterpret_cast<const ionU8 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
                                 for (ionSize a = 0; a < accessor.count; ++a)
                                 {
-                                    Vector v(ionFloat((&bufferVector[a * 4])[0]) / 255.0f, ionFloat((&bufferVector[a * 4])[1]) / 255.0f, ionFloat((&bufferVector[a * 4])[2]) / 255.0f, ionFloat((&bufferVector[a * 4])[3]) / 255.0f);
+                                    Vector4 v(ionFloat((&bufferVector[a * 4])[0]) / 255.0f, ionFloat((&bufferVector[a * 4])[1]) / 255.0f, ionFloat((&bufferVector[a * 4])[2]) / 255.0f, ionFloat((&bufferVector[a * 4])[3]) / 255.0f);
                                     ionSampler.PushBackOutputLinearPath(v);
                                 }
                                 break;
@@ -1486,7 +1498,7 @@ void LoadAnimations(const ionString& _filenameNoExt, const tinygltf::Model& _mod
                                 const ionS16 *bufferVector = reinterpret_cast<const ionS16 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
                                 for (ionSize a = 0; a < accessor.count; ++a)
                                 {
-                                    Vector v(std::max(ionFloat((&bufferVector[a * 4])[0]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[1]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[2]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[3]) / 32767.0f, -1.0f));
+                                    Vector4 v(std::max(ionFloat((&bufferVector[a * 4])[0]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[1]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[2]) / 32767.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[3]) / 32767.0f, -1.0f));
                                     ionSampler.PushBackOutputLinearPath(v);
                                 }
                                 break;
@@ -1497,7 +1509,7 @@ void LoadAnimations(const ionString& _filenameNoExt, const tinygltf::Model& _mod
                                 const ionS8 *bufferVector = reinterpret_cast<const ionS8 *>(&(buffer.data[accessor.byteOffset + bufferView.byteOffset]));
                                 for (ionSize a = 0; a < accessor.count; ++a)
                                 {
-                                    Vector v(std::max(ionFloat((&bufferVector[a * 4])[0]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[1]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[2]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[3]) / 127.0f, -1.0f));
+                                    Vector4 v(std::max(ionFloat((&bufferVector[a * 4])[0]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[1]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[2]) / 127.0f, -1.0f), std::max(ionFloat((&bufferVector[a * 4])[3]) / 127.0f, -1.0f));
                                     ionSampler.PushBackOutputLinearPath(v);
                                 }
                                 break;
@@ -1626,16 +1638,16 @@ void LoadAnimations(const ionString& _filenameNoExt, const tinygltf::Model& _mod
     }
 }
 
-ionBool LoaderGLTF::Load(const ionString & _filePath, Camera* _camToUpdatePtr, ObjectHandler& _entity)
+ionBool LoaderGLTF::Load(const ionString & _filePath, Camera* _camToUpdatePtr, Node*& _entity)
 {
     //
-    ionString dir;
-    ionString filename;
-    ionString filenameNoExt;
-    ionString ext;
-    ionMap<ionS32, ionString> textureIndexToTextureName;
-    ionMap<ionS32, ionString> materialIndexToMaterialName;
-    ionMap<ionU32, Node*> nodeIndexToNodePointer;
+	ionString dir;
+	ionString filename;
+	ionString filenameNoExt;
+	ionString ext;
+    ionMap<ionS32, ionString, LoaderGLTFAllocator, GetAllocator> textureIndexToTextureName;
+    ionMap<ionS32, ionString, LoaderGLTFAllocator, GetAllocator> materialIndexToMaterialName;
+    ionMap<ionU32, Node*, LoaderGLTFAllocator, GetAllocator> nodeIndexToNodePointer;
 
     //
     tinygltf::Model     model;
@@ -1806,22 +1818,22 @@ ionBool LoaderGLTF::Load(const ionString & _filePath, Camera* _camToUpdatePtr, O
         
         if (image.uri.empty())                    // no uri, so image could be stored in binary format
         {
-            ionString name = image.name.c_str();  // no filename, I just give you one
+			ionString name = image.name.c_str();  // no filename, I just give you one
             if (name.empty())
             {
-                ionString val = std::to_string(i).c_str();
+				ionString val = std::to_string(i).c_str();
                 name = filenameNoExt + underscore + val;
             }
 
-            textureIndexToTextureName->insert(std::pair<ionS32, ionString>((ionS32)i, name.c_str()));
+            textureIndexToTextureName.insert(std::pair<ionS32, ionString>((ionS32)i, name));
 
             ionTextureManger().CreateTextureFromBuffer(name, image.width, image.height, image.component, &image.image[0], image.image.size(), filterMin, filterMag, ETextureRepeat_Custom, ETextureUsage_RGBA, ETextureType_2D, 1U, repeatU, repeatV, repeatW);
         }
         else
         {
-            ionString val = image.uri.c_str();
-            ionString path = dir + backslash + val;
-            ionString filename;
+			ionString val = image.uri.c_str();
+			ionString path = dir + backslash + val;
+			ionString filename;
 
             if (path.rfind('\\', path.length()) != std::string::npos)
             {
@@ -1835,7 +1847,7 @@ ionBool LoaderGLTF::Load(const ionString & _filePath, Camera* _camToUpdatePtr, O
                 }
             }
 
-            textureIndexToTextureName->insert(std::pair<ionS32, ionString>((ionS32)i, filename.c_str()));
+            textureIndexToTextureName.insert(std::pair<ionS32, ionString>((ionS32)i, filename));
 
             ionTextureManger().CreateTextureFromFile(filename, path, filterMin, filterMag, ETextureRepeat_Custom, ETextureUsage_RGBA, ETextureType_2D, 1U, repeatU, repeatV, repeatW);
         }
@@ -1853,7 +1865,7 @@ ionBool LoaderGLTF::Load(const ionString & _filePath, Camera* _camToUpdatePtr, O
 
             const ionString materialName = filenameNoExt + "#" + mat.name.c_str();
 
-            materialIndexToMaterialName->insert(std::pair<ionS32, ionString>((ionS32)i, materialName));
+            materialIndexToMaterialName.insert(std::pair<ionS32, ionString>((ionS32)i, materialName));
 
             Material* material = ionMaterialManger().CreateMaterial(materialName, 0u);
 
@@ -2092,12 +2104,12 @@ ionBool LoaderGLTF::Load(const ionString & _filePath, Camera* _camToUpdatePtr, O
     const ionSize nodeCount = scene.nodes.size();
 
     // for GLTF always full vertex
-    Entity* entityPtr = dynamic_cast<Entity*>(_entity());
+    Entity* entityPtr = dynamic_cast<Entity*>(_entity);
     MeshRenderer* meshRenderer = entityPtr->AddMeshRenderer<MeshRenderer>();
 
     if (entityPtr->GetName().empty())
     {
-        ionString newName = ION_BASE_ENTITY_NAME;
+		ionString newName = ION_BASE_ENTITY_NAME;
         newName  += std::to_string(entityPtr->GetUUID().GetIndex()).c_str();
         entityPtr->SetName(newName);
     }
@@ -2108,7 +2120,7 @@ ionBool LoaderGLTF::Load(const ionString & _filePath, Camera* _camToUpdatePtr, O
     {
         const tinygltf::Node node = model.nodes[scene.nodes[0]];
 
-        nodeIndexToNodePointer->insert(std::pair<ionU32, Node*>((ionU32)scene.nodes[0], entityPtr));
+        nodeIndexToNodePointer.insert(std::pair<ionU32, Node*>((ionU32)scene.nodes[0], entityPtr));
         LoadNode(node, model, meshRenderer, _entity, nodeIndexToNodePointer, textureIndexToTextureName, materialIndexToMaterialName);
     }
     else
@@ -2117,23 +2129,23 @@ ionBool LoaderGLTF::Load(const ionString & _filePath, Camera* _camToUpdatePtr, O
         {
             const tinygltf::Node node = model.nodes[scene.nodes[i]];
 
-            Entity* child = ionNew(Entity, node.name.c_str());
-            ObjectHandler childHandle(child);
+			// this will generate memory leak
+            Entity* child = CreateNode(Entity, node.name.c_str());
+			Node* nodePtr = dynamic_cast<Node*>(child);
+            nodeIndexToNodePointer.insert(std::pair<ionU32, Node*>((ionU32)scene.nodes[i], child));
+            LoadNode(node, model, meshRenderer, nodePtr, nodeIndexToNodePointer, textureIndexToTextureName, materialIndexToMaterialName);
 
-            nodeIndexToNodePointer->insert(std::pair<ionU32, Node*>((ionU32)scene.nodes[i], child));
-            LoadNode(node, model, meshRenderer, childHandle, nodeIndexToNodePointer, textureIndexToTextureName, materialIndexToMaterialName);
-
-            child->AttachToParent(_entity);
+            child->AttachToParent(nodePtr);
         }
     }
 
     //
     // 4. load animations if any
-    LoadAnimations(filenameNoExt, model, entityPtr, nodeIndexToNodePointer);
+    LoadAnimations(filenameNoExt.c_str(), model, entityPtr, nodeIndexToNodePointer);
 
     //
     // 5. for the main bounding box: if missing create, if present expand to the maximum one
-    UpdateBoundingBox(_entity, *_entity->GetPtr()->GetBoundingBox());
+    UpdateBoundingBox(_entity, *_entity->GetBoundingBox());
 
     //
     // 6. camera set, for now just one and perspective
@@ -2145,24 +2157,25 @@ ionBool LoaderGLTF::Load(const ionString & _filePath, Camera* _camToUpdatePtr, O
         }
     }
 
-    textureIndexToTextureName->clear();
-    materialIndexToMaterialName->clear();
-    nodeIndexToNodePointer->clear();
+    textureIndexToTextureName.clear();
+    materialIndexToMaterialName.clear();
+    nodeIndexToNodePointer.clear();
 
     //_outFilePath = dir + "/" + filename;
 
     return true;
 }
 
-
-void LoaderGLTF::Dump(const ionString& _filePath, const ObjectHandler& _entity, ESerializationLevel _level /*= ESerializationLevel_Normal*/)
+/*
+void LoaderGLTF::Dump(const ionString& _filePath, const Node* _entity, ESerializationLevel _level)
 {
-    ionString filepathDump = _filePath + ".json";
+	ionString filepathDump = _filePath + ".json";
 
     std::string entityJson = Serialize(_entity, _level);
     std::ofstream out(filepathDump.c_str());
     out << entityJson;
     out.close();
 }
+*/
 
 ION_NAMESPACE_END

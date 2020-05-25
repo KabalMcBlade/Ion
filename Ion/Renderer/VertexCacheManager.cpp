@@ -256,32 +256,32 @@ VertexCacheHandler VertexCacheManager::Alloc(GeometryBufferSet& _buffer, const v
 
 VertexCacheHandler VertexCacheManager::AllocVertex(const void* _data, ionSize _num, ionSize _size /*= sizeof(Vertex)*/)
 {
-    eosSize uiMask = ION_VERTEX_CACHE_ALIGN - 1;
-    eosSize uiSize = ((_num * _size) + uiMask) & ~uiMask;
+    ionSize uiMask = ION_VERTEX_CACHE_ALIGN - 1;
+	ionSize uiSize = ((_num * _size) + uiMask) & ~uiMask;
 
     return Alloc(m_frameData, _data, uiSize, ECacheType_Vertex);
 }
 
 VertexCacheHandler VertexCacheManager::AllocIndex(const void* _data, ionSize _num, ionSize _size /*= sizeof(Index)*/)
 {
-    eosSize uiMask = ION_INDEX_CACHE_ALIGN - 1;
-    eosSize uiSize = ((_num * _size) + uiMask) & ~uiMask;
+	ionSize uiMask = ION_INDEX_CACHE_ALIGN - 1;
+	ionSize uiSize = ((_num * _size) + uiMask) & ~uiMask;
 
     return Alloc(m_frameData, _data, uiSize, ECacheType_Index);
 }
 
 VertexCacheHandler VertexCacheManager::AllocStorage(const void* _data, ionSize _num, ionSize _size /*= sizeof(VertexMorphTarget)*/)
 {
-    eosSize uiMask = ION_STORAGE_CACHE_ALIGN - 1;
-    eosSize uiSize = ((_num * _size) + uiMask) & ~uiMask;
+	ionSize uiMask = ION_STORAGE_CACHE_ALIGN - 1;
+	ionSize uiSize = ((_num * _size) + uiMask) & ~uiMask;
 
     return Alloc(m_frameData, _data, uiSize, ECacheType_Storage);
 }
 
 VertexCacheHandler VertexCacheManager::AllocJoint(const void* _data, ionSize _num, ionSize _size /*= sizeof(Matrix)*/)
 {
-    eosSize uiMask = m_uniformBufferOffsetAlignment - 1;
-    eosSize uiSize = ((_num * _size) + uiMask) & ~uiMask;
+	ionSize uiMask = m_uniformBufferOffsetAlignment - 1;
+	ionSize uiSize = ((_num * _size) + uiMask) & ~uiMask;
 
     return Alloc(m_frameData, _data, uiSize, ECacheType_Joint);
 }

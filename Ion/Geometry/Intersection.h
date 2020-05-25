@@ -18,7 +18,7 @@ ION_NAMESPACE_BEGIN
 
 class ION_DLL Intersection
 {
-    static ionBool IntersectRayPlane(const Ray& _ray, const Vector& _planeNormal, const Vector& _pointOnPlane, Vector& _outIntersectionPoint);
+    static ionBool IntersectRayPlane(const Ray& _ray, const Vector4& _planeNormal, const Vector4& _pointOnPlane, Vector4& _outIntersectionPoint);
     static ionBool IntersectRayBoundingBox(const Ray& _ray, const BoundingBox& _box, ionFloat& _outNearCollisionTime, ionFloat& _outFarCollisionTime);
 };
 

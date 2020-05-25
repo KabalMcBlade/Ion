@@ -9,6 +9,7 @@
 #include "TextureCommon.h"
 #include "Texture.h"
 
+#include "../Core/MemorySettings.h"
 
 #define ION_NULL_TEXTURENAME                  "NULLTEXTURE"
 
@@ -16,10 +17,17 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+
+using TextureManagerAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
+
 class RenderCore;
 
 class ION_DLL TextureManager final
 {
+public:
+	static TextureManagerAllocator* GetAllocator();
+
 public:
     static TextureManager& Instance();
 
@@ -59,7 +67,7 @@ private:
 
 private:
     VkDevice    m_vkDevice;
-    ionMap<ionSize, Texture*> m_hashTexture;
+    ionMap<ionSize, Texture*, TextureManagerAllocator, GetAllocator> m_hashTexture;
 
     ETextureSamplesPerBit   m_mainSamplesPerBit;
     VkFormat                m_depthFormat;

@@ -72,11 +72,10 @@ Window::~Window()
 
     if (m_instance)
     {
-        ionVector<TCHAR> className;
-        className->resize(256);
-        GetClassName(m_handle, className->data(), static_cast<int>(className->size()));
+		TCHAR className[MAX_PATH];
+		GetClassName(m_handle, className, MAX_PATH);
 
-        UnregisterClass(className->data(), m_instance);
+        UnregisterClass(className, m_instance);
     }
 }
 

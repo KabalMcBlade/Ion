@@ -4,16 +4,27 @@
 
 #include "../Dependencies/Miscellaneous/mikktspace.h"
 
+#include "../Core/MemorySettings.h"
+
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
 
 
 ION_NAMESPACE_BEGIN
 
+GeometryHelperAllocator* GeometryHelper::GetAllocator()
+{
+	static HeapArea<Settings::kGeometryHelperAllocatorSize> memoryArea;
+	static GeometryHelperAllocator memoryAllocator(memoryArea, "GeometryHelperFreeListAllocator");
+
+	return &memoryAllocator;
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 
 
-void GeometryHelper::CalculateNormals(const Vector* _vectorArray, const ionU32 _vectorCount, const ionU32* _indexList, const ionU32 _indexCount, Vector* _outNormalVectorArray)
+void GeometryHelper::CalculateNormals(const Vector4* _vectorArray, const ionU32 _vectorCount, const ionU32* _indexList, const ionU32 _indexCount, Vector4* _outNormalVectorArray)
 {
     for (ionU32 i = 0; i < _vectorCount; ++i)
     {
@@ -27,9 +38,9 @@ void GeometryHelper::CalculateNormals(const Vector* _vectorArray, const ionU32 _
         ionU32 ib = _indexList[i * 3 + 1];
         ionU32 ic = _indexList[i * 3 + 2];
 
-        const Vector e1 = _vectorArray[ia] - _vectorArray[ib];
-        const Vector e2 = _vectorArray[ic] - _vectorArray[ib];
-        const Vector no = e1.Cross(e2);
+        const Vector4 e1 = _vectorArray[ia] - _vectorArray[ib];
+        const Vector4 e2 = _vectorArray[ic] - _vectorArray[ib];
+        const Vector4 no = e1.Cross(e2);
 
         _outNormalVectorArray[ia] += no;
         _outNormalVectorArray[ib] += no;
@@ -45,7 +56,7 @@ void GeometryHelper::CalculateNormals(const Vector* _vectorArray, const ionU32 _
 
 // It is a very simple implementation and is not optimized, I don't care at this stage of development!
 // It can be used ONLY for simple primitive geometry!!
-void GeometryHelper::CalculateUVs(const Vector* _vectorArray, const ionU32 _vectorCount, Vector* _outUVUVVectorArray)
+void GeometryHelper::CalculateUVs(const Vector4* _vectorArray, const ionU32 _vectorCount, Vector4* _outUVUVVectorArray)
 {
     for (ionU32 i = 0; i < _vectorCount; ++i)
     {
@@ -120,7 +131,7 @@ struct SMikkTSpaceFace
 
 struct SMikkTSpaceConverter
 {
-    ionVector<SMikkTSpaceFace> m_faces;
+    ionVector<SMikkTSpaceFace, GeometryHelperAllocator, GeometryHelper::GetAllocator> m_faces;
     ionU32 m_faceCount;
 };
 
@@ -194,15 +205,15 @@ void SetTangentSpace(
 */
 
 void GeometryHelper::CalculateTangents(
-    const Vector* _vectorArray, const Vector* _normalArray, const Vector* _textCoordUVUVArray, const ionU32 _vectorCount,   // to iterate and get the value to use 
+    const Vector4* _vectorArray, const Vector4* _normalArray, const Vector4* _textCoordUVUVArray, const ionU32 _vectorCount,   // to iterate and get the value to use 
     const ionU32* _indexList, const ionU32 _indexCount,                                                                     // to generate face (triangle)
-    Vector* _outTangentVectorArray, ionFloat* _outTangentSignArray                                                          // output tangent and bi-tangent sign
+    Vector4* _outTangentVectorArray, ionFloat* _outTangentSignArray                                                          // output tangent and bi-tangent sign
 )
 {
     SMikkTSpaceConverter converter;
 
     converter.m_faceCount = _indexCount / 3;
-    converter.m_faces->resize(converter.m_faceCount);
+    converter.m_faces.resize(converter.m_faceCount);
 
     for (ionU32 i = 0; i < converter.m_faceCount; ++i)
     {
@@ -210,17 +221,17 @@ void GeometryHelper::CalculateTangents(
         ionU32 index1 = _indexList[i * 3 + 1];
         ionU32 index2 = _indexList[i * 3 + 2];
 
-        const Vector vector0 = _vectorArray[index0];
-        const Vector vector1 = _vectorArray[index1];
-        const Vector vector2 = _vectorArray[index2];
+        const Vector4 vector0 = _vectorArray[index0];
+        const Vector4 vector1 = _vectorArray[index1];
+        const Vector4 vector2 = _vectorArray[index2];
 
-        const Vector normal0 = _normalArray[index0];
-        const Vector normal1 = _normalArray[index1];
-        const Vector normal2 = _normalArray[index2];
+        const Vector4 normal0 = _normalArray[index0];
+        const Vector4 normal1 = _normalArray[index1];
+        const Vector4 normal2 = _normalArray[index2];
 
-        const Vector uv0 = _textCoordUVUVArray[index0];
-        const Vector uv1 = _textCoordUVUVArray[index1];
-        const Vector uv2 = _textCoordUVUVArray[index2];
+        const Vector4 uv0 = _textCoordUVUVArray[index0];
+        const Vector4 uv1 = _textCoordUVUVArray[index1];
+        const Vector4 uv2 = _textCoordUVUVArray[index2];
 
         // 0
         {

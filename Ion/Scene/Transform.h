@@ -17,11 +17,11 @@ class ION_DLL Transform final
 public:
     Transform();
 
-    Transform(const Vector& _position, const nixFloat& _scale, const Quaternion& _rotation);
-    Transform(const Vector& _position, const nixFloat& _scale, const nixFloat& _radians, const Vector& _axis);
+    Transform(const Vector4& _position, const nixFloat& _scale, const Quaternion& _rotation);
+    Transform(const Vector4& _position, const nixFloat& _scale, const nixFloat& _radians, const Vector4& _axis);
 
-    Transform(const Vector& _position, const Vector& _scale, const Quaternion& _rotation);
-    Transform(const Vector& _position, const Vector& _scale, const nixFloat& _radians, const Vector& _axis);
+    Transform(const Vector4& _position, const Vector4& _scale, const Quaternion& _rotation);
+    Transform(const Vector4& _position, const Vector4& _scale, const nixFloat& _radians, const Vector4& _axis);
 
     ~Transform();
 
@@ -30,17 +30,17 @@ public:
     const Matrix& GetMatrixWS() const;
     const Matrix& GetMatrix();
 
-    const Vector& GetPosition() const;
-    const Vector& GetScale() const;
+    const Vector4& GetPosition() const;
+    const Vector4& GetScale() const;
     const Quaternion& GetRotation() const;
 
-    void SetPosition(const Vector& _position);
+    void SetPosition(const Vector4& _position);
     void SetPosition(const nixFloat& _x, const nixFloat& _y, const nixFloat& _z);
     void SetScale(const nixFloat& _scale);
     void SetScale(const nixFloat& _x, const nixFloat& _y, const nixFloat& _z);
-    void SetScale(const Vector& _scale);
+    void SetScale(const Vector4& _scale);
     void SetRotation(const Quaternion& _rotation);
-    void SetRotation(const nixFloat& _radians, const Vector& _axis);
+    void SetRotation(const nixFloat& _radians, const Vector4& _axis);
     void SetRotation(const nixFloat& _radians, const nixFloat& _x, const nixFloat& _y, const nixFloat& _z);
     void SetRotation(const nixFloat& _pitch, const nixFloat& _yaw, const nixFloat& _roll);
 
@@ -50,8 +50,8 @@ private:
 
     Matrix m_matrixWS;
     Matrix m_matrix;
-    Vector m_position;
-    Vector m_scale;
+    Vector4 m_position;
+    Vector4 m_scale;
     Quaternion m_rotation;
 
     ionBool m_dirty;

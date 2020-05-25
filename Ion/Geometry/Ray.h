@@ -18,21 +18,21 @@ class ION_DLL Ray
 {
 public:
     Ray();
-    Ray(const Vector& _origin, const Vector& _direction);
-    Ray(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector& _worldRayOrigin, const Matrix& _inverseMatrix);
+    Ray(const Vector4& _origin, const Vector4& _direction);
+    Ray(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector4& _worldRayOrigin, const Matrix& _inverseMatrix);
     ~Ray();
 
-    ION_INLINE const Vector& GetOrigin() const { return m_origin;}
-    ION_INLINE const Vector& GetDirection() const { return m_direction; }
-    ION_INLINE const Vector& GetInverseDirection() const { return m_inverseDirection; }
+    ION_INLINE const Vector4& GetOrigin() const { return m_origin;}
+    ION_INLINE const Vector4& GetDirection() const { return m_direction; }
+    ION_INLINE const Vector4& GetInverseDirection() const { return m_inverseDirection; }
 
-    void Set(const Vector& _origin, const Vector& _direction);
-    void Set(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector& _worldRayOrigin, const Matrix& _inverseMatrix);
+    void Set(const Vector4& _origin, const Vector4& _direction);
+    void Set(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector4& _worldRayOrigin, const Matrix& _inverseMatrix);
 
 private:
-    Vector m_origin;
-    Vector m_direction;
-    Vector m_inverseDirection;
+    Vector4 m_origin;
+    Vector4 m_direction;
+    Vector4 m_inverseDirection;
 };
 
 ION_NAMESPACE_END

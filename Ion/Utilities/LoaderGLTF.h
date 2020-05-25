@@ -9,13 +9,22 @@
 
 #include "../Scene/Node.h"
 
+#include "../Core/MemorySettings.h"
+
+
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+using LoaderGLTFAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
+
 class Camera;
-class LoaderGLTF final
+class ION_DLL LoaderGLTF final
 {
+public:
+	static LoaderGLTFAllocator* GetAllocator();
+
 public:
 
     enum ESerializationLevel : ionU32
@@ -28,8 +37,8 @@ public:
     LoaderGLTF();
     ~LoaderGLTF();
 
-    ionBool Load(const ionString& _filePath, Camera* _camToUpdatePtr, ObjectHandler& _entity);
-    void Dump(const ionString& _filePath, const ObjectHandler& _entity, ESerializationLevel _level = ESerializationLevel_Normal);
+    ionBool Load(const ionString& _filePath, Camera* _camToUpdatePtr, Node*& _entity);
+    //void Dump(const ionString& _filePath, const Node* _entity, ESerializationLevel _level = ESerializationLevel_Normal);
 };
 
 

@@ -8,6 +8,13 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+TextureManagerAllocator* TextureManager::GetAllocator()
+{
+	static HeapArea<Settings::kTextureManagerAllocatorSize> memoryArea;
+	static TextureManagerAllocator memoryAllocator(memoryArea, "TextureManagerFreeListAllocator");
+
+	return &memoryAllocator;
+}
 
 TextureManager::TextureManager()
 {
@@ -31,15 +38,15 @@ void TextureManager::Init(VkDevice _vkDevice, ETextureSamplesPerBit _textureSamp
 
 void TextureManager::Shutdown()
 {
-    auto begin = m_hashTexture->begin(), end = m_hashTexture->end();
-    std::map<ionSize, Texture*>::iterator it = begin;
+    auto begin = m_hashTexture.begin(), end = m_hashTexture.end();
+    ionMap<ionSize, Texture*, TextureManagerAllocator, GetAllocator>::iterator it = begin;
     for (; it != end; ++it)
     {
         DestroyTexture(it->second);
-        ionDelete(it->second);
+        ionDelete(it->second, Texture::GetAllocator());
     }
 
-    m_hashTexture->clear();
+    m_hashTexture.clear();
 }
 
 VkSamplerAddressMode TextureManager::ConvertAddressMode(ETextureRepeat _repeat)
@@ -174,8 +181,8 @@ Texture* TextureManager::GetTexture(const ionString& _name) const
     
     ionSize hash = std::hash<ionString>{}(_name);   // from the original with extension
 
-    auto search = m_hashTexture->find(hash);
-    if (search != m_hashTexture->end())
+    auto search = m_hashTexture.find(hash);
+    if (search != m_hashTexture.end())
     {
         return search->second;
     }
@@ -211,10 +218,10 @@ Texture* TextureManager::CreateTexture(VkDevice _vkDevice, const ionString& _nam
     ionSize hash = std::hash<ionString>{}(_name);
 
     // just to inform the user
-    auto search = m_hashTexture->find(hash);
-    ionAssert(!(search != m_hashTexture->end()), "An image with the same name has already added!");
+    auto search = m_hashTexture.find(hash);
+    ionAssertReturnValue(!(search != m_hashTexture.end()), "An image with the same name has already added!", nullptr);
 
-    Texture* texture = ionNew(Texture, _vkDevice, _name);
+    Texture* texture = ionNew(Texture, Texture::GetAllocator(), _vkDevice, _name);
 
     m_hashTexture[hash] = texture;
 
@@ -223,12 +230,12 @@ Texture* TextureManager::CreateTexture(VkDevice _vkDevice, const ionString& _nam
 
 void TextureManager::DestroyTexture(ionSize _hash)
 {
-    auto search = m_hashTexture->find(_hash);
-    if (search != m_hashTexture->end())
+    auto search = m_hashTexture.find(_hash);
+    if (search != m_hashTexture.end())
     {
         DestroyTexture(search->second);
-        ionDelete(search->second);
-        m_hashTexture->erase(_hash);
+        ionDelete(search->second, Texture::GetAllocator());
+        m_hashTexture.erase(_hash);
     }
 }
 

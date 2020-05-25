@@ -13,13 +13,20 @@
 
 #include "../Renderer/GPUMemoryManager.h"
 
+#include "../Core/MemorySettings.h"
+
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+using TextureAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
 
 class Texture final
 {
+public:
+	static ION_DLL TextureAllocator* GetAllocator();
+
 public:
     Texture(VkDevice _vkDevice, const ionString& _name);
     ~Texture();
@@ -62,7 +69,7 @@ private:
 
     ionBool LoadTextureFromFile(const ionString& _path);
     ionBool LoadCubeTextureFromFile(const ionString& _path);
-    ionBool LoadCubeTextureFromFiles(const ionVector<ionString>& paths);
+    ionBool LoadCubeTextureFromFiles(const ionVector<ionString, TextureAllocator, GetAllocator>& paths);
 
     ionBool LoadTextureFromBuffer(ionU32 _width, ionU32 _height, ionU32 _component, const ionU8* _buffer);
 
@@ -75,7 +82,7 @@ private:
     void UploadTextureBuffer(const ionU8* _buffer, ionU32 _component, ionU32 _index = 0 /* index of texture for cube-map, 0 by default */);
 
 private:
-    ionString               m_name;
+	ionString               m_name;
     VkDevice                m_vkDevice;
     vkGpuMemoryAllocation   m_allocation;
 

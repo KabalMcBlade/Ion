@@ -9,11 +9,21 @@
 #include "../Core/MemoryWrapper.h"
 
 
+#include "../Core/MemorySettings.h"
+
+
 EOS_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
-class Option
+
+using OptionAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
+
+class ION_DLL Option
 {
+public:
+	static OptionAllocator* GetAllocator();
+
 public:
     ION_INLINE Option();
     ION_INLINE virtual ~Option();
@@ -34,8 +44,8 @@ public:
     ION_INLINE void SetStringValue(const ionString& _value);
 
 protected:
-    ionString m_option;
-    ionString m_stringValue;
+	ionString m_option;
+	ionString m_stringValue;
     ionBool m_isMandatory;
     ionBool m_isSet;
 };
@@ -121,8 +131,7 @@ template <class T>
 void OptionValue<T>::Parse()
 {
     T var;
-    //eosIStringStream iss;
-    std::istringstream iss; // issue with the inherited one in EOS
+    ionIStringStream iss;
     iss.str(m_stringValue.c_str());
     iss >> var;
     m_value = var;
@@ -177,8 +186,8 @@ public:
     ION_INLINE void Parse();
 
 private:
-    ionString m_value;
-    ionString m_default;
+	ionString m_value;
+	ionString m_default;
     ionBool m_hasDefault;
 };
 
@@ -252,13 +261,13 @@ public:
     T GetValue(const ionString& _option);
 
 private:
-    ionMap<ionString, Option*> m_options;
+    ionMap<ionString, Option*, OptionAllocator, Option::GetAllocator> m_options;
 };
 
 template <class T>
 void CommandLineParser::AddWithValue(const ionString& _option, ionBool _mandatory /*= true*/)
 {
-    OptionValue<T>* opt = ionNew(OptionValue<T>);
+    OptionValue<T>* opt = ionNew(OptionValue<T>, Option::GetAllocator());
     opt->SetOption(_option);
     opt->SetMandatory(_mandatory);
 
@@ -268,11 +277,11 @@ void CommandLineParser::AddWithValue(const ionString& _option, ionBool _mandator
 template <class T>
 void CommandLineParser::AddWithValueAndDefault(const ionString& _option, ionBool _mandatory /*= true*/, const T _default /*= T()*/)
 {
-    OptionValue<T>* opt = ionNew(OptionValue<T>);
+    OptionValue<T>* opt = ionNew(OptionValue<T>, Option::GetAllocator());
     opt->SetOption(_option);
     opt->SetMandatory(_mandatory);
     opt->SetDefault(_default);
-    opt->SetStringValue(std::to_string(_default).c_str());  // redoundant but easy to do
+    opt->SetStringValue(std::to_string(_default).c_str());  // redundant but easy to do
 
     m_options[_option] = opt;
 }
@@ -280,8 +289,8 @@ void CommandLineParser::AddWithValueAndDefault(const ionString& _option, ionBool
 template <class T>
 T CommandLineParser::GetValue(const ionString& _option)
 {
-    auto search = m_options->find(_option);
-    if (search != m_options->end())
+    auto search = m_options.find(_option);
+    if (search != m_options.end())
     {
         OptionValue<T>* opt = dynamic_cast<OptionValue<T>*>(search->second);
         if (opt->HasValue())

@@ -1,9 +1,9 @@
 #include "GPUMemoryManager.h"
 
-#include "../Dependencies/Eos/Eos/Eos.h"
-
-
-EOS_USING_NAMESPACE
+// #include "../Dependencies/Eos/Eos/Eos.h"
+// 
+// 
+// EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 

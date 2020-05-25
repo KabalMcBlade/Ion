@@ -6,14 +6,21 @@
 
 #include "../Animation/Animation.h"
 
+#include "../Core/MemorySettings.h"
 
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+
+using AnimationRendererAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
 class Node;
 class ION_DLL AnimationRenderer final
 {
+private:
+	static AnimationRendererAllocator* GetAllocator();
+
 public:
     AnimationRenderer();
     ~AnimationRenderer();
@@ -32,15 +39,15 @@ public:
     ionFloat GetAnimationSpeedMultiplier() const { return m_animationSpeedMultiplier; }
     void SetAnimationSpeedMultiplier(ionFloat _multiplier) { m_animationSpeedMultiplier = _multiplier; }
 
-    ionSize GetAnimationCount() const { return m_aninimations->size(); }
-    const ionVector<Animation>& GetAnimations() const { return m_aninimations; }
+    ionSize GetAnimationCount() const { return m_aninimations.size(); }
+    const ionVector<Animation, AnimationRendererAllocator, GetAllocator>& GetAnimations() const { return m_aninimations; }
     const Animation& GetAnimation(ionU32 _index) const { return m_aninimations[_index]; }
     Animation& GetAnimation(ionU32 _index) { return m_aninimations[_index]; }
-    ionVector<Animation>& GetAnimations() { return m_aninimations; }
-    ionVector<Animation>::const_iterator AnimationsIteratorBeginConst() { return m_aninimations->begin(); }
-    ionVector<Animation>::const_iterator AnimationsIteratorEndConst() { return m_aninimations->end(); }
-    ionVector<Animation>::iterator AnimationsIteratorBegin() { return m_aninimations->begin(); }
-    ionVector<Animation>::iterator AnimationsIteratorEnd() { return m_aninimations->end(); }
+    ionVector<Animation, AnimationRendererAllocator, GetAllocator>& GetAnimations() { return m_aninimations; }
+    ionVector<Animation, AnimationRendererAllocator, GetAllocator>::const_iterator AnimationsIteratorBeginConst() { return m_aninimations.begin(); }
+    ionVector<Animation, AnimationRendererAllocator, GetAllocator>::const_iterator AnimationsIteratorEndConst() { return m_aninimations.end(); }
+    ionVector<Animation, AnimationRendererAllocator, GetAllocator>::iterator AnimationsIteratorBegin() { return m_aninimations.begin(); }
+    ionVector<Animation, AnimationRendererAllocator, GetAllocator>::iterator AnimationsIteratorEnd() { return m_aninimations.end(); }
 
     void OnUpateAll(ionFloat _deltaTime);
     void OnUpdate(ionFloat _deltaTime);
@@ -56,7 +63,7 @@ private:
     ionFloat HermiteCubicSpline(ionFloat _p0, ionFloat _m0, ionFloat _p1, ionFloat _m1, ionFloat _t);
 
 private:
-    ionVector<Animation>    m_aninimations;
+    ionVector<Animation, AnimationRendererAllocator, GetAllocator>    m_aninimations;
     ionFloat                m_timer;
     ionFloat                m_animationSpeedMultiplier;
     ionU32                  m_animationIndex;

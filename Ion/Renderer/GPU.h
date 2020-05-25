@@ -11,12 +11,19 @@
 
 #include "../Core/MemoryWrapper.h"
 
+#include "../Core/MemorySettings.h"
+
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+using GPUAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
+
 struct GPU final
 {
+	static GPUAllocator* GetAllocator();
+
     GPU();
     ~GPU();
 
@@ -27,10 +34,10 @@ struct GPU final
     VkPhysicalDeviceMemoryProperties    m_vkPhysicalDeviceMemoryProperties;
     VkPhysicalDeviceFeatures            m_vkPhysicalDevFeatures;
     VkSurfaceCapabilitiesKHR            m_vkSurfaceCaps;
-    ionVector<VkSurfaceFormatKHR>        m_vkSurfaceFormats;
-    ionVector<VkPresentModeKHR>            m_vkPresentModes;
-    ionVector<VkQueueFamilyProperties>    m_vkQueueFamilyProps;
-    ionVector<VkExtensionProperties>    m_vkExtensionProps;
+    ionVector<VkSurfaceFormatKHR, GPUAllocator, GetAllocator>        m_vkSurfaceFormats;
+    ionVector<VkPresentModeKHR, GPUAllocator, GetAllocator>            m_vkPresentModes;
+    ionVector<VkQueueFamilyProperties, GPUAllocator, GetAllocator>    m_vkQueueFamilyProps;
+    ionVector<VkExtensionProperties, GPUAllocator, GetAllocator>    m_vkExtensionProps;
 };
 
 ION_NAMESPACE_END

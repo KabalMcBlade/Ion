@@ -12,6 +12,7 @@
 
 #include "../Animation/Animation.h"
 
+#include "../Core/MemorySettings.h"
 
 EOS_USING_NAMESPACE
 
@@ -19,8 +20,14 @@ ION_NAMESPACE_BEGIN
 
 
 //////////////////////////////////////////////////////////////////////////
+
+using MeshRendererAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
 class ION_DLL BaseMeshRenderer
 {
+public:
+	static MeshRendererAllocator* GetAllocator();
+
 public:
     BaseMeshRenderer();
     virtual ~BaseMeshRenderer();
@@ -43,11 +50,11 @@ public:
     const void* GetMorphTargetData() const;
     ionSize GetSizeOfMorphTarget() const;
 
-    ionBool IsUsingMorphTarget() const { return m_morphTargets->size() > 0; }
+    ionBool IsUsingMorphTarget() const { return m_morphTargets.size() > 0; }
 
 protected:
-    ionVector<Index>                m_indices;
-    ionVector<VertexMorphTarget>    m_morphTargets;
+    ionVector<Index, MeshRendererAllocator, BaseMeshRenderer::GetAllocator> m_indices;
+    ionVector<VertexMorphTarget, MeshRendererAllocator, BaseMeshRenderer::GetAllocator> m_morphTargets;
 };
 
 
@@ -67,7 +74,7 @@ public:
     virtual ionSize GetSizeOfVertex() const override final;
 
 private:
-    ionVector<VertexPlain>   m_vertices;
+    ionVector<VertexPlain, MeshRendererAllocator, BaseMeshRenderer::GetAllocator>   m_vertices;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -86,7 +93,7 @@ public:
     virtual ionSize GetSizeOfVertex() const override final;
 
 private:
-    ionVector<VertexColored>   m_vertices;
+    ionVector<VertexColored, MeshRendererAllocator, BaseMeshRenderer::GetAllocator>   m_vertices;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -105,7 +112,7 @@ public:
     virtual ionSize GetSizeOfVertex() const override final;
 
 private:
-    ionVector<VertexUV>   m_vertices;
+    ionVector<VertexUV, MeshRendererAllocator, BaseMeshRenderer::GetAllocator>   m_vertices;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -124,7 +131,7 @@ public:
     virtual ionSize GetSizeOfVertex() const override final;
 
 private:
-    ionVector<VertexNormal>   m_vertices;
+    ionVector<VertexNormal, MeshRendererAllocator, BaseMeshRenderer::GetAllocator>   m_vertices;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -143,7 +150,7 @@ public:
     virtual ionSize GetSizeOfVertex() const override final;
 
 private:
-    ionVector<VertexSimple>   m_vertices;
+    ionVector<VertexSimple, MeshRendererAllocator, BaseMeshRenderer::GetAllocator>   m_vertices;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -166,7 +173,7 @@ public:
     const Vertex& GetVertex(ionSize _index) const;
 
 private:
-    ionVector<Vertex>   m_vertices;
+    ionVector<Vertex, MeshRendererAllocator, BaseMeshRenderer::GetAllocator>   m_vertices;
 };
 
 

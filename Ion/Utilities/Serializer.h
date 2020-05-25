@@ -6,9 +6,11 @@
 
 #include "../Dependencies/Miscellaneous/json.hpp"
 
+
 using nlohmann::json;
 
 ION_NAMESPACE_BEGIN
+
 
 /*
 //////////////////////////////////////////////////////////////////////////
@@ -44,8 +46,8 @@ void to_json(json& _json, const VertexMorphTarget& _input);
 void from_json(const json& _json, VertexMorphTarget& _output);
 //////////////////////////////////////////////////////////////////////////
 
-void to_json(json& _json, const ObjectHandler& _input);
-void from_json(const json& _json, ObjectHandler& _output);
+void to_json(json& _json, Node* _input);
+void from_json(const json& _json, Node*& _output);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +55,7 @@ void from_json(const json& _json, ObjectHandler& _output);
 // 0 = mini dump    -> just nodes, no animation neither vertex
 // 1 = normal dump  -> nodes and animations
 // 2 = full dump    -> nodes, animation and vertex
-std::string Serialize(const ObjectHandler& _input, ionU32 _level = 1);
+std::string Serialize(const Node* _input, ionU32 _level = 1);
 
 ION_NAMESPACE_END
 
@@ -61,8 +63,8 @@ ION_NAMESPACE_END
 
 namespace nlohmann {
     template <>
-    struct adl_serializer<Vector> {
-        static void to_json(json& j, const Vector& opt)
+    struct adl_serializer<Vector4> {
+        static void to_json(json& j, const Vector4& opt)
         {
 #ifdef _DEBUG
             std::ostringstream oss;
@@ -73,7 +75,7 @@ namespace nlohmann {
 #endif
         }
 
-        static void from_json(const json& j, Vector& opt) 
+        static void from_json(const json& j, Vector4& opt) 
         {
             //opt = j.get<Vector>();
         }

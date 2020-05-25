@@ -8,7 +8,7 @@ NIX_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 
-ionBool Intersection::IntersectRayPlane(const Ray& _ray, const Vector& _planeNormal, const Vector& _pointOnPlane, Vector& _outIntersectionPoint)
+ionBool Intersection::IntersectRayPlane(const Ray& _ray, const Vector4& _planeNormal, const Vector4& _pointOnPlane, Vector4& _outIntersectionPoint)
 {
     nixFloat denom = 0;
     _mm_store_ss(&denom, Helper::Dot(_planeNormal, _ray.GetDirection()));
@@ -29,19 +29,19 @@ ionBool Intersection::IntersectRayPlane(const Ray& _ray, const Vector& _planeNor
     return false;
 }
 
-ionBool IntersectRayBoundingBox(const Ray& _ray, const BoundingBox& _box, ionFloat& _outNearCollisionTime, ionFloat& _outFarCollisionTime)
+ionBool Intersection::IntersectRayBoundingBox(const Ray& _ray, const BoundingBox& _box, ionFloat& _outNearCollisionTime, ionFloat& _outFarCollisionTime)
 {
-    const Vector& l1 = (_box.GetMin() - _ray.GetOrigin()) * _ray.GetInverseDirection();
-    const Vector& l2 = (_box.GetMax() - _ray.GetOrigin()) * _ray.GetInverseDirection();
+    const Vector4& l1 = (_box.GetMin() - _ray.GetOrigin()) * _ray.GetInverseDirection();
+    const Vector4& l2 = (_box.GetMax() - _ray.GetOrigin()) * _ray.GetInverseDirection();
 
-    const Vector& filtered_l1a = Helper::Min(l1, kPlusInf);
-    const Vector& filtered_l2a = Helper::Min(l2, kPlusInf);
+    const Vector4& filtered_l1a = Helper::Min(l1, kPlusInf);
+    const Vector4& filtered_l2a = Helper::Min(l2, kPlusInf);
 
-    const Vector& filtered_l1b = Helper::Max(l1, kMinusInf);
-    const Vector& filtered_l2b = Helper::Max(l2, kMinusInf);
+    const Vector4& filtered_l1b = Helper::Max(l1, kMinusInf);
+    const Vector4& filtered_l2b = Helper::Max(l2, kMinusInf);
 
-    Vector lmax = Helper::Max(filtered_l1a, filtered_l2a);
-    Vector lmin = Helper::Min(filtered_l1b, filtered_l2b);
+    Vector4 lmax = Helper::Max(filtered_l1a, filtered_l2a);
+    Vector4 lmin = Helper::Min(filtered_l1b, filtered_l2b);
 
 
     // a,b,c,d -> b,c,d,a

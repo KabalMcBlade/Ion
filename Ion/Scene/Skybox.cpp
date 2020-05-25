@@ -5,30 +5,34 @@
 
 #include "../Renderer/RenderCore.h"
 
-#include "../Geometry/MeshRenderer.h"
 
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+SkyboxAllocator* Skybox::GetAllocator()
+{
+	static HeapArea<Settings::kSkyBoxAllocatorSize> memoryArea;
+	static SkyboxAllocator memoryAllocator(memoryArea, "SkyboxListAllocator");
+
+	return &memoryAllocator;
+}
+
+
 Skybox::Skybox()
 {
-    m_meshRenderer = ionNew(MeshRendererPlain);
-
     GenerateMesh();
 }
 
 Skybox::~Skybox()
 {
-    m_drawSurface.Clear();
-    ionDelete(m_meshRenderer);
 }
 
 void Skybox::GenerateMesh()
 {
-    ionVector<Index> indices;
-    indices->resize(36);
+    ionVector<Index, SkyboxAllocator, GetAllocator> indices;
+    indices.resize(36);
     indices = {
         0,1,2,0,2,3,
         4,5,6,4,6,7,
@@ -37,40 +41,40 @@ void Skybox::GenerateMesh()
         16,17,18,16,18,19,
         20,21,22,20,22,23 };
 
-    Vector positions[24] = {
-        Vector(-0.5f, 0.5f, 0.5f, 1.0f),
-        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
-        Vector(0.5f, -0.5f, 0.5f, 1.0f),
-        Vector(0.5f, 0.5f, 0.5f, 1.0f),
+    Vector4 positions[24] = {
+        Vector4(-0.5f, 0.5f, 0.5f, 1.0f),
+        Vector4(-0.5f, -0.5f, 0.5f, 1.0f),
+        Vector4(0.5f, -0.5f, 0.5f, 1.0f),
+        Vector4(0.5f, 0.5f, 0.5f, 1.0f),
 
-        Vector(0.5f, 0.5f, -0.5f, 1.0f),
-        Vector(0.5f, -0.5f, -0.5f, 1.0f),
-        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
-        Vector(-0.5f, 0.5f, -0.5f, 1.0f),
+        Vector4(0.5f, 0.5f, -0.5f, 1.0f),
+        Vector4(0.5f, -0.5f, -0.5f, 1.0f),
+        Vector4(-0.5f, -0.5f, -0.5f, 1.0f),
+        Vector4(-0.5f, 0.5f, -0.5f, 1.0f),
 
-        Vector(0.5f, 0.5f, 0.5f, 1.0f),
-        Vector(0.5f, -0.5f, 0.5f, 1.0f),
-        Vector(0.5f, -0.5f, -0.5f, 1.0f),
-        Vector(0.5f, 0.5f, -0.5f, 1.0f),
+        Vector4(0.5f, 0.5f, 0.5f, 1.0f),
+        Vector4(0.5f, -0.5f, 0.5f, 1.0f),
+        Vector4(0.5f, -0.5f, -0.5f, 1.0f),
+        Vector4(0.5f, 0.5f, -0.5f, 1.0f),
 
-        Vector(-0.5f, 0.5f, -0.5f, 1.0f),
-        Vector(-0.5f, 0.5f, 0.5f, 1.0f),
-        Vector(0.5f, 0.5f, 0.5f, 1.0f),
-        Vector(0.5f, 0.5f, -0.5f, 1.0f),
+        Vector4(-0.5f, 0.5f, -0.5f, 1.0f),
+        Vector4(-0.5f, 0.5f, 0.5f, 1.0f),
+        Vector4(0.5f, 0.5f, 0.5f, 1.0f),
+        Vector4(0.5f, 0.5f, -0.5f, 1.0f),
 
-        Vector(-0.5f, 0.5f, -0.5f, 1.0f),
-        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
-        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
-        Vector(-0.5f, 0.5f, 0.5f, 1.0f),
+        Vector4(-0.5f, 0.5f, -0.5f, 1.0f),
+        Vector4(-0.5f, -0.5f, -0.5f, 1.0f),
+        Vector4(-0.5f, -0.5f, 0.5f, 1.0f),
+        Vector4(-0.5f, 0.5f, 0.5f, 1.0f),
 
-        Vector(-0.5f, -0.5f, 0.5f, 1.0f),
-        Vector(-0.5f, -0.5f, -0.5f, 1.0f),
-        Vector(0.5f, -0.5f, -0.5f, 1.0f),
-        Vector(0.5f, -0.5f, 0.5f, 1.0f)
+        Vector4(-0.5f, -0.5f, 0.5f, 1.0f),
+        Vector4(-0.5f, -0.5f, -0.5f, 1.0f),
+        Vector4(0.5f, -0.5f, -0.5f, 1.0f),
+        Vector4(0.5f, -0.5f, 0.5f, 1.0f)
     };
 
-    ionVector<VertexPlain> vertices;
-    vertices->resize(24);
+    ionVector<VertexPlain, SkyboxAllocator, GetAllocator> vertices;
+    vertices.resize(24);
 
     for (ionU32 i = 0; i < 24; ++i)
     {
@@ -78,11 +82,11 @@ void Skybox::GenerateMesh()
     }
     for (ionU32 i = 0; i < 24; ++i)
     {
-        m_meshRenderer->PushBackVertex(vertices[i]);
+        m_meshRenderer.PushBackVertex(vertices[i]);
     }
     for (ionU32 i = 0; i < 36; ++i)
     {
-        m_meshRenderer->PushBackIndex(indices[i]);
+        m_meshRenderer.PushBackIndex(indices[i]);
     }
 
     m_mesh.SetIndexCount(36);
@@ -97,8 +101,8 @@ void Skybox::SetMaterial(Material* _material)
     m_drawSurface.m_indexCount = m_mesh.GetIndexCount();
     m_drawSurface.m_material = m_mesh.GetMaterial();
     m_drawSurface.m_visible = true;
-    m_drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(m_meshRenderer->GetVertexData(), m_meshRenderer->GetVertexDataCount(), m_meshRenderer->GetSizeOfVertex());
-    m_drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(m_meshRenderer->GetIndexData(), m_meshRenderer->GetIndexDataCount(), m_meshRenderer->GetSizeOfIndex());
+    m_drawSurface.m_vertexCache = ionVertexCacheManager().AllocVertex(m_meshRenderer.GetVertexData(), m_meshRenderer.GetVertexDataCount(), m_meshRenderer.GetSizeOfVertex());
+    m_drawSurface.m_indexCache = ionVertexCacheManager().AllocIndex(m_meshRenderer.GetIndexData(), m_meshRenderer.GetIndexDataCount(), m_meshRenderer.GetSizeOfIndex());
 }
 
 Material* Skybox::GetMaterial()

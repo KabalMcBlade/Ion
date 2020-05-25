@@ -13,16 +13,25 @@
 
 #include "../App/Mode.h"
 
+#include "../Core/MemorySettings.h"
+
+
 NIX_USING_NAMESPACE
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
+
+using SceneGraphAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
 
 class UUID;
 class RenderCore;
 class DirectionalLight;
 class ION_DLL SceneGraph final
 {
+public:
+	static SceneGraphAllocator* GetAllocator();
+
 public:
     SceneGraph();
     ~SceneGraph();
@@ -31,12 +40,11 @@ public:
 
     void CreateDirectionalLightToScene();
     void DestroyDirectionalLightToScene();
-	ionObjectHandler<DirectionalLight>& GetDirectionalLight();
-    DirectionalLight* GetDirectionalLightPtr();
+    DirectionalLight* GetDirectionalLight();
 
-    void AddToScene(const ObjectHandler& _node);
-    void RemoveFromScene(const ObjectHandler& _node);
-    void RemoveAll(const std::function< void(const ObjectHandler& _node) >& _lambda = nullptr);
+    void AddToScene(Node* _node);
+    void RemoveFromScene(Node* _node);
+    void RemoveAll(const std::function< void(Node* _node) >& _lambda = nullptr);
 
     void UpdateAllCameraAspectRatio(RenderCore& _renderCore);
 
@@ -47,15 +55,15 @@ public:
     void Render(RenderCore& _renderCore, ionU32 _x, ionU32 _y, ionU32 _width, ionU32 _height);
 
     // Input
-    void RegisterToInput(const ObjectHandler& _node);
-    void UnregisterFromInput(const ObjectHandler& _node);
+    void RegisterToInput(Node* _node);
+    void UnregisterFromInput(Node* _node);
 
     void UpdateMouseInput(const MouseState& _mouseState, ionFloat _deltaTime);
     void UpdateKeyboardInput(const KeyboardState& _keyboardState, ionFloat _deltaTime);
 
     // Utilities
-    ObjectHandler GetObjectByName(const ionString& _name);
-    ObjectHandler GetObjectByUUID(const UUID& _uuid);
+    Node* GetObjectByName(const ionString& _name);
+	Node* GetObjectByUUID(const UUID& _uuid);
 
 private:
     SceneGraph(const SceneGraph& _Orig) = delete;
@@ -65,10 +73,10 @@ private:
 
 private:
     BoundingBox                                 m_sceneBoundingBox;
-	ionObjectHandler<DirectionalLight>          m_directionalLight;
-    ObjectHandler                               m_root;
-    ionMap<Camera*, ionVector<DrawSurface>>     m_drawSurfaces;
-    ionVector<ObjectHandler>                    m_registeredInput;
+	DirectionalLight*							m_directionalLight;
+	Node*										m_root;
+    ionMap<Camera*, ionVector<DrawSurface, SceneGraphAllocator, GetAllocator>, SceneGraphAllocator, GetAllocator>     m_drawSurfaces;
+    ionVector<Node*, SceneGraphAllocator, GetAllocator> m_registeredInput;
     ionBool                                     m_isMeshGeneratedFirstTime;  // is an helper
 };
 

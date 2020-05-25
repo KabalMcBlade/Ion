@@ -9,12 +9,21 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+BoundingBoxAllocator* BoundingBox::GetAllocator()
+{
+	static HeapArea<Settings::kBoundingBoxAllocatorSize> memoryArea;
+	static BoundingBoxAllocator memoryAllocator(memoryArea, "BoundingBoxFreeListAllocator");
+
+	return &memoryAllocator;
+}
+
+
 BoundingBox::BoundingBox()
 {
     Reset();
 }
 
-BoundingBox::BoundingBox(const Vector& _min, const Vector& _max)
+BoundingBox::BoundingBox(const Vector4& _min, const Vector4& _max)
 {
     Set(_min, _max);
 }
@@ -29,7 +38,7 @@ void BoundingBox::Reset()
     Set(kPlusInf.m_simdf, kMinusInf.m_simdf);
 }
 
-void BoundingBox::Set(const Vector& _min, const Vector& _max)
+void BoundingBox::Set(const Vector4& _min, const Vector4& _max)
 {
     m_min = _min;
     m_max = _max;
@@ -62,7 +71,7 @@ void BoundingBox::SetZero()
     m_max = kZero.m_simdf;
 }
 
-void BoundingBox::MergePoint(const Vector& _point)
+void BoundingBox::MergePoint(const Vector4& _point)
 {
     Set(Helper::Min(m_min, _point), Helper::Max(m_max, _point));
 }
@@ -72,12 +81,12 @@ void BoundingBox::Expande(const BoundingBox& _bbox)
     Set(Helper::Min(m_min, _bbox.GetMin()), Helper::Max(m_max, _bbox.GetMax()));
 }
 
-void BoundingBox::Expande(const Vector& _min, const Vector& _max)
+void BoundingBox::Expande(const Vector4& _min, const Vector4& _max)
 {
     Set(Helper::Min(m_min, _min), Helper::Max(m_max, _max));
 }
 
-void BoundingBox::GetCorners(ionVector<Vector>& _corners) const
+void BoundingBox::GetCorners(ionVector<Vector4, BoundingBoxAllocator, GetAllocator>& _corners) const
 {
     const nixFloat4 min = m_min;
     const nixFloat4 max = m_max;
@@ -85,50 +94,50 @@ void BoundingBox::GetCorners(ionVector<Vector>& _corners) const
     const nixFloat4 _minX_maxX_minY_maxY = _mm_unpacklo_ps(min, max);
     const nixFloat4 _minZ_maxZ_minW_maxW = _mm_unpackhi_ps(min, max);
 
-    _corners->clear();
-    _corners->reserve(8);
+    _corners.clear();
+    _corners.reserve(8);
 
     // corner 0
-    _corners->push_back(m_min);
+    _corners.push_back(m_min);
 
     // corner 1
     const nixFloat4 _minX_maxY_minZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(0, 3, 0, 3));
-    _corners->push_back(_minX_maxY_minZ_maxW);
+    _corners.push_back(_minX_maxY_minZ_maxW);
 
     // corner 2
     const nixFloat4 _maxX_maxY_minZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(1, 3, 0, 3));
-    _corners->push_back(_maxX_maxY_minZ_maxW);
+    _corners.push_back(_maxX_maxY_minZ_maxW);
 
     // corner 3
     const nixFloat4 _maxX_minY_minZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(1, 2, 0, 3));
-    _corners->push_back(_maxX_minY_minZ_maxW);
+    _corners.push_back(_maxX_minY_minZ_maxW);
 
     // corner 4
-    _corners->push_back(m_max);
+    _corners.push_back(m_max);
 
     // corner 5
     const nixFloat4 _minX_maxY_maxZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(0, 3, 1, 3));
-    _corners->push_back(_minX_maxY_maxZ_maxW);
+    _corners.push_back(_minX_maxY_maxZ_maxW);
 
     // corner 6
     const nixFloat4 _minX_minY_maxZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(0, 2, 1, 3));
-    _corners->push_back(_minX_minY_maxZ_maxW);
+    _corners.push_back(_minX_minY_maxZ_maxW);
 
     // corner 7
     const nixFloat4 _maxX_minY_maxZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(1, 2, 1, 3));
-    _corners->push_back(_maxX_minY_maxZ_maxW);
+    _corners.push_back(_maxX_minY_maxZ_maxW);
 }
 
 BoundingBox BoundingBox::GetTransformed(const Matrix& _matrix)
 {
     BoundingBox transformedBoundingBox;
 
-    ionVector<Vector> corners;
+    ionVector<Vector4, BoundingBoxAllocator, BoundingBox::GetAllocator> corners;
     GetCorners(corners);
 
     for (ionU32 i = 0; i < 8; ++i)
     {
-        Vector tv = _matrix * corners[i];
+        Vector4 tv = _matrix * corners[i];
 
         transformedBoundingBox.MergePoint(tv);
     }

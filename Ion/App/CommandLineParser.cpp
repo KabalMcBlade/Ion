@@ -6,6 +6,14 @@ ION_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////////////////
 
+OptionAllocator* Option::GetAllocator()
+{
+	static HeapArea<Settings::kOptionAllocatorSize> memoryArea;
+	static OptionAllocator memoryAllocator(memoryArea, "OptionFreeListAllocator");
+
+	return &memoryAllocator;
+}
+
 CommandLineParser::CommandLineParser()
 {
 
@@ -13,17 +21,17 @@ CommandLineParser::CommandLineParser()
 
 CommandLineParser::~CommandLineParser()
 {
-    ionMap<ionString, Option*>::iterator it;
-    for (it = m_options->begin(); it != m_options->end(); ++it)
+    ionMap<ionString, Option*, OptionAllocator, Option::GetAllocator>::iterator it;
+    for (it = m_options.begin(); it != m_options.end(); ++it)
     {
-        ionDelete(it->second);
+        ionDelete(it->second, Option::GetAllocator());
     }
-    m_options->clear();
+    m_options.clear();
 }
 
 void CommandLineParser::Add(const ionString& _option, ionBool _mandatory /*= true*/)
 {
-    Option* opt = ionNew(Option);
+    Option* opt = ionNew(Option, Option::GetAllocator());
     opt->SetOption(_option);
     opt->SetMandatory(_mandatory);
     
@@ -38,8 +46,8 @@ ionBool CommandLineParser::Parse(ionS32 argc, const char * const argv[])
     {
         if (strncmp(argv[i], "-", 1) == 0) 
         {
-            ionString name(argv[i]);
-            if (m_options->count(name) == 0)
+			ionString name(argv[i]);
+            if (m_options.count(name) == 0)
             {
                 if (m_options[name]->IsMandatory())
                 {
@@ -93,13 +101,13 @@ ionBool CommandLineParser::Parse(ionS32 argc, const char * const argv[])
 
 ionBool CommandLineParser::HasOption(const ionString& _option)
 {
-    return m_options->count(_option) > 0;
+    return m_options.count(_option) > 0;
 }
 
 ionBool CommandLineParser::HasValue(const ionString& _option)
 {
-    auto search = m_options->find(_option);
-    if (search != m_options->end())
+    auto search = m_options.find(_option);
+    if (search != m_options.end())
     {
         return search->second->HasValue();
     }
@@ -111,8 +119,8 @@ ionBool CommandLineParser::HasValue(const ionString& _option)
 
 ionBool CommandLineParser::IsSet(const ionString& _option)
 {
-    auto search = m_options->find(_option);
-    if (search != m_options->end())
+    auto search = m_options.find(_option);
+    if (search != m_options.end())
     {
         return search->second->IsSet();
     }

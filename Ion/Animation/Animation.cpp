@@ -1,11 +1,19 @@
 #include "Animation.h"
 
 
+
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+AnimationChannelAllocator* AnimationChannel::GetAllocator()
+{
+	static HeapArea<Settings::kAnimationChannelAllocatorSize> memoryArea;
+	static AnimationChannelAllocator memoryAllocator(memoryArea, "AnimationChannelFreeListAllocator");
+
+	return &memoryAllocator;
+}
 
 AnimationChannel::AnimationChannel() : m_node(nullptr), m_samplerIndex(0), m_path(EAnimationPathType_None)
 {
@@ -34,6 +42,14 @@ void AnimationChannel::SetPath(EAnimationPathType _path)
 
 //////////////////////////////////////////////////////////////////////////
 
+AnimationSamplerAllocator* AnimationSampler::GetAllocator()
+{
+	static HeapArea<Settings::kAnimationSampleAllocatorSize> memoryArea;
+	static AnimationSamplerAllocator memoryAllocator(memoryArea, "AnimationSamplerFreeListAllocator");
+
+	return &memoryAllocator;
+}
+
 AnimationSampler::AnimationSampler() : m_interpolation(EAnimationInterpolationType_None)
 {
 
@@ -41,24 +57,24 @@ AnimationSampler::AnimationSampler() : m_interpolation(EAnimationInterpolationTy
 
 AnimationSampler::~AnimationSampler()
 {
-    m_inputs->clear();
-    m_outputsLinearPath->clear();
-    m_outputsMorphTarget->clear();
+    m_inputs.clear();
+    m_outputsLinearPath.clear();
+    m_outputsMorphTarget.clear();
 }
 
 void AnimationSampler::PushBackInput(ionFloat _input)
 {
-    m_inputs->push_back(_input);
+    m_inputs.push_back(_input);
 }
 
 void AnimationSampler::PushBackOutputMorphTarget(ionFloat _input)
 {
-    m_outputsMorphTarget->push_back(_input);
+    m_outputsMorphTarget.push_back(_input);
 }
 
-void AnimationSampler::PushBackOutputLinearPath(const Vector& _input)
+void AnimationSampler::PushBackOutputLinearPath(const Vector4& _input)
 {
-    m_outputsLinearPath->push_back(_input);
+    m_outputsLinearPath.push_back(_input);
 }
 
 void AnimationSampler::SetInterpolation(EAnimationInterpolationType _interpolation)
@@ -68,6 +84,14 @@ void AnimationSampler::SetInterpolation(EAnimationInterpolationType _interpolati
 
 //////////////////////////////////////////////////////////////////////////
 
+AnimationAllocator* Animation::GetAllocator()
+{
+	static HeapArea<Settings::kAnimationAllocatorSize> memoryArea;
+	static AnimationAllocator memoryAllocator(memoryArea, "AnimationFreeListAllocator");
+
+	return &memoryAllocator;
+}
+
 Animation::Animation() : m_name(""), m_hash(-1), m_start(std::numeric_limits<ionFloat>::max()), m_end(std::numeric_limits<ionFloat>::min())
 {
 
@@ -75,8 +99,8 @@ Animation::Animation() : m_name(""), m_hash(-1), m_start(std::numeric_limits<ion
 
 Animation::~Animation()
 {
-    m_samplers->clear();
-    m_channels->clear();
+    m_samplers.clear();
+    m_channels.clear();
 }
 
 void Animation::SetName(const ionString& _name)
@@ -87,12 +111,12 @@ void Animation::SetName(const ionString& _name)
 
 void Animation::PushBackSampler(const AnimationSampler& _sampler)
 {
-    m_samplers->push_back(_sampler);
+    m_samplers.push_back(_sampler);
 }
 
 void Animation::PushBackChannel(const AnimationChannel& _channel)
 {
-    m_channels->push_back(_channel);
+    m_channels.push_back(_channel);
 }
 
 void Animation::SetStart(ionFloat _value)

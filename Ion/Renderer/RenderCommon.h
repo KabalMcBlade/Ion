@@ -112,11 +112,16 @@ enum EVertexMask
 
 //////////////////////////////////////////////////////////////////////////
 
+using ShaderVertexLayoutAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
+
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct ShaderVertexLayout
 {
+	static ShaderVertexLayoutAllocator* GetAllocator();
+
     VkPipelineVertexInputStateCreateInfo            m_inputState;
-    ionVector<VkVertexInputBindingDescription>      m_bindinggDescription;
-    ionVector<VkVertexInputAttributeDescription>    m_attributegDescription;
+    ionVector<VkVertexInputBindingDescription, ShaderVertexLayoutAllocator, GetAllocator>      m_bindinggDescription;
+    ionVector<VkVertexInputAttributeDescription, ShaderVertexLayoutAllocator, GetAllocator>    m_attributegDescription;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -127,7 +132,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct ShaderVertexLayout
 // 64 -> 64
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 {
-    Vector              m_position;             // 16 byte
+    Vector4              m_position;             // 16 byte
     ionFloat            m_textureCoordUV0[2];   // 8 byte
     ionFloat            m_textureCoordUV1[2];   // 8 byte
     ionFloat            m_joints[4];            // 16 byte
@@ -162,21 +167,21 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
     //////////////////////////////////////////////////////////////////////////
     // GETTER
 
-    ION_INLINE Vector GetPosition() const
+    ION_INLINE Vector4 GetPosition() const
     {
         return m_position;
     }
 
-    ION_INLINE Vector GetNormal() const
+    ION_INLINE Vector4 GetNormal() const
     {
-        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
         v.Normalize();
         return v;
     }
 
-    ION_INLINE Vector GetTangent() const
+    ION_INLINE Vector4 GetTangent() const
     {
-        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_tangent[0]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[1]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[2]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_tangent[0]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[1]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[2]));
         v.Normalize();
         return v;
     }
@@ -191,17 +196,17 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         return (m_tangent[3] < 128) ? 1 : 0;
     }
 
-    ION_INLINE Vector GetBiTangent() const
+    ION_INLINE Vector4 GetBiTangent() const
     {
-        const Vector& v = GetNormal();
-        Vector b = v.Cross(GetTangent());
+        const Vector4& v = GetNormal();
+        Vector4 b = v.Cross(GetTangent());
         b *= GetBiTangentSign();
         return b;
     }
 
-    ION_INLINE Vector GetColorV() const
+    ION_INLINE Vector4 GetColorV() const
     {
-        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_color[0]), ION_VERTEX_BYTE_TO_FLOAT(m_color[1]), ION_VERTEX_BYTE_TO_FLOAT(m_color[2]), ION_VERTEX_BYTE_TO_FLOAT(m_color[3]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_color[0]), ION_VERTEX_BYTE_TO_FLOAT(m_color[1]), ION_VERTEX_BYTE_TO_FLOAT(m_color[2]), ION_VERTEX_BYTE_TO_FLOAT(m_color[3]));
         v.Normalize();
         return v;
     }
@@ -211,9 +216,9 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         *reinterpret_cast<const ionU64*>(this->m_color);
     }
 
-    ION_INLINE Vector GetWeightsV() const
+    ION_INLINE Vector4 GetWeightsV() const
     {
-        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_weights[0]), ION_VERTEX_BYTE_TO_FLOAT(m_weights[1]), ION_VERTEX_BYTE_TO_FLOAT(m_weights[2]), ION_VERTEX_BYTE_TO_FLOAT(m_weights[3]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_weights[0]), ION_VERTEX_BYTE_TO_FLOAT(m_weights[1]), ION_VERTEX_BYTE_TO_FLOAT(m_weights[2]), ION_VERTEX_BYTE_TO_FLOAT(m_weights[3]));
         v.Normalize();
         return v;
     }
@@ -223,19 +228,19 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         *reinterpret_cast<const ionU64*>(this->m_weights);
     }
 
-    ION_INLINE Vector GetTexCoordUVUV0() const
+    ION_INLINE Vector4 GetTexCoordUVUV0() const
     {
-        return Vector(m_textureCoordUV0[0], m_textureCoordUV0[1], m_textureCoordUV0[0], m_textureCoordUV0[1]);
+        return Vector4(m_textureCoordUV0[0], m_textureCoordUV0[1], m_textureCoordUV0[0], m_textureCoordUV0[1]);
     }
 
-    ION_INLINE Vector GetTexCoordUUVV0() const
+    ION_INLINE Vector4 GetTexCoordUUVV0() const
     {
-        return Vector(m_textureCoordUV0[0], m_textureCoordUV0[0], m_textureCoordUV0[1], m_textureCoordUV0[1]);
+        return Vector4(m_textureCoordUV0[0], m_textureCoordUV0[0], m_textureCoordUV0[1], m_textureCoordUV0[1]);
     }
 
-    ION_INLINE Vector GetTexCoordVUVU0() const
+    ION_INLINE Vector4 GetTexCoordVUVU0() const
     {
-        return Vector(m_textureCoordUV0[1], m_textureCoordUV0[0], m_textureCoordUV0[1], m_textureCoordUV0[0]);
+        return Vector4(m_textureCoordUV0[1], m_textureCoordUV0[0], m_textureCoordUV0[1], m_textureCoordUV0[0]);
     }
 
     ION_INLINE ionFloat GetTexCoordU0() const
@@ -248,19 +253,19 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         return m_textureCoordUV0[1];
     }
 
-    ION_INLINE Vector GetTexCoordUVUV1() const
+    ION_INLINE Vector4 GetTexCoordUVUV1() const
     {
-        return Vector(m_textureCoordUV1[0], m_textureCoordUV1[1], m_textureCoordUV1[0], m_textureCoordUV1[1]);
+        return Vector4(m_textureCoordUV1[0], m_textureCoordUV1[1], m_textureCoordUV1[0], m_textureCoordUV1[1]);
     }
 
-    ION_INLINE Vector GetTexCoordUUVV1() const
+    ION_INLINE Vector4 GetTexCoordUUVV1() const
     {
-        return Vector(m_textureCoordUV1[0], m_textureCoordUV1[0], m_textureCoordUV1[1], m_textureCoordUV1[1]);
+        return Vector4(m_textureCoordUV1[0], m_textureCoordUV1[0], m_textureCoordUV1[1], m_textureCoordUV1[1]);
     }
 
-    ION_INLINE Vector GetTexCoordVUVU1() const
+    ION_INLINE Vector4 GetTexCoordVUVU1() const
     {
-        return Vector(m_textureCoordUV1[1], m_textureCoordUV1[0], m_textureCoordUV1[1], m_textureCoordUV1[0]);
+        return Vector4(m_textureCoordUV1[1], m_textureCoordUV1[0], m_textureCoordUV1[1], m_textureCoordUV1[0]);
     }
 
     ION_INLINE ionFloat GetTexCoordU1() const
@@ -296,17 +301,17 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
     //////////////////////////////////////////////////////////////////////////
     // SETTER
 
-    ION_INLINE void SetPosition(const Vector& _position)
+    ION_INLINE void SetPosition(const Vector4& _position)
     {
         m_position = _position;
     }
 
     ION_INLINE void SetPosition(ionFloat _x, ionFloat _y, ionFloat _z)
     {
-        m_position = Vector(_x, _y, _z, 1.0f);
+        m_position = Vector4(_x, _y, _z, 1.0f);
     }
 
-    ION_INLINE void SetNormal(const Vector& _normal)
+    ION_INLINE void SetNormal(const Vector4& _normal)
     {
         Utilities::VectorToByte(_normal, m_normal);
     }
@@ -316,7 +321,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         Utilities::VectorToByte(_x, _y, _z, m_normal);
     }
 
-    ION_INLINE void SetTangent(const Vector& _tangent)
+    ION_INLINE void SetTangent(const Vector4& _tangent)
     {
         Utilities::VectorToByte(_tangent, m_tangent);
     }
@@ -336,16 +341,16 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         m_tangent[3] = _sign ? 0 : 255;
     }
 
-    ION_INLINE void SetBiTangent(const Vector& _tangent)
+    ION_INLINE void SetBiTangent(const Vector4& _tangent)
     {
-        const Vector& v = GetNormal();
-        Vector b = v.Cross(GetTangent());
+        const Vector4& v = GetNormal();
+        Vector4 b = v.Cross(GetTangent());
         SetBiTangentSign(Helper::ExtractX(b.Dot3(_tangent)));
     }
 
     ION_INLINE void SetBiTangent(ionFloat _x, ionFloat _y, ionFloat _z)
     {
-        Vector v(_x, _y, _z);
+        Vector4 v(_x, _y, _z);
         SetBiTangent(v);
     }
 
@@ -359,7 +364,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         Utilities::VectorToByte(_r, _g, _b, _a, m_color);
     }
 
-    ION_INLINE void SetColor(const Vector& _color)
+    ION_INLINE void SetColor(const Vector4& _color)
     {
         Utilities::VectorToByte(_color, m_color);
     }
@@ -374,7 +379,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         Utilities::VectorToByte(_x, _y, _z, _w, m_weights);
     }
 
-    ION_INLINE void SetWeights(const Vector& _weights)
+    ION_INLINE void SetWeights(const Vector4& _weights)
     {
         Utilities::VectorToByte(_weights, m_weights);
     }
@@ -395,7 +400,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         SetTexCoordV0(_v);
     }
 
-    ION_INLINE void SetTexCoordUV0(const Vector& _uvuv)
+    ION_INLINE void SetTexCoordUV0(const Vector4& _uvuv)
     {
         SetTexCoordU0(Helper::ExtractX(_uvuv));
         SetTexCoordV0(Helper::ExtractY(_uvuv));
@@ -417,7 +422,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         SetTexCoordV1(_v);
     }
 
-    ION_INLINE void SetTexCoordUV1(const Vector& _uvuv)
+    ION_INLINE void SetTexCoordUV1(const Vector4& _uvuv)
     {
         SetTexCoordU1(Helper::ExtractX(_uvuv));
         SetTexCoordV1(Helper::ExtractY(_uvuv));
@@ -456,18 +461,18 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
     ION_INLINE void Lerp(const Vertex& _a, const Vertex& _b, const ionFloat _t)
     {
-        const Vector t(_t);
+        const Vector4 t(_t);
 
         m_position = Helper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
 
-        const Vector aUVUV0 = _a.GetTexCoordUVUV0();
-        const Vector bUVUV0 = _b.GetTexCoordUVUV0();
-        const Vector lerpUV0 = Helper::Lerp(aUVUV0, bUVUV0, t);
+        const Vector4 aUVUV0 = _a.GetTexCoordUVUV0();
+        const Vector4 bUVUV0 = _b.GetTexCoordUVUV0();
+        const Vector4 lerpUV0 = Helper::Lerp(aUVUV0, bUVUV0, t);
         SetTexCoordUV0(Helper::ExtractX(lerpUV0), Helper::ExtractY(lerpUV0));
 
-        const Vector aUVUV1 = _a.GetTexCoordUVUV1();
-        const Vector bUVUV1 = _b.GetTexCoordUVUV1();
-        const Vector lerpUV1 = Helper::Lerp(aUVUV1, bUVUV1, t);
+        const Vector4 aUVUV1 = _a.GetTexCoordUVUV1();
+        const Vector4 bUVUV1 = _b.GetTexCoordUVUV1();
+        const Vector4 lerpUV1 = Helper::Lerp(aUVUV1, bUVUV1, t);
         SetTexCoordUV1(Helper::ExtractX(lerpUV1), Helper::ExtractY(lerpUV1));
     }
 
@@ -476,11 +481,11 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
     {
         Lerp(_a, _b, _t);
 
-        const Vector t(_t);
+        const Vector4 t(_t);
 
-        Vector normal = Helper::Lerp(_a.GetNormal(), _b.GetNormal(), t);
-        Vector tangent = Helper::Lerp(_a.GetTangent(), _b.GetTangent(), t);
-        Vector bitangent = Helper::Lerp(_a.GetBiTangent(), _b.GetBiTangent(), t);
+        Vector4 normal = Helper::Lerp(_a.GetNormal(), _b.GetNormal(), t);
+        Vector4 tangent = Helper::Lerp(_a.GetTangent(), _b.GetTangent(), t);
+        Vector4 bitangent = Helper::Lerp(_a.GetBiTangent(), _b.GetBiTangent(), t);
         normal.Normalize();
         tangent.Normalize();
         bitangent.Normalize();
@@ -545,7 +550,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
     }
 
     // 4 joints!
-    ION_INLINE Vector GetSkinnedVertexPosition(const Matrix* _joints)
+    ION_INLINE Vector4 GetSkinnedVertexPosition(const Matrix* _joints)
     {
         if (_joints == nullptr)
         {
@@ -576,7 +581,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 // 28 -> 32
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
 {
-    Vector              m_position;             // 16 byte
+    Vector4              m_position;             // 16 byte
     ionFloat            m_textureCoordUV[2];    // 8 byte
     ionU8               m_normal[4];            // 4 byte
  
@@ -600,31 +605,31 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
     //////////////////////////////////////////////////////////////////////////
     // GETTER
 
-    ION_INLINE Vector GetPosition() const
+    ION_INLINE Vector4 GetPosition() const
     {
         return m_position;
     }
 
-    ION_INLINE Vector GetNormal() const
+    ION_INLINE Vector4 GetNormal() const
     {
-        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
         v.Normalize();
         return v;
     }
 
-    ION_INLINE Vector GetTexCoordUVUV() const
+    ION_INLINE Vector4 GetTexCoordUVUV() const
     {
-        return Vector(m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[0], m_textureCoordUV[1]);
+        return Vector4(m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[0], m_textureCoordUV[1]);
     }
 
-    ION_INLINE Vector GetTexCoordUUVV() const
+    ION_INLINE Vector4 GetTexCoordUUVV() const
     {
-        return Vector(m_textureCoordUV[0], m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[1]);
+        return Vector4(m_textureCoordUV[0], m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[1]);
     }
 
-    ION_INLINE Vector GetTexCoordVUVU() const
+    ION_INLINE Vector4 GetTexCoordVUVU() const
     {
-        return Vector(m_textureCoordUV[1], m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[0]);
+        return Vector4(m_textureCoordUV[1], m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[0]);
     }
 
     ION_INLINE ionFloat GetTexCoordU() const
@@ -640,17 +645,17 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
     //////////////////////////////////////////////////////////////////////////
     // SETTER
 
-    ION_INLINE void SetPosition(const Vector& _position)
+    ION_INLINE void SetPosition(const Vector4& _position)
     {
         m_position = _position;
     }
 
     ION_INLINE void SetPosition(ionFloat _x, ionFloat _y, ionFloat _z)
     {
-        m_position = Vector(_x, _y, _z, 1.0f);
+        m_position = Vector4(_x, _y, _z, 1.0f);
     }
 
-    ION_INLINE void SetNormal(const Vector& _normal)
+    ION_INLINE void SetNormal(const Vector4& _normal)
     {
         Utilities::VectorToByte(_normal, m_normal);
     }
@@ -676,7 +681,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
         SetTexCoordV(_v);
     }
 
-    ION_INLINE void SetTexCoordUV(const Vector& _uvuv)
+    ION_INLINE void SetTexCoordUV(const Vector4& _uvuv)
     {
         SetTexCoordU(Helper::ExtractX(_uvuv));
         SetTexCoordV(Helper::ExtractY(_uvuv));
@@ -687,13 +692,13 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
 
     ION_INLINE void Lerp(const VertexSimple& _a, const VertexSimple& _b, const ionFloat _t)
     {
-        const Vector t(_t);
+        const Vector4 t(_t);
 
         m_position = Helper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
 
-        const Vector aUVUV = _a.GetTexCoordUVUV();
-        const Vector bUVUV = _b.GetTexCoordUVUV();
-        const Vector lerpUV = Helper::Lerp(aUVUV, bUVUV, t);
+        const Vector4 aUVUV = _a.GetTexCoordUVUV();
+        const Vector4 bUVUV = _b.GetTexCoordUVUV();
+        const Vector4 lerpUV = Helper::Lerp(aUVUV, bUVUV, t);
         SetTexCoordUV(Helper::ExtractX(lerpUV), Helper::ExtractY(lerpUV));
     }
 };
@@ -705,7 +710,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
 // 20 -> 32
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexNormal
 {
-    Vector              m_position;             // 16 byte
+    Vector4              m_position;             // 16 byte
     ionU8               m_normal[4];            // 4 byte
 
     VertexNormal()
@@ -726,14 +731,14 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexNormal
     //////////////////////////////////////////////////////////////////////////
     // GETTER
 
-    ION_INLINE Vector GetPosition() const
+    ION_INLINE Vector4 GetPosition() const
     {
         return m_position;
     }
 
-    ION_INLINE Vector GetNormal() const
+    ION_INLINE Vector4 GetNormal() const
     {
-        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
         v.Normalize();
         return v;
     }
@@ -741,17 +746,17 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexNormal
     //////////////////////////////////////////////////////////////////////////
     // SETTER
 
-    ION_INLINE void SetPosition(const Vector& _position)
+    ION_INLINE void SetPosition(const Vector4& _position)
     {
         m_position = _position;
     }
 
     ION_INLINE void SetPosition(ionFloat _x, ionFloat _y, ionFloat _z)
     {
-        m_position = Vector(_x, _y, _z, 1.0f);
+        m_position = Vector4(_x, _y, _z, 1.0f);
     }
 
-    ION_INLINE void SetNormal(const Vector& _normal)
+    ION_INLINE void SetNormal(const Vector4& _normal)
     {
         Utilities::VectorToByte(_normal, m_normal);
     }
@@ -766,7 +771,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexNormal
 
     ION_INLINE void Lerp(const VertexNormal& _a, const VertexNormal& _b, const ionFloat _t)
     {
-        const Vector t(_t);
+        const Vector4 t(_t);
         m_position = Helper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
     }
 };
@@ -777,7 +782,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexNormal
 // 20 -> 32
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
 {
-    Vector              m_position; // 16 byte
+    Vector4              m_position; // 16 byte
     ionU8               m_color[4]; // 4 byte  
 
     VertexColored()
@@ -791,14 +796,14 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
         memset(m_color, 0, sizeof(m_color));
     }
 
-    ION_INLINE Vector GetPosition() const
+    ION_INLINE Vector4 GetPosition() const
     {
         return m_position;
     }
 
-    ION_INLINE Vector GetColorV() const
+    ION_INLINE Vector4 GetColorV() const
     {
-        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_color[0]), ION_VERTEX_BYTE_TO_FLOAT(m_color[1]), ION_VERTEX_BYTE_TO_FLOAT(m_color[2]), ION_VERTEX_BYTE_TO_FLOAT(m_color[3]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_color[0]), ION_VERTEX_BYTE_TO_FLOAT(m_color[1]), ION_VERTEX_BYTE_TO_FLOAT(m_color[2]), ION_VERTEX_BYTE_TO_FLOAT(m_color[3]));
         v.Normalize();
         return v;
     }
@@ -810,10 +815,10 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
 
     ION_INLINE void SetPosition(ionFloat _x, ionFloat _y, ionFloat _z)
     {
-        m_position = Vector(_x, _y, _z, 1.0f);
+        m_position = Vector4(_x, _y, _z, 1.0f);
     }
 
-    ION_INLINE void SetPosition(const Vector& _position)
+    ION_INLINE void SetPosition(const Vector4& _position)
     {
         m_position = _position;
     }
@@ -828,14 +833,14 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
         Utilities::VectorToByte(_r, _g, _b, _a, m_color);
     }
 
-    ION_INLINE void SetColor(const Vector& _color)
+    ION_INLINE void SetColor(const Vector4& _color)
     {
         Utilities::VectorToByte(_color, m_color);
     }
 
     ION_INLINE void Lerp(const VertexColored& _a, const VertexColored& _b, const ionFloat _t)
     {
-        const Vector t(_t);
+        const Vector4 t(_t);
 
         m_position = Helper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
     }
@@ -846,7 +851,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
 // 24 -> 32
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
 {
-    Vector              m_position;             // 16 byte
+    Vector4              m_position;             // 16 byte
     ionFloat            m_textureCoordUV[2];    // 8 byte
 
     VertexUV()
@@ -861,24 +866,24 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
         this->m_textureCoordUV[1] = 0.0f;
     }
 
-    ION_INLINE Vector GetPosition() const
+    ION_INLINE Vector4 GetPosition() const
     {
         return m_position;
     }
 
-    ION_INLINE Vector GetTexCoordUVUV() const
+    ION_INLINE Vector4 GetTexCoordUVUV() const
     {
-        return Vector(m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[0], m_textureCoordUV[1]);
+        return Vector4(m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[0], m_textureCoordUV[1]);
     }
 
-    ION_INLINE Vector GetTexCoordUUVV() const
+    ION_INLINE Vector4 GetTexCoordUUVV() const
     {
-        return Vector(m_textureCoordUV[0], m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[1]);
+        return Vector4(m_textureCoordUV[0], m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[1]);
     }
 
-    ION_INLINE Vector GetTexCoordVUVU() const
+    ION_INLINE Vector4 GetTexCoordVUVU() const
     {
-        return Vector(m_textureCoordUV[1], m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[0]);
+        return Vector4(m_textureCoordUV[1], m_textureCoordUV[0], m_textureCoordUV[1], m_textureCoordUV[0]);
     }
 
     ION_INLINE ionFloat GetTexCoordU() const
@@ -893,10 +898,10 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
 
     ION_INLINE void SetPosition(ionFloat _x, ionFloat _y, ionFloat _z)
     {
-        m_position = Vector(_x, _y, _z, 1.0f);
+        m_position = Vector4(_x, _y, _z, 1.0f);
     }
 
-    ION_INLINE void SetPosition(const Vector& _position)
+    ION_INLINE void SetPosition(const Vector4& _position)
     {
         m_position = _position;
     }
@@ -917,7 +922,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
         SetTexCoordV(_v);
     }
 
-    ION_INLINE void SetTexCoordUV(const Vector& _uvuv)
+    ION_INLINE void SetTexCoordUV(const Vector4& _uvuv)
     {
         SetTexCoordU(Helper::ExtractX(_uvuv));
         SetTexCoordV(Helper::ExtractY(_uvuv));
@@ -925,7 +930,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
 
     ION_INLINE void Lerp(const VertexUV& _a, const VertexUV& _b, const ionFloat _t)
     {
-        const Vector t(_t);
+        const Vector4 t(_t);
 
         m_position = Helper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
     }
@@ -936,7 +941,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
 // 16 -> 16
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexPlain
 {
-    Vector                m_position;   // 16 byte
+    Vector4                m_position;   // 16 byte
 
     VertexPlain()
     {
@@ -948,24 +953,24 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexPlain
         m_position = kZero.m_simdf;
     }
 
-    ION_INLINE Vector GetPosition() const
+    ION_INLINE Vector4 GetPosition() const
     {
         return m_position;
     }
 
-    ION_INLINE void SetPosition(const Vector& _position)
+    ION_INLINE void SetPosition(const Vector4& _position)
     {
         m_position = _position;
     }
 
     ION_INLINE void SetPosition(ionFloat _x, ionFloat _y, ionFloat _z)
     {
-        m_position = Vector(_x, _y, _z, 1.0f);
+        m_position = Vector4(_x, _y, _z, 1.0f);
     }
 
     ION_INLINE void Lerp(const Vertex& _a, const Vertex& _b, const ionFloat _t)
     {
-        const Vector t(_t);
+        const Vector4 t(_t);
 
         m_position = Helper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
     }
@@ -979,7 +984,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexPlain
 // 24 -> 32
 ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
 {
-    Vector              m_position;     // 16 byte
+    Vector4              m_position;     // 16 byte
     ionU8               m_normal[4];    // 4 byte
     ionU8               m_tangent[4];   // 4 byte
 
@@ -997,38 +1002,38 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
 
     // Getters
 
-    ION_INLINE Vector GetPosition() const
+    ION_INLINE Vector4 GetPosition() const
     {
         return m_position;
     }
 
-    ION_INLINE Vector GetNormal() const
+    ION_INLINE Vector4 GetNormal() const
     {
-        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
         v.Normalize();
         return v;
     }
 
-    ION_INLINE Vector GetTangent() const
+    ION_INLINE Vector4 GetTangent() const
     {
-        Vector v(ION_VERTEX_BYTE_TO_FLOAT(m_tangent[0]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[1]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[2]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_tangent[0]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[1]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[2]));
         v.Normalize();
         return v;
     }
 
     // Setters
 
-    ION_INLINE void SetPosition(const Vector& _position)
+    ION_INLINE void SetPosition(const Vector4& _position)
     {
         m_position = _position;
     }
 
     ION_INLINE void SetPosition(ionFloat _x, ionFloat _y, ionFloat _z)
     {
-        m_position = Vector(_x, _y, _z, 1.0f);
+        m_position = Vector4(_x, _y, _z, 1.0f);
     }
 
-    ION_INLINE void SetNormal(const Vector& _normal)
+    ION_INLINE void SetNormal(const Vector4& _normal)
     {
         Utilities::VectorToByte(_normal, m_normal);
     }
@@ -1038,7 +1043,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
         Utilities::VectorToByte(_x, _y, _z, m_normal);
     }
 
-    ION_INLINE void SetTangent(const Vector& _tangent)
+    ION_INLINE void SetTangent(const Vector4& _tangent)
     {
         Utilities::VectorToByte(_tangent, m_tangent);
     }
@@ -1058,16 +1063,16 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
         m_tangent[3] = _sign ? 0 : 255;
     }
 
-    ION_INLINE void SetBiTangent(const Vector& _tangent)
+    ION_INLINE void SetBiTangent(const Vector4& _tangent)
     {
-        const Vector& v = GetNormal();
-        Vector b = v.Cross(GetTangent());
+        const Vector4& v = GetNormal();
+        Vector4 b = v.Cross(GetTangent());
         SetBiTangentSign(Helper::ExtractX(b.Dot3(_tangent)));
     }
 
     ION_INLINE void SetBiTangent(ionFloat _x, ionFloat _y, ionFloat _z)
     {
-        Vector v(_x, _y, _z);
+        Vector4 v(_x, _y, _z);
         SetBiTangent(v);
     }
 
@@ -1075,7 +1080,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
 
     ION_INLINE void Lerp(const Vertex& _a, const Vertex& _b, const ionFloat _t)
     {
-        const Vector t(_t);
+        const Vector4 t(_t);
 
         m_position = Helper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
     }
@@ -1084,11 +1089,11 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
     {
         Lerp(_a, _b, _t);
 
-        const Vector t(_t);
+        const Vector4 t(_t);
 
-        Vector normal = Helper::Lerp(_a.GetNormal(), _b.GetNormal(), t);
-        Vector tangent = Helper::Lerp(_a.GetTangent(), _b.GetTangent(), t);
-        Vector bitangent = Helper::Lerp(_a.GetBiTangent(), _b.GetBiTangent(), t);
+        Vector4 normal = Helper::Lerp(_a.GetNormal(), _b.GetNormal(), t);
+        Vector4 tangent = Helper::Lerp(_a.GetTangent(), _b.GetTangent(), t);
+        Vector4 bitangent = Helper::Lerp(_a.GetBiTangent(), _b.GetBiTangent(), t);
         normal.Normalize();
         tangent.Normalize();
         bitangent.Normalize();
@@ -1128,9 +1133,9 @@ struct DrawSurface final
     Matrix              m_modelMatrix;
     Matrix              m_viewMatrix;
     Matrix              m_projectionMatrix;
-    Vector              m_mainCameraPos;
-    Vector              m_directionalLight;
-    Vector              m_directionalLightColor;
+    Vector4              m_mainCameraPos;
+    Vector4              m_directionalLight;
+    Vector4              m_directionalLightColor;
     ionU64              m_extraGLState;
     VertexCacheHandler  m_vertexCache;
     VertexCacheHandler  m_indexCache;

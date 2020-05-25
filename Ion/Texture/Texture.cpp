@@ -25,6 +25,14 @@ VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+TextureAllocator* Texture::GetAllocator()
+{
+	static HeapArea<Settings::kTextureAllocatorSize> memoryArea;
+	static TextureAllocator memoryAllocator(memoryArea, "TextureFreeListAllocator");
+
+	return &memoryAllocator;
+}
+
 Texture::Texture(VkDevice _vkDevice, const ionString& _name) :
     m_vkDevice(_vkDevice),
     m_name(_name)
@@ -68,11 +76,11 @@ void Texture::UploadTextureBuffer(const ionU8* _buffer, ionU32 _component, ionU3
     if (_component == 3)
     {
         ionSize newBufferSize = m_width * m_height * 4;
-        ionU8* newBuffer = (ionU8*)ionNewRaw(sizeof(ionU8) * newBufferSize);
+        ionU8* newBuffer = (ionU8*)ionNewRaw(sizeof(ionU8) * newBufferSize, GetAllocator());
         memset(newBuffer, 0, sizeof(ionU8) * newBufferSize);
         ConvertFrom3ChannelTo4Channel(m_width, m_height, _buffer, newBuffer);
         UploadTextureToMemory(m_numLevels, m_width, m_height, newBuffer, _index);
-        ionDeleteRaw(newBuffer);
+        ionDeleteRaw(newBuffer, GetAllocator());
     }
     else
     {
@@ -128,7 +136,7 @@ ionBool Texture::LoadCubeTextureFromFile(const ionString& _path)
     GenerateOptions();
 
     CubemapHelper cubemap;
-    if (cubemap.Load(_path, m_optFormat))
+    if (cubemap.Load(_path.c_str(), m_optFormat))
     {
         ionBool result = false;
         if (cubemap.Convert())
@@ -159,7 +167,7 @@ ionBool Texture::LoadCubeTextureFromFile(const ionString& _path)
     }
 }
 
-ionBool Texture::LoadCubeTextureFromFiles(const ionVector<ionString>& paths)
+ionBool Texture::LoadCubeTextureFromFiles(const ionVector<ionString, TextureAllocator, GetAllocator>& paths)
 {
     ionS32 w = 0, h = 0, c = 0;
 
@@ -371,8 +379,8 @@ ionBool Texture::CreateFromFile(const ionString& _path)
         else
         {
             // Adding the side name to the file with "_": for instance: "test.png" become "test_left.png", "test_top.png" etc etc
-            ionString ext;
-            ionString path;
+			ionString ext;
+			ionString path;
             ionSize i = _path.rfind('.', _path.length());
             if (i != std::string::npos)
             {
@@ -385,8 +393,8 @@ ionBool Texture::CreateFromFile(const ionString& _path)
                 ionAssertReturnValue(false, "Extension is not provided!", false);
             }
 
-            ionString suffix[6] { "_right.", "_left.", "_top.", "_bottom.", "_front.", "_back." };
-            ionVector<ionString> paths; paths->resize(6);
+			ionString suffix[6] { "_right.", "_left.", "_top.", "_bottom.", "_front.", "_back." };
+            ionVector<ionString, TextureAllocator, GetAllocator> paths; paths.resize(6);
             for (ionU32 i = 0; i < 6; ++i)
             {
                 paths[i] = path + suffix[i] + ext;
@@ -559,7 +567,7 @@ void Texture::UploadTextureToMemory(ionU32 _mipMapLevel, ionU32 _width, ionU32 _
     }
     else
     {
-        CopyBuffer(data, _buffer, size);
+		MemUtils::MemCpy(data, _buffer, size);
     }
 
     VkBufferImageCopy imgCopy = {};
@@ -805,8 +813,8 @@ void Texture::Destroy()
 
 ionBool Texture::Save(const ionString& _path) const
 {
-    ionString ext;
-    ionString path;
+	ionString ext;
+	ionString path;
     ionSize i = _path.rfind('.', _path.length());
     if (i != std::string::npos)
     {

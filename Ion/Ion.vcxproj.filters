@@ -24,27 +24,6 @@
     <ClInclude Include="Ion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\CoreDefs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\Eos.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\HeapAllocator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\LinearAllocator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\MemoryFunctions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\SmartPointer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\StackAllocator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Dependencies\Nix\Nix\Architecture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -282,9 +261,6 @@
     <ClInclude Include="Dependencies\Miscellaneous\mikktspace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utilities\Serializer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Core\UUID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -297,67 +273,94 @@
     <ClInclude Include="Dependencies\vkMemoryAllocator\vkMemoryAllocator\vkMemoryForward.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\StlAllocatorsTypes.h">
+    <ClInclude Include="Core\MemoryWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\Allocator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\MemoryAllocationHeaderPolicy.h">
+    <ClInclude Include="Dependencies\Eos\Eos\MemCpy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\Eos\Eos\MemoryAllocationPolicy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Dependencies\Eos\Eos\MemoryAllocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Dependencies\Eos\Eos\MemoryAreaPolicy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\MemoryBoundsCheckingPolicy.h">
+    <ClInclude Include="Dependencies\Eos\Eos\MemoryBasicDefines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\MemoryFreeList.h">
+    <ClInclude Include="Dependencies\Eos\Eos\MemoryBoundsCheckPolicy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\MemoryTaggingPolicy.h">
+    <ClInclude Include="Dependencies\Eos\Eos\MemoryFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Eos\Eos\MemoryHeaderPolicy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Eos\Eos\MemoryLayoutUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Eos\Eos\MemoryLogPolicy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Eos\Eos\MemoryTagPolicy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\Eos\Eos\MemoryThreadPolicy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\MemoryTrackingPolicy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\MemoryUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\PoolAllocator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\StackFromBottomAllocatorPolicy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\StackFromTopAllocatorPolicy.h">
+    <ClInclude Include="Dependencies\Eos\Eos\SmartPointer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\Eos\Eos\StlAllocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\VirtualMemory.h">
+    <ClInclude Include="Dependencies\Eos\Eos\StlAllocatorsTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\NonCopyable.h">
+    <ClInclude Include="Dependencies\Eos\Eos\Allocators\FreeListAllocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Core\MemoryWrapper.h">
+    <ClInclude Include="Dependencies\Eos\Eos\Allocators\LinearAllocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Core\MemoryManager.h">
+    <ClInclude Include="Dependencies\Eos\Eos\Allocators\PoolAllocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\MemoryBuddyAllocator.h">
+    <ClInclude Include="Dependencies\Eos\Eos\Core\Assertions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\Eos\Eos\MallocAllocator.h">
+    <ClInclude Include="Dependencies\Eos\Eos\Core\BasicTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Eos\Eos\Core\NumberUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Eos\Eos\Core\PointerUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Eos\Eos\DataStructures\DoublyLinkedList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Eos\Eos\DataStructures\LinkedList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Eos\Eos\DataStructures\StackLinkedList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Eos\Eos\Core\BasicDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Eos\Eos\Core\NoCopyable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Eos\Eos\Eos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MemorySettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -500,9 +503,6 @@
     <ClCompile Include="Dependencies\Miscellaneous\mikktspace.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utilities\Serializer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Core\UUID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -510,9 +510,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Core\MemoryWrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\MemoryManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -14,18 +14,27 @@
 #include "../Renderer/RenderCommon.h"
 
 #include "../Geometry/Mesh.h"
+#include "../Geometry/MeshRenderer.h"
+
+#include "../Core/MemorySettings.h"
+
 
 EOS_USING_NAMESPACE
 NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+using SkyboxAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
+
 class RenderCore;
 class Material;
-class MeshRendererPlain;
 
 class ION_DLL Skybox
 {
+public:
+	static SkyboxAllocator* GetAllocator();
+
 public:
     Skybox();
     virtual ~Skybox();
@@ -47,7 +56,7 @@ private:
     void GenerateMesh();
 
 private:
-    MeshRendererPlain* m_meshRenderer;
+    MeshRendererPlain m_meshRenderer;
     Mesh m_mesh;
     DrawSurface m_drawSurface;
 };

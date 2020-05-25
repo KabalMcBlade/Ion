@@ -6,10 +6,12 @@
 #include "../Dependencies/Eos/Eos/Eos.h"
 #include "../Core/MemoryWrapper.h"
 
+#include "../Core/MemorySettings.h"
 
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
+
 
 namespace Tools
 {

@@ -12,16 +12,25 @@
 #include "../Renderer/RenderCommon.h"
 #include "../Renderer/UniformBufferObject.h"
 
+#include "../Core/MemorySettings.h"
+
 #include "ShaderProgram.h"
+
 
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+using ShaderProgramManagerAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
+
 class Material;
 class RenderCore;
 class ION_DLL ShaderProgramManager final
 {
+public:
+	static ShaderProgramManagerAllocator* GetAllocator();
+
 public:
     static ShaderProgramManager& Instance();
 
@@ -50,8 +59,8 @@ public:
     const   Matrix& GetRenderParamMatrix(const ionString& _param);
     const   Matrix& GetRenderParamMatrix(ionSize _paramHash);
 
-    const   Vector& GetRenderParamVector(const ionString& _param);
-    const   Vector& GetRenderParamVector(ionSize _paramHash);
+    const   Vector4& GetRenderParamVector(const ionString& _param);
+    const   Vector4& GetRenderParamVector(ionSize _paramHash);
 
     const   ionFloat GetRenderParamFloat(const ionString& _param);
     const   ionFloat GetRenderParamFloat(ionSize _paramHash);
@@ -64,15 +73,15 @@ public:
     void    SetRenderParamMatrix(const ionString& _param, const ionFloat* _value);
     void    SetRenderParamMatrix(ionSize _paramHash, const ionFloat* _value);
     void    SetRenderParamsMatrix(const ionString& _param, const ionFloat* _values, ionU32 _numValues);
-    void    SetRenderParamsMatrix(const ionString& _param, const ionVector<Matrix>& _values);
+    void    SetRenderParamsMatrix(const ionString& _param, const ionVector<Matrix, ShaderProgramManagerAllocator, GetAllocator>& _values);
     //void    SetRenderParamsMatrix(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
 
-    void    SetRenderParamVector(const ionString& _param, const Vector& _value);
-    void    SetRenderParamVector(ionSize _paramHash, const Vector& _value);
+    void    SetRenderParamVector(const ionString& _param, const Vector4& _value);
+    void    SetRenderParamVector(ionSize _paramHash, const Vector4& _value);
     void    SetRenderParamVector(const ionString& _param, const ionFloat* _value);
     void    SetRenderParamVector(ionSize _paramHash, const ionFloat* _value);
     void    SetRenderParamsVector(const ionString& _param, const ionFloat* _values, ionU32 _numValues);
-    void    SetRenderParamsVector(const ionString& _param, const ionVector<Vector>& _values);
+    void    SetRenderParamsVector(const ionString& _param, const ionVector<Vector4, ShaderProgramManagerAllocator, GetAllocator>& _values);
     //void    SetRenderParamsVector(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
 
     void    SetRenderParamFloat(const ionString& _param, const ionFloat _value);
@@ -89,7 +98,7 @@ public:
 
     // Shader name WITHOUT extension, because is chose by the shader stage!
     ionS32  FindShader(const ionString& _path, const ionString& _name, EShaderStage _stage);
-    ionS32  FindShader(const ionString& _path, const ionString& _name, EShaderStage _stage, const ionVector<ionFloat>& _specializationConstantValues);
+    ionS32  FindShader(const ionString& _path, const ionString& _name, EShaderStage _stage, const ionVector<ionFloat, ShaderProgramManagerAllocator, GetAllocator>& _specializationConstantValues);
 
     void    StartFrame();
     void    EndFrame();
@@ -97,7 +106,7 @@ public:
     void    CommitCurrent(const RenderCore& _render, const Material* _material, VkRenderPass _renderPass, ionU64 _stateBits, VkCommandBuffer _commandBuffer);
     ionS32  FindProgram(const Material* _material);
 
-    void    UnloadShader(ionS32 _index);
+    void    UnloadShader(ionSize _index);
 
     void    Restart();
 
@@ -106,23 +115,23 @@ private:
     ShaderProgramManager& operator = (const ShaderProgramManager&) = delete;
 
     void    LoadShader(ionS32 _index);
-    void    LoadShader(Shader& _shader);
+    void    LoadShader(Shader* _shader);
 
     void    AllocUniformParametersBlockBuffer(const RenderCore& _render, const UniformBinding& _uniform, UniformBuffer& _ubo);
 
 public:
-    ionVector<ShaderProgram> m_shaderPrograms;
+    ionVector<ShaderProgram, ShaderProgramManagerAllocator, GetAllocator> m_shaderPrograms;
 
 private:
     VkDevice                m_vkDevice;
     ionS32                  m_current;
-    ionVector<Shader>       m_shaders;
+    ionVector<Shader*, ShaderProgramManagerAllocator, GetAllocator>       m_shaders;
 
     // are a map where the key is the hash of the name of the uniform in the shader and the value the vector associated
-    ionMap<ionSize, Vector>     m_uniformsVector; 
-    ionMap<ionSize, Matrix>     m_uniformsMatrix;
-    ionMap<ionSize, ionFloat>   m_uniformsFloat; 
-    ionMap<ionSize, ionS32>     m_uniformsInteger;
+    ionMap<ionSize, Vector4, ShaderProgramManagerAllocator, GetAllocator>     m_uniformsVector;
+    ionMap<ionSize, Matrix, ShaderProgramManagerAllocator, GetAllocator>     m_uniformsMatrix;
+    ionMap<ionSize, ionFloat, ShaderProgramManagerAllocator, GetAllocator>   m_uniformsFloat;
+    ionMap<ionSize, ionS32, ShaderProgramManagerAllocator, GetAllocator>     m_uniformsInteger;
 
     ionS32                  m_currentDescSet;
     ionSize                 m_currentParmBufferOffset;

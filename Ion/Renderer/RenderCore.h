@@ -12,6 +12,8 @@
 
 #include "../Texture/TextureCommon.h"
 
+#include "../Core/MemorySettings.h"
+
 #include "RenderCommon.h"
 
 #include "GPU.h"
@@ -21,9 +23,14 @@ VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+using RenderCoreAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
 class Texture;
 class ION_DLL RenderCore final
 {
+public:
+	static RenderCoreAllocator* GetAllocator();
+
 public:
     RenderCore();
     ~RenderCore();
@@ -64,7 +71,7 @@ public:
     VkRenderPass CreateTexturedRenderPass(Texture* _texture, VkImageLayout _finalLayout);
     VkFramebuffer CreateTexturedFrameBuffer(VkRenderPass _renderPass, Texture* _texture);
 
-    void StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const ionVector<VkClearValue>& _clearValues, const VkRect2D& _renderArea);
+    void StartRenderPass(VkRenderPass _renderPass, VkFramebuffer _frameBuffer, VkCommandBuffer _commandBuffer, const ionVector<VkClearValue, RenderCoreAllocator, GetAllocator>& _clearValues, const VkRect2D& _renderArea);
     void EndRenderPass(VkCommandBuffer _commandBuffer);
 
     void SetScissor(VkCommandBuffer _commandBuffer, const VkRect2D& _scissor);
@@ -106,8 +113,8 @@ public:
     ionU32 GetHeight() const { return m_height; }
 
     ionBool CreateRenderPass(VkRenderPass& _vkRenderPass, EFramebufferLoad _load = EFramebufferLoad_Clear);
-    ionBool CreateFrameBuffers(VkRenderPass _vkRenderPass, ionVector<VkFramebuffer>& _vkFrameBuffers);
-    void    DestroyFrameBuffers(ionVector<VkFramebuffer>& _vkFrameBuffers);
+    ionBool CreateFrameBuffers(VkRenderPass _vkRenderPass, ionVector<VkFramebuffer, RenderCoreAllocator, GetAllocator>& _vkFrameBuffers);
+    void    DestroyFrameBuffers(ionVector<VkFramebuffer, RenderCoreAllocator, GetAllocator>& _vkFrameBuffers);
 
 private:
     RenderCore(const RenderCore& _Orig) = delete;
@@ -115,13 +122,13 @@ private:
 
 private:
     // Utility functions
-    VkSurfaceFormatKHR SelectSurfaceFormat(ionVector<VkSurfaceFormatKHR>& _vkFormats) const;
-    VkPresentModeKHR SelectPresentMode(ionVector<VkPresentModeKHR>& _vkModes) const;
+    VkSurfaceFormatKHR SelectSurfaceFormat(ionVector<VkSurfaceFormatKHR, GPUAllocator, GPU::GetAllocator>& _vkFormats) const;
+    VkPresentModeKHR SelectPresentMode(ionVector<VkPresentModeKHR, GPUAllocator, GPU::GetAllocator>& _vkModes) const;
     VkExtent2D SelectSurfaceExtent(VkSurfaceCapabilitiesKHR& _vkCaps, ionU32& _width, ionU32& _height) const;
     VkFormat SelectSupportedFormat(VkPhysicalDevice _vkPhysicalDevice, VkFormat* _vkFormats, ionU32 _vkNumFormats, VkImageTiling _vkTiling, VkFormatFeatureFlags _vkFeatures) const;
 
     // They are in order to call
-    // No matter about the "destroy" functions. NOTE: destroy functions are added for the vulkan type worth to have own destroy function, because more complex of a single call
+    // No matter about the "destroy" functions. NOTE: destroy functions are added for the Vulkan type worth to have own destroy function, because more complex of a single call
     ionBool CreateInstance(ionBool _enableValidationLayer);
     ionBool CreatePresentationSurface(HINSTANCE _instance, HWND _handle);
     ionBool CreatePhysicalDevice();
@@ -170,10 +177,10 @@ private:
     VkImage                     m_vkDepthStencilImage;
     VkImageView                 m_vkDepthStencilImageView;
 
-    ionVector<VkCommandBuffer>  m_vkCommandBuffers;
-    ionVector<VkFence>          m_vkCommandBufferFences;
-    ionVector<VkImage>          m_vkSwapchainImages;
-    ionVector<VkImageView>      m_vkSwapchainViews;
+    ionVector<VkCommandBuffer, RenderCoreAllocator, GetAllocator>  m_vkCommandBuffers;
+    ionVector<VkFence, RenderCoreAllocator, GetAllocator>          m_vkCommandBufferFences;
+    ionVector<VkImage, RenderCoreAllocator, GetAllocator>          m_vkSwapchainImages;
+    ionVector<VkImageView, RenderCoreAllocator, GetAllocator>      m_vkSwapchainViews;
 
     VertexCacheHandler          m_jointCacheHandler;
 

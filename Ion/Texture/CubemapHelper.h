@@ -9,6 +9,8 @@
 
 #include "../Core/MemoryWrapper.h"
 
+#include "../Core/MemorySettings.h"
+
 #include "TextureCommon.h"
 
 
@@ -16,9 +18,14 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+using CubemapHelperAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
 class Texture;
 class CubemapHelper final
 {
+public:
+	static CubemapHelperAllocator* GetAllocator();
+
 public:
     CubemapHelper();
     ~CubemapHelper();
@@ -43,8 +50,8 @@ private:
     void CopyBufferRegion(const void* _source, void* _dest, ionU32 _sourceImageWidth, ionU32 _component, ionU32 _bppPerChannel, ionU32 _destSize, ionU32 _x, ionU32 _y);
     ionU32 CalculateMipMapPerFace(ionU32 _width, ionU32 _height);
 
-    // The following 4 functions contains 6 allocation and for each one the mem copy, reading from the original buffer and writing one face at time
-    // in other words, when I'll add multithreading, let work in parallel! 1 thread for each face!
+    // The following 4 functions contains 6 allocation and for each one the memory copy, reading from the original buffer and writing one face at time
+    // in other words, when I'll add multi threading, let work in parallel! 1 thread for each face!
     void GenerateCubemapFromCrossVertical(const void* _source, void* _dest[6], ionU32 _bpp);
     void GenerateCubemapFromCrossHorizontal(const void* _source, void* _dest[6], ionU32 _bpp);
     template<typename T>
@@ -133,12 +140,12 @@ void CubemapHelper::GenerateCubemapFromLatLong(const void* _source, void* _dest[
 {
     const ionU32 perChannel = _bpp / 32;
 
-    _dest[0] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
-    _dest[1] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
-    _dest[2] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
-    _dest[3] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
-    _dest[4] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
-    _dest[5] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel);
+    _dest[0] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, GetAllocator());
+    _dest[1] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, GetAllocator());
+    _dest[2] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, GetAllocator());
+    _dest[3] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, GetAllocator());
+    _dest[4] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, GetAllocator());
+    _dest[5] = ionNewRaw(m_sizePerFace * m_sizePerFace * m_component * perChannel, GetAllocator());
 
     for (ionU32 i = 0; i < 6; ++i)
     {

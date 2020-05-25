@@ -14,6 +14,9 @@
 
 #include "../Shader/ShaderProgram.h"
 
+#include "../Core/MemorySettings.h"
+
+
 ION_NAMESPACE_BEGIN
 
 class Texture;
@@ -197,9 +200,11 @@ struct DrawSurface;
 class ION_DLL Material
 {
 public:
+	Material();
     Material(const ionString& _name);
     ~Material();
 
+	void SetName(const ionString& _name) { m_name = _name; }
     const ionString& GetName() const { return m_name; }
 
     ionBool Create();
@@ -263,7 +268,7 @@ public:
     VkPrimitiveTopology GetTopology() const { return m_topology; }
 
 private:
-    ionString       m_name;
+    ionString m_name;
 
     std::function<void(const DrawSurface& _surface)> m_customDrawFunction;
 
