@@ -1,6 +1,8 @@
 #include "ShaderProgramManager.h"
 
-#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
+#include "../GPU/GpuDataStructure.h"
+#include "../GPU/GpuMemoryAllocator.h"
+#include "../GPU/GpuMemoryManager.h"
 
 #include "../Core/FileSystemManager.h"
 
@@ -14,7 +16,6 @@
 
 
 EOS_USING_NAMESPACE
-VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 

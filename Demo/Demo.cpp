@@ -44,7 +44,6 @@
 #define DEMO_HEIGHT 600
 
 EOS_USING_NAMESPACE
-VK_ALLOCATOR_USING_NAMESPACE
 ION_USING_NAMESPACE
 
 EOS_OPTIMIZATION_OFF
@@ -168,22 +167,9 @@ struct TestMalloc
 };
 
 
-
-static constexpr ionU32 kDemoAllocatorSize = ION_MEMORY_4_MB;
-
-using DemoAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
-
-DemoAllocator* GetDemoAllocator()
-{
-	static HeapArea<kDemoAllocatorSize> memoryArea;
-	static DemoAllocator memoryAllocator(memoryArea, "GPUFreeListAllocator");
-
-	return &memoryAllocator;
-}
-
 int main(int argc, char **argv)
 {
-    vkMemoryInit();
+    //vkMemoryInit();
 
     ShaderProgramHelper::Create();
 
@@ -228,7 +214,7 @@ int main(int argc, char **argv)
     static const Vector4 cameraPos(0.0f, 0.0f, -3.0f, 0.0f);
 
     
-    MainCamera* camera = ionNew(MainCamera, GetDemoAllocator());
+    MainCamera* camera = CreateNode(MainCamera);
     camera->SetCameraType(ion::Camera::ECameraType::ECameraType_LookAt);
     camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 100.0f);
     camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
@@ -297,7 +283,7 @@ int main(int argc, char **argv)
     
     //////////////////////////////////////////////////////////////////////////
     // Create Entity to render
-    RotatingEntity* test = ionNew(RotatingEntity, GetDemoAllocator(), "GameEntity");
+    RotatingEntity* test = CreateNode(RotatingEntity, "GameEntity");
 
     //////////////////////////////////////////////////////////////////////////
 
@@ -423,7 +409,7 @@ int main(int argc, char **argv)
 
         //
         // Arrow for directional lighting debug
-        dirlLightDebugEntity = ionNew(DirectionalLightDebugEntity, GetDemoAllocator());
+        dirlLightDebugEntity = CreateNode(DirectionalLightDebugEntity);
         ionRenderManager().LoadColoredPyramid((Entity*&)dirlLightDebugEntity, 0.8f, 0.2f, 0.2f, 1.0f);
         dirlLightDebugEntity->RemoveFromRenderLayer(ENodeRenderLayer_Default);
         dirlLightDebugEntity->AddToRenderLayer(ENodeRenderLayer_1);
@@ -471,7 +457,7 @@ int main(int argc, char **argv)
 
     ShaderProgramHelper::Destroy();
 
-    vkMemoryShutdown();
+    //vkMemoryShutdown();
 
     return 0;
 }

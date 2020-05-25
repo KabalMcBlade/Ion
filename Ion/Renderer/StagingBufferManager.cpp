@@ -1,12 +1,12 @@
 #include "StagingBufferManager.h"
 
 
-
-#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
-
+#include "../GPU/GpuDataStructure.h"
+#include "../GPU/GpuMemoryAllocator.h"
+#include "../GPU/GpuMemoryManager.h"
+#include "../GPU/GpuAllocator.h"
 
 EOS_USING_NAMESPACE
-VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
@@ -53,7 +53,7 @@ ionBool StagingBufferManager::Init(ionSize _vkMaxBufferSize, VkDevice _vkDevice,
     VkDeviceSize uiMask = memoryRequirements.alignment - 1;
     VkDeviceSize uiSize = (memoryRequirements.size + uiMask) & ~uiMask;
 
-    vkGpuMemoryCreateInfo createInfo = {};
+	GpuMemoryCreateInfo createInfo = {};
     createInfo.m_size = memoryRequirements.size;
     createInfo.m_align = memoryRequirements.alignment;
     createInfo.m_memoryTypeBits = memoryRequirements.memoryTypeBits;
@@ -64,7 +64,7 @@ ionBool StagingBufferManager::Init(ionSize _vkMaxBufferSize, VkDevice _vkDevice,
         VkMemoryAllocateInfo allocateInfo = {};
         allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocateInfo.allocationSize = uiSize;
-        allocateInfo.memoryTypeIndex = vkGpuMemoryAllocator::FindMemoryType(createInfo);
+        allocateInfo.memoryTypeIndex = GpuMemoryAllocator::FindMemoryType(createInfo);
 
         m_vkMemory = vkGpuAllocateMemory(m_vkDevice, allocateInfo);
     }
@@ -77,7 +77,7 @@ ionBool StagingBufferManager::Init(ionSize _vkMaxBufferSize, VkDevice _vkDevice,
     result = vkBindBufferMemory(m_vkDevice, m_buffer.m_vkBuffer, m_vkMemory, 0);
     ionAssertReturnValue(result == VK_SUCCESS, "Cannot bind buffer for staging!", false);
 
-    m_mappedData = static_cast<vkaU8*>(vkGpuMapMemory(m_vkDevice, m_vkMemory, 0, uiSize, 0));
+    m_mappedData = static_cast<ionU8*>(vkGpuMapMemory(m_vkDevice, m_vkMemory, 0, uiSize, 0));
 
     if (m_mappedData == nullptr)
     {

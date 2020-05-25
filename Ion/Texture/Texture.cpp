@@ -7,7 +7,9 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.h>
 
-#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
+#include "../GPU/GpuDataStructure.h"
+#include "../GPU/GpuMemoryAllocator.h"
+#include "../GPU/GpuMemoryManager.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../Dependencies/Miscellaneous/stb_image.h"
@@ -21,8 +23,6 @@
 #include "CubemapHelper.h"
 
 EOS_USING_NAMESPACE
-VK_ALLOCATOR_USING_NAMESPACE
-
 ION_NAMESPACE_BEGIN
 
 TextureAllocator* Texture::GetAllocator()
@@ -486,7 +486,7 @@ ionBool Texture::Create()
         vkGetImageMemoryRequirements(m_vkDevice, m_image, &memoryRequirements);
 
         {
-            vkGpuMemoryCreateInfo createInfo = {};
+			GpuMemoryCreateInfo createInfo = {};
             createInfo.m_size = memoryRequirements.size;
             createInfo.m_align = memoryRequirements.alignment;
             createInfo.m_memoryTypeBits = memoryRequirements.memoryTypeBits;
@@ -802,7 +802,7 @@ void Texture::Destroy()
     {
         vkDestroyImage(m_vkDevice, m_image, vkMemory);
         ionGPUMemoryManager().Free(m_allocation);
-        m_allocation = vkGpuMemoryAllocation();
+        m_allocation = GpuMemoryAllocation();
 
         vkDestroyImageView(m_vkDevice, m_view, vkMemory);
 

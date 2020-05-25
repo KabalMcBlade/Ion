@@ -7,7 +7,6 @@
 
 
 #include "Dependencies/Eos/Eos/Eos.h"
-#include "Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 #include "Dependencies/Nix/Nix/Nix.h"
 
 #include "Dependencies/Miscellaneous/stb_image.h"
@@ -23,7 +22,13 @@
 #include "Core/MemorySettings.h"
 #include "Core/MemoryWrapper.h"
 
-#include "Renderer/GPUMemoryManager.h"
+#include "GPU/VulkanAllocator.h"
+#include "GPU/GpuDataStructure.h"
+#include "GPU/GpuMemoryList.h"
+#include "GPU/GpuMemoryAllocator.h"
+#include "GPU/GpuMemoryManager.h"
+
+//#include "Renderer/GPUMemoryManager.h"
 #include "Renderer/StagingBufferManager.h"
 #include "Renderer/VertexCacheManager.h"
 #include "Renderer/RenderState.h"

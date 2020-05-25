@@ -5,14 +5,14 @@
 #include <vulkan/vulkan.h>
 
 #include "../Dependencies/Nix/Nix/Nix.h"
-#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
 
 #include "../Core/CoreDefs.h"
 
+#include "../GPU/GpuDataStructure.h"
+#include "../GPU/GpuMemoryAllocator.h"
 
 // Actually I don't need this using, because I want to access just to the define in Architecture
 NIX_USING_NAMESPACE             
-VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
@@ -58,7 +58,7 @@ protected:
     EBufferUsage            m_usage;
     VkDevice                m_device;
     VkBuffer                m_object;
-    vkGpuMemoryAllocation   m_allocation;
+    GpuMemoryAllocation   m_allocation;
 };
 
 

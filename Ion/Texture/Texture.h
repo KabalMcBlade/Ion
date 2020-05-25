@@ -7,11 +7,12 @@
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
+#include "../GPU/GpuDataStructure.h"
+#include "../GPU/GpuMemoryAllocator.h"
+
 #include "../Core/MemoryWrapper.h"
 
 #include "TextureCommon.h"
-
-#include "../Renderer/GPUMemoryManager.h"
 
 #include "../Core/MemorySettings.h"
 
@@ -84,7 +85,7 @@ private:
 private:
 	ionString               m_name;
     VkDevice                m_vkDevice;
-    vkGpuMemoryAllocation   m_allocation;
+    GpuMemoryAllocation   m_allocation;
 
     VkFormat                m_format;
     VkImageView             m_view;

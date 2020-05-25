@@ -105,7 +105,7 @@ I got my inspiration from the following persons and their code
 
 - Sources:
 	- **ION**, the main project, is under GPL-3.0
-	- **Eos**, **Nix** and **vkMemoryAllocator** are under Apache-2.0
+	- **Eos** and **Nix** are under Apache-2.0
 	- **json.hpp** is under MIT License
 	- **stb_image.h** is under MIT License OR Public Domain
 	- **stb_image_write.h** is under MIT License OR Public Domain
@@ -121,7 +121,7 @@ I got my inspiration from the following persons and their code
 
 I tried to reduce external dependencies to the minimum.
 All the dependencies are inside DEPENDENCIES folder.
-The main dependencies at the moment are the memory allocators for CPU and GPU, made by me (Nix, Eos and vkMemoryAllocator)
+The main dependencies at the moment are the memory allocators for CPU and GPU, made by me (Nix and Eos)
 Other dependencies are single file, like json and stb_image
 
 

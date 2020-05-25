@@ -1,11 +1,13 @@
 #pragma once
 
-
+#include <windows.h>
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.h>
 
 #include "../Dependencies/Eos/Eos/Eos.h"
-#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
+
+#include "../GPU/GpuDataStructure.h"
+#include "../GPU/GpuMemoryAllocator.h"
 
 #include "../Core/CoreDefs.h"
 #include "../Core/MemoryWrapper.h"
@@ -19,7 +21,6 @@
 #include "GPU.h"
 
 EOS_USING_NAMESPACE
-VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
@@ -165,15 +166,15 @@ private:
     VkSemaphore                 m_vkAcquiringSemaphore;
     VkSemaphore                 m_vkCompletedSemaphore;
 
-    vkGpuMemoryAllocation       m_vkMSAAAllocation;
+    GpuMemoryAllocation       m_vkMSAAAllocation;
     VkImage                     m_vkMSAAImage;
     VkImageView                 m_vkMSAAImageView;
 
-    vkGpuMemoryAllocation       m_vkDepthAllocation;
+    GpuMemoryAllocation       m_vkDepthAllocation;
     VkImage                     m_vkDepthImage;
     VkImageView                 m_vkDepthImageView;
 
-    vkGpuMemoryAllocation       m_vkDepthStencilAllocation;
+    GpuMemoryAllocation       m_vkDepthStencilAllocation;
     VkImage                     m_vkDepthStencilImage;
     VkImageView                 m_vkDepthStencilImageView;
 

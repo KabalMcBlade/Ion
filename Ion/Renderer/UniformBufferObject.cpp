@@ -1,9 +1,10 @@
 #include "UniformBufferObject.h"
 
-#include "GPUMemoryManager.h"
 #include "StagingBufferManager.h"
 
-#include "../Dependencies/vkMemoryAllocator/vkMemoryAllocator/vkMemoryAllocator.h"
+#include "../GPU/GpuDataStructure.h"
+#include "../GPU/GpuMemoryAllocator.h"
+#include "../GPU/GpuMemoryManager.h"
 
 ION_NAMESPACE_BEGIN
 
@@ -48,7 +49,7 @@ ionBool UniformBuffer::Alloc(const VkDevice& _device, const void* _data, ionSize
     vkGetBufferMemoryRequirements(m_device, m_object, &memoryRequirements);
 
     {
-        vkGpuMemoryCreateInfo createInfo = {};
+		GpuMemoryCreateInfo createInfo = {};
         createInfo.m_size = memoryRequirements.size;
         createInfo.m_align = memoryRequirements.alignment;
         createInfo.m_memoryTypeBits = memoryRequirements.memoryTypeBits;
@@ -94,7 +95,7 @@ void UniformBuffer::Free()
         ionGPUMemoryManager().Free(m_allocation);
 
         m_object = VK_NULL_HANDLE;
-        m_allocation = vkGpuMemoryAllocation();
+        m_allocation = GpuMemoryAllocation();
     }
 
     ClearWithoutFreeing();

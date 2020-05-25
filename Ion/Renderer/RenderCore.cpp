@@ -1,7 +1,10 @@
 #include "RenderCore.h"
 
 #include "RenderDefs.h"
-#include "GPUMemoryManager.h"
+
+#include "../GPU/GpuDataStructure.h"
+#include "../GPU/GpuMemoryAllocator.h"
+#include "../GPU/GpuMemoryManager.h"
 
 #include "../Texture/Texture.h"
 #include "../Texture/TextureManager.h"
@@ -19,7 +22,6 @@
 #define VK_NAME                     "Ion"
 #define VK_LUNAR_VALIDATION_LAYER   "VK_LAYER_LUNARG_standard_validation"
 
-VK_ALLOCATOR_USING_NAMESPACE
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
@@ -672,7 +674,7 @@ ionBool RenderCore::CreateRenderTargets()
             vkGetImageMemoryRequirements(m_vkDevice, m_vkMSAAImage, &memoryRequirements);
 
             {
-                vkGpuMemoryCreateInfo createInfo = {};
+				GpuMemoryCreateInfo createInfo = {};
                 createInfo.m_size = memoryRequirements.size;
                 createInfo.m_align = memoryRequirements.alignment;
                 createInfo.m_memoryTypeBits = memoryRequirements.memoryTypeBits;
@@ -729,7 +731,7 @@ ionBool RenderCore::CreateRenderTargets()
             vkGetImageMemoryRequirements(m_vkDevice, m_vkDepthImage, &memoryRequirements);
 
             {
-                vkGpuMemoryCreateInfo createInfo = {};
+				GpuMemoryCreateInfo createInfo = {};
                 createInfo.m_size = memoryRequirements.size;
                 createInfo.m_align = memoryRequirements.alignment;
                 createInfo.m_memoryTypeBits = memoryRequirements.memoryTypeBits;
@@ -788,7 +790,7 @@ ionBool RenderCore::CreateRenderTargets()
         vkGetImageMemoryRequirements(m_vkDevice, m_vkDepthStencilImage, &memoryRequirements);
 
         {
-            vkGpuMemoryCreateInfo createInfo = {};
+			GpuMemoryCreateInfo createInfo = {};
             createInfo.m_size = memoryRequirements.size;
             createInfo.m_align = memoryRequirements.alignment;
             createInfo.m_memoryTypeBits = memoryRequirements.memoryTypeBits;
@@ -835,7 +837,7 @@ void RenderCore::DestroyRenderTargets()
             vkDestroyImage(m_vkDevice, m_vkMSAAImage, vkMemory);
             
             ionGPUMemoryManager().Free(m_vkMSAAAllocation);
-            m_vkMSAAAllocation = vkGpuMemoryAllocation();
+            m_vkMSAAAllocation = GpuMemoryAllocation();
 
             m_vkMSAAImage = VK_NULL_HANDLE;
         }
@@ -852,7 +854,7 @@ void RenderCore::DestroyRenderTargets()
             vkDestroyImage(m_vkDevice, m_vkDepthImage, vkMemory);
 
             ionGPUMemoryManager().Free(m_vkDepthAllocation);
-            m_vkDepthAllocation = vkGpuMemoryAllocation();
+            m_vkDepthAllocation = GpuMemoryAllocation();
 
             m_vkDepthImage = VK_NULL_HANDLE;
         }
@@ -869,7 +871,7 @@ void RenderCore::DestroyRenderTargets()
             vkDestroyImage(m_vkDevice, m_vkDepthStencilImage, vkMemory);
 
             ionGPUMemoryManager().Free(m_vkDepthStencilAllocation);
-            m_vkDepthStencilAllocation = vkGpuMemoryAllocation();
+            m_vkDepthStencilAllocation = GpuMemoryAllocation();
 
             m_vkDepthStencilImage = VK_NULL_HANDLE;
         }
