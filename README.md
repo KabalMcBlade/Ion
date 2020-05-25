@@ -1,18 +1,6 @@
 ```diff
 - IMPORTANT
-- This version has been tested and it works using Vulakn SDK version up to 1.1.77.0 (released at 20-Jun-2018)
-- Using an newest version of the SDK may not work!
-```
-
-```diff
-- IMPORTANT
-- This project is not maintained  anymore!
-```
-
-```diff
-- IMPORTANT ABOUT EOS MEMORY ALLOCATOR USED
-- Eos (https://github.com/KabalMcBlade/Eos) has been completely rewritten in order to speed up the performance.
-- The problem is I wouldn't maintain this project anymore, so I have rewritten the minimal requirement in order to let it run, but with memory leaks.
+- This project is not maintained anymore, I will make some fixes time by time or some rework, but discontinued.
 ```
 
 # Ion

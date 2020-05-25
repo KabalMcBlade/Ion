@@ -18,9 +18,15 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+using EntityAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
+
 class AnimationRenderer;
 class ION_DLL Entity : public Node
 {
+public:
+	static EntityAllocator* GetAllocator();
+
 public:
     Entity();
     explicit Entity(const ionString & _name);
@@ -30,13 +36,13 @@ public:
     T* AddMeshRenderer()
     {
         m_boundingBox.Reset();
-        m_meshes->clear();
+        m_meshes.clear();
         if (m_meshRenderer != nullptr)
         {
-            ionDelete(m_meshRenderer);
+            ionDelete(m_meshRenderer, GetAllocator());
             m_meshRenderer = nullptr;
         }
-        m_meshRenderer = ionNew(T);
+        m_meshRenderer = ionNew(T, GetAllocator());
         return dynamic_cast<T*>(m_meshRenderer);
     }
 
@@ -78,9 +84,9 @@ private:
     BoundingBox				m_boundingBox;
     BaseMeshRenderer*       m_meshRenderer; // if has this one, means that this one is the root and any other children nodes can potentially contains meshes
     AnimationRenderer*      m_animationRenderer;
-    ionVector<Mesh>         m_meshes;
-    ionVector<ionFloat>     m_initialMorphTargetWeights;
-    ionVector<ionFloat>     m_morphTargetWeights;
+    ionVector<Mesh, EntityAllocator, GetAllocator>         m_meshes;
+    ionVector<ionFloat, EntityAllocator, GetAllocator>     m_initialMorphTargetWeights;
+    ionVector<ionFloat, EntityAllocator, GetAllocator>     m_morphTargetWeights;
 };
 
 ION_NAMESPACE_END

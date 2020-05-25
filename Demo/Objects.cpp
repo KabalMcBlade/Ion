@@ -38,9 +38,12 @@ void DirectionalLightDebugEntity::OnMouseInput(const ion::MouseState& _mouseStat
 
         const Quaternion& prevRot = GetTransform().GetRotation();
 
-        Quaternion currRot(NIX_DEG_TO_RAD(yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
+		Quaternion currRotX;
+		currRotX.SetFromAngleAxis(NIX_DEG_TO_RAD(xOffset), 0.0f, 0.0f, -1.0f);
+		Quaternion currRotY;
+		currRotY.SetFromAngleAxis(NIX_DEG_TO_RAD(yOffset), -1.0f, 0.0f, 0.0f);
 
-        currRot = prevRot * currRot;
+		Quaternion currRot = prevRot * currRotY * currRotX;
 
         GetTransform().SetRotation(currRot);
     }
@@ -99,7 +102,7 @@ void RotatingEntity::OnEnd()
 void RotatingEntity::OnUpdate(ionFloat _deltaTime)
 {
     static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
-    static const Vector axis(0.0f, 1.0f, 0.0f, 1.0f);
+    static const Vector4 axis(0.0f, 1.0f, 0.0f, 1.0f);
     static ionFloat radRotated = 0.0f;
 
     if (m_rotating)
@@ -142,13 +145,13 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
 
             if (_keyboardState.m_key == ion::EKeyboardKey_I)
             {
-                Vector scale = GetTransform().GetScale() / 10.0f;
+                Vector4 scale = GetTransform().GetScale() / 10.0f;
                 GetTransform().SetScale(scale);
             }
 
             if (_keyboardState.m_key == ion::EKeyboardKey_O)
             {
-                Vector scale = GetTransform().GetScale() * 10.0f;
+                Vector4 scale = GetTransform().GetScale() * 10.0f;
                 GetTransform().SetScale(scale);
             }
 
@@ -231,9 +234,9 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
 
 void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime)
 {
-    static const Vector right(1.0f, 0.0f, 0.0f, 1.0f);
-    static const Vector up(0.0f, 1.0f, 0.0f, 1.0f);
-    static const Vector forward(0.0f, 0.0f, 1.0f, 1.0f);
+    static const Vector4 right(1.0f, 0.0f, 0.0f, 1.0f);
+    static const Vector4 up(0.0f, 1.0f, 0.0f, 1.0f);
+    static const Vector4 forward(0.0f, 0.0f, 1.0f, 1.0f);
 
     if (!MainCamera::m_toggleLightRotation)
     {
@@ -247,9 +250,12 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
             const Quaternion& prevRot = GetTransform().GetRotation();
 
-            Quaternion currRot(NIX_DEG_TO_RAD(yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
+			Quaternion currRotX;
+			currRotX.SetFromAngleAxis(NIX_DEG_TO_RAD(xOffset), 0.0f, 0.0f, -1.0f);
+			Quaternion currRotY;
+			currRotY.SetFromAngleAxis(NIX_DEG_TO_RAD(yOffset), -1.0f, 0.0f, 0.0f);
 
-            currRot = prevRot * currRot;
+			Quaternion currRot = prevRot * currRotY * currRotX;
 
             GetTransform().SetRotation(currRot);
         }
@@ -265,12 +271,12 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
             ionFloat velocity = m_movementSpeed * _deltaTime;
 
             const Matrix& matrix = m_camera->GetTransform().GetMatrixWS();
-            Vector right = matrix.GetOrtX();
-            Vector up = matrix.GetOrtY();
+            Vector4 right = matrix.GetOrtX();
+            Vector4 up = matrix.GetOrtY();
 
-            const Vector dir = right * xOffset + up * yOffset;
+            const Vector4 dir = right * xOffset + up * yOffset;
 
-            const Vector pos = GetTransform().GetPosition() + dir * velocity;
+            const Vector4 pos = GetTransform().GetPosition() + dir * velocity;
 
             GetTransform().SetPosition(pos);
         }
@@ -280,11 +286,11 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
             ionFloat velocity = m_movementSpeed * m_incresingWheelSpeed * _deltaTime;
 
             const Matrix& matrix = m_camera->GetTransform().GetMatrixWS();
-            Vector forward = matrix.GetOrtZ();
+            Vector4 forward = matrix.GetOrtZ();
 
-            const Vector dir = forward * _mouseState.m_wheel.m_distance;
+            const Vector4 dir = forward * _mouseState.m_wheel.m_distance;
 
-            const Vector pos = GetTransform().GetPosition() + dir * velocity;
+            const Vector4 pos = GetTransform().GetPosition() + dir * velocity;
 
             GetTransform().SetPosition(pos);
         }

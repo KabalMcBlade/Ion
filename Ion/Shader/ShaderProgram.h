@@ -12,11 +12,14 @@
 
 #include "../Core/MemoryWrapper.h"
 
+#include "../Core/MemorySettings.h"
+
+#include "ShaderProgramHelper.h"
+
+
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
-
-
 
 
 enum EBufferParameterType
@@ -43,6 +46,7 @@ enum EPushConstantStage : ionU32
 
 //////////////////////////////////////////////////////////////////////////
 
+
 struct ION_DLL UniformBinding final
 {
     ionU32                              m_bindingIndex;
@@ -53,8 +57,8 @@ struct ION_DLL UniformBinding final
 
         if (_count == 1)
         {
-            m_parameters->push_back(_name);
-            m_type->push_back(_type);
+            m_parameters.push_back(_name);
+            m_type.push_back(_type);
         }
         else
         {
@@ -63,32 +67,32 @@ struct ION_DLL UniformBinding final
                 const ionString indexParam(std::to_string(i).c_str());
                 const ionString fullParam = _name + indexParam;
 
-                m_parameters->push_back(fullParam);
-                m_type->push_back(_type);
+                m_parameters.push_back(fullParam);
+                m_type.push_back(_type);
             }
         }
     }
 
     // even if there are public, please use the above accessor.
     // this because help in case you have to set the array (otherwise you can still directly access to this parameters)
-    ionVector<ionString>                m_parameters;
-    ionVector<EBufferParameterType>     m_type;
+    ionVector<ionString, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator> m_parameters;
+    ionVector<EBufferParameterType, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator> m_type;
 
     // it is computed by the engine, do not set manually
-    ionVector<ionSize>                  m_runtimeParameters;
+    ionVector<ionSize, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator> m_runtimeParameters;
 
     ~UniformBinding()
     {
-        m_parameters->clear();
-        m_type->clear();
-        m_runtimeParameters->clear();
+        m_parameters.clear();
+        m_type.clear();
+        m_runtimeParameters.clear();
     }
 };
 
 ION_INLINE ionBool operator==(const UniformBinding& lhs, const UniformBinding& rhs)
 {
-    const ionVector<EBufferParameterType>::size_type count = lhs.m_type->size();
-    for (ionVector<EBufferParameterType>::size_type i = 0; i != count; ++i)
+    const ionVector<EBufferParameterType, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type count = lhs.m_type.size();
+    for (ionVector<EBufferParameterType, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type i = 0; i != count; ++i)
     {
         if ((lhs.m_type[i] != rhs.m_type[i]) || (lhs.m_runtimeParameters[i] != rhs.m_runtimeParameters[i]))
         {
@@ -101,8 +105,8 @@ ION_INLINE ionBool operator==(const UniformBinding& lhs, const UniformBinding& r
 
 ION_INLINE ionBool operator!=(const UniformBinding& lhs, const UniformBinding& rhs)
 {
-    const ionVector<EBufferParameterType>::size_type count = lhs.m_type->size();
-    for (ionVector<EBufferParameterType>::size_type i = 0; i != count; ++i)
+    const ionVector<EBufferParameterType, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type count = lhs.m_type.size();
+    for (ionVector<EBufferParameterType, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type i = 0; i != count; ++i)
     {
         if ((lhs.m_type[i] == rhs.m_type[i]) || (lhs.m_runtimeParameters[i] == rhs.m_runtimeParameters[i]))
         {
@@ -172,12 +176,12 @@ ION_INLINE ionBool operator!=(const StorageBinding& lhs, const StorageBinding& r
 // Anyway seems enough, you can pass matrix, vector, bool, float and integer as "float" representation
 struct ION_DLL ConstantsBindingDef final
 {
-    ionVector<ionFloat> m_values;
+    ionVector<ionFloat, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator> m_values;
     EPushConstantStage m_shaderStages;
 
-    const void* GetData() const { return m_values->data(); }
-    const ionSize GetSize() const { return m_values->size(); }
-    const ionSize GetSizeByte() const { return m_values->size() * sizeof(ionFloat); }
+    const void* GetData() const { return m_values.data(); }
+    const ionSize GetSize() const { return m_values.size(); }
+    const ionSize GetSizeByte() const { return m_values.size() * sizeof(ionFloat); }
     const ionBool IsValid() const { return GetSize() > 0; }
 
     // it is computed by the engine, do not set manually
@@ -185,7 +189,7 @@ struct ION_DLL ConstantsBindingDef final
 
     void Clear()
     {
-        m_values->clear();
+        m_values.clear();
         m_shaderStages = (EPushConstantStage)0;
     }
 
@@ -209,9 +213,9 @@ ION_INLINE ionBool operator!=(const ConstantsBindingDef& lhs, const ConstantsBin
 
 struct ION_DLL ShaderLayoutDef final
 {
-    ionVector<UniformBinding>   m_uniforms;
-    ionVector<SamplerBinding>   m_samplers;
-    ionVector<StorageBinding>   m_storages;
+    ionVector<UniformBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>   m_uniforms;
+    ionVector<SamplerBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>   m_samplers;
+    ionVector<StorageBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>   m_storages;
 
     ~ShaderLayoutDef()
     {
@@ -220,16 +224,16 @@ struct ION_DLL ShaderLayoutDef final
 
     void Clear()
     {
-        m_uniforms->clear();
-        m_samplers->clear();
-        m_storages->clear();
+        m_uniforms.clear();
+        m_samplers.clear();
+        m_storages.clear();
     }
 };
 
 ION_INLINE ionBool operator==(const ShaderLayoutDef& lhs, const ShaderLayoutDef& rhs)
 {
-    const ionVector<UniformBinding>::size_type uniformCount = lhs.m_uniforms->size();
-    for (ionVector<UniformBinding>::size_type i = 0; i != uniformCount; ++i)
+    const ionVector<UniformBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type uniformCount = lhs.m_uniforms.size();
+    for (ionVector<UniformBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type i = 0; i != uniformCount; ++i)
     {
         if (lhs.m_uniforms[i] != rhs.m_uniforms[i])
         {
@@ -237,8 +241,8 @@ ION_INLINE ionBool operator==(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
         }
     }
 
-    const ionVector<SamplerBinding>::size_type samplerCount = lhs.m_samplers->size();
-    for (ionVector<SamplerBinding>::size_type i = 0; i != samplerCount; ++i)
+    const ionVector<SamplerBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type samplerCount = lhs.m_samplers.size();
+    for (ionVector<SamplerBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type i = 0; i != samplerCount; ++i)
     {
         if (lhs.m_samplers[i] != rhs.m_samplers[i])
         {
@@ -246,8 +250,8 @@ ION_INLINE ionBool operator==(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
         }
     }
 
-    const ionVector<StorageBinding>::size_type storageCount = lhs.m_storages->size();
-    for (ionVector<StorageBinding>::size_type i = 0; i != storageCount; ++i)
+    const ionVector<StorageBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type storageCount = lhs.m_storages.size();
+    for (ionVector<StorageBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type i = 0; i != storageCount; ++i)
     {
         if (lhs.m_storages[i] != rhs.m_storages[i])
         {
@@ -260,8 +264,8 @@ ION_INLINE ionBool operator==(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
 
 ION_INLINE ionBool operator!=(const ShaderLayoutDef& lhs, const ShaderLayoutDef& rhs)
 {
-    const ionVector<UniformBinding>::size_type uniformCount = lhs.m_uniforms->size();
-    for (ionVector<UniformBinding>::size_type i = 0; i != uniformCount; ++i)
+    const ionVector<UniformBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type uniformCount = lhs.m_uniforms.size();
+    for (ionVector<UniformBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type i = 0; i != uniformCount; ++i)
     {
         if (lhs.m_uniforms[i] == rhs.m_uniforms[i])
         {
@@ -269,8 +273,8 @@ ION_INLINE ionBool operator!=(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
         }
     }
 
-    const ionVector<SamplerBinding>::size_type samplerCount = lhs.m_samplers->size();
-    for (ionVector<SamplerBinding>::size_type i = 0; i != samplerCount; ++i)
+    const ionVector<SamplerBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type samplerCount = lhs.m_samplers.size();
+    for (ionVector<SamplerBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type i = 0; i != samplerCount; ++i)
     {
         if (lhs.m_samplers[i] == rhs.m_samplers[i])
         {
@@ -278,8 +282,8 @@ ION_INLINE ionBool operator!=(const ShaderLayoutDef& lhs, const ShaderLayoutDef&
         }
     }
 
-    const ionVector<StorageBinding>::size_type storageCount = lhs.m_storages->size();
-    for (ionVector<StorageBinding>::size_type i = 0; i != storageCount; ++i)
+    const ionVector<StorageBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type storageCount = lhs.m_storages.size();
+    for (ionVector<StorageBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>::size_type i = 0; i != storageCount; ++i)
     {
         if (lhs.m_storages[i] == rhs.m_storages[i])
         {
@@ -303,7 +307,8 @@ layout (constant_id = 1) const float PARAM_TOON_DESATURATION = 0.0;
 */
 struct SpecializationConstants
 {
-    ionVector<ionFloat> m_values;
+	ionVector<ionFloat, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator> m_values;
+	ionVector<VkSpecializationMapEntry, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator> m_specializations;
 
     // if the command "Generate" is not executed, this one is invalid!
     VkSpecializationInfo m_specializationInfo;
@@ -317,31 +322,29 @@ struct SpecializationConstants
 
     ~SpecializationConstants()
     {
-        Clear();
     }
 
     void Clear()
     {
-        m_values->clear();
+        m_values.clear();
     }
 
     void Generate()
     {
-        ionVector<VkSpecializationMapEntry> specializations;
-        specializations->resize(m_values->size());
+		m_specializations.resize(m_values.size());
 
-        const ionU32 count = static_cast<ionU32>(specializations->size());
+        const ionU32 count = static_cast<ionU32>(m_specializations.size());
         for (ionU32 i = 0; i < count; ++i)
         {
-            specializations[i].constantID = i;
-            specializations[i].size = sizeof(ionFloat);
-            specializations[i].offset = i * sizeof(ionFloat);
+			m_specializations[i].constantID = i;
+			m_specializations[i].size = sizeof(ionFloat);
+			m_specializations[i].offset = i * sizeof(ionFloat);
         }
 
-        m_specializationInfo.dataSize = m_values->size() * sizeof(ionFloat);
-        m_specializationInfo.mapEntryCount = static_cast<ionU32>(m_values->size());
-        m_specializationInfo.pMapEntries = specializations->data();
-        m_specializationInfo.pData = m_values->data();
+        m_specializationInfo.dataSize = m_values.size() * sizeof(ionFloat);
+        m_specializationInfo.mapEntryCount = static_cast<ionU32>(m_values.size());
+        m_specializationInfo.pMapEntries = m_specializations.data();
+        m_specializationInfo.pData = m_values.data();
 
         m_isGenerated = true;
     }
@@ -368,7 +371,7 @@ struct Shader
 
     SpecializationConstants* GetSpecializationConstants()
     {
-        if (m_specializationConstants.m_values->size() > 0)
+        if (m_specializationConstants.m_values.size() > 0)
         {
             return &m_specializationConstants;
         }
@@ -378,8 +381,8 @@ struct Shader
         }
     }
 
-    ionString                       m_name;
-    ionString                       m_path;
+	ionString                       m_name;
+	ionString                       m_path;
     EShaderStage                    m_stage;
     VkShaderModule                  m_shaderModule;
     SpecializationConstants         m_specializationConstants;
@@ -406,8 +409,8 @@ struct ShaderProgram
                             VkShaderModule _vertexShader = VK_NULL_HANDLE, VkShaderModule _fragmentShader = VK_NULL_HANDLE, VkShaderModule _tessellationControlShader = VK_NULL_HANDLE, VkShaderModule _tessellationEvaluatorShader = VK_NULL_HANDLE, VkShaderModule _geometryShader = VK_NULL_HANDLE,
                             SpecializationConstants* _vertexSpecConst = nullptr, SpecializationConstants* _fragmentSpecConst = nullptr, SpecializationConstants* _tessCtrlSpecConst = nullptr, SpecializationConstants* _tessEvalSpecConst = nullptr, SpecializationConstants* _geomSpecConst = nullptr);
 
-    ionVector<EShaderBinding>   m_bindings;
-    ionVector<PipelineState>    m_pipelines;
+    ionVector<EShaderBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>   m_bindings;
+    ionVector<PipelineState, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator>    m_pipelines;
     EVertexLayout               m_vertextLayoutType;
     VkPipelineLayout            m_pipelineLayout;
     VkDescriptorSetLayout       m_descriptorSetLayout;

@@ -16,22 +16,22 @@ class ION_DLL DirectionalLight : public Node
 {
 public:
     DirectionalLight();
-    explicit DirectionalLight(const ionString & _name);
+    explicit DirectionalLight(const ionString& _name);
     virtual ~DirectionalLight();
 
-    void SetColor(const Vector& _color) { m_color = _color; }
+    void SetColor(const Vector4& _color) { m_color = _color; }
     void SetColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a);
 
-    const Vector& GetColor() const { return m_color; }
+    const Vector4& GetColor() const { return m_color; }
 
-    Vector GetLightDirection() const;
+    Vector4 GetLightDirection() const;
 
 private:
     DirectionalLight(const DirectionalLight& _Orig) = delete;
     DirectionalLight& operator = (const DirectionalLight&) = delete;
 
 private:
-    Vector m_color;
+    Vector4 m_color;
 };
 
 ION_NAMESPACE_END

@@ -43,13 +43,13 @@ class ION_DLL Frustum final
 public:
     struct Planes
     {
-        Vector m_normals[EFrustumPlane::EFrustumPlane_Count];
+        Vector4 m_normals[EFrustumPlane::EFrustumPlane_Count];
         ionFloat m_distances[EFrustumPlane::EFrustumPlane_Count];
     };
 
     struct Corners
     {
-        Vector m_corners[EFrustumCorner::EFrustumCorner_Count];
+        Vector4 m_corners[EFrustumCorner::EFrustumCorner_Count];
     };
 
 public:

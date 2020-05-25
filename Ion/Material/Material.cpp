@@ -3,9 +3,9 @@
 #include "../Texture/Texture.h"
 
 #include "../Shader/ShaderProgramManager.h"
+#include "../Shader/ShaderProgram.h"
 
 ION_NAMESPACE_BEGIN
-
 
 BasePBR::BasePBR() :
     m_baseColorTexture(nullptr),
@@ -69,6 +69,23 @@ SpecularGlossiness::~SpecularGlossiness()
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+Material::Material() :
+	m_vertexShaderIndex(-1),
+	m_fragmentShaderIndex(-1),
+	m_tessellationControlIndex(-1),
+	m_tessellationEvaluationIndex(-1),
+	m_geometryIndex(-1),
+	m_useJoint(false),
+	m_useSkinning(false),
+	m_useGlossiness(false),
+	m_alphaMode(EAlphaMode_Opaque),
+	m_isDiffuseLight(false),
+	m_isUnlit(false),
+	m_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST),
+	m_customDrawFunction(nullptr)
+{
+}
 
 Material::Material(const ionString& _name) :
     m_name(_name),
@@ -154,11 +171,11 @@ void Material::SetVertexShaderLayout(const ShaderLayoutDef& _defines)
 {
     m_vertexShaderLayout = _defines;
 
-    ionSize uniformCount = m_vertexShaderLayout.m_uniforms->size();
+    ionSize uniformCount = m_vertexShaderLayout.m_uniforms.size();
     for (ionSize i = 0; i < uniformCount; ++i)
     {
-        ionSize paramCount = m_vertexShaderLayout.m_uniforms[i].m_parameters->size();
-        m_vertexShaderLayout.m_uniforms[i].m_runtimeParameters->resize(paramCount);
+        ionSize paramCount = m_vertexShaderLayout.m_uniforms[i].m_parameters.size();
+        m_vertexShaderLayout.m_uniforms[i].m_runtimeParameters.resize(paramCount);
         for (ionSize j = 0; j < paramCount; ++j)
         {
             const ionSize hash = std::hash<ionString>{}(m_vertexShaderLayout.m_uniforms[i].m_parameters[j]);
@@ -171,11 +188,11 @@ void Material::SetTessellationControlShaderLayout(const ShaderLayoutDef& _define
 {
     m_tessCtrlShaderLayout = _defines;
 
-    ionSize uniformCount = m_tessCtrlShaderLayout.m_uniforms->size();
+    ionSize uniformCount = m_tessCtrlShaderLayout.m_uniforms.size();
     for (ionSize i = 0; i < uniformCount; ++i)
     {
-        ionSize paramCount = m_tessCtrlShaderLayout.m_uniforms[i].m_parameters->size();
-        m_tessCtrlShaderLayout.m_uniforms[i].m_runtimeParameters->resize(paramCount);
+        ionSize paramCount = m_tessCtrlShaderLayout.m_uniforms[i].m_parameters.size();
+        m_tessCtrlShaderLayout.m_uniforms[i].m_runtimeParameters.resize(paramCount);
         for (ionSize j = 0; j < paramCount; ++j)
         {
             const ionSize hash = std::hash<ionString>{}(m_tessCtrlShaderLayout.m_uniforms[i].m_parameters[j]);
@@ -188,11 +205,11 @@ void Material::SetTessellationEvaluatorShaderLayout(const ShaderLayoutDef& _defi
 {
     m_tessEvalShaderLayout = _defines;
 
-    ionSize uniformCount = m_tessEvalShaderLayout.m_uniforms->size();
+    ionSize uniformCount = m_tessEvalShaderLayout.m_uniforms.size();
     for (ionSize i = 0; i < uniformCount; ++i)
     {
-        ionSize paramCount = m_tessEvalShaderLayout.m_uniforms[i].m_parameters->size();
-        m_tessEvalShaderLayout.m_uniforms[i].m_runtimeParameters->resize(paramCount);
+        ionSize paramCount = m_tessEvalShaderLayout.m_uniforms[i].m_parameters.size();
+        m_tessEvalShaderLayout.m_uniforms[i].m_runtimeParameters.resize(paramCount);
         for (ionSize j = 0; j < paramCount; ++j)
         {
             const ionSize hash = std::hash<ionString>{}(m_tessEvalShaderLayout.m_uniforms[i].m_parameters[j]);
@@ -205,11 +222,11 @@ void Material::SetGeometryShaderLayout(const ShaderLayoutDef& _defines)
 {
     m_geomtryShaderLayout = _defines;
 
-    ionSize uniformCount = m_geomtryShaderLayout.m_uniforms->size();
+    ionSize uniformCount = m_geomtryShaderLayout.m_uniforms.size();
     for (ionSize i = 0; i < uniformCount; ++i)
     {
-        ionSize paramCount = m_geomtryShaderLayout.m_uniforms[i].m_parameters->size();
-        m_geomtryShaderLayout.m_uniforms[i].m_runtimeParameters->resize(paramCount);
+        ionSize paramCount = m_geomtryShaderLayout.m_uniforms[i].m_parameters.size();
+        m_geomtryShaderLayout.m_uniforms[i].m_runtimeParameters.resize(paramCount);
         for (ionSize j = 0; j < paramCount; ++j)
         {
             const ionSize hash = std::hash<ionString>{}(m_geomtryShaderLayout.m_uniforms[i].m_parameters[j]);
@@ -222,11 +239,11 @@ void Material::SetFragmentShaderLayout(const ShaderLayoutDef& _defines)
 {
     m_fragmentShaderLayout = _defines;
 
-    ionSize uniformCount = m_fragmentShaderLayout.m_uniforms->size();
+    ionSize uniformCount = m_fragmentShaderLayout.m_uniforms.size();
     for (ionSize i = 0; i < uniformCount; ++i)
     {
-        ionSize paramCount = m_fragmentShaderLayout.m_uniforms[i].m_parameters->size();
-        m_fragmentShaderLayout.m_uniforms[i].m_runtimeParameters->resize(paramCount);
+        ionSize paramCount = m_fragmentShaderLayout.m_uniforms[i].m_parameters.size();
+        m_fragmentShaderLayout.m_uniforms[i].m_runtimeParameters.resize(paramCount);
         for (ionSize j = 0; j < paramCount; ++j)
         {
             const ionSize hash = std::hash<ionString>{}(m_fragmentShaderLayout.m_uniforms[i].m_parameters[j]);
@@ -239,11 +256,11 @@ void Material::SetComputeShaderLayout(const ShaderLayoutDef& _defines)
 {
     m_computeShaderLayout = _defines;
 
-    ionSize uniformCount = m_computeShaderLayout.m_uniforms->size();
+    ionSize uniformCount = m_computeShaderLayout.m_uniforms.size();
     for (ionSize i = 0; i < uniformCount; ++i)
     {
-        ionSize paramCount = m_computeShaderLayout.m_uniforms[i].m_parameters->size();
-        m_computeShaderLayout.m_uniforms[i].m_runtimeParameters->resize(paramCount);
+        ionSize paramCount = m_computeShaderLayout.m_uniforms[i].m_parameters.size();
+        m_computeShaderLayout.m_uniforms[i].m_runtimeParameters.resize(paramCount);
         for (ionSize j = 0; j < paramCount; ++j)
         {
             const ionSize hash = std::hash<ionString>{}(m_computeShaderLayout.m_uniforms[i].m_parameters[j]);

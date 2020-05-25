@@ -5,9 +5,23 @@
 #include "../Renderer/RenderCommon.h"
 #include "../Animation/AnimationRenderer.h"
 
+#include "../Core/MemorySettings.h"
+
 using nlohmann::json;
 
 ION_NAMESPACE_BEGIN
+
+/*
+using SerializerAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
+SerializerAllocator* GetAllocator()
+{
+	static HeapArea<Settings::kSerializeAllocatorSize> memoryArea;
+	static SerializerAllocator memoryAllocator(memoryArea, "SerializeListAllocator");
+
+	return &memoryAllocator;
+}
+*/
 
 namespace _private
 {
@@ -232,22 +246,22 @@ namespace _private
 
                     const ionFloat start = animation.GetStart();
                     const ionFloat end = animation.GetEnd();
-                    const ionString& name = animation.GetName();
-                    const eosSize hash = animation.GetHashName();
+                    const ionString<AnimationAllocator, Animation::GetAllocator>& name = animation.GetName();
+                    const ionSize hash = animation.GetHashName();
 
-                    const ionVector<AnimationChannel>& channels = animation.GetChannels();
-                    const ionVector<AnimationSampler>& samplers = animation.GetSamplers();
+                    const ionVector<AnimationChannel, AnimationAllocator, Animation::GetAllocator>& channels = animation.GetChannels();
+                    const ionVector<AnimationSampler, AnimationAllocator, Animation::GetAllocator>& samplers = animation.GetSamplers();
 
-                    ionVector<AnimationChannel>::size_type channelsCount = channels->size();
-                    ionVector<AnimationSampler>::size_type samplersCount = samplers->size();
+                    ionVector<AnimationChannel, AnimationAllocator, Animation::GetAllocator>::size_type channelsCount = channels.size();
+                    ionVector<AnimationSampler, AnimationAllocator, Animation::GetAllocator>::size_type samplersCount = samplers.size();
 
                     std::vector<json> channelsJson;
-                    for (ionVector<AnimationChannel>::size_type j = 0; j < channelsCount; ++j)
+                    for (ionVector<AnimationChannel, AnimationAllocator, Animation::GetAllocator>::size_type j = 0; j < channelsCount; ++j)
                     {
                         const AnimationChannel& channel = channels[j];
 
-                        const ionString& belongingNodeName = channel.GetNode()->GetName();
-                        const ionString& belongingNodeUUID = channel.GetNode()->GetUUID().ToString();
+                        const ionString<NodeAllocator, Node::GetAllocator>& belongingNodeName = channel.GetNode()->GetName();
+                        const ionString<UUIDAllocator, UUID::GetAllocator>& belongingNodeUUID = channel.GetNode()->GetUUID().ToString();
                         const EAnimationPathType& animationPath = channel.GetPath();
                         const ionU32 samplerIndex = channel.GetSamplerIndex();
 
@@ -263,34 +277,34 @@ namespace _private
                     }
 
                     std::vector<json> samplersJson;
-                    for (ionVector<AnimationSampler>::size_type j = 0; j < samplersCount; ++j)
+                    for (ionVector<AnimationSampler, AnimationAllocator, Animation::GetAllocator>::size_type j = 0; j < samplersCount; ++j)
                     {
                         const AnimationSampler& sampler = samplers[j];
 
                         const EAnimationInterpolationType& interpolation = sampler.GetInterpolation();
-                        const ionVector<ionFloat>& inputs = sampler.GetInputs();
-                        const ionVector<Vector>& linearPath = sampler.GetLinearPaths();
-                        const ionVector<ionFloat>& morphTarget = sampler.GetMorphTargets();
+                        const ionVector<ionFloat, AnimationSamplerAllocator, AnimationSampler::GetAllocator>& inputs = sampler.GetInputs();
+                        const ionVector<Vector4, AnimationSamplerAllocator, AnimationSampler::GetAllocator>& linearPath = sampler.GetLinearPaths();
+                        const ionVector<ionFloat, AnimationSamplerAllocator, AnimationSampler::GetAllocator>& morphTarget = sampler.GetMorphTargets();
 
                         std::vector<ionFloat> _input;
-                        ionVector<ionFloat>::size_type inputCount = inputs->size();
-                        for (ionVector<ionFloat>::size_type a = 0; a < inputCount; ++a)
+                        ionVector<ionFloat, AnimationSamplerAllocator, AnimationSampler::GetAllocator>::size_type inputCount = inputs.size();
+                        for (ionVector<ionFloat, AnimationSamplerAllocator, AnimationSampler::GetAllocator>::size_type a = 0; a < inputCount; ++a)
                         {
                             const ionFloat& v = inputs[a];
                             _input.push_back(v);
                         }
 
-                        std::vector<Vector> _linearPath;
-                        ionVector<Vector>::size_type linearPathCount = linearPath->size();
-                        for (ionVector<Vector>::size_type a = 0; a < linearPathCount; ++a)
+                        std::vector<Vector4> _linearPath;
+                        ionVector<Vector4, AnimationSamplerAllocator, AnimationSampler::GetAllocator>::size_type linearPathCount = linearPath.size();
+                        for (ionVector<Vector4, AnimationSamplerAllocator, AnimationSampler::GetAllocator>::size_type a = 0; a < linearPathCount; ++a)
                         {
-                            const Vector& v = linearPath[a];
+                            const Vector4& v = linearPath[a];
                             _linearPath.push_back(v);
                         }
 
                         std::vector<ionFloat> _morphTarget;
-                        ionVector<ionFloat>::size_type morphTargetCount = morphTarget->size();
-                        for (ionVector<ionFloat>::size_type a = 0; a < morphTargetCount; ++a)
+                        ionVector<ionFloat, AnimationSamplerAllocator, AnimationSampler::GetAllocator>::size_type morphTargetCount = morphTarget.size();
+                        for (ionVector<ionFloat, AnimationSamplerAllocator, AnimationSampler::GetAllocator>::size_type a = 0; a < morphTargetCount; ++a)
                         {
                             const ionFloat& v = morphTarget[a];
                             _morphTarget.push_back(v);
@@ -362,32 +376,32 @@ namespace _private
         json& child = nodeObj.at("child");
 
         _inData.IterateAll(
-            [&](const ObjectHandler& _node)
+            [&](Node* _node)
         {
-            if (_node->GetPtr()->GetNodeType() == ENodeType_Entity)
+            if (_node->GetNodeType() == ENodeType_Entity)
             {
-                if (Entity* entityPtr = dynamic_cast<Entity*>(_node->GetPtr()))
+                if (Entity* entityPtr = dynamic_cast<Entity*>(_node))
                 {
                     _private::NodeToJSON(child, *entityPtr);
                 }
             }
-            else if (_node->GetPtr()->GetNodeType() == ENodeType_Camera)
+            else if (_node->GetNodeType() == ENodeType_Camera)
             {
 
             }
-            else if (_node->GetPtr()->GetNodeType() == ENodeType_DirectionalLight)
+            else if (_node->GetNodeType() == ENodeType_DirectionalLight)
             {
 
             }
-            else if (_node->GetPtr()->GetNodeType() == ENodeType_PointLight)
+            else if (_node->GetNodeType() == ENodeType_PointLight)
             {
 
             }
-            else if (_node->GetPtr()->GetNodeType() == ENodeType_SpotLight)
+            else if (_node->GetNodeType() == ENodeType_SpotLight)
             {
 
             }
-            else if (_node->GetPtr()->GetNodeType() == ENodeType_EmptyNode)
+            else if (_node->GetNodeType() == ENodeType_EmptyNode)
             {
 
             }
@@ -520,14 +534,14 @@ void from_json(const json& _json, VertexMorphTarget& _output)
 }
 //////////////////////////////////////////////////////////////////////////
 
-void to_json(json& _json, const ObjectHandler& _input)
+void to_json(json& _json, Node* _input)
 {
     json rendererJSON;
     json nodesJSON;
 
-    if (_input->GetPtr()->GetNodeType() == ENodeType_Entity)
+    if (_input->GetNodeType() == ENodeType_Entity)
     {
-        if (Entity* entityPtr = dynamic_cast<Entity*>(_input->GetPtr()))
+        if (Entity* entityPtr = dynamic_cast<Entity*>(_input))
         {
             // if the serialization level is the max I serialize the vertex either
             if (_private::g_serializationLevel > 1)
@@ -541,23 +555,23 @@ void to_json(json& _json, const ObjectHandler& _input)
             _private::NodeToJSON(nodesJSON, *entityPtr);
         }
     }
-    else if (_input->GetPtr()->GetNodeType() == ENodeType_Camera)
+    else if (_input->GetNodeType() == ENodeType_Camera)
     {
 
     }
-    else if (_input->GetPtr()->GetNodeType() == ENodeType_DirectionalLight)
+    else if (_input->GetNodeType() == ENodeType_DirectionalLight)
     {
 
     }
-    else if (_input->GetPtr()->GetNodeType() == ENodeType_PointLight)
+    else if (_input->GetNodeType() == ENodeType_PointLight)
     {
 
     }
-    else if (_input->GetPtr()->GetNodeType() == ENodeType_SpotLight)
+    else if (_input->GetNodeType() == ENodeType_SpotLight)
     {
 
     }
-    else if (_input->GetPtr()->GetNodeType() == ENodeType_EmptyNode)
+    else if (_input->GetNodeType() == ENodeType_EmptyNode)
     {
 
     }
@@ -569,13 +583,13 @@ void to_json(json& _json, const ObjectHandler& _input)
     };
 }
 
-void from_json(const json& _json, ObjectHandler& _output)
+void from_json(const json& _json, Node*& _output)
 {
 
 }
 
 
-std::string Serialize(const ObjectHandler& _input, ionU32 _level /*= 1*/)
+std::string Serialize(const Node* _input, ionU32 _level /*= 1*/)
 {
     _level = _level > 2 ? 1 : _level;
 

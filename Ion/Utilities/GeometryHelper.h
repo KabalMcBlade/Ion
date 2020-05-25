@@ -10,22 +10,28 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+using GeometryHelperAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
+
+
 class ION_DLL GeometryHelper
 {
 public:
+	static GeometryHelperAllocator* GetAllocator();
+
+public:
     // The size of _outNormalVectorArray must be equal to _vectorArray
-    static void CalculateNormals(const Vector* _vectorArray, const ionU32 _vectorCount, const ionU32* _indexList, const ionU32 _indexCount, Vector* _outNormalVectorArray);
+    static void CalculateNormals(const Vector4* _vectorArray, const ionU32 _vectorCount, const ionU32* _indexList, const ionU32 _indexCount, Vector4* _outNormalVectorArray);
 
     // The size of _outUVUVVectorArray must be equal to _vectorArray
     // It is a very simple implementation and is not optimized, I don't care at this stage of development!
     // It can be used ONLY for simple primitive geometry!!
-    static void CalculateUVs(const Vector* _vectorArray, const ionU32 _vectorCount, Vector* _outUVUVVectorArray);
+    static void CalculateUVs(const Vector4* _vectorArray, const ionU32 _vectorCount, Vector4* _outUVUVVectorArray);
 
     // The size of _outTangentVectorArray must be equal to _vectorArray and the other input array this internally use the mikktspace algorithm
     static void CalculateTangents(
-        const Vector* _vectorArray, const Vector* _normalArray, const Vector* _textCoordUVUVArray, const ionU32 _vectorCount,   // to iterate and get the value to use
+        const Vector4* _vectorArray, const Vector4* _normalArray, const Vector4* _textCoordUVUVArray, const ionU32 _vectorCount,   // to iterate and get the value to use
         const ionU32* _indexList, const ionU32 _indexCount,                                                                     // to generate face (triangle)
-        Vector* _outTangentVectorArray, ionFloat* _outTangentSignArray                                                          // output tangent and bi-tangent sign
+        Vector4* _outTangentVectorArray, ionFloat* _outTangentSignArray                                                          // output tangent and bi-tangent sign
     );
 };
 

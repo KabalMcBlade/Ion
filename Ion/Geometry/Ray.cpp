@@ -12,12 +12,12 @@ Ray::Ray()
     Set(kZero.m_simdf, kOne.m_simdf);
 }
 
-Ray::Ray(const Vector& _origin, const Vector& _direction)
+Ray::Ray(const Vector4& _origin, const Vector4& _direction)
 {
     Set(_origin, _direction);
 }
 
-Ray::Ray(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector& _worldRayOrigin, const Matrix& _inverseMatrix)
+Ray::Ray(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector4& _worldRayOrigin, const Matrix& _inverseMatrix)
 {
     Set(_relMousePosX, _relMousePosY, _worldRayOrigin, _inverseMatrix);
 }
@@ -27,19 +27,19 @@ Ray::~Ray()
 
 }
 
-void Ray::Set(const Vector& _origin, const Vector& _direction)
+void Ray::Set(const Vector4& _origin, const Vector4& _direction)
 {
-    static const Vector one = kOne;
+    static const Vector4 one = kOne;
     m_origin = _origin;
     m_direction = _direction;
     m_inverseDirection = one / _direction;
 }
 
-void Ray::Set(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector& _worldRayOrigin, const Matrix& _inverseMatrix)
+void Ray::Set(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector4& _worldRayOrigin, const Matrix& _inverseMatrix)
 {
-    Vector screenPos(_relMousePosX * 2.0f - 1.0f, _relMousePosY * 2.0f - 1.0f, 1.0f, 1.0f);
-    Vector worldPos = _inverseMatrix * screenPos;
-    Vector worldPosWWWW = Helper::ExtractW(worldPos);
+    Vector4 screenPos(_relMousePosX * 2.0f - 1.0f, _relMousePosY * 2.0f - 1.0f, 1.0f, 1.0f);
+    Vector4 worldPos = _inverseMatrix * screenPos;
+    Vector4 worldPosWWWW = Helper::ExtractW(worldPos);
     worldPos /= worldPosWWWW;
     Set(_worldRayOrigin, Helper::Normalize(worldPos - _worldRayOrigin));
 }

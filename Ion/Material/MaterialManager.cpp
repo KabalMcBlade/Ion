@@ -8,6 +8,15 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+MaterialManagerAllocator* MaterialManager::GetAllocator()
+{
+	static HeapArea<Settings::kMaterialManagerAllocatorSize> memoryArea;
+	static MaterialManagerAllocator memoryAllocator(memoryArea, "MaterialManagerFreeListAllocator");
+
+	return &memoryAllocator;
+}
+
+
 MaterialManager::MaterialManager()
 {
 }
@@ -29,14 +38,13 @@ void MaterialManager::Init()
 
 void MaterialManager::Shutdown()
 {
-    auto begin = m_hashMaterial->begin(), end = m_hashMaterial->end();
-    std::map<ionSize, Material*>::iterator it = begin;
+    auto begin = m_hashMaterial.begin(), end = m_hashMaterial.end();
+    std::map<ionSize, Material>::iterator it = begin;
     for (; it != end; ++it)
     {
-        DestroyMaterial(it->second);
-        ionDelete(it->second);
+        DestroyMaterial(&it->second);
     }
-    m_hashMaterial->clear();
+    m_hashMaterial.clear();
 }
 
 Material* MaterialManager::CreateMaterial(const ionString& _name, ionU64 _stateBits /*= 0*/)
@@ -67,7 +75,7 @@ Material* MaterialManager::CreateMaterial(const ionString& _name, ionU64 _stateB
     }
 }
 
-Material* MaterialManager::GetMaterial(const ionString& _name) const
+Material* MaterialManager::GetMaterial(const ionString& _name)
 {
     if (_name.empty())
     {
@@ -76,10 +84,10 @@ Material* MaterialManager::GetMaterial(const ionString& _name) const
 
     ionSize hash = std::hash<ionString>{}(_name);
 
-    auto search = m_hashMaterial->find(hash);
-    if (search != m_hashMaterial->end())
+    const auto search = m_hashMaterial.find(hash);
+    if (search != m_hashMaterial.cend())
     {
-        return search->second;
+        return &search->second;
     }
     else
     {
@@ -97,14 +105,13 @@ Material* MaterialManager::InternalCreateMaterial(const ionString& _name)
     ionSize hash = std::hash<ionString>{}(_name);
 
     // just to inform the user
-    auto search = m_hashMaterial->find(hash);
-    ionAssert(!(search != m_hashMaterial->end()), "A material with the same name has already added!");
+    auto search = m_hashMaterial.find(hash);
+    ionAssert(!(search != m_hashMaterial.end()), "A material with the same name has already added!");
 
-    Material* material = ionNew(Material, _name);
+	m_hashMaterial[hash] = Material();
+	m_hashMaterial[hash].SetName(_name);
 
-    m_hashMaterial[hash] = material;
-
-    return material;
+    return &m_hashMaterial[hash];
 }
 
 void MaterialManager::DestroyMaterial(const ionString& _name)
@@ -120,12 +127,11 @@ void MaterialManager::DestroyMaterial(const ionString& _name)
 
 void MaterialManager::DestroyMaterial(ionSize _hash)
 {
-    auto search = m_hashMaterial->find(_hash);
-    if (search != m_hashMaterial->end())
-    {
-        DestroyMaterial(search->second);
-        ionDelete(search->second);
-        m_hashMaterial->erase(_hash);
+    auto search = m_hashMaterial.find(_hash);
+    if (search != m_hashMaterial.end())
+	{
+        DestroyMaterial(&search->second);
+        m_hashMaterial.erase(_hash);
     }
 }
 

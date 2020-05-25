@@ -7,7 +7,6 @@ EOS_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
 
-
 ShaderProgram::ShaderProgram() :
     m_vertextLayoutType(EVertexLayout_Full),
     m_pipelineLayout(VK_NULL_HANDLE),
@@ -26,7 +25,7 @@ VkPipeline ShaderProgram::GetPipeline(const RenderCore& _render, VkRenderPass _r
     VkShaderModule _vertexShader /*= VK_NULL_HANDLE*/, VkShaderModule _fragmentShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationControlShader /*= VK_NULL_HANDLE*/, VkShaderModule _tessellationEvaluatorShader /*= VK_NULL_HANDLE*/, VkShaderModule _geometryShader /*= VK_NULL_HANDLE*/,
     SpecializationConstants* _vertexSpecConst /*= nullptr*/, SpecializationConstants* _fragmentSpecConst /*= nullptr*/, SpecializationConstants* _tessCtrlSpecConst /*= nullptr*/, SpecializationConstants* _tessEvalSpecConst /*= nullptr*/, SpecializationConstants* _geomSpecConst /*= nullptr*/)
 {
-    for (ionU32 i = 0; i < m_pipelines->size(); ++i) 
+    for (ionU32 i = 0; i < m_pipelines.size(); ++i) 
     {
         // same state and same renderpass
         if (_stateBits == m_pipelines[i].m_stateBits && _renderPass == m_pipelines[i].m_renderpass)
@@ -42,7 +41,7 @@ VkPipeline ShaderProgram::GetPipeline(const RenderCore& _render, VkRenderPass _r
     pipelineState.m_pipeline = pipeline;
     pipelineState.m_stateBits = _stateBits;
     pipelineState.m_renderpass = _renderPass;
-    m_pipelines->push_back(pipelineState);
+    m_pipelines.push_back(pipelineState);
 
     return pipeline;
 }

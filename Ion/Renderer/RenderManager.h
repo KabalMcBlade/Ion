@@ -23,6 +23,8 @@
 
 #include "../App/Mode.h"
 
+#include "../Core/MemorySettings.h"
+
 
 #define ION_PBR_SHADER_NAME    "PBR"
 #define ION_PBR_MORPH_SHADER_NAME    "PBRMorph"
@@ -35,6 +37,7 @@ EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+using RenderManagerAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
 
 enum EPrimitiveType
 {
@@ -51,19 +54,21 @@ class DirectionalLight;
 class ION_DLL RenderManager final
 {
 public:
+	static RenderManagerAllocator* GetAllocator();
+
+public:
     static RenderManager& Instance();
 
-    ionBool LoadModelFromFile(const ionString& _filePath, Camera* _camToUpdate, ObjectHandler& _entity);
-    void DumpModelToFile(const ionString& _filePath, const ObjectHandler& _entity, LoaderGLTF::ESerializationLevel _level = LoaderGLTF::ESerializationLevel_Normal);
+    ionBool LoadModelFromFile(const ionString& _filePath, Camera* _camToUpdate, Node*& _entity);
+    //void DumpModelToFile(const ionString& _filePath, const Node* _entity, LoaderGLTF::ESerializationLevel _level = LoaderGLTF::ESerializationLevel_Normal);
 
-    void GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _type, ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
-	void GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _type, Entity* _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
+	void GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _type, Entity*& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
 
-    void LoadColoredTriangle(ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
-    void LoadColoredQuad(ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
-    void LoadColoredCube(ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
-    void LoadColoredSphere(ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
-    void LoadColoredPyramid(ObjectHandler& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
+    void LoadColoredTriangle(Entity*& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
+    void LoadColoredQuad(Entity*& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
+    void LoadColoredCube(Entity*& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
+    void LoadColoredSphere(Entity*& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
+    void LoadColoredPyramid(Entity*& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
 
     ionBool Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
     void    Shutdown();
@@ -79,9 +84,9 @@ public:
 
     // NOTE: for now call the following 3 functions just BEFORE start your application and after.
     // This because the scene graph at the moment is not updated at runtime, so will take not effect (or worst side effect)
-    void    AddToSceneGraph(ObjectHandler _node);
-    void    RemoveFromSceneGraph(ObjectHandler _node);
-    void    RemoveAllSceneGraph();
+    void    AddToSceneGraph(Node* _node);
+	void    RemoveFromSceneGraph(Node* _node);
+	void    RemoveAllSceneGraph();
 
     void    PrepareToShutDown();
 
@@ -93,23 +98,23 @@ public:
     void    SendMouseInput(const MouseState& _mouseState);
     void    SendKeyboardInput(const KeyboardState& _keyboardState);
 
-    void    RegisterToInput(const ObjectHandler& _node);
-    void    UnregisterFromInput(const ObjectHandler& _node);
+    void    RegisterToInput(Node* _node);
+    void    UnregisterFromInput(Node* _node);
 
-    ObjectHandler GetObjectByName(const ionString& _name);
-    ObjectHandler GetObjectByUUID(const UUID& _uuid);
+	Node* GetObjectByName(const ionString& _name);
+	Node* GetObjectByUUID(const UUID& _uuid);
 
     void    Quit();
     ionBool IsRunning();
 
     // rendering PBR helper functions:
-    const Texture*  GenerateBRDF(ObjectHandler _camera);
+    const Texture*  GenerateBRDF(Node* _camera);
     const Texture*  GetBRDF() const;
 
-    const Texture*  GenerateIrradianceCubemap(ObjectHandler _camera);
+    const Texture*  GenerateIrradianceCubemap(Node* _camera);
     const Texture*  GetIrradianceCubemap() const;
 
-    const Texture*  GeneratePrefilteredEnvironmentCubemap(ObjectHandler _camera);
+    const Texture*  GeneratePrefilteredEnvironmentCubemap(Node* _camera);
     const Texture*  GetPrefilteredEnvironmentCubemap() const;
 
     const Texture*  GenerateNullTexture();
@@ -134,7 +139,7 @@ private:
 
     void Recreate();
 
-    void LoadCommonMaterialForIntegratedPrimitive(ObjectHandler& _entity, Material* _material);
+    void LoadCommonMaterialForIntegratedPrimitive(Entity*& _entity, Material* _material);
 
 private:
     RenderCore  m_renderCore;

@@ -32,20 +32,20 @@ void Frustum::Update(const Matrix& _projection, const Matrix& _view)
 
 void Frustum::ExtractFrustumsCorners(const Matrix& _inverseMatrix, Corners& _outCorners)
 {
-    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_NearBottomLeft] = Vector(-1.0f, -1.0f, 0.0f, 1.0f);
-    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_NearTopLeft] = Vector(-1.0f, 1.0f, 0.0f, 1.0f);
-    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_NearTopRight] = Vector(1.0f, 1.0f, 0.0f, 1.0f);
-    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_NearBottomRight] = Vector(1.0f, -1.0f, 0.0f, 1.0f);
+    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_NearBottomLeft] = Vector4(-1.0f, -1.0f, 0.0f, 1.0f);
+    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_NearTopLeft] = Vector4(-1.0f, 1.0f, 0.0f, 1.0f);
+    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_NearTopRight] = Vector4(1.0f, 1.0f, 0.0f, 1.0f);
+    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_NearBottomRight] = Vector4(1.0f, -1.0f, 0.0f, 1.0f);
 
-    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_FarBottomLeft] = Vector(-1.0f, -1.0f, 1.0f, 1.0f);
-    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_FarTopLeft] = Vector(-1.0f, 1.0f, 1.0f, 1.0f);
-    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_FarTopRight] = Vector(1.0f, 1.0f, 1.0f, 1.0f);
-    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_FarBottomRight] = Vector(1.0f, -1.0f, 1.0f, 1.0f);
+    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_FarBottomLeft] = Vector4(-1.0f, -1.0f, 1.0f, 1.0f);
+    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_FarTopLeft] = Vector4(-1.0f, 1.0f, 1.0f, 1.0f);
+    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_FarTopRight] = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+    _outCorners.m_corners[EFrustumCorner::EFrustumCorner_FarBottomRight] = Vector4(1.0f, -1.0f, 1.0f, 1.0f);
 
     for (ionU8 i = 0; i < EFrustumCorner::EFrustumCorner_Count; ++i)
     {
-        Vector corner = _inverseMatrix * _outCorners.m_corners[i];
-        Vector cornerW = Helper::ExtractW(corner);
+        Vector4 corner = _inverseMatrix * _outCorners.m_corners[i];
+        Vector4 cornerW = Helper::ExtractW(corner);
 
         _outCorners.m_corners[i] = corner / cornerW;
     }
@@ -53,18 +53,18 @@ void Frustum::ExtractFrustumsCorners(const Matrix& _inverseMatrix, Corners& _out
 
 void Frustum::ExtractFrustumPlanes(const Matrix& _viewProjMatrix, Planes& _outFrustumPlanes)
 {
-    Vector viewProjMatrixAxisX = _viewProjMatrix[0];
-    Vector viewProjMatrixAxisY = _viewProjMatrix[1];
-    Vector viewProjMatrixAxisZ = _viewProjMatrix[2];
-    Vector viewProjMatrixAxisW = _viewProjMatrix[3];
+    Vector4 viewProjMatrixAxisX = _viewProjMatrix[0];
+    Vector4 viewProjMatrixAxisY = _viewProjMatrix[1];
+    Vector4 viewProjMatrixAxisZ = _viewProjMatrix[2];
+    Vector4 viewProjMatrixAxisW = _viewProjMatrix[3];
 
 
-    Vector addWX = viewProjMatrixAxisW + viewProjMatrixAxisX;
-    Vector subWX = viewProjMatrixAxisW - viewProjMatrixAxisX;
-    Vector addWY = viewProjMatrixAxisW + viewProjMatrixAxisY;
-    Vector subWY = viewProjMatrixAxisW - viewProjMatrixAxisY;
-    Vector addWZ = viewProjMatrixAxisW + viewProjMatrixAxisZ;
-    Vector subWZ = viewProjMatrixAxisW - viewProjMatrixAxisZ;
+    Vector4 addWX = viewProjMatrixAxisW + viewProjMatrixAxisX;
+    Vector4 subWX = viewProjMatrixAxisW - viewProjMatrixAxisX;
+    Vector4 addWY = viewProjMatrixAxisW + viewProjMatrixAxisY;
+    Vector4 subWY = viewProjMatrixAxisW - viewProjMatrixAxisY;
+    Vector4 addWZ = viewProjMatrixAxisW + viewProjMatrixAxisZ;
+    Vector4 subWZ = viewProjMatrixAxisW - viewProjMatrixAxisZ;
 
 
     //
@@ -89,7 +89,7 @@ void Frustum::ExtractFrustumPlanes(const Matrix& _viewProjMatrix, Planes& _outFr
 
     for (ionU8 planeIdx = 0; planeIdx < EFrustumPlane::EFrustumPlane_Count; ++planeIdx)
     {
-        const Vector len4 = _outFrustumPlanes.m_normals[planeIdx].Length();
+        const Vector4 len4 = _outFrustumPlanes.m_normals[planeIdx].Length();
         ionFloat len = 0.0f;
 
         _mm_store_ss(&len, len4);

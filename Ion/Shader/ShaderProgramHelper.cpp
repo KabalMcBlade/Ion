@@ -8,10 +8,32 @@
 
 #include "../Material/Material.h"
 
+#include "../Renderer/RenderCommon.h"
+
 EOS_USING_NAMESPACE
 VK_ALLOCATOR_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
+
+
+// Only for ShaderVertexLayout
+ShaderVertexLayoutAllocator* ShaderVertexLayout::GetAllocator()
+{
+	static HeapArea<Settings::kShaderVertexLayoutAllocatorSize> memoryArea;
+	static ShaderVertexLayoutAllocator memoryAllocator(memoryArea, "ShaderVertexLayoutFreeListAllocator");
+
+	return &memoryAllocator;
+}
+
+// For everything else related ton shaders
+ShaderHelperAllocator* ShaderProgramHelper::GetAllocator()
+{
+	static HeapArea<Settings::kShaderHelperAllocatorSize> memoryArea;
+	static ShaderHelperAllocator memoryAllocator(memoryArea, "ShaderHelperFreeListAllocator");
+
+	return &memoryAllocator;
+}
+
 
 ShaderVertexLayout *ShaderProgramHelper::m_vertexLayouts[EVertexLayout_Count] = { nullptr };
 
@@ -19,7 +41,7 @@ void ShaderProgramHelper::Create()
 {
     for (ionU32 i = 0; i < EVertexLayout_Count; ++i)
     {
-        m_vertexLayouts[i] = ionNew(ShaderVertexLayout);
+        m_vertexLayouts[i] = ionNew(ShaderVertexLayout, ShaderVertexLayout::GetAllocator());
     }
 }
 
@@ -27,7 +49,7 @@ void ShaderProgramHelper::Destroy()
 {
     for (ionU32 i = 0; i < EVertexLayout_Count; ++i)
     {
-        ionDelete(m_vertexLayouts[i]);
+        ionDelete(m_vertexLayouts[i], ShaderVertexLayout::GetAllocator());
     }
 }
 
@@ -51,62 +73,62 @@ void ShaderProgramHelper::CreateVertexDescriptor()
 
         binding.stride = sizeof(Vertex);
         binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        vertexLayout.m_bindinggDescription->push_back(binding);
+        vertexLayout.m_bindinggDescription.push_back(binding);
 
         // Position
         attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;   //VK_FORMAT_R32G32B32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(Vertex::m_position);
 
         // TexCoord0
         attribute.format = VK_FORMAT_R32G32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(Vertex::m_textureCoordUV0);
 
         // TexCoord1
         attribute.format = VK_FORMAT_R32G32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(Vertex::m_textureCoordUV1);
 
         // Joints
         attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(Vertex::m_joints);
 
         // Normal
         attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(Vertex::m_normal);
 
         // Tangent
         attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(Vertex::m_tangent);
 
         // Color
         attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(Vertex::m_color);
 
         // Weights
         attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
     }
 
     {
@@ -119,27 +141,27 @@ void ShaderProgramHelper::CreateVertexDescriptor()
 
         binding.stride = sizeof(VertexSimple);
         binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        vertexLayout.m_bindinggDescription->push_back(binding);
+        vertexLayout.m_bindinggDescription.push_back(binding);
 
         // Position
         attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(VertexSimple::m_position);
 
         // TexCoord0
         attribute.format = VK_FORMAT_R32G32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(VertexSimple::m_textureCoordUV);
 
         // Normal
         attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
     }
 
     {
@@ -152,20 +174,20 @@ void ShaderProgramHelper::CreateVertexDescriptor()
 
         binding.stride = sizeof(VertexNormal);
         binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        vertexLayout.m_bindinggDescription->push_back(binding);
+        vertexLayout.m_bindinggDescription.push_back(binding);
 
         // Position
         attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(VertexNormal::m_position);
 
         // Normal
         attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
     }
 
     {
@@ -178,20 +200,20 @@ void ShaderProgramHelper::CreateVertexDescriptor()
 
         binding.stride = sizeof(VertexUV);
         binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        vertexLayout.m_bindinggDescription->push_back(binding);
+        vertexLayout.m_bindinggDescription.push_back(binding);
 
         // Position
         attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(VertexUV::m_position);
 
         // TexCoord
         attribute.format = VK_FORMAT_R32G32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
     }
 
     {
@@ -204,20 +226,20 @@ void ShaderProgramHelper::CreateVertexDescriptor()
 
         binding.stride = sizeof(VertexColored);
         binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        vertexLayout.m_bindinggDescription->push_back(binding);
+        vertexLayout.m_bindinggDescription.push_back(binding);
 
         // Position
         attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
         locationOffset += sizeof(VertexColored::m_position);
 
         // Color
         attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
         attribute.location = locationIndex++;
         attribute.offset = locationOffset;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
     }
 
     {
@@ -227,13 +249,13 @@ void ShaderProgramHelper::CreateVertexDescriptor()
 
         binding.stride = sizeof(VertexPlain);
         binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        vertexLayout.m_bindinggDescription->push_back(binding);
+        vertexLayout.m_bindinggDescription.push_back(binding);
 
         // Position
         attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
         attribute.location = 0;
         attribute.offset = 0;
-        vertexLayout.m_attributegDescription->push_back(attribute);
+        vertexLayout.m_attributegDescription.push_back(attribute);
     }
 
     {
@@ -263,193 +285,193 @@ void ShaderProgramHelper::CreateDescriptorPools(const VkDevice& _device, VkDescr
     ionAssertReturnVoid(result == VK_SUCCESS, "vkCreateDescriptorPool cannot create descriptor pool!");
 }
 
-void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, ShaderProgram& _shaderProgram, const Shader& _vertexShader, const Shader& _fragmentShader, const Shader& _tessellationControlShader, const Shader& _tessellationEvaluatorShader, const Shader& _geometryShader, const Material* _material)
+void ShaderProgramHelper::CreateDescriptorSetLayout(const VkDevice& _device, ShaderProgram& _shaderProgram, const Shader* _vertexShader, const Shader* _fragmentShader, const Shader* _tessellationControlShader, const Shader* _tessellationEvaluatorShader, const Shader* _geometryShader, const Material* _material)
 {
     // Descriptor Set Layout
     {
-        ionVector<VkDescriptorSetLayoutBinding> layoutBindings;
+        ionVector<VkDescriptorSetLayoutBinding, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator> layoutBindings;
         VkDescriptorSetLayoutBinding binding = {};
         binding.descriptorCount = 1;
 
-        if (_vertexShader.IsValid())
+        if (_vertexShader && _vertexShader->IsValid())
         {
             binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-            ionSize uniformCount = _material->GetVertexShaderLayout().m_uniforms->size();
+            ionSize uniformCount = _material->GetVertexShaderLayout().m_uniforms.size();
             for (ionSize i = 0; i < uniformCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                 binding.binding = _material->GetVertexShaderLayout().m_uniforms[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Uniform);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
             }
 
-            ionSize samplerCount = _material->GetVertexShaderLayout().m_samplers->size();
+            ionSize samplerCount = _material->GetVertexShaderLayout().m_samplers.size();
             for (ionSize i = 0; i < samplerCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                 binding.binding = _material->GetVertexShaderLayout().m_samplers[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Sampler);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
 
-            ionSize storageCount = _material->GetVertexShaderLayout().m_storages->size();
+            ionSize storageCount = _material->GetVertexShaderLayout().m_storages.size();
             for (ionSize i = 0; i < storageCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
                 binding.binding = _material->GetVertexShaderLayout().m_storages[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Storage);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
             }
         }
 
-        if (_tessellationControlShader.IsValid())
+        if (_tessellationControlShader && _tessellationControlShader->IsValid())
         {
             binding.stageFlags = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
 
-            ionSize uniformCount = _material->GetTessellationControlShaderLayout().m_uniforms->size();
+            ionSize uniformCount = _material->GetTessellationControlShaderLayout().m_uniforms.size();
             for (ionSize i = 0; i < uniformCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                 binding.binding = _material->GetTessellationControlShaderLayout().m_uniforms[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Uniform);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
             }
 
-            ionSize samplerCount = _material->GetTessellationControlShaderLayout().m_samplers->size();
+            ionSize samplerCount = _material->GetTessellationControlShaderLayout().m_samplers.size();
             for (ionSize i = 0; i < samplerCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                 binding.binding = _material->GetTessellationControlShaderLayout().m_samplers[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Sampler);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
 
-            ionSize storageCount = _material->GetTessellationControlShaderLayout().m_storages->size();
+            ionSize storageCount = _material->GetTessellationControlShaderLayout().m_storages.size();
             for (ionSize i = 0; i < storageCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
                 binding.binding = _material->GetTessellationControlShaderLayout().m_storages[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Storage);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
             }
         }
 
-        if (_tessellationEvaluatorShader.IsValid())
+        if (_tessellationEvaluatorShader && _tessellationEvaluatorShader->IsValid())
         {
             binding.stageFlags = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
 
-            ionSize uniformCount = _material->GetTessellationEvaluatorShaderLayout().m_uniforms->size();
+            ionSize uniformCount = _material->GetTessellationEvaluatorShaderLayout().m_uniforms.size();
             for (ionSize i = 0; i < uniformCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                 binding.binding = _material->GetTessellationEvaluatorShaderLayout().m_uniforms[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Uniform);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
             }
 
-            ionSize samplerCount = _material->GetTessellationEvaluatorShaderLayout().m_samplers->size();
+            ionSize samplerCount = _material->GetTessellationEvaluatorShaderLayout().m_samplers.size();
             for (ionSize i = 0; i < samplerCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                 binding.binding = _material->GetTessellationEvaluatorShaderLayout().m_samplers[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Sampler);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
 
-            ionSize storageCount = _material->GetTessellationEvaluatorShaderLayout().m_storages->size();
+            ionSize storageCount = _material->GetTessellationEvaluatorShaderLayout().m_storages.size();
             for (ionSize i = 0; i < storageCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
                 binding.binding = _material->GetTessellationEvaluatorShaderLayout().m_storages[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Storage);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
             }
         }
 
-        if (_geometryShader.IsValid())
+        if (_geometryShader && _geometryShader->IsValid())
         {
             binding.stageFlags = VK_SHADER_STAGE_GEOMETRY_BIT;
 
-            ionSize uniformCount = _material->GetGeometryShaderLayout().m_uniforms->size();
+            ionSize uniformCount = _material->GetGeometryShaderLayout().m_uniforms.size();
             for (ionSize i = 0; i < uniformCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                 binding.binding = _material->GetGeometryShaderLayout().m_uniforms[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Uniform);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
             }
 
-            ionSize samplerCount = _material->GetGeometryShaderLayout().m_samplers->size();
+            ionSize samplerCount = _material->GetGeometryShaderLayout().m_samplers.size();
             for (ionSize i = 0; i < samplerCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                 binding.binding = _material->GetGeometryShaderLayout().m_samplers[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Sampler);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
 
-            ionSize storageCount = _material->GetGeometryShaderLayout().m_storages->size();
+            ionSize storageCount = _material->GetGeometryShaderLayout().m_storages.size();
             for (ionSize i = 0; i < storageCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
                 binding.binding = _material->GetGeometryShaderLayout().m_storages[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Storage);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
             }
         }
 
-        if (_fragmentShader.IsValid())
+        if (_fragmentShader && _fragmentShader->IsValid())
         {
             binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-            ionSize uniformCount = _material->GetFragmentShaderLayout().m_uniforms->size();
+            ionSize uniformCount = _material->GetFragmentShaderLayout().m_uniforms.size();
             for (ionSize i = 0; i < uniformCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                 binding.binding = _material->GetFragmentShaderLayout().m_uniforms[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Uniform);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Uniform);
             }
 
-            ionSize samplerCount = _material->GetFragmentShaderLayout().m_samplers->size();
+            ionSize samplerCount = _material->GetFragmentShaderLayout().m_samplers.size();
             for (ionSize i = 0; i < samplerCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                 binding.binding = _material->GetFragmentShaderLayout().m_samplers[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Sampler);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Sampler);
             }
 
-            ionSize storageCount = _material->GetFragmentShaderLayout().m_storages->size();
+            ionSize storageCount = _material->GetFragmentShaderLayout().m_storages.size();
             for (ionSize i = 0; i < storageCount; ++i)
             {
                 binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
                 binding.binding = _material->GetFragmentShaderLayout().m_storages[i].m_bindingIndex;
-                layoutBindings->push_back(binding);
+                layoutBindings.push_back(binding);
 
-                _shaderProgram.m_bindings->push_back(EShaderBinding_Storage);
+                _shaderProgram.m_bindings.push_back(EShaderBinding_Storage);
             }
         }
 
         VkDescriptorSetLayoutCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        createInfo.bindingCount = (ionU32)layoutBindings->size();
-        createInfo.pBindings = layoutBindings->data();
+        createInfo.bindingCount = (ionU32)layoutBindings.size();
+        createInfo.pBindings = layoutBindings.data();
 
         VkResult result = vkCreateDescriptorSetLayout(_device, &createInfo, vkMemory, &_shaderProgram.m_descriptorSetLayout);
         ionAssertReturnVoid(result == VK_SUCCESS, "vkCreateDescriptorSetLayout cannot create descriptor set layout!");
@@ -530,10 +552,10 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
     ShaderVertexLayout& vertexLayout = *m_vertexLayouts[_vertexLayoutType];
 
     VkPipelineVertexInputStateCreateInfo vertexInputState = vertexLayout.m_inputState;
-    vertexInputState.vertexBindingDescriptionCount = (ionU32)vertexLayout.m_bindinggDescription->size();
-    vertexInputState.pVertexBindingDescriptions = vertexLayout.m_bindinggDescription->data();
-    vertexInputState.vertexAttributeDescriptionCount = (ionU32)vertexLayout.m_attributegDescription->size();
-    vertexInputState.pVertexAttributeDescriptions = vertexLayout.m_attributegDescription->data();
+    vertexInputState.vertexBindingDescriptionCount = (ionU32)vertexLayout.m_bindinggDescription.size();
+    vertexInputState.pVertexBindingDescriptions = vertexLayout.m_bindinggDescription.data();
+    vertexInputState.vertexAttributeDescriptionCount = (ionU32)vertexLayout.m_attributegDescription.size();
+    vertexInputState.pVertexAttributeDescriptions = vertexLayout.m_attributegDescription.data();
 
     VkPipelineInputAssemblyStateCreateInfo assemblyInputState = {};
     assemblyInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -726,7 +748,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
     //    multisampleState.minSampleShading = 1.0f;
     //}
 
-    ionVector<VkPipelineShaderStageCreateInfo> stages;
+    ionVector<VkPipelineShaderStageCreateInfo, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator> stages;
     VkPipelineShaderStageCreateInfo stage = {};
     stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     stage.pName = "main";
@@ -740,7 +762,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
             stage.pSpecializationInfo = &_vertexSpecConst->m_specializationInfo;
         }
 
-        stages->push_back(stage);
+        stages.push_back(stage);
     }
 
     if (_tessellationControlShader != VK_NULL_HANDLE)
@@ -753,7 +775,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
             stage.pSpecializationInfo = &_tessCtrlSpecConst->m_specializationInfo;
         }
 
-        stages->push_back(stage);
+        stages.push_back(stage);
     }
 
     if (_tessellationEvaluatorShader != VK_NULL_HANDLE)
@@ -766,7 +788,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
             stage.pSpecializationInfo = &_tessEvalSpecConst->m_specializationInfo;
         }
 
-        stages->push_back(stage);
+        stages.push_back(stage);
     }
 
     if (_geometryShader != VK_NULL_HANDLE)
@@ -779,7 +801,7 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
             stage.pSpecializationInfo = &_geomSpecConst->m_specializationInfo;
         }
 
-        stages->push_back(stage);
+        stages.push_back(stage);
     }
 
     if (_fragmentShader != VK_NULL_HANDLE)
@@ -792,27 +814,27 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
             stage.pSpecializationInfo = &_fragmentSpecConst->m_specializationInfo;
         }
 
-        stages->push_back(stage);
+        stages.push_back(stage);
     }
 
-    ionVector<VkDynamicState> dynamic;
-    dynamic->push_back(VK_DYNAMIC_STATE_SCISSOR);
-    dynamic->push_back(VK_DYNAMIC_STATE_VIEWPORT);
+    ionVector<VkDynamicState, ShaderHelperAllocator, ShaderProgramHelper::GetAllocator> dynamic;
+    dynamic.push_back(VK_DYNAMIC_STATE_SCISSOR);
+    dynamic.push_back(VK_DYNAMIC_STATE_VIEWPORT);
 
     if (_stateBits & ERasterization_PolygonMode_Offset)
     {
-        dynamic->push_back(VK_DYNAMIC_STATE_DEPTH_BIAS);
+        dynamic.push_back(VK_DYNAMIC_STATE_DEPTH_BIAS);
     }
 
     if (_render.GetGPU().m_vkPhysicalDevFeatures.depthBounds && (_stateBits & ERasterization_DepthTest_Mask))
     {
-        dynamic->push_back(VK_DYNAMIC_STATE_DEPTH_BOUNDS);
+        dynamic.push_back(VK_DYNAMIC_STATE_DEPTH_BOUNDS);
     }
 
     VkPipelineDynamicStateCreateInfo dynamicState = {};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamicState.dynamicStateCount = static_cast<ionU32>(dynamic->size());
-    dynamicState.pDynamicStates = dynamic->data();
+    dynamicState.dynamicStateCount = static_cast<ionU32>(dynamic.size());
+    dynamicState.pDynamicStates = dynamic.data();
 
     VkPipelineViewportStateCreateInfo viewportState = {};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -832,8 +854,8 @@ VkPipeline ShaderProgramHelper::CreateGraphicsPipeline(const RenderCore& _render
     createInfo.pMultisampleState = &multisampleState;
     createInfo.pDynamicState = &dynamicState;
     createInfo.pViewportState = &viewportState;
-    createInfo.stageCount = (ionU32)stages->size();
-    createInfo.pStages = stages->data();
+    createInfo.stageCount = (ionU32)stages.size();
+    createInfo.pStages = stages.data();
 
     VkPipeline pipeline = VK_NULL_HANDLE;
 

@@ -144,7 +144,7 @@ void IndexBuffer::Update(const void* _data, ionSize _size, ionSize _offset /*= 0
     {
         ionAssertReturnVoid(ION_IS_ALIGNED(m_allocation.m_mappedData + GetOffset() + _offset, ION_MEMORY_ALIGNMENT_SIZE), "Buffer not aligned to 16");
         ionAssertReturnVoid(ION_IS_ALIGNED((const ionU8*)_data, ION_MEMORY_ALIGNMENT_SIZE), "Buffer not aligned to 16");
-        CopyBuffer(m_allocation.m_mappedData + GetOffset() + _offset, (const ionU8*)_data, _size);
+		MemUtils::MemCpy(m_allocation.m_mappedData + GetOffset() + _offset, (const ionU8*)_data, _size);
     }
     else
     {
@@ -153,7 +153,7 @@ void IndexBuffer::Update(const void* _data, ionSize _size, ionSize _offset /*= 0
         ionSize stageOffset = 0;
         ionU8* stageData = ionStagingBufferManager().Stage(_size, ION_MEMORY_ALIGNMENT_SIZE, commandBuffer, stageBuffer, stageOffset);
 
-        CopyBuffer(stageData, (const ionU8*)_data, _size);
+		MemUtils::MemCpy(stageData, (const ionU8*)_data, _size);
 
         VkBufferCopy bufferCopy = {};
         bufferCopy.srcOffset = stageOffset;

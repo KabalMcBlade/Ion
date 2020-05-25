@@ -5,12 +5,17 @@
 
 #include "../Dependencies/Eos/Eos/Eos.h"
 
-
 #include "Transform.h"
 
 #include "../App/Mode.h"
 
 #include "../Core/UUID.h"
+
+#include "../Core/MemorySettings.h"
+
+
+#define ION_BASE_NODE_NAME "Node"
+
 
 EOS_USING_NAMESPACE
 
@@ -44,31 +49,49 @@ enum ENodeRenderLayer : ionU32
     // if need more, add here!
 };
 
-
-// class Node;
-// typedef ionSmartPointer<Node> ObjectHandler;
-// 
-// // special template 
-// template<typename T> using ionObjectHandler = ionSmartPointer<T>;
-
+using NodeAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
 
 
 class BoundingBox;
 class Mesh;
 class BaseMeshRenderer;
 class AnimationRenderer;
-class ION_DLL Node : public eosSmartObject
+class ION_DLL Node
 {
+public:
+	static NodeAllocator* GetAllocator();
+
 public:
     Node();
     explicit Node(const ionString & _name);
     virtual ~Node();
 
+	//////////////////////////////////////////////////////////////////////////
+	template <typename T, typename... Args>
+	static T* __CreateNode(Args&&... args)
+	{
+		T* temp = nullptr;
+		ionAssertReturnValue((Node const*)&temp, "Template must inherit from Node", nullptr);
+		temp = ionNew(T, GetAllocator(), std::forward<Args>(args)...);
+		return temp;
+	}
+
+	template <class T>
+	static void __DestroyNode(T* _node)
+	{
+		ionAssertReturnVoid((Node const*)&_node, "Template must inherit from Node");
+		ionDelete(_node, GetAllocator());
+	}
+
+#define CreateNode(Type, ...)	 Node::__CreateNode<Type>(__VA_ARGS__)
+#define DestroyNode(Object)	 Node::__DestroyNode(Object)
+
+
     //////////////////////////////////////////////////////////////////////////
 
     //
     // USER VIRTUAL CALLS
-    virtual void OnAttachToParent(ObjectHandler& _parent) {}
+    virtual void OnAttachToParent(Node* _parent) {}
     virtual void OnDetachFromParent() {}
 
     virtual void OnBegin() {}
@@ -113,8 +136,7 @@ public:
     void SetVisible(ionBool _isVisible);
     ionBool IsVisible() const { return m_visible; }
 
-	//void AttachToParent(Node* _parent);
-    void AttachToParent(ObjectHandler& _parent);
+    void AttachToParent(Node* _parent);
     void DetachFromParent();
 
     void AddToRenderLayer(ENodeRenderLayer _layer);
@@ -133,23 +155,24 @@ public:
 
     void Update(ionFloat _deltaTime);
 
-    const Node* GetParent() const { return m_parent; }
+	const Node* GetParent() const { return m_parent; }
+	Node* GetParent() { return m_parent; }
 
     const Transform &GetTransform() const { return m_transform; }
     Transform &GetTransform() { return m_transform; }
 
-    ionVector<ObjectHandler> &GetChildren() { return m_children; };
+    ionVector<Node*, NodeAllocator, GetAllocator> &GetChildren() { return m_children; };
 
-    ionVector<ObjectHandler>::const_iterator ChildrenIteratorBeginConst() { return m_children->begin();}
-    ionVector<ObjectHandler>::const_iterator ChildrenIteratorEndConst() { return m_children->end(); }
-    ionVector<ObjectHandler>::iterator ChildrenIteratorBegin() { return m_children->begin(); }
-    ionVector<ObjectHandler>::iterator ChildrenIteratorEnd() { return m_children->end(); }
+    ionVector<Node*, NodeAllocator, GetAllocator>::const_iterator ChildrenIteratorBeginConst() { return m_children.cbegin();}
+    ionVector<Node*, NodeAllocator, GetAllocator>::const_iterator ChildrenIteratorEndConst() { return m_children.cend(); }
+    ionVector<Node*, NodeAllocator, GetAllocator>::iterator ChildrenIteratorBegin() { return m_children.begin(); }
+    ionVector<Node*, NodeAllocator, GetAllocator>::iterator ChildrenIteratorEnd() { return m_children.end(); }
 
     //////////////////////////////////////////////////////////////////////////
 
     // "Special accessor call"
 
-    void IterateAll(const std::function< void(const ObjectHandler& _node) >& _lambda = nullptr);
+    void IterateAll(const std::function< void(Node* _node) >& _lambda = nullptr);
 
 protected:
     ENodeType    m_nodeType;
@@ -162,12 +185,12 @@ private:
 
     ionU32 m_renderLayer;
 
-    Node* m_parent; // to avoid cross reference is a ptr instead of a smart object
+    Node* m_parent; 
     Transform m_transform;
 
     ionString m_name;
     
-    ionVector<ObjectHandler> m_children;
+    ionVector<Node*, NodeAllocator, GetAllocator> m_children;
 
     ionBool m_active;
     ionBool m_visible;

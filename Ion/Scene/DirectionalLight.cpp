@@ -32,9 +32,9 @@ void DirectionalLight::SetColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat 
     m_color = Helper::Set(_r, _g, _b, _a);
 }
 
-Vector DirectionalLight::GetLightDirection() const
+Vector4 DirectionalLight::GetLightDirection() const
 {
-    static const Vector forward(0.0f, 0.0f, 1.0, 0.0f);
+    static const Vector4 forward(0.0f, 0.0f, 1.0, 0.0f);
     return GetTransform().GetRotation() * forward;
 }
 

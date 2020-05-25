@@ -11,18 +11,26 @@ NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
+AnimationRendererAllocator* AnimationRenderer::GetAllocator()
+{
+	static HeapArea<Settings::kAnimationRendererAllocatorSize> memoryArea;
+	static AnimationRendererAllocator memoryAllocator(memoryArea, "AnimationRendererFreeListAllocator");
+
+	return &memoryAllocator;
+}
+
 AnimationRenderer::AnimationRenderer() : m_enabled(true), m_timer(0.0f), m_animationSpeedMultiplier(1.0f), m_animationIndex(0)
 {
 }
 
 AnimationRenderer::~AnimationRenderer()
 {
-    m_aninimations->clear();
+    m_aninimations.clear();
 }
 
 void AnimationRenderer::PushBackAnimation(const Animation& _animation)
 {
-    m_aninimations->push_back(_animation);
+    m_aninimations.push_back(_animation);
 }
 
 void AnimationRenderer::OnUpateAll(ionFloat _deltaTime)
@@ -92,25 +100,25 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
 {
     Animation& anim = m_aninimations[_animationIndex];
 
-    ionVector<AnimationChannel>::iterator begin = anim.ChannelsIteratorBegin(), end = anim.ChannelsIteratorEnd(), it = begin;
+    ionVector<AnimationChannel, AnimationChannelAllocator, AnimationChannel::GetAllocator>::iterator begin = anim.ChannelsIteratorBegin(), end = anim.ChannelsIteratorEnd(), it = begin;
     for (; it != end; ++it)
     {
         AnimationChannel& channel = *it;
 
-        ionVector<AnimationSampler>& samplers = anim.GetSamplers();
+        ionVector<AnimationSampler, AnimationAllocator, Animation::GetAllocator>& samplers = anim.GetSamplers();
 
         // Sanity check
         AnimationSampler& sampler = samplers[channel.GetSamplerIndex()];
         if (channel.GetPath() == EAnimationPathType_WeightMorphTarget)
         {
-            if (sampler.GetInputs()->size() > sampler.GetMorphTargets()->size())
+            if (sampler.GetInputs().size() > sampler.GetMorphTargets().size())
             {
                 continue;
             }
         }
         else
         {
-            if (sampler.GetInputs()->size() > sampler.GetLinearPaths()->size())
+            if (sampler.GetInputs().size() > sampler.GetLinearPaths().size())
             {
                 continue;
             }
@@ -125,8 +133,8 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
         }
 
         // logic
-        ionVector<ionFloat>& inputs = sampler.GetInputs();
-        const ionU32 inputSize = static_cast<ionU32>(inputs->size());
+        ionVector<ionFloat, AnimationSamplerAllocator, AnimationSampler::GetAllocator>& inputs = sampler.GetInputs();
+        const ionU32 inputSize = static_cast<ionU32>(inputs.size());
         for (ionU32 i = 0; i < inputSize - 1; ++i)
         {
             if ((_animationTimer >= inputs[i]) && (_animationTimer <= inputs[i + 1]))
@@ -143,13 +151,13 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
                         {
                         case EAnimationPathType_Translation:
                         {
-                            Vector position = sampler.GetLinearPath(i).LerpTo(sampler.GetLinearPath(i + 1), t);
+                            Vector4 position = sampler.GetLinearPath(i).LerpTo(sampler.GetLinearPath(i + 1), t);
                             channel.GetNode()->GetTransform().SetPosition(position);
                             break;
                         }
                         case EAnimationPathType_Scale:
                         {
-                            Vector scale = sampler.GetLinearPath(i).LerpTo(sampler.GetLinearPath(i + 1), t);
+                            Vector4 scale = sampler.GetLinearPath(i).LerpTo(sampler.GetLinearPath(i + 1), t);
                             channel.GetNode()->GetTransform().SetScale(scale);
                             break;
                         }
@@ -189,13 +197,13 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
                         {
                         case EAnimationPathType_Translation:
                         {
-                            Vector position = sampler.GetLinearPath(i).StepTo(sampler.GetLinearPath(i + 1), t);
+                            Vector4 position = sampler.GetLinearPath(i).StepTo(sampler.GetLinearPath(i + 1), t);
                             channel.GetNode()->GetTransform().SetPosition(position);
                             break;
                         }
                         case EAnimationPathType_Scale:
                         {
-                            Vector scale = sampler.GetLinearPath(i).StepTo(sampler.GetLinearPath(i + 1), t);
+                            Vector4 scale = sampler.GetLinearPath(i).StepTo(sampler.GetLinearPath(i + 1), t);
                             channel.GetNode()->GetTransform().SetScale(scale);
                             break;
                         }
@@ -235,26 +243,26 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
                         {
                         case EAnimationPathType_Translation:
                         {
-                            Vector p0 = sampler.GetLinearPath(i);
-                            Vector m0 = sampler.GetLinearPath(i) * td;
-                            Vector p1 = sampler.GetLinearPath(i + 1);
-                            Vector m1 = sampler.GetLinearPath(i + 1) * td;
-                            Vector u(t);
+                            Vector4 p0 = sampler.GetLinearPath(i);
+                            Vector4 m0 = sampler.GetLinearPath(i) * td;
+                            Vector4 p1 = sampler.GetLinearPath(i + 1);
+                            Vector4 m1 = sampler.GetLinearPath(i + 1) * td;
+                            Vector4 u(t);
 
-                            Vector position = Helper::HermiteCubicSpline(p0, m0, p1, m1, u);
+                            Vector4 position = Helper::HermiteCubicSpline(p0, m0, p1, m1, u);
 
                             channel.GetNode()->GetTransform().SetPosition(position);
                             break;
                         }
                         case EAnimationPathType_Scale:
                         {
-                            Vector p0 = sampler.GetLinearPath(i);
-                            Vector m0 = sampler.GetLinearPath(i) * td;
-                            Vector p1 = sampler.GetLinearPath(i + 1);
-                            Vector m1 = sampler.GetLinearPath(i + 1) * td;
-                            Vector u(t);
+                            Vector4 p0 = sampler.GetLinearPath(i);
+                            Vector4 m0 = sampler.GetLinearPath(i) * td;
+                            Vector4 p1 = sampler.GetLinearPath(i + 1);
+                            Vector4 m1 = sampler.GetLinearPath(i + 1) * td;
+                            Vector4 u(t);
 
-                            Vector scale = Helper::HermiteCubicSpline(p0, m0, p1, m1, u);
+                            Vector4 scale = Helper::HermiteCubicSpline(p0, m0, p1, m1, u);
 
                             channel.GetNode()->GetTransform().SetScale(scale);
                             break;
@@ -266,7 +274,7 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
                             Quaternion m0 = sampler.GetLinearPath(i) * td;
                             Quaternion p1 = sampler.GetLinearPath(i + 1);
                             Quaternion m1 = sampler.GetLinearPath(i + 1) * td;
-                            Vector u(t);
+                            Vector4 u(t);
 
                             Quaternion rotation = Helper::HermiteCubicSpline(p0, m0, p1, m1, u);
                             rotation = rotation.Normalize();
