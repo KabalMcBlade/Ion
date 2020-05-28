@@ -169,8 +169,6 @@ struct TestMalloc
 
 int main(int argc, char **argv)
 {
-    //vkMemoryInit();
-
     ShaderProgramHelper::Create();
 
     ionFileSystemManager().Init("Assets", "Shaders", "Textures", "Models");
@@ -456,8 +454,6 @@ int main(int argc, char **argv)
     ionFileSystemManager().Shutdown();
 
     ShaderProgramHelper::Destroy();
-
-    //vkMemoryShutdown();
 
     return 0;
 }
