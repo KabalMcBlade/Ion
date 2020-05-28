@@ -453,7 +453,7 @@ const Texture* RenderManager::GenerateBRDF(Node* _camera)
 
     brdflutEntity->GetMesh(0)->GetMaterial()->GetState().SetCullingMode(ECullingMode_TwoSide);
 
-    VkRenderPass renderPass = m_renderCore.CreateTexturedRenderPass(brdflut, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    VkRenderPass renderPass = m_renderCore.CreateTexturedRenderPass(brdflut, VK_IMAGE_LAYOUT_GENERAL);
     VkFramebuffer framebuffer = m_renderCore.CreateTexturedFrameBuffer(renderPass, brdflut);
 
     VkCommandBuffer cmdBuffer = m_renderCore.CreateCustomCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
@@ -748,7 +748,7 @@ const Texture* RenderManager::GenerateIrradianceCubemap(Node* _camera)
 			imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 			imageMemoryBarrier.image = irradiance->GetImage();
 			imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-			imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
 			imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			imageMemoryBarrier.dstAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
 			imageMemoryBarrier.subresourceRange = subresourceRange;
@@ -1028,7 +1028,7 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(Node* _camer
             imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
             imageMemoryBarrier.image = prefilteredEnvironment->GetImage();
             imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-            imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
             imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
             imageMemoryBarrier.dstAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
             imageMemoryBarrier.subresourceRange = subresourceRange;
