@@ -15,6 +15,10 @@ GPUAllocator* GPU::GetAllocator()
 
 GPU::GPU() :  m_vkPhysicalDevice(VK_NULL_HANDLE)
 {
+	memset(&m_vkPhysicalDeviceProps, 0, sizeof(VkPhysicalDeviceProperties));
+	memset(&m_vkPhysicalDeviceMemoryProperties, 0, sizeof(VkPhysicalDeviceMemoryProperties));
+	memset(&m_vkPhysicalDevFeatures, 0, sizeof(VkPhysicalDeviceFeatures));
+	memset(&m_vkSurfaceCaps, 0, sizeof(VkSurfaceCapabilitiesKHR));
 }
 
 GPU::~GPU()

@@ -1314,7 +1314,6 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
 {
     // this prevent a odd crash due steam validation layer
     _putenv("DISABLE_VK_LAYER_VALVE_steam_overlay_1=1");
-	_putenv("VK_LOADER_DEBUG=all");
 
     Clear();
 
