@@ -46,6 +46,7 @@ void DirectionalLightDebugEntity::OnMouseInput(const ion::MouseState& _mouseStat
 		Quaternion currRot = prevRot * currRotY * currRotX;
 
         GetTransform().SetRotation(currRot);
+		ionRenderManager().GetDirectionalLight()->GetTransform().SetRotation(currRot);
     }
 }
 
@@ -309,28 +310,6 @@ MainCamera::MainCamera() : Camera("Main Camera"), m_mouseSensitivity(0.05f), m_m
 
 MainCamera::~MainCamera()
 {
-}
-
-void MainCamera::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime)
-{
-    if (MainCamera::m_toggleLightRotation)
-    {
-        ion::DirectionalLight* directionalLight = ionRenderManager().GetDirectionalLight();
-
-        ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
-        ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
-
-        xOffset *= m_mouseSensitivity;
-        yOffset *= m_mouseSensitivity;
-
-        const Quaternion& prevRot = directionalLight->GetTransform().GetRotation();
-
-        Quaternion currRot(NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(xOffset), 0.0f);
-
-        currRot = prevRot * currRot;
-
-        directionalLight->GetTransform().SetRotation(currRot);
-    }
 }
 
 void MainCamera::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime)

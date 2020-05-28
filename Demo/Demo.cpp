@@ -31,11 +31,8 @@
 
 #define VULKAN_STAGING_BUFFER_MB    MEMORY_512_MB
 
-#ifdef _DEBUG
-#   define ION_VULKAN_VALIDATION_LAYER true
-#else
-#   define ION_VULKAN_VALIDATION_LAYER false
-#endif
+#define ION_VULKAN_VALIDATION_LAYER true
+
 
 //////////////////////////////////////////////////////////////////////////
 

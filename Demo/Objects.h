@@ -63,7 +63,6 @@ public:
     virtual ~MainCamera();
 
 public:
-    virtual void OnMouseInput(const ion::MouseState& _mouseState, ionFloat _deltaTime) override;
     virtual void OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime) override;
 
 private:
@@ -71,7 +70,7 @@ private:
     ionFloat m_mouseSensitivity;
     
 public:
-    static ionBool m_toggleLightRotation;
+	static ionBool m_toggleLightRotation;
 
 private:
     enum EPBRDebugType
