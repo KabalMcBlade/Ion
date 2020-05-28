@@ -142,8 +142,12 @@ private:
     ionBool CreateRenderTargets();
     void    DestroyRenderTargets();
     ionBool CreatePipelineCache();
-    void    CreateDebugReport();
+
+    void    CreateDebugReport(const VkDebugReportCallbackCreateInfoEXT& createInfo);
     void    DestroyDebugReport();
+	void    CreateDebugUtilMessanger(const VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+	void    DestroyDebugUtilMessanger();
+
 
 private:
     HINSTANCE                   m_instance;
@@ -165,6 +169,9 @@ private:
     VkDebugReportCallbackEXT    m_vkDebugCallback;
     VkSemaphore                 m_vkAcquiringSemaphore;
     VkSemaphore                 m_vkCompletedSemaphore;
+
+	// report message only
+	VkDebugUtilsMessengerEXT	m_debugUtilsMessenger;
 
     GpuMemoryAllocation       m_vkMSAAAllocation;
     VkImage                     m_vkMSAAImage;

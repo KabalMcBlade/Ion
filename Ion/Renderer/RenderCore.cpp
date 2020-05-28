@@ -21,6 +21,7 @@
 
 #define VK_NAME                     "Ion"
 #define VK_LUNAR_VALIDATION_LAYER   "VK_LAYER_LUNARG_standard_validation"
+#define VK_KHRONOS_VALIDATION_LAYER "VK_LAYER_KHRONOS_validation"
 
 EOS_USING_NAMESPACE
 
@@ -124,52 +125,133 @@ VkFormat RenderCore::SelectSupportedFormat(VkPhysicalDevice _vkPhysicalDevice, V
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char* layerPrefix, const char* msg, void* userData) 
 {
-    ionString prefix("");
-    if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
-    {
-        prefix += "[ERROR]";
-    };
-    if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
-    {
-        prefix += "[WARNING]";
-    };
-    if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) 
-    {
-        prefix += "[DEBUG]";
-    }
+	ionString prefix;
+	if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
+	{
+		prefix = "[INFO]";
+	};
+	if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
+	{
+		prefix = "[WARNING]";
+	};
+	if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
+	{
+		prefix = "[PERFORMANCE]";
+	};
+	if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+	{
+		prefix = "[ERROR]";
+	};
+	if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT)
+	{
+		prefix = "[DEBUG]";
+	}
 
-    std::cerr << prefix << "[" << layerPrefix << "] - " << msg << std::endl;
-    return VK_FALSE;
+	std::cerr << prefix << "[TYPE:" << layerPrefix << "]" << std::endl << msg << std::endl << std::endl;
+	return VK_FALSE;
 }
 
-void RenderCore::CreateDebugReport()
+static VKAPI_ATTR VkBool32 VKAPI_CALL utilMessangerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
-    if (m_vkValidationEnabled)
-    {
-        VkDebugReportCallbackCreateInfoEXT createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-        createInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT | VK_DEBUG_REPORT_DEBUG_BIT_EXT;
-        createInfo.pfnCallback = debugCallback;
+	ionString prefix;
 
-        auto func = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_vkInstance, "vkCreateDebugReportCallbackEXT");
-        if (func != nullptr)
-        {
-            func(m_vkInstance, &createInfo, vkMemory, &m_vkDebugCallback);
-        }
-    }
+	switch (messageSeverity)
+	{
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+		prefix = "[VERBOSE]";
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+		prefix = "[INFO]";
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+		prefix = "[WARNING]";
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+		prefix = "[ERROR]";
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT:
+		prefix = "[VERBOSE|INFO|WARNING|ERROR]";
+		break;
+	default:
+		break;
+	}
+
+	ionString type;
+	if (messageType & VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT)
+	{
+		type = "General";
+	};
+	if (messageType & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT)
+	{
+		type = "Validation";
+	};
+	if (messageType & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT)
+	{
+		type = "Performance";
+	};
+
+	std::cerr << prefix << "[TYPE:" << type << "]" << std::endl << pCallbackData->pMessage << std::endl << std::endl;
+	return VK_FALSE;
+}
+
+
+void PopulateDebugDebugReportCreateInfo(VkDebugReportCallbackCreateInfoEXT& createInfo)
+{
+	createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+	createInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT | VK_DEBUG_REPORT_DEBUG_BIT_EXT;
+	createInfo.pfnCallback = debugCallback;
+}
+
+void RenderCore::CreateDebugReport(const VkDebugReportCallbackCreateInfoEXT& createInfo)
+{
+	auto func = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_vkInstance, "vkCreateDebugReportCallbackEXT");
+	if (func != nullptr)
+	{
+		VkResult result = func(m_vkInstance, &createInfo, vkMemory, &m_vkDebugCallback);
+		ionAssertReturnVoid(result == VK_SUCCESS, "Impossible create Debug Report!");
+	}
 }
 
 void RenderCore::DestroyDebugReport()
 {
-    if (m_vkValidationEnabled)
-    {
-        auto func = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(m_vkInstance, "vkDestroyDebugReportCallbackEXT");
-        if (func != nullptr)
-        {
-            func(m_vkInstance, m_vkDebugCallback, vkMemory);
-        }
-    }
+	auto func = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(m_vkInstance, "vkDestroyDebugReportCallbackEXT");
+	if (func != nullptr)
+	{
+		func(m_vkInstance, m_vkDebugCallback, vkMemory);
+	}
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+void PopulateDebugUtilMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+{
+	createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	createInfo.pfnUserCallback = utilMessangerCallback;
+}
+
+void RenderCore::CreateDebugUtilMessanger(const VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+{
+	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(m_vkInstance, "vkCreateDebugUtilsMessengerEXT");
+	if (func != nullptr)
+	{
+		VkResult result = func(m_vkInstance, &createInfo, vkMemory, &m_debugUtilsMessenger);
+		ionAssertReturnVoid(result == VK_SUCCESS, "Impossible create Utils Messenger!");
+	}
+}
+
+void RenderCore::DestroyDebugUtilMessanger()
+{
+	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(m_vkInstance, "vkDestroyDebugUtilsMessengerEXT");
+	if (func != nullptr)
+	{
+		func(m_vkInstance, m_debugUtilsMessenger, vkMemory);
+	}
+}
+
 
 ionBool RenderCore::CreateInstance(ionBool _enableValidationLayer)
 {
@@ -184,19 +266,25 @@ ionBool RenderCore::CreateInstance(ionBool _enableValidationLayer)
 
     VkInstanceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pNext = nullptr;
     createInfo.pApplicationInfo = &appInfo;
+	createInfo.pNext = nullptr; // null default, override in case of validation layers ON
 
     ionVector<const char*, RenderCoreAllocator, GetAllocator> enabledExtensions;
     enabledExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
     enabledExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 
+
+	VkDebugReportCallbackCreateInfoEXT createInfoDebugReport;
+	VkDebugUtilsMessengerCreateInfoEXT createInfoUtilsMessenger;
+
 	ionVector<const char*, RenderCoreAllocator, GetAllocator> enabledLayers;
     if (m_vkValidationEnabled)
     {
         enabledExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+		enabledExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
         enabledLayers.push_back(VK_LUNAR_VALIDATION_LAYER);
+		enabledLayers.push_back(VK_KHRONOS_VALIDATION_LAYER);
 
         ionU32 layerCount = 0;
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -205,26 +293,43 @@ ionBool RenderCore::CreateInstance(ionBool _enableValidationLayer)
         layers.resize(layerCount);
         vkEnumerateInstanceLayerProperties(&layerCount, layers.data());
 
-        bool found = false;
-        for (ionU32 i = 0; i < layerCount; ++i)
-        {
-            if (std::strcmp(VK_LUNAR_VALIDATION_LAYER, layers[i].layerName) == 0)
-            {
-                found = true;
-                break;
-            }
-        }
-        ionAssertReturnValue(found, "Cannot find validation layer", false);
-        // here break
+
+		for (const char* layerName : enabledLayers)
+		{
+			bool layerFound = false;
+
+			for (const auto& layerProperties : layers)
+			{
+				if (strcmp(layerName, layerProperties.layerName) == 0)
+				{
+					layerFound = true;
+					break;
+				}
+			}
+
+			ionAssertReturnValue(layerFound, "Cannot find validation layer", false);
+		}
 
         createInfo.enabledLayerCount = (ionU32)enabledLayers.size();
         createInfo.ppEnabledLayerNames = enabledLayers.data();
+
+		PopulateDebugUtilMessengerCreateInfo(createInfoUtilsMessenger);
+		PopulateDebugDebugReportCreateInfo(createInfoDebugReport);
+
+		createInfoUtilsMessenger.pNext = (VkDebugReportCallbackCreateInfoEXT*)&createInfoDebugReport;
+		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&createInfoUtilsMessenger;
     }
 
     createInfo.enabledExtensionCount = (ionU32)enabledExtensions.size();
     createInfo.ppEnabledExtensionNames = enabledExtensions.data();
 
     VkResult result = vkCreateInstance(&createInfo, vkMemory, &m_vkInstance);
+
+	if (result == VK_SUCCESS && m_vkValidationEnabled)
+	{
+		CreateDebugUtilMessanger(createInfoUtilsMessenger);
+		CreateDebugReport(createInfoDebugReport);
+	}
 
     return (result == VK_SUCCESS);
 }
@@ -1209,6 +1314,7 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
 {
     // this prevent a odd crash due steam validation layer
     _putenv("DISABLE_VK_LAYER_VALVE_steam_overlay_1=1");
+	_putenv("VK_LOADER_DEBUG=all");
 
     Clear();
 
@@ -1223,8 +1329,6 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
     {
         return false;
     }
-
-    CreateDebugReport();
 
     if (!CreatePresentationSurface(m_instance, m_window))
     {
@@ -1377,10 +1481,15 @@ void RenderCore::Shutdown()
         vkDestroyDevice(m_vkDevice, vkMemory);
     }
 
-    DestroyDebugReport();
 
     if (m_vkInstance != VK_NULL_HANDLE)
     {
+		if (m_vkValidationEnabled)
+		{
+			DestroyDebugUtilMessanger();
+			DestroyDebugReport();
+		}
+
         vkDestroyInstance(m_vkInstance, vkMemory);
     }
 }
