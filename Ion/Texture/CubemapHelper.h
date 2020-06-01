@@ -6,6 +6,7 @@
 #include "../Core/CoreDefs.h"
 
 #include "../Dependencies/Eos/Eos/Eos.h"
+#include "../Dependencies/Nix/Nix/Nix.h"
 
 #include "../Core/MemoryWrapper.h"
 
@@ -15,6 +16,7 @@
 
 
 EOS_USING_NAMESPACE
+NIX_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
@@ -117,8 +119,8 @@ void CubemapHelper::GenerateFaceFromLatLong(const void* _source, void* _dest, io
             const ionFloat rad = std::sqrt(x * x + y * y);
             const ionFloat phi = std::atan2(z, rad);
 
-            const ionFloat uf = 2.0f * (m_width / 4) * (theta + kfPI) / kfPI;
-            const ionFloat vf = 2.0f * (m_width / 4) * (kfHalfPI - phi) / kfPI;
+            const ionFloat uf = 2.0f * (m_width / 4) * (theta + NIX_PI) / NIX_PI;
+            const ionFloat vf = 2.0f * (m_width / 4) * (NIX_HALF_PI - phi) / NIX_PI;
             const ionU32 ui = (ionU32)std::floorf(uf);
             const ionU32 vi = (ionU32)std::floorf(vf);
 

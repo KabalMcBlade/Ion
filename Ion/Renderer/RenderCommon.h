@@ -151,7 +151,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
     ION_INLINE void Clear() 
     {
-        m_position = kZero.m_simdf;
+        m_position = Vector4(kZero);
         this->m_textureCoordUV0[0] = 0.0f;
         this->m_textureCoordUV0[1] = 0.0f;
         this->m_textureCoordUV1[0] = 0.0f;
@@ -595,7 +595,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
 
     ION_INLINE void Clear()
     {
-        m_position = kZero.m_simdf;
+        m_position = Vector4(kZero);
         this->m_textureCoordUV[0] = 0.0f;
         this->m_textureCoordUV[1] = 0.0f;
         memset(m_normal, 0, sizeof(m_normal));
@@ -723,7 +723,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexNormal
 
     ION_INLINE void Clear()
     {
-        m_position = kZero.m_simdf;
+        m_position = Vector4(kZero);
         memset(m_normal, 0, sizeof(m_normal));
     }
 
@@ -792,7 +792,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
 
     ION_INLINE void Clear()
     {
-        m_position = kZero.m_simdf;
+        m_position = Vector4(kZero);
         memset(m_color, 0, sizeof(m_color));
     }
 
@@ -861,7 +861,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
 
     ION_INLINE void Clear()
     {
-        m_position = kZero.m_simdf;
+        m_position = Vector4(kZero);
         this->m_textureCoordUV[0] = 0.0f;
         this->m_textureCoordUV[1] = 0.0f;
     }
@@ -950,7 +950,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexPlain
 
     ION_INLINE void Clear()
     {
-        m_position = kZero.m_simdf;
+        m_position = Vector4(kZero);
     }
 
     ION_INLINE Vector4 GetPosition() const
@@ -995,7 +995,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
 
     ION_INLINE void Clear()
     {
-        m_position = kZero.m_simdf;
+        m_position = Vector4(kZero);
         memset(m_normal, 0, sizeof(m_normal));
         memset(m_tangent, 0, sizeof(m_tangent));
     }

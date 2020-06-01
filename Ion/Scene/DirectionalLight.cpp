@@ -13,13 +13,13 @@ ION_NAMESPACE_BEGIN
 DirectionalLight::DirectionalLight() :  Node(ION_BASE_DIRECTIONAL_LIGHT)
 {
     m_nodeType = ENodeType_DirectionalLight;
-    m_color = kOne.m_simdf;
+    m_color = Vector4(kOneVec4);
 }
 
 DirectionalLight::DirectionalLight(const ionString & _name) : Node(_name)
 {
     m_nodeType = ENodeType_DirectionalLight;
-    m_color = kOne.m_simdf;
+    m_color = Vector4(kOneVec4);
 }
 
 DirectionalLight::~DirectionalLight()

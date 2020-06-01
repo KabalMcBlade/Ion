@@ -914,14 +914,14 @@ void PrimitiveFactory::GenerateSphere(EVertexLayout _layout, Entity* _entity, io
 	for (ionU32 i = 0; i <= stacks; ++i)
 	{
 		ionFloat V = (ionFloat)i / (ionFloat)stacks;
-		ionFloat phi = V * kfPI;
+		ionFloat phi = V * NIX_PI;
 
 		// loop through the slices.
 		for (ionU32 j = 0; j <= slices; ++j)
 		{
 
 			ionFloat U = (ionFloat)j / (ionFloat)slices;
-			ionFloat theta = U * (kfPI * 2);
+			ionFloat theta = U * (NIX_PI * 2);
 
 			// use spherical coordinates to calculate the positions.
 			ionFloat x = cos(theta) * sin(phi);

@@ -35,7 +35,7 @@ BoundingBox::~BoundingBox()
 
 void BoundingBox::Reset()
 {
-    Set(kPlusInf.m_simdf, kMinusInf.m_simdf);
+    Set(Vector4(kPlusInf), Vector4(kMinusInf));
 }
 
 void BoundingBox::Set(const Vector4& _min, const Vector4& _max)
@@ -61,14 +61,14 @@ void BoundingBox::Set(const Vector4& _min, const Vector4& _max)
 
 void BoundingBox::SetInfinite()
 {
-    m_min = kMinusInf.m_simdf;
-    m_max = kPlusInf.m_simdf;
+    m_min = Vector4(kMinusInf);
+    m_max = Vector4(kPlusInf);
 }
 
 void BoundingBox::SetZero()
 {
-    m_min = kZero.m_simdf;
-    m_max = kZero.m_simdf;
+    m_min = Vector4(kZero);
+    m_max = Vector4(kZero);
 }
 
 void BoundingBox::MergePoint(const Vector4& _point)

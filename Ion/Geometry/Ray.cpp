@@ -9,7 +9,7 @@ ION_NAMESPACE_BEGIN
 
 Ray::Ray()
 {
-    Set(kZero.m_simdf, kOne.m_simdf);
+    Set(Vector4(kZero), Vector4(kOneVec4));
 }
 
 Ray::Ray(const Vector4& _origin, const Vector4& _direction)
@@ -29,7 +29,7 @@ Ray::~Ray()
 
 void Ray::Set(const Vector4& _origin, const Vector4& _direction)
 {
-    static const Vector4 one = kOne;
+    static const Vector4 one = Vector4(kOneVec4);
     m_origin = _origin;
     m_direction = _direction;
     m_inverseDirection = one / _direction;

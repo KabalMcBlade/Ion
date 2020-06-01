@@ -198,12 +198,6 @@
     <ClInclude Include="Renderer\StorageBufferObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\Nix\Nix\Operators.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\Nix\Nix\Constants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Dependencies\Nix\Nix\Helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -352,6 +346,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\Nix\Nix\Vector4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Nix\Nix\Conversion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Nix\Nix\Permute.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Nix\Nix\Constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -201,6 +201,7 @@
     <ClInclude Include="Dependencies\Miscellaneous\stb_image_write.h" />
     <ClInclude Include="Dependencies\Miscellaneous\tiny_gltf.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Constants.h" />
+    <ClInclude Include="Dependencies\Nix\Nix\Conversion.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Core\Architecture.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Core\Assertions.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Core\BasicDefines.h" />
@@ -211,7 +212,7 @@
     <ClInclude Include="Dependencies\Nix\Nix\Matrix.h" />
     <ClInclude Include="Dependencies\Nix\Nix\MatrixHelper.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Nix.h" />
-    <ClInclude Include="Dependencies\Nix\Nix\Operators.h" />
+    <ClInclude Include="Dependencies\Nix\Nix\Permute.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Quaternion.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Swizzle.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Trigonometry.h" />
