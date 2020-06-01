@@ -80,12 +80,13 @@ For instance:	-width 1024 -height 768 -fullscreen true
 * -usepath
 	* if -usepath is set, you need to specified the fullpath of the model file and can be everywhere 
 * -dumpgltf
-	* will dump the gltf model loaded in the ION structure nodes into json file, following different level of detail (0: just nodes and transform; 1: nodes, transform and animations if any; 2; everything, even vertex, which is very expensive and will generate huge file; default 1)
+	* will dump the gltf model loaded in the ION structure nodes into json file, following different level of detail (0: just nodes and transform; 1: nodes, transform and animations if any; 2; everything, even vertex, which is very expensive and will generate huge file)
 
 For instance:	
+* -primitive cube
 * -model DamagedHelmet.gltf
-* -usepath -model C:\Users\MyUser\Downloads\DamagedHelmet\DamagedHelmet.gltf
-* -dumpgltf 1
+* -usepath -model "C:\Users\MyUser\Downloads\DamagedHelmet\DamagedHelmet.gltf"
+* -dumpgltf 1 -model DamagedHelmet
 
 #### Controls
 
@@ -110,6 +111,11 @@ To Debug PBR
 Animations: (NOTE: for now supported only animation, not morph/target or skinning)
 * Press **Up arrow** or **Down arrow** to change animation to play (if any)
 * Press **Right arrow** or **Left arror** to increment or decrement the speed of the animation
+
+## Note on control and on model loaded
+This demo is a simple imported in the way that it is loading he GLTF format file.
+THere are some error and sometimes it does not look right (most of the case work).
+Another important point there is no adjustment about axis or about center, scale or other; so it can happens many time to have different center and the camera work differently model by model
 
 
 ## Important

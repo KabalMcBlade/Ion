@@ -13,7 +13,7 @@ ionBool Intersection::IntersectRayPlane(const Ray& _ray, const Vector4& _planeNo
     ionFloat denom = 0;
     _mm_store_ss(&denom, Helper::Dot(_planeNormal, _ray.GetDirection()));
 
-    if (std::abs(denom) > kfEpsilon)
+    if (std::abs(denom) > NIX_EPSILON)
     {
         ionFloat t = 0;
         _mm_store_ss(&t, Helper::Dot(_pointOnPlane - _ray.GetOrigin(), _planeNormal));
