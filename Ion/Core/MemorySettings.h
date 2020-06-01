@@ -24,10 +24,10 @@ ION_NAMESPACE_BEGIN
 namespace Settings
 {
 	static constexpr ionU32 kCommonAllocatorSize = ION_MEMORY_8_MB;
-	static constexpr ionU32 kAnimationSampleAllocatorSize = ION_MEMORY_1_MB;
-	static constexpr ionU32 kAnimationAllocatorSize = ION_MEMORY_1_MB;
-	static constexpr ionU32 kAnimationRendererAllocatorSize = ION_MEMORY_1_MB;
-	static constexpr ionU32 kAnimationChannelAllocatorSize = ION_MEMORY_1_MB;
+	static constexpr ionU32 kAnimationSampleAllocatorSize = ION_MEMORY_64_MB;
+	static constexpr ionU32 kAnimationAllocatorSize = ION_MEMORY_64_MB;
+	static constexpr ionU32 kAnimationRendererAllocatorSize = ION_MEMORY_128_MB;
+	static constexpr ionU32 kAnimationChannelAllocatorSize = ION_MEMORY_128_MB;
 	static constexpr ionU32 kBoundingBoxAllocatorSize = ION_MEMORY_1_MB;
 	static constexpr ionU32 kMeshRendererAllocatorSize = ION_MEMORY_256_MB;
 	static constexpr ionU32 kPrimitiveFactoryAllocatorSize = ION_MEMORY_2_MB;
@@ -41,8 +41,8 @@ namespace Settings
 	static constexpr ionU32 kSkyBoxAllocatorSize = ION_MEMORY_2_MB;
 	static constexpr ionU32 kShaderProgamAllocatorSize = ION_MEMORY_16_MB;
 	static constexpr ionU32 kShaderProgamHelperAllocatorSize = ION_MEMORY_16_MB;
-	static constexpr ionU32 kTextureAllocatorSize = ION_MEMORY_512_MB;
-	static constexpr ionU32 kLoaderGLTFAllocatorSize = ION_MEMORY_512_MB;
+	static constexpr ionU32 kTextureAllocatorSize = ION_MEMORY_2048_MB;
+	static constexpr ionU32 kLoaderGLTFAllocatorSize = ION_MEMORY_2048_MB;
 	static constexpr ionU32 kSerializeAllocatorSize = ION_MEMORY_32_MB;
 	static constexpr ionU32 kOptionAllocatorSize = ION_MEMORY_1_MB;
 	static constexpr ionU32 kMaterialManagerAllocatorSize = ION_MEMORY_16_MB;
