@@ -35,10 +35,10 @@ Node::Node(const ionString& _name) : m_active(true), m_visible(true), m_renderLa
 
 Node::~Node()
 {
-	ionVector<Node*, NodeAllocator, GetAllocator>::iterator begin = m_children.begin(), end = m_children.end(), it = begin;
-	for (; it != end; ++it)
+	for (ionVector<Node*, NodeAllocator, GetAllocator>::size_type i = 0; i < m_children.size(); ++i)
 	{
-		DestroyNode(*it);
+		Node* node = m_children[i];
+		DestroyNode(node);
 	}
 
 	DetachFromParent();

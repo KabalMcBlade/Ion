@@ -10,6 +10,32 @@ I'm not a render or engine programmer and this work SHOULD NOT BE USED for any c
 
 > Ion in the Greek Mythology is the illegitimate child of Creüsa, daughter of Erechtheus and wife of Xuthus
 
+## Important about Memory
+
+I used my own allocator in this project and it has some specification to follow.
+One of the main point of my allocator is having under control the memory footprint, so you have to define the size.
+In the [MemorySettings.h](https://github.com/KabalMcBlade/Ion/blob/master/Ion/Core/MemorySettings.h) file you will find a list of the allocator used (defined by their size).
+Anyway I did not set the "correct" size, is just depending by the project, so for me so far is ok, but you may want decrease or increase.
+Sometimes some models will let Ion crash for memory, this is just because there is not enough memory for such allocator, so you have to track down the allocator and increase the memory.
+This is simple, follows the below steps:
+1. It will crash at this point
+<img src="./Screenshots/MemorySettings_Crash.png" width="400" height="200">
+2. But you know is not a real crash, just check the console
+<img src="./Screenshots/MemorySettings_ConsoleInfo.png" width="400" height="200">
+3. So using callstack go down until you find something that looks like an array or any containers which resemble give the issue
+<img src="./Screenshots/MemorySettings_CallStack.png" width="400" height="200">
+4. Go to the declaration of that variable and you will see the allocator used
+<img src="./Screenshots/MemorySettings_VarDecl.png" width="400" height="200">
+5. Go to the allocator and to the GetAllocator function associated to it
+<img src="./Screenshots/MemorySettings_Alloc.png" width="400" height="200">
+6. Go to the static value which define the size and you will see the size (Test on purpose I have set 1)
+<img src="./Screenshots/MemorySettings_SmallSize.png" width="400" height="200">
+7. Resize it and run it again (if you want to be sure, set a huge size, or simple test different)
+<img src="./Screenshots/MemorySettings.png" width="400" height="200">
+8. Done!
+
+It takes sometimes because it needs to recompile all, in a future implementation would just be a config file which is read at the beginning and fill such values, avoiding compile time.
+
 
 ## Status
 

@@ -206,7 +206,8 @@ int main(int argc, char **argv)
 
     //////////////////////////////////////////////////////////////////////////
     // Create Camera
-    static const Vector4 cameraPos(0.0f, 0.0f, -3.0f, 0.0f);
+	static const Vector4 cameraPos(0.0f, 0.0f, -3.0f, 0.0f);
+	const Quaternion identity;
 
     
     MainCamera* camera = CreateNode(MainCamera);
@@ -270,10 +271,13 @@ int main(int argc, char **argv)
     const Texture* prefilteredEnvironmentMap = ionRenderManager().GeneratePrefilteredEnvironmentCubemap(camera);
 
     // reset camera pos after cubemap generations
-    const Quaternion identity;
-    camera->GetTransform().SetRotation(identity);
-    camera->Update(0.0f);
-    camera->UpdateView();
+    camera->SetCameraType(ion::Camera::ECameraType::ECameraType_LookAt);
+    camera->SetPerspectiveProjection(60.0f, (ionFloat)DEMO_WIDTH / (ionFloat)DEMO_HEIGHT, 0.1f, 100.0f);
+    camera->SetRenderPassParameters(1.0f, ION_STENCIL_SHADOW_TEST_VALUE, 1.0f, 1.0f, 1.0f);
+    camera->SetViewportParameters(0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+    camera->SetScissorParameters(0.0f, 0.0f, 1.0f, 1.0f);
+	camera->GetTransform().SetPosition(cameraPos);
+	camera->GetTransform().SetRotation(identity);
 
     
     //////////////////////////////////////////////////////////////////////////
