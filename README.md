@@ -19,19 +19,19 @@ Anyway I did not set the "correct" size, is just depending by the project, so fo
 Sometimes some models will let Ion crash for memory, this is just because there is not enough memory for such allocator, so you have to track down the allocator and increase the memory.
 This is simple, follows the below steps:
 1. It will crash at this point
-<img src="./Screenshots/MemorySettings_Crash.png" width="400" height="200">
+<img src="./Screenshots/MemorySettings_Crash.png" width="600" height="400">
 2. But you know is not a real crash, just check the console
-<img src="./Screenshots/MemorySettings_ConsoleInfo.png" width="400" height="200">
+<img src="./Screenshots/MemorySettings_ConsoleInfo.png" width="600" height="400">
 3. So using callstack go down until you find something that looks like an array or any containers which resemble give the issue
-<img src="./Screenshots/MemorySettings_CallStack.png" width="400" height="200">
+<img src="./Screenshots/MemorySettings_CallStack.png" width="600" height="400">
 4. Go to the declaration of that variable and you will see the allocator used
-<img src="./Screenshots/MemorySettings_VarDecl.png" width="400" height="200">
+<img src="./Screenshots/MemorySettings_VarDecl.png" width="600" height="400">
 5. Go to the allocator and to the GetAllocator function associated to it
-<img src="./Screenshots/MemorySettings_Alloc.png" width="400" height="200">
+<img src="./Screenshots/MemorySettings_Alloc.png" width="600" height="400">
 6. Go to the static value which define the size and you will see the size (Test on purpose I have set 1)
-<img src="./Screenshots/MemorySettings_SmallSize.png" width="400" height="200">
+<img src="./Screenshots/MemorySettings_SmallSize.png" width="600" height="400">
 7. Resize it and run it again (if you want to be sure, set a huge size, or simple test different)
-<img src="./Screenshots/MemorySettings.png" width="400" height="200">
+<img src="./Screenshots/MemorySettings.png" width="600" height="400">
 8. Done!
 
 It takes sometimes because it needs to recompile all, in a future implementation would just be a config file which is read at the beginning and fill such values, avoiding compile time.
