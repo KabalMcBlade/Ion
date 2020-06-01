@@ -17,11 +17,11 @@ class ION_DLL Transform final
 public:
     Transform();
 
-    Transform(const Vector4& _position, const nixFloat& _scale, const Quaternion& _rotation);
-    Transform(const Vector4& _position, const nixFloat& _scale, const nixFloat& _radians, const Vector4& _axis);
+    Transform(const Vector4& _position, const ionFloat& _scale, const Quaternion& _rotation);
+    Transform(const Vector4& _position, const ionFloat& _scale, const ionFloat& _radians, const Vector4& _axis);
 
     Transform(const Vector4& _position, const Vector4& _scale, const Quaternion& _rotation);
-    Transform(const Vector4& _position, const Vector4& _scale, const nixFloat& _radians, const Vector4& _axis);
+    Transform(const Vector4& _position, const Vector4& _scale, const ionFloat& _radians, const Vector4& _axis);
 
     ~Transform();
 
@@ -35,14 +35,14 @@ public:
     const Quaternion& GetRotation() const;
 
     void SetPosition(const Vector4& _position);
-    void SetPosition(const nixFloat& _x, const nixFloat& _y, const nixFloat& _z);
-    void SetScale(const nixFloat& _scale);
-    void SetScale(const nixFloat& _x, const nixFloat& _y, const nixFloat& _z);
+    void SetPosition(const ionFloat& _x, const ionFloat& _y, const ionFloat& _z);
+    void SetScale(const ionFloat& _scale);
+    void SetScale(const ionFloat& _x, const ionFloat& _y, const ionFloat& _z);
     void SetScale(const Vector4& _scale);
     void SetRotation(const Quaternion& _rotation);
-    void SetRotation(const nixFloat& _radians, const Vector4& _axis);
-    void SetRotation(const nixFloat& _radians, const nixFloat& _x, const nixFloat& _y, const nixFloat& _z);
-    void SetRotation(const nixFloat& _pitch, const nixFloat& _yaw, const nixFloat& _roll);
+    void SetRotation(const ionFloat& _radians, const Vector4& _axis);
+    void SetRotation(const ionFloat& _radians, const ionFloat& _x, const ionFloat& _y, const ionFloat& _z);
+    void SetRotation(const ionFloat& _pitch, const ionFloat& _yaw, const ionFloat& _roll);
 
 private:
     Transform(const Transform& _orig) = delete;    

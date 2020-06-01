@@ -10,14 +10,14 @@ Transform::Transform() : m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f,
 
 }
 
-Transform::Transform(const Vector4& _position, const nixFloat& _scale, const Quaternion& _rotation)
+Transform::Transform(const Vector4& _position, const ionFloat& _scale, const Quaternion& _rotation)
 {
     SetPosition(_position);
     SetScale(_scale);
     SetRotation(_rotation);
 }
 
-Transform::Transform(const Vector4& _position, const nixFloat& _scale, const nixFloat& _radians, const Vector4& _axis)
+Transform::Transform(const Vector4& _position, const ionFloat& _scale, const ionFloat& _radians, const Vector4& _axis)
 {
     SetPosition(_position);
     SetScale(_scale);
@@ -31,7 +31,7 @@ Transform::Transform(const Vector4& _position, const Vector4& _scale, const Quat
     SetRotation(_rotation);
 }
 
-Transform::Transform(const Vector4& _position, const Vector4& _scale, const nixFloat& _radians, const Vector4& _axis)
+Transform::Transform(const Vector4& _position, const Vector4& _scale, const ionFloat& _radians, const Vector4& _axis)
 {
     SetPosition(_position);
     SetScale(_scale);
@@ -89,13 +89,13 @@ void Transform::SetPosition(const Vector4& _position)
     m_position = _position;
 }
 
-void Transform::SetPosition(const nixFloat& _x, const nixFloat& _y, const nixFloat& _z)
+void Transform::SetPosition(const ionFloat& _x, const ionFloat& _y, const ionFloat& _z)
 {
     m_dirty = true;
     m_position = Helper::Set(_x, _y, _z, 0.0f);
 }
 
-void Transform::SetScale(const nixFloat& _scale)
+void Transform::SetScale(const ionFloat& _scale)
 {
     m_dirty = true;
     m_scale = Helper::Splat(_scale);
@@ -107,7 +107,7 @@ void Transform::SetScale(const Vector4& _scale)
     m_scale = _scale;
 }
 
-void Transform::SetScale(const nixFloat& _x, const nixFloat& _y, const nixFloat& _z)
+void Transform::SetScale(const ionFloat& _x, const ionFloat& _y, const ionFloat& _z)
 {
     m_dirty = true;
     m_scale = Helper::Set(_x, _y, _z, 0.0f);
@@ -119,19 +119,19 @@ void Transform::SetRotation(const Quaternion& _rotation)
     m_rotation = _rotation;
 }
 
-void Transform::SetRotation(const nixFloat& _radians, const Vector4& _axis)
+void Transform::SetRotation(const ionFloat& _radians, const Vector4& _axis)
 {
     m_dirty = true;
     m_rotation.SetFromAngleAxis(_radians, _axis);
 }
 
-void Transform::SetRotation(const nixFloat& _radians, const nixFloat& _x, const nixFloat& _y, const nixFloat& _z)
+void Transform::SetRotation(const ionFloat& _radians, const ionFloat& _x, const ionFloat& _y, const ionFloat& _z)
 {
     m_dirty = true;
     m_rotation.SetFromAngleAxis(_radians, _x, _y, _z);
 }
 
-void Transform::SetRotation(const nixFloat& _pitch, const nixFloat& _yaw, const nixFloat& _roll)
+void Transform::SetRotation(const ionFloat& _pitch, const ionFloat& _yaw, const ionFloat& _roll)
 {
     m_dirty = true;
     m_rotation.SetFromPitchYawRoll(_pitch, _yaw, _roll);

@@ -88,11 +88,11 @@ void BoundingBox::Expande(const Vector4& _min, const Vector4& _max)
 
 void BoundingBox::GetCorners(ionVector<Vector4, BoundingBoxAllocator, GetAllocator>& _corners) const
 {
-    const nixFloat4 min = m_min;
-    const nixFloat4 max = m_max;
+    const float128 min = m_min;
+    const float128 max = m_max;
 
-    const nixFloat4 _minX_maxX_minY_maxY = _mm_unpacklo_ps(min, max);
-    const nixFloat4 _minZ_maxZ_minW_maxW = _mm_unpackhi_ps(min, max);
+    const float128 _minX_maxX_minY_maxY = _mm_unpacklo_ps(min, max);
+    const float128 _minZ_maxZ_minW_maxW = _mm_unpackhi_ps(min, max);
 
     _corners.clear();
     _corners.reserve(8);
@@ -101,30 +101,30 @@ void BoundingBox::GetCorners(ionVector<Vector4, BoundingBoxAllocator, GetAllocat
     _corners.push_back(m_min);
 
     // corner 1
-    const nixFloat4 _minX_maxY_minZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(0, 3, 0, 3));
+    const float128 _minX_maxY_minZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(0, 3, 0, 3));
     _corners.push_back(_minX_maxY_minZ_maxW);
 
     // corner 2
-    const nixFloat4 _maxX_maxY_minZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(1, 3, 0, 3));
+    const float128 _maxX_maxY_minZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(1, 3, 0, 3));
     _corners.push_back(_maxX_maxY_minZ_maxW);
 
     // corner 3
-    const nixFloat4 _maxX_minY_minZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(1, 2, 0, 3));
+    const float128 _maxX_minY_minZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(1, 2, 0, 3));
     _corners.push_back(_maxX_minY_minZ_maxW);
 
     // corner 4
     _corners.push_back(m_max);
 
     // corner 5
-    const nixFloat4 _minX_maxY_maxZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(0, 3, 1, 3));
+    const float128 _minX_maxY_maxZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(0, 3, 1, 3));
     _corners.push_back(_minX_maxY_maxZ_maxW);
 
     // corner 6
-    const nixFloat4 _minX_minY_maxZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(0, 2, 1, 3));
+    const float128 _minX_minY_maxZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(0, 2, 1, 3));
     _corners.push_back(_minX_minY_maxZ_maxW);
 
     // corner 7
-    const nixFloat4 _maxX_minY_maxZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(1, 2, 1, 3));
+    const float128 _maxX_minY_maxZ_maxW = _mm_shuffle_ps(_minX_maxX_minY_maxY, _minZ_maxZ_minW_maxW, _MM_SHUFFLE(1, 2, 1, 3));
     _corners.push_back(_maxX_minY_maxZ_maxW);
 }
 
