@@ -80,7 +80,7 @@
 
 #include "Utilities/LoaderGLTF.h"
 #include "Utilities/GeometryHelper.h"
-//#include "Utilities/Serializer.h"
+#include "Utilities/Serializer.h"
 
 #include "App/Mode.h"
 #include "App/CommandLineParser.h"

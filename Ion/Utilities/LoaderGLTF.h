@@ -38,7 +38,7 @@ public:
     ~LoaderGLTF();
 
     ionBool Load(const ionString& _filePath, Camera* _camToUpdatePtr, Node*& _entity);
-    //void Dump(const ionString& _filePath, const Node* _entity, ESerializationLevel _level = ESerializationLevel_Normal);
+    void Dump(const ionString& _filePath,  Node* _entity, ESerializationLevel _level = ESerializationLevel_Normal);
 };
 
 

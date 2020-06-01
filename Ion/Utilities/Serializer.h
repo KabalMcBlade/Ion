@@ -55,7 +55,7 @@ void from_json(const json& _json, Node*& _output);
 // 0 = mini dump    -> just nodes, no animation neither vertex
 // 1 = normal dump  -> nodes and animations
 // 2 = full dump    -> nodes, animation and vertex
-std::string Serialize(const Node* _input, ionU32 _level = 1);
+std::string Serialize(Node* _input, ionU32 _level = 1);
 
 ION_NAMESPACE_END
 

@@ -24,7 +24,7 @@
 
 #include "../Animation/AnimationRenderer.h"
 
-//#include "Serializer.h"
+#include "Serializer.h"
 
 #define TINYGLTF_IMPLEMENTATION
 // #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
@@ -2166,8 +2166,8 @@ ionBool LoaderGLTF::Load(const ionString & _filePath, Camera* _camToUpdatePtr, N
     return true;
 }
 
-/*
-void LoaderGLTF::Dump(const ionString& _filePath, const Node* _entity, ESerializationLevel _level)
+
+void LoaderGLTF::Dump(const ionString& _filePath, Node* _entity, ESerializationLevel _level)
 {
 	ionString filepathDump = _filePath + ".json";
 
@@ -2176,6 +2176,5 @@ void LoaderGLTF::Dump(const ionString& _filePath, const Node* _entity, ESerializ
     out << entityJson;
     out.close();
 }
-*/
 
 ION_NAMESPACE_END

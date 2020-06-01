@@ -11,7 +11,7 @@ using nlohmann::json;
 
 ION_NAMESPACE_BEGIN
 
-/*
+
 using SerializerAllocator = MemoryAllocator<FreeListBestSearchAllocationPolicy, MultiThreadPolicy, MemoryBoundsCheck, MemoryTag, MemoryLog>;
 
 SerializerAllocator* GetAllocator()
@@ -21,7 +21,7 @@ SerializerAllocator* GetAllocator()
 
 	return &memoryAllocator;
 }
-*/
+
 
 namespace _private
 {
@@ -32,7 +32,7 @@ namespace _private
         json meshRendererIndices;
         json meshRendererVertices;
 
-        std::vector<Index> indexes;
+        ionVector<Index, SerializerAllocator, GetAllocator> indexes;
         
         const ionU32 indexCount = _inMeshRenderer->GetIndexDataCount();
         const void* indexData = _inMeshRenderer->GetIndexData();
@@ -46,12 +46,12 @@ namespace _private
 
         meshRendererIndices = indexes;
 
-        std::vector<VertexPlain> verticesPlain;
-        std::vector<VertexColored> verticesColored;
-        std::vector<VertexNormal> verticesNormal;
-        std::vector<VertexUV> verticesUV;
-        std::vector<VertexSimple> verticesSimple;
-        std::vector<Vertex> verticesFull;
+		ionVector<VertexPlain, SerializerAllocator, GetAllocator> verticesPlain;
+		ionVector<VertexColored, SerializerAllocator, GetAllocator> verticesColored;
+		ionVector<VertexNormal, SerializerAllocator, GetAllocator> verticesNormal;
+		ionVector<VertexUV, SerializerAllocator, GetAllocator> verticesUV;
+		ionVector<VertexSimple, SerializerAllocator, GetAllocator> verticesSimple;
+		ionVector<Vertex, SerializerAllocator, GetAllocator> verticesFull;
 
         const EVertexLayout vertexLayout = _inMeshRenderer->GetLayout();
         const ionU32 vertexCount = _inMeshRenderer->GetVertexDataCount();
@@ -146,7 +146,7 @@ namespace _private
         const bool isUsingMorphTarget = _inMeshRenderer->IsUsingMorphTarget();
         if (isUsingMorphTarget)
         {
-            std::vector<VertexMorphTarget> vertexMorphTarget;
+			ionVector<VertexMorphTarget, SerializerAllocator, GetAllocator> vertexMorphTarget;
 
             const ionU32 morphTargetCount = _inMeshRenderer->GetMorphTargetDataCount();
             const void* morphTargetData = _inMeshRenderer->GetMorphTargetData();
@@ -182,7 +182,7 @@ namespace _private
         //
         //
         // MESHES
-        std::vector<json> meshesJson;
+		ionVector<json, SerializerAllocator, GetAllocator> meshesJson;
         const ionU32 meshCount = _inData.GetMeshCount();
         for (ionU32 i = 0; i < meshCount; ++i)
         {
@@ -211,7 +211,7 @@ namespace _private
         //
         //
         // MORPH TARGET WEIGHTS
-        std::vector<ionFloat> initialMorphTargetWeight;
+		ionVector<ionFloat, SerializerAllocator, GetAllocator> initialMorphTargetWeight;
         const ionU32 initialMorphTargetCount = _inData.GetInitialMorphTargetWeightCount();
         for (ionU32 i = 0; i < initialMorphTargetCount; ++i)
         {
@@ -219,7 +219,7 @@ namespace _private
             initialMorphTargetWeight.push_back(weight);
         }
         /*
-        std::vector<ionFloat> morphTargetWeight;
+        ionVector<ionFloat> morphTargetWeight;
         const ionU32 morphTargetCount = _inData.GetMorphTargetWeightCount();
         for (ionU32 i = 0; i < morphTargetCount; ++i)
         {
@@ -238,7 +238,7 @@ namespace _private
         {
             if (const AnimationRenderer* animationRenderer = _inData.GetAnimationRenderer())
             {
-                std::vector<json> animationJson;
+				ionVector<json, SerializerAllocator, GetAllocator> animationJson;
                 const ionSize animationCount = animationRenderer->GetAnimationCount();
                 for (ionSize i = 0; i < animationCount; ++i)
                 {
@@ -246,7 +246,7 @@ namespace _private
 
                     const ionFloat start = animation.GetStart();
                     const ionFloat end = animation.GetEnd();
-                    const ionString<AnimationAllocator, Animation::GetAllocator>& name = animation.GetName();
+                    const ionString& name = animation.GetName();
                     const ionSize hash = animation.GetHashName();
 
                     const ionVector<AnimationChannel, AnimationAllocator, Animation::GetAllocator>& channels = animation.GetChannels();
@@ -255,13 +255,13 @@ namespace _private
                     ionVector<AnimationChannel, AnimationAllocator, Animation::GetAllocator>::size_type channelsCount = channels.size();
                     ionVector<AnimationSampler, AnimationAllocator, Animation::GetAllocator>::size_type samplersCount = samplers.size();
 
-                    std::vector<json> channelsJson;
+					ionVector<json, SerializerAllocator, GetAllocator> channelsJson;
                     for (ionVector<AnimationChannel, AnimationAllocator, Animation::GetAllocator>::size_type j = 0; j < channelsCount; ++j)
                     {
                         const AnimationChannel& channel = channels[j];
 
-                        const ionString<NodeAllocator, Node::GetAllocator>& belongingNodeName = channel.GetNode()->GetName();
-                        const ionString<UUIDAllocator, UUID::GetAllocator>& belongingNodeUUID = channel.GetNode()->GetUUID().ToString();
+                        const ionString& belongingNodeName = channel.GetNode()->GetName();
+                        const ionString& belongingNodeUUID = channel.GetNode()->GetUUID().ToString();
                         const EAnimationPathType& animationPath = channel.GetPath();
                         const ionU32 samplerIndex = channel.GetSamplerIndex();
 
@@ -276,7 +276,7 @@ namespace _private
                         channelsJson.push_back(channelJson);
                     }
 
-                    std::vector<json> samplersJson;
+					ionVector<json, SerializerAllocator, GetAllocator> samplersJson;
                     for (ionVector<AnimationSampler, AnimationAllocator, Animation::GetAllocator>::size_type j = 0; j < samplersCount; ++j)
                     {
                         const AnimationSampler& sampler = samplers[j];
@@ -286,7 +286,7 @@ namespace _private
                         const ionVector<Vector4, AnimationSamplerAllocator, AnimationSampler::GetAllocator>& linearPath = sampler.GetLinearPaths();
                         const ionVector<ionFloat, AnimationSamplerAllocator, AnimationSampler::GetAllocator>& morphTarget = sampler.GetMorphTargets();
 
-                        std::vector<ionFloat> _input;
+						ionVector<ionFloat, SerializerAllocator, GetAllocator> _input;
                         ionVector<ionFloat, AnimationSamplerAllocator, AnimationSampler::GetAllocator>::size_type inputCount = inputs.size();
                         for (ionVector<ionFloat, AnimationSamplerAllocator, AnimationSampler::GetAllocator>::size_type a = 0; a < inputCount; ++a)
                         {
@@ -294,7 +294,7 @@ namespace _private
                             _input.push_back(v);
                         }
 
-                        std::vector<Vector4> _linearPath;
+						ionVector<Vector4, SerializerAllocator, GetAllocator> _linearPath;
                         ionVector<Vector4, AnimationSamplerAllocator, AnimationSampler::GetAllocator>::size_type linearPathCount = linearPath.size();
                         for (ionVector<Vector4, AnimationSamplerAllocator, AnimationSampler::GetAllocator>::size_type a = 0; a < linearPathCount; ++a)
                         {
@@ -302,7 +302,7 @@ namespace _private
                             _linearPath.push_back(v);
                         }
 
-                        std::vector<ionFloat> _morphTarget;
+						ionVector<ionFloat, SerializerAllocator, GetAllocator> _morphTarget;
                         ionVector<ionFloat, AnimationSamplerAllocator, AnimationSampler::GetAllocator>::size_type morphTargetCount = morphTarget.size();
                         for (ionVector<ionFloat, AnimationSamplerAllocator, AnimationSampler::GetAllocator>::size_type a = 0; a < morphTargetCount; ++a)
                         {
@@ -589,7 +589,7 @@ void from_json(const json& _json, Node*& _output)
 }
 
 
-std::string Serialize(const Node* _input, ionU32 _level /*= 1*/)
+std::string Serialize(Node* _input, ionU32 _level /*= 1*/)
 {
     _level = _level > 2 ? 1 : _level;
 

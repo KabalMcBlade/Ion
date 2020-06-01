@@ -178,7 +178,7 @@ int main(int argc, char **argv)
     window.GetCommandLineParse().Add("-usepath", false);
 
 #ifdef _DEBUG
-    //window.GetCommandLineParse().AddWithValueAndDefault<ionU32>("-dumpgltf", false, 1);
+    window.GetCommandLineParse().AddWithValueAndDefault<ionU32>("-dumpgltf", false, 1);
 #endif
 
     if (!window.ParseCommandLine(argc, argv))
@@ -303,7 +303,6 @@ int main(int argc, char **argv)
         ionRenderManager().LoadModelFromFile(model, camera, (Node*&)test);
 
 #ifdef _DEBUG
-		/*
         if (window.GetCommandLineParse().IsSet("-dumpgltf"))
         {
             const ionU32 serializationLevelNum = window.GetCommandLineParse().GetValue<ionU32>("-dumpgltf");
@@ -314,7 +313,6 @@ int main(int argc, char **argv)
             ionString dumpFile = model + ".json";
             std::cout << "Model " << test->GetName() << " dumped in " << dumpFile << std::endl;
         }
-		*/
 #endif
     }
     else if (window.GetCommandLineParse().HasValue("-primitive"))

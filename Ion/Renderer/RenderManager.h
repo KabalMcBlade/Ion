@@ -60,7 +60,9 @@ public:
     static RenderManager& Instance();
 
     ionBool LoadModelFromFile(const ionString& _filePath, Camera* _camToUpdate, Node*& _entity);
-    //void DumpModelToFile(const ionString& _filePath, const Node* _entity, LoaderGLTF::ESerializationLevel _level = LoaderGLTF::ESerializationLevel_Normal);
+
+	// Entity could be a const, but due the internal function IteratAll (and I didn't do a Const version) is easier keep this not const (just debug function)
+    void DumpModelToFile(const ionString& _filePath, Node* _entity, LoaderGLTF::ESerializationLevel _level = LoaderGLTF::ESerializationLevel_Normal);
 
 	void GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _type, Entity*& _entity, ionFloat _r = 1.0f, ionFloat _g = 1.0f, ionFloat _b = 1.0f, ionFloat _a = 1.0f);
 

@@ -265,6 +265,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utilities\LoaderGLTF.h" />
     <ClInclude Include="Utilities\GeometryHelper.h" />
+    <ClInclude Include="Utilities\Serializer.h" />
     <ClInclude Include="Utilities\Tools.h" />
   </ItemGroup>
   <ItemGroup>
@@ -330,6 +331,7 @@
     <ClCompile Include="Texture\TextureManager.cpp" />
     <ClCompile Include="Utilities\LoaderGLTF.cpp" />
     <ClCompile Include="Utilities\GeometryHelper.cpp" />
+    <ClCompile Include="Utilities\Serializer.cpp" />
     <ClCompile Include="Utilities\Tools.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

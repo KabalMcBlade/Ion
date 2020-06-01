@@ -1,8 +1,3 @@
-```diff
-- IMPORTANT
-- This project is not maintained anymore, I will make some fixes time by time or some rework, but discontinued.
-```
-
 # Ion
 
 Ion is a Vulkan Render Engine, made just to learn something about this new graphic API.

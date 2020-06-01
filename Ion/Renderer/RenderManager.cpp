@@ -99,12 +99,12 @@ ionBool RenderManager::LoadModelFromFile(const ionString& _filePath, Camera* _ca
 {
     return m_loader.Load(_filePath, _camToUpdate, _entity);
 }
-/*
-void RenderManager::DumpModelToFile(const ionString& _filePath, const Node* _entity, LoaderGLTF::ESerializationLevel _level )
+
+void RenderManager::DumpModelToFile(const ionString& _filePath, Node* _entity, LoaderGLTF::ESerializationLevel _level )
 {
     m_loader.Dump(_filePath, _entity, _level);
 }
-*/
+
 void RenderManager::GeneratePrimitive(EVertexLayout _layout, EPrimitiveType _type, Entity*& _entity, ionFloat _r /*= 1.0f*/, ionFloat _g /*= 1.0f*/, ionFloat _b /*= 1.0f*/, ionFloat _a /*= 1.0f*/)
 {
 	switch (_type)
