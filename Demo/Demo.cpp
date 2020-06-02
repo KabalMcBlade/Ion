@@ -155,15 +155,6 @@ void CheckIfAllMaterialsAreUnlit(Node* _node, ionBool& _areUnlit)
     }
 }
 
-struct TestMalloc
-{
-	ionU32 a;
-	ionU32 b;
-	ionU32 c;
-	ionU32 d;
-};
-
-
 int main(int argc, char **argv)
 {
     ShaderProgramHelper::Create();

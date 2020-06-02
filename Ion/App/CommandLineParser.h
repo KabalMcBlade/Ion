@@ -132,7 +132,7 @@ void OptionValue<T>::Parse()
 {
     T var;
     ionIStringStream iss;
-    iss.str(m_stringValue.c_str());
+    iss.str(m_stringValue);
     iss >> var;
     m_value = var;
 }
