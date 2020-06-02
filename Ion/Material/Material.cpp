@@ -107,7 +107,7 @@ Material::Material(const ionString& _name) :
 
 Material::~Material()
 {
-    Destroy();
+
 }
 
 ionBool Material::Create()

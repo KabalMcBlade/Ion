@@ -329,7 +329,11 @@ int main(int argc, char **argv)
     }
     else
     {
-        std::cout << "model or primitive does not supply: use -model \"modelname\" or -primitive [triangle, quad, cube, sphere]" << std::endl;
+        std::cout << std::endl
+			<< "Model path or Primitive not provided:" << std::endl
+			<< "Use either -model \"modelname.gltf\" (if inside Asset/Model folder) or -usepath -model \"path/to/your/modelname.gltf\"" << std::endl
+			<< "or" << std::endl
+			<< "Use -primitive  [triangle, quad, cube, sphere, pyramid] (one of them)" << std::endl << std::endl;
     }
 
     //////////////////////////////////////////////////////////////////////////

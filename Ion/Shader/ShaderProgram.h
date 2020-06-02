@@ -195,7 +195,7 @@ struct ION_DLL ConstantsBindingDef final
 
     ~ConstantsBindingDef()
     {
-        Clear();
+       
     }
 };
 
