@@ -42,10 +42,8 @@ private:
 	void Free(void* _pMemory);
 
 private:
-	VkAllocationCallbacks m_callback;
-
-private:
-	static VulkanFreeListAllocator* GetAllocator();
+	VkAllocationCallbacks	m_callback;
+	VulkanFreeListAllocator* GetAllocator();
 };
 
 

@@ -4,6 +4,7 @@
 EOS_USING_NAMESPACE
 ION_NAMESPACE_BEGIN
 
+
 VulkanFreeListAllocator* VulkanAllocator::GetAllocator()
 {
 	static HeapArea<Settings::kVulkanAllocatorSize> memoryArea;
@@ -12,7 +13,8 @@ VulkanFreeListAllocator* VulkanAllocator::GetAllocator()
 	return &memoryAllocator;
 }
 
-void* VulkanAllocator::Allocation(size _size, size _alignment,VkSystemAllocationScope _allocationScope)
+
+void* VulkanAllocator::Allocation(size _size, size _alignment, VkSystemAllocationScope _allocationScope)
 {
 	return eosNewAlignedRaw(_size, GetAllocator(), _alignment);
 }
@@ -39,7 +41,7 @@ void VulkanAllocator::Free(void* _pMemory)
 		return;
 	}
 
-	return eosDeleteRaw(_pMemory, GetAllocator());
+	eosDeleteRaw(_pMemory, GetAllocator());
 }
 
 void VKAPI_CALL VulkanAllocator::Free(void* _pUserData, void* _pMemory)

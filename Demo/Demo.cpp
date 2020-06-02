@@ -12,27 +12,15 @@
 //////////////////////////////////////////////////////////////////////////
 // APP VULKAN MEMORY
 
-#define MEMORY_1_MB             1048576ULL
-#define MEMORY_4_MB             MEMORY_1_MB * 4ULL
-#define MEMORY_8_MB             MEMORY_4_MB * 2ULL
-#define MEMORY_16_MB            MEMORY_8_MB * 2ULL
-#define MEMORY_32_MB            MEMORY_16_MB * 2ULL
-#define MEMORY_64_MB            MEMORY_32_MB * 2ULL
-#define MEMORY_128_MB           MEMORY_64_MB * 2ULL
-#define MEMORY_256_MB           MEMORY_128_MB * 2ULL
-#define MEMORY_512_MB           MEMORY_256_MB * 2ULL
-#define MEMORY_1024_MB          MEMORY_512_MB * 2ULL
-#define MEMORY_2048_MB          MEMORY_1024_MB * 2ULL
-#define MEMORY_4096_MB          MEMORY_2048_MB * 2ULL
-#define MEMORY_8192_MB          MEMORY_4096_MB * 2ULL
+#define VULKAN_GPU_DEVICE_LOCAL_MB  ION_MEMORY_1024_MB
+#define VULKAN_GPU_HOST_VISIBLE_MB  ION_MEMORY_1024_MB
+#define VULKAN_STAGING_BUFFER_MB    ION_MEMORY_512_MB
 
-#define VULKAN_GPU_DEVICE_LOCAL_MB  MEMORY_1024_MB
-#define VULKAN_GPU_HOST_VISIBLE_MB  MEMORY_1024_MB
-
-#define VULKAN_STAGING_BUFFER_MB    MEMORY_512_MB
-
-#define ION_VULKAN_VALIDATION_LAYER true
-
+#ifdef _DEBUG
+#   define ION_VULKAN_VALIDATION_LAYER true
+#else
+#   define ION_VULKAN_VALIDATION_LAYER false
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -42,9 +30,6 @@
 
 EOS_USING_NAMESPACE
 ION_USING_NAMESPACE
-
-EOS_OPTIMIZATION_OFF
-ION_OPTIMIZATION_OFF
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
