@@ -38,12 +38,8 @@ void DirectionalLightDebugEntity::OnMouseInput(const ion::MouseState& _mouseStat
 
         const Quaternion& prevRot = GetTransform().GetRotation();
 
-		Quaternion currRotX;
-		currRotX.SetFromAngleAxis(NIX_DEG_TO_RAD(xOffset), 0.0f, 0.0f, -1.0f);
-		Quaternion currRotY;
-		currRotY.SetFromAngleAxis(NIX_DEG_TO_RAD(yOffset), -1.0f, 0.0f, 0.0f);
-
-		Quaternion currRot = prevRot * currRotY * currRotX;
+		Quaternion rot(NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(-xOffset), 0.0f);
+ 		Quaternion currRot = prevRot * rot;
 
         GetTransform().SetRotation(currRot);
 		ionRenderManager().GetDirectionalLight()->GetTransform().SetRotation(currRot);
@@ -103,15 +99,13 @@ void RotatingEntity::OnEnd()
 void RotatingEntity::OnUpdate(ionFloat _deltaTime)
 {
     static const ionFloat radPerFrame = 0.0174533f;     // 1 deg
-    static const Vector4 axis(0.0f, 1.0f, 0.0f, 1.0f);
-    static ionFloat radRotated = 0.0f;
 
     if (m_rotating)
     {
         const Quaternion& prevRot = GetTransform().GetRotation();
 
-        Quaternion currRot = Quaternion(radPerFrame, axis);
-        currRot = prevRot * currRot;
+		Quaternion currRot(0.0f, radPerFrame, 0.0f);
+		currRot = prevRot * currRot;
 
         GetTransform().SetRotation(currRot);
     }
@@ -126,12 +120,9 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
             if (_keyboardState.m_key == ion::EKeyboardKey_Return)
             {
                 // Reset the object matrix
-                GetTransform().SetScale(1.0f);
-
-                Quaternion qIdentity;
-                GetTransform().SetRotation(qIdentity);
-
-                GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
+                GetTransform().SetScale(m_defaultScale);
+                GetTransform().SetRotation(m_defaultRot);
+                GetTransform().SetPosition(m_defaultPos);
             }
 
             if (_keyboardState.m_key == ion::EKeyboardKey_R)
@@ -251,12 +242,8 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
             const Quaternion& prevRot = GetTransform().GetRotation();
 
-			Quaternion currRotX;
-			currRotX.SetFromAngleAxis(NIX_DEG_TO_RAD(xOffset), 0.0f, 0.0f, -1.0f);
-			Quaternion currRotY;
-			currRotY.SetFromAngleAxis(NIX_DEG_TO_RAD(yOffset), -1.0f, 0.0f, 0.0f);
-
-			Quaternion currRot = prevRot * currRotY * currRotX;
+			Quaternion rot(NIX_DEG_TO_RAD(-yOffset), NIX_DEG_TO_RAD(-xOffset), 0.0f);
+ 			Quaternion currRot = prevRot * rot;
 
             GetTransform().SetRotation(currRot);
         }
@@ -298,6 +285,12 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
     }
 }
 
+void RotatingEntity::StoreDefaultPosRotScale()
+{
+	m_defaultRot = GetTransform().GetRotation();
+	m_defaultPos = GetTransform().GetPosition();
+	m_defaultScale = GetTransform().GetScale();
+}
 
 //////////////////////////////////////////////////////////////////////////
 // CAMERA

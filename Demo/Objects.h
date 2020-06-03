@@ -39,7 +39,13 @@ public:
 
     void SetCameraReference(MainCamera* _camera);
 
+	void StoreDefaultPosRotScale();
+
 private:
+	Quaternion m_defaultRot;
+	Vector4 m_defaultPos;
+	Vector4 m_defaultScale;
+
     ionU32 m_animationCount;
     ionU32 m_currentAnimationIndex;
 

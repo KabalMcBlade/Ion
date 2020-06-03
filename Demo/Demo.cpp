@@ -175,7 +175,7 @@ int main(int argc, char **argv)
     const Texture* nullTextureMap = ionRenderManager().GenerateNullTexture();
     const Texture* skyboxCubeMap = ionTextureManger().CreateTextureFromFile("misty_pines_4k", texturePath, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_ClampAlpha, ETextureUsage_SkyboxHDR, ETextureType_Cubic, 1);
 
-    Material* skyboxMaterial = ionMaterialManger().CreateMaterial("SkyBox", 0u);
+    Material* skyboxMaterial = ionMaterialManger().CreateMaterial("SkyBox");
 
     ionS32 skyboxVertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Vertex);
     ionS32 skyboxFragmentShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), "SkyBox", ion::EShaderStage_Fragment);
@@ -339,6 +339,9 @@ int main(int argc, char **argv)
     //////////////////////////////////////////////////////////////////////////
     //
     //////////////////////////////////////////////////////////////////////////
+
+	// store default rotation and position and scale:
+	test->StoreDefaultPosRotScale();
 
     // set camera to rotating object
     test->SetCameraReference(camera);

@@ -131,7 +131,7 @@ void RenderManager::LoadColoredTriangle(Entity*& _entity, ionFloat _r /*= 1.0f*/
 {
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Triangle, _entity, _r, _g, _b, _a);
 
-    Material* material = ionMaterialManger().CreateMaterial("ION#Triangle", 0u);
+    Material* material = ionMaterialManger().CreateMaterial("ION#Triangle");
     _entity->GetMesh(0)->SetMaterial(material);
 
     LoadCommonMaterialForIntegratedPrimitive(_entity, material);
@@ -144,7 +144,7 @@ void RenderManager::LoadColoredQuad(Entity*& _entity, ionFloat _r /*= 1.0f*/, io
 {
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Quad, _entity, _r, _g, _b, _a);
 
-    Material* material = ionMaterialManger().CreateMaterial("ION#Quad", 0u);
+    Material* material = ionMaterialManger().CreateMaterial("ION#Quad");
     _entity->GetMesh(0)->SetMaterial(material);
 
     LoadCommonMaterialForIntegratedPrimitive(_entity, material);
@@ -157,7 +157,7 @@ void RenderManager::LoadColoredCube(Entity*& _entity, ionFloat _r /*= 1.0f*/, io
 {
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Cube, _entity, _r, _g, _b, _a);
 
-    Material* material = ionMaterialManger().CreateMaterial("ION#Cube", 0u);
+    Material* material = ionMaterialManger().CreateMaterial("ION#Cube");
     _entity->GetMesh(0)->SetMaterial(material);
 
     LoadCommonMaterialForIntegratedPrimitive(_entity, material);
@@ -167,7 +167,7 @@ void RenderManager::LoadColoredSphere(Entity*& _entity, ionFloat _r /*= 1.0f*/, 
 {
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Sphere, _entity, _r, _g, _b, _a);
 
-    Material* material = ionMaterialManger().CreateMaterial("ION#Sphere", 0u);
+    Material* material = ionMaterialManger().CreateMaterial("ION#Sphere");
     _entity->GetMesh(0)->SetMaterial(material);
 
     LoadCommonMaterialForIntegratedPrimitive(_entity, material);
@@ -177,7 +177,7 @@ void RenderManager::LoadColoredPyramid(Entity*& _entity, ionFloat _r /*= 1.0f*/,
 {
     GeneratePrimitive(EVertexLayout_Full, EPrimitiveType_Pyramid, _entity, _r, _g, _b, _a);
 
-    Material* material = ionMaterialManger().CreateMaterial("ION#Pyramid", 0u);
+    Material* material = ionMaterialManger().CreateMaterial("ION#Pyramid");
     _entity->GetMesh(0)->SetMaterial(material);
 
     LoadCommonMaterialForIntegratedPrimitive(_entity, material);
@@ -441,7 +441,7 @@ const Texture* RenderManager::GenerateBRDF(Node* _camera)
 
     GeneratePrimitive(EVertexLayout_Empty, EPrimitiveType_Quad, brdflutEntity);
 
-    Material* material = ionMaterialManger().CreateMaterial(ION_BRDFLUT_TEXTURENAME, 0u);
+    Material* material = ionMaterialManger().CreateMaterial(ION_BRDFLUT_TEXTURENAME);
     brdflutEntity->GetMesh(0)->SetMaterial(material);
 
     ionS32 vertexShaderIndex = ionShaderProgramManager().FindShader(ionFileSystemManager().GetShadersPath(), ION_BRDFLUT_SHADER_NAME, EShaderStage_Vertex);
@@ -551,7 +551,7 @@ const Texture* RenderManager::GenerateIrradianceCubemap(Node* _camera)
     GeneratePrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, irradianceEntity);
 
 
-	Material* material = ionMaterialManger().CreateMaterial(ION_IRRADIANCE_TEXTURENAME, 0u);
+	Material* material = ionMaterialManger().CreateMaterial(ION_IRRADIANCE_TEXTURENAME);
 	irradianceEntity->GetMesh(0)->SetMaterial(material);
 
 	//
@@ -617,7 +617,7 @@ const Texture* RenderManager::GenerateIrradianceCubemap(Node* _camera)
 	{
 		ionVector<VkClearValue, RenderCoreAllocator, RenderCore::GetAllocator> clearValues;
 		clearValues.resize(1);
-		clearValues[0].color = { { 0.0f, 0.0f, 0.2f, 0.0f } };
+		clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
 
 		cameraPtr->ConputeRenderAreaViewportScissor(0, 0, irradiance->GetWidth(), irradiance->GetHeight());
 		cameraPtr->SetViewport(m_renderCore, cmdBuffer);
@@ -645,11 +645,11 @@ const Texture* RenderManager::GenerateIrradianceCubemap(Node* _camera)
 
 		ionVector<Quaternion, RenderManagerAllocator, GetAllocator> rotations;
 		rotations.push_back(Quaternion(0.0f, 0.0f, 0.0f));
-		rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(90.0f), 0.0f));
-		rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(180.0f), 0.0f));
-		rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(270.0f), 0.0f));
+		rotations.push_back(Quaternion(0.0f, 0.0, NIX_DEG_TO_RAD(90.0f)));
+		rotations.push_back(Quaternion(0.0f, 0.0, NIX_DEG_TO_RAD(180.0f)));
+		rotations.push_back(Quaternion(0.0f, 0.0, NIX_DEG_TO_RAD(270.0f)));
 		rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), 0.0f, 0.0f));
-		rotations.push_back(Quaternion(NIX_DEG_TO_RAD(270.0f), 0.0f, 0.0f));
+		rotations.push_back(Quaternion(NIX_DEG_TO_RAD(-90.0f), 0.0f, 0.0f));
 
 		for (ionU32 m = 0; m < mipMapsLevel; ++m)
 		{
@@ -662,7 +662,6 @@ const Texture* RenderManager::GenerateIrradianceCubemap(Node* _camera)
 				cameraPtr->SetScissor(m_renderCore, cmdBuffer);
 
 				cameraPtr->GetTransform().SetRotation(rotations[f]);
-				cameraPtr->Update(0.0f);
 				cameraPtr->UpdateView();
 
 				// draw irradiance
@@ -822,7 +821,7 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(Node* _camer
 	// shader has position input
 	GeneratePrimitive(EVertexLayout_Pos, EPrimitiveType_Quad, prefilteredEntity);
 
-    Material* material = ionMaterialManger().CreateMaterial(ION_IRRADIANCE_TEXTURENAME, 0u);
+    Material* material = ionMaterialManger().CreateMaterial(ION_IRRADIANCE_TEXTURENAME);
     prefilteredEntity->GetMesh(0)->SetMaterial(material);
 
     //
@@ -894,7 +893,7 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(Node* _camer
     {
         ionVector<VkClearValue, RenderCoreAllocator, RenderCore::GetAllocator> clearValues;
         clearValues.resize(1);
-        clearValues[0].color = { { 0.0f, 0.0f, 0.2f, 0.0f } };
+        clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
 
         cameraPtr->ConputeRenderAreaViewportScissor(0, 0, prefilteredEnvironment->GetWidth(), prefilteredEnvironment->GetHeight());
         cameraPtr->SetViewport(m_renderCore, cmdBuffer);
@@ -921,12 +920,12 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(Node* _camer
         }
 
         ionVector<Quaternion, RenderManagerAllocator, GetAllocator> rotations;
-        rotations.push_back(Quaternion(0.0f, 0.0f, 0.0f));
-        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(90.0f), 0.0f));
-        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(180.0f), 0.0f));
-        rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(270.0f), 0.0f));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), 0.0f, 0.0f));
-        rotations.push_back(Quaternion(NIX_DEG_TO_RAD(270.0f), 0.0f, 0.0f));
+		rotations.push_back(Quaternion(0.0f, 0.0f, 0.0f));
+		rotations.push_back(Quaternion(0.0f, 0.0, NIX_DEG_TO_RAD(90.0f)));
+		rotations.push_back(Quaternion(0.0f, 0.0, NIX_DEG_TO_RAD(180.0f)));
+		rotations.push_back(Quaternion(0.0f, 0.0, NIX_DEG_TO_RAD(270.0f)));
+		rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), 0.0f, 0.0f));
+		rotations.push_back(Quaternion(NIX_DEG_TO_RAD(-90.0f), 0.0f, 0.0f));
 
         for (ionU32 m = 0; m < mipMapsLevel; ++m)
         {
@@ -939,7 +938,6 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(Node* _camer
                 cameraPtr->SetScissor(m_renderCore, cmdBuffer);
 
                 cameraPtr->GetTransform().SetRotation(rotations[f]);
-                cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
 
                 // draw prefilteredEnvironment

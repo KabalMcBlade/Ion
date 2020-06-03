@@ -147,8 +147,6 @@ void Camera::UpdateView()
 
     if (m_skybox != nullptr)
     {
-        const Matrix4x4& model = GetTransform().GetMatrixWS();
-
         m_skybox->UpdateUniformBuffer(m_projection, m_view, identity);
     }
 }

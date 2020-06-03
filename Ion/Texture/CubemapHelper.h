@@ -108,9 +108,9 @@ void CubemapHelper::GenerateFaceFromLatLong(const void* _source, void* _dest, io
             switch (_faceIndex)
             {
             case 0: x = 1.0f - a; y = 1.0f;     z = 1.0f - b; break; // right
-            case 1: x = a - 1.0f; y = -1.0f;    z = 1.0f - b; break; // left
-            case 2: x = b - 1.0f; y = a - 1.0f; z = 1.0f;     break; // top
-            case 3: x = 1.0f - b; y = a - 1.0f; z = -1.0f;    break; // bottom
+			case 1: x = a - 1.0f; y = -1.0f;    z = 1.0f - b; break; // left
+			case 2: x = 1.0f - b; y = a - 1.0f; z = -1.0f;    break; // bottom	//note I actually swapped bottom with top face for test purpose.
+            case 3: x = b - 1.0f; y = a - 1.0f; z = 1.0f;     break; // top
             case 4: x = 1.0f;     y = a - 1.0f; z = 1.0f - b; break; // front
             case 5: x = -1.0f;    y = 1.0f - a; z = 1.0f - b; break; // back
             }

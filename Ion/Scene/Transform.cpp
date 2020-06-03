@@ -54,12 +54,12 @@ const Matrix4x4& Transform::GetMatrix()
     {
         static const Matrix4x4 identity;
 
+		m_rotation = m_rotation.Normalize();
         const Matrix4x4 rotate = m_rotation.ToMatrix();
         const Matrix4x4 translate = identity.Translate(m_position);
         m_matrix =  rotate * translate;
         
         m_rotation.SetFromMatrix(m_matrix);
-        m_rotation = m_rotation.Normalize();
 
         const Matrix4x4 scale = identity.Scale(m_scale);
         m_matrix = scale * m_matrix;
