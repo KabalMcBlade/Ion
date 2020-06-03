@@ -62,7 +62,7 @@ RenderManager::RenderManager() : m_deltaTime(ION_FPS_LIMIT), m_running(false)
 {
     m_exposure = 4.5f;
     m_gamma = 2.2f;
-    m_prefilteredCubeMipLevels = 10.0f;
+    m_prefilteredCubeMipLevels = 32.0f;
 }
 
 RenderManager::~RenderManager()
@@ -434,8 +434,6 @@ const Texture* RenderManager::GenerateBRDF(Node* _camera)
 
     Camera* cameraPtr = dynamic_cast<Camera*>(_camera);
 
-    cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(brdflut->GetWidth()) / static_cast<ionFloat>(brdflut->GetHeight()), 0.1f, 100.0f);
-
 	Entity brdflutEntityObj;
 	Entity* brdflutEntity = &brdflutEntityObj;
 
@@ -475,6 +473,7 @@ const Texture* RenderManager::GenerateBRDF(Node* _camera)
         clearValues.resize(1);
         clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
 
+		cameraPtr->SetPerspectiveProjection(NIX_PI, static_cast<ionFloat>(brdflut->GetWidth()) / static_cast<ionFloat>(brdflut->GetHeight()), 0.1f, 512.0f);
         cameraPtr->ConputeRenderAreaViewportScissor(0, 0, brdflut->GetWidth(), brdflut->GetHeight());
         cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues);
 
@@ -510,10 +509,10 @@ const Texture* RenderManager::GetBRDF() const
 
 const Texture* RenderManager::GenerateIrradianceCubemap(Node* _camera)
 {
-	const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(64))) + 1;
+	const ionU32 mipMapsLevel = static_cast<ionU32>(std::floor(std::log2(512))) + 1;
 
-	Texture* irradiance = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME, 64, 64, ETextureFormat_Irradiance, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp, ETextureType_Cubic, mipMapsLevel);
-	Texture* offscreen = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME_OFFSCREEN, 64, 64, ETextureFormat_Irradiance, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp, ETextureType_2D);
+	Texture* irradiance = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME, 512, 512, ETextureFormat_Irradiance, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp, ETextureType_Cubic, mipMapsLevel);
+	Texture* offscreen = ionTextureManger().GenerateTexture(ION_IRRADIANCE_TEXTURENAME_OFFSCREEN, 512, 512, ETextureFormat_Irradiance, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp, ETextureType_2D);
 
 	//
 	// Transition between irradiance and offscreen
@@ -541,8 +540,6 @@ const Texture* RenderManager::GenerateIrradianceCubemap(Node* _camera)
 	//
     // generation of the entity and camera render
     Camera* cameraPtr = dynamic_cast<Camera*>(_camera);
-
-    cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(irradiance->GetWidth()) / static_cast<ionFloat>(irradiance->GetHeight()), 0.1f, 100.0f);
 
     Entity* irradianceEntity = CreateNode(Entity, "Irradiance");
 	irradianceEntity->AttachToParent(_camera);
@@ -619,11 +616,6 @@ const Texture* RenderManager::GenerateIrradianceCubemap(Node* _camera)
 		clearValues.resize(1);
 		clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
 
-		cameraPtr->ConputeRenderAreaViewportScissor(0, 0, irradiance->GetWidth(), irradiance->GetHeight());
-		cameraPtr->SetViewport(m_renderCore, cmdBuffer);
-		cameraPtr->SetScissor(m_renderCore, cmdBuffer);
-
-
 		// Swap
 		VkImageSubresourceRange subresourceRange{};
 		subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -643,18 +635,23 @@ const Texture* RenderManager::GenerateIrradianceCubemap(Node* _camera)
 			vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 		}
 
+		Quaternion yawPos90 = Quaternion(0.0f, NIX_DEG_TO_RAD(90.0f), 0.0f);
+		Quaternion yawNeg90 = Quaternion(0.0f, NIX_DEG_TO_RAD(-90.0f), 0.0f);
+		Quaternion pitch180 = Quaternion(NIX_DEG_TO_RAD(90.0f), 0.0f, 0.0f);
+
 		ionVector<Quaternion, RenderManagerAllocator, GetAllocator> rotations;
-		rotations.push_back(Quaternion(0.0f, 0.0f, 0.0f));
-		rotations.push_back(Quaternion(0.0f, 0.0, NIX_DEG_TO_RAD(90.0f)));
+		rotations.push_back(pitch180 * yawPos90);
+		rotations.push_back(pitch180 * yawNeg90);
+		rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(-90.0f), 0.0f));
+		rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(90.0f), 0.0));
+		rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(180.0f), 0.0));
 		rotations.push_back(Quaternion(0.0f, 0.0, NIX_DEG_TO_RAD(180.0f)));
-		rotations.push_back(Quaternion(0.0f, 0.0, NIX_DEG_TO_RAD(270.0f)));
-		rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), 0.0f, 0.0f));
-		rotations.push_back(Quaternion(NIX_DEG_TO_RAD(-90.0f), 0.0f, 0.0f));
 
 		for (ionU32 m = 0; m < mipMapsLevel; ++m)
 		{
 			for (ionU32 f = 0; f < 6; ++f)
 			{
+				cameraPtr->SetPerspectiveProjection(NIX_PI * mipMapsLevel, static_cast<ionFloat>(irradiance->GetWidth()) / static_cast<ionFloat>(irradiance->GetHeight()), 0.1f, 512.0f);
 				cameraPtr->ConputeRenderAreaViewportScissor(0, 0, static_cast<ionS32>(irradiance->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(irradiance->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
 				cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues);
 
@@ -662,6 +659,7 @@ const Texture* RenderManager::GenerateIrradianceCubemap(Node* _camera)
 				cameraPtr->SetScissor(m_renderCore, cmdBuffer);
 
 				cameraPtr->GetTransform().SetRotation(rotations[f]);
+				cameraPtr->Update(0.0f);
 				cameraPtr->UpdateView();
 
 				// draw irradiance
@@ -812,8 +810,6 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(Node* _camer
 	// generation of the entity and camera render
 	Camera* cameraPtr = dynamic_cast<Camera*>(_camera);
 
-	cameraPtr->SetPerspectiveProjection(60.0f, static_cast<ionFloat>(prefilteredEnvironment->GetWidth()) / static_cast<ionFloat>(prefilteredEnvironment->GetHeight()), 0.1f, 100.0f);
-
 	Entity* prefilteredEntity = CreateNode(Entity, "Prefiltered");
 
 	prefilteredEntity->AttachToParent(_camera);
@@ -895,11 +891,6 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(Node* _camer
         clearValues.resize(1);
         clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
 
-        cameraPtr->ConputeRenderAreaViewportScissor(0, 0, prefilteredEnvironment->GetWidth(), prefilteredEnvironment->GetHeight());
-        cameraPtr->SetViewport(m_renderCore, cmdBuffer);
-        cameraPtr->SetScissor(m_renderCore, cmdBuffer);
-
-
         // Swap
         VkImageSubresourceRange subresourceRange{};
         subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -919,25 +910,32 @@ const Texture* RenderManager::GeneratePrefilteredEnvironmentCubemap(Node* _camer
             vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
         }
 
-        ionVector<Quaternion, RenderManagerAllocator, GetAllocator> rotations;
-		rotations.push_back(Quaternion(0.0f, 0.0f, 0.0f));
-		rotations.push_back(Quaternion(0.0f, 0.0, NIX_DEG_TO_RAD(90.0f)));
+		Quaternion yawPos90 = Quaternion(0.0f, NIX_DEG_TO_RAD(90.0f), 0.0f);
+		Quaternion yawNeg90 = Quaternion(0.0f, NIX_DEG_TO_RAD(-90.0f), 0.0f);
+		Quaternion pitch180 = Quaternion(NIX_DEG_TO_RAD(90.0f), 0.0f, 0.0f);
+
+		ionVector<Quaternion, RenderManagerAllocator, GetAllocator> rotations;
+		rotations.push_back(pitch180 * yawPos90);
+		rotations.push_back(pitch180 * yawNeg90);
+		rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(-90.0f), 0.0f));
+		rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(90.0f), 0.0));
+		rotations.push_back(Quaternion(0.0f, NIX_DEG_TO_RAD(180.0f), 0.0));
 		rotations.push_back(Quaternion(0.0f, 0.0, NIX_DEG_TO_RAD(180.0f)));
-		rotations.push_back(Quaternion(0.0f, 0.0, NIX_DEG_TO_RAD(270.0f)));
-		rotations.push_back(Quaternion(NIX_DEG_TO_RAD(90.0f), 0.0f, 0.0f));
-		rotations.push_back(Quaternion(NIX_DEG_TO_RAD(-90.0f), 0.0f, 0.0f));
+
 
         for (ionU32 m = 0; m < mipMapsLevel; ++m)
         {
             for (ionU32 f = 0; f < 6; ++f)
             {
+				cameraPtr->SetPerspectiveProjection(NIX_PI * mipMapsLevel, static_cast<ionFloat>(prefilteredEnvironment->GetWidth()) / static_cast<ionFloat>(prefilteredEnvironment->GetHeight()), 0.1f, 512.0f);
                 cameraPtr->ConputeRenderAreaViewportScissor(0, 0, static_cast<ionS32>(prefilteredEnvironment->GetWidth() * std::powf(0.5f, static_cast<ionFloat>(m))), static_cast<ionS32>(prefilteredEnvironment->GetHeight() * std::powf(0.5f, static_cast<ionFloat>(m))));
                 cameraPtr->StartRenderPass(m_renderCore, renderPass, framebuffer, cmdBuffer, clearValues);
 
                 cameraPtr->SetViewport(m_renderCore, cmdBuffer);
                 cameraPtr->SetScissor(m_renderCore, cmdBuffer);
 
-                cameraPtr->GetTransform().SetRotation(rotations[f]);
+				cameraPtr->GetTransform().SetRotation(rotations[f]);
+				cameraPtr->Update(0.0f);
                 cameraPtr->UpdateView();
 
                 // draw prefilteredEnvironment

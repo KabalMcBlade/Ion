@@ -1165,7 +1165,7 @@ struct DrawSurface final
         m_extraGLState = 0;
         m_exposure = 4.5f;
         m_gamma = 2.2f;
-        m_prefilteredCubeMipLevels = 10.0f;
+        m_prefilteredCubeMipLevels = 32.0f;
         m_nodeRef = nullptr;
         m_visible = true;
         m_indexStart = 0;
