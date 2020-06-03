@@ -73,17 +73,17 @@ void BoundingBox::SetZero()
 
 void BoundingBox::MergePoint(const Vector4& _point)
 {
-    Set(Helper::Min(m_min, _point), Helper::Max(m_max, _point));
+    Set(MathFunctions::Min(m_min, _point), MathFunctions::Max(m_max, _point));
 }
 
 void BoundingBox::Expande(const BoundingBox& _bbox)
 {
-    Set(Helper::Min(m_min, _bbox.GetMin()), Helper::Max(m_max, _bbox.GetMax()));
+    Set(MathFunctions::Min(m_min, _bbox.GetMin()), MathFunctions::Max(m_max, _bbox.GetMax()));
 }
 
 void BoundingBox::Expande(const Vector4& _min, const Vector4& _max)
 {
-    Set(Helper::Min(m_min, _min), Helper::Max(m_max, _max));
+    Set(MathFunctions::Min(m_min, _min), MathFunctions::Max(m_max, _max));
 }
 
 void BoundingBox::GetCorners(ionVector<Vector4, BoundingBoxAllocator, GetAllocator>& _corners) const

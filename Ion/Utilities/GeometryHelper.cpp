@@ -28,7 +28,7 @@ void GeometryHelper::CalculateNormals(const Vector4* _vectorArray, const ionU32 
 {
     for (ionU32 i = 0; i < _vectorCount; ++i)
     {
-        _outNormalVectorArray[i] = Helper::Splat(0.0f);
+        _outNormalVectorArray[i] = MathFunctions::Splat(0.0f);
     }
 
     ionU32 faceCount = _indexCount / 3;
@@ -60,9 +60,9 @@ void GeometryHelper::CalculateUVs(const Vector4* _vectorArray, const ionU32 _vec
 {
     for (ionU32 i = 0; i < _vectorCount; ++i)
     {
-        const ionFloat x = Helper::ExtractX(_vectorArray[i]);
-        const ionFloat y = Helper::ExtractY(_vectorArray[i]);
-        const ionFloat z = Helper::ExtractZ(_vectorArray[i]);
+        const ionFloat x = MathFunctions::ExtractX(_vectorArray[i]);
+        const ionFloat y = MathFunctions::ExtractY(_vectorArray[i]);
+        const ionFloat z = MathFunctions::ExtractZ(_vectorArray[i]);
 
         // to polar
         /*
@@ -87,7 +87,7 @@ void GeometryHelper::CalculateUVs(const Vector4* _vectorArray, const ionU32 _vec
             theta = ((theta / len) + 1.0f) / 2.0f;
         }
 
-        _outUVUVVectorArray[i] = Helper::Set(phi, theta, phi, theta);
+        _outUVUVVectorArray[i] = MathFunctions::Set(phi, theta, phi, theta);
     }
 }
 
@@ -235,44 +235,44 @@ void GeometryHelper::CalculateTangents(
 
         // 0
         {
-            converter.m_faces[i].m_vertices[0].m_position.m_x = Helper::ExtractX(vector0);
-            converter.m_faces[i].m_vertices[0].m_position.m_y = Helper::ExtractY(vector0);
-            converter.m_faces[i].m_vertices[0].m_position.m_z = Helper::ExtractZ(vector0);
+            converter.m_faces[i].m_vertices[0].m_position.m_x = MathFunctions::ExtractX(vector0);
+            converter.m_faces[i].m_vertices[0].m_position.m_y = MathFunctions::ExtractY(vector0);
+            converter.m_faces[i].m_vertices[0].m_position.m_z = MathFunctions::ExtractZ(vector0);
 
-            converter.m_faces[i].m_vertices[0].m_normal.m_x = Helper::ExtractX(normal0);
-            converter.m_faces[i].m_vertices[0].m_normal.m_y = Helper::ExtractY(normal0);
-            converter.m_faces[i].m_vertices[0].m_normal.m_z = Helper::ExtractZ(normal0);
+            converter.m_faces[i].m_vertices[0].m_normal.m_x = MathFunctions::ExtractX(normal0);
+            converter.m_faces[i].m_vertices[0].m_normal.m_y = MathFunctions::ExtractY(normal0);
+            converter.m_faces[i].m_vertices[0].m_normal.m_z = MathFunctions::ExtractZ(normal0);
 
-            converter.m_faces[i].m_vertices[0].m_uv.m_u = Helper::ExtractX(uv0);
-            converter.m_faces[i].m_vertices[0].m_uv.m_v = Helper::ExtractY(uv0);
+            converter.m_faces[i].m_vertices[0].m_uv.m_u = MathFunctions::ExtractX(uv0);
+            converter.m_faces[i].m_vertices[0].m_uv.m_v = MathFunctions::ExtractY(uv0);
         }
 
         // 1
         {
-            converter.m_faces[i].m_vertices[1].m_position.m_x = Helper::ExtractX(vector1);
-            converter.m_faces[i].m_vertices[1].m_position.m_y = Helper::ExtractY(vector1);
-            converter.m_faces[i].m_vertices[1].m_position.m_z = Helper::ExtractZ(vector1);
+            converter.m_faces[i].m_vertices[1].m_position.m_x = MathFunctions::ExtractX(vector1);
+            converter.m_faces[i].m_vertices[1].m_position.m_y = MathFunctions::ExtractY(vector1);
+            converter.m_faces[i].m_vertices[1].m_position.m_z = MathFunctions::ExtractZ(vector1);
 
-            converter.m_faces[i].m_vertices[1].m_normal.m_x = Helper::ExtractX(normal1);
-            converter.m_faces[i].m_vertices[1].m_normal.m_y = Helper::ExtractY(normal1);
-            converter.m_faces[i].m_vertices[1].m_normal.m_z = Helper::ExtractZ(normal1);
+            converter.m_faces[i].m_vertices[1].m_normal.m_x = MathFunctions::ExtractX(normal1);
+            converter.m_faces[i].m_vertices[1].m_normal.m_y = MathFunctions::ExtractY(normal1);
+            converter.m_faces[i].m_vertices[1].m_normal.m_z = MathFunctions::ExtractZ(normal1);
 
-            converter.m_faces[i].m_vertices[1].m_uv.m_u = Helper::ExtractX(uv1);
-            converter.m_faces[i].m_vertices[1].m_uv.m_v = Helper::ExtractY(uv1);
+            converter.m_faces[i].m_vertices[1].m_uv.m_u = MathFunctions::ExtractX(uv1);
+            converter.m_faces[i].m_vertices[1].m_uv.m_v = MathFunctions::ExtractY(uv1);
         }
 
         // 2
         {
-            converter.m_faces[i].m_vertices[2].m_position.m_x = Helper::ExtractX(vector2);
-            converter.m_faces[i].m_vertices[2].m_position.m_y = Helper::ExtractY(vector2);
-            converter.m_faces[i].m_vertices[2].m_position.m_z = Helper::ExtractZ(vector2);
+            converter.m_faces[i].m_vertices[2].m_position.m_x = MathFunctions::ExtractX(vector2);
+            converter.m_faces[i].m_vertices[2].m_position.m_y = MathFunctions::ExtractY(vector2);
+            converter.m_faces[i].m_vertices[2].m_position.m_z = MathFunctions::ExtractZ(vector2);
 
-            converter.m_faces[i].m_vertices[2].m_normal.m_x = Helper::ExtractX(normal2);
-            converter.m_faces[i].m_vertices[2].m_normal.m_y = Helper::ExtractY(normal2);
-            converter.m_faces[i].m_vertices[2].m_normal.m_z = Helper::ExtractZ(normal2);
+            converter.m_faces[i].m_vertices[2].m_normal.m_x = MathFunctions::ExtractX(normal2);
+            converter.m_faces[i].m_vertices[2].m_normal.m_y = MathFunctions::ExtractY(normal2);
+            converter.m_faces[i].m_vertices[2].m_normal.m_z = MathFunctions::ExtractZ(normal2);
 
-            converter.m_faces[i].m_vertices[2].m_uv.m_u = Helper::ExtractX(uv2);
-            converter.m_faces[i].m_vertices[2].m_uv.m_v = Helper::ExtractY(uv2);
+            converter.m_faces[i].m_vertices[2].m_uv.m_u = MathFunctions::ExtractX(uv2);
+            converter.m_faces[i].m_vertices[2].m_uv.m_v = MathFunctions::ExtractY(uv2);
         }
     }
 
@@ -302,7 +302,7 @@ void GeometryHelper::CalculateTangents(
         SMikkTSpaceXYZ t = converter.m_faces[f].m_vertices[v].m_tangent;
         ionFloat s = converter.m_faces[f].m_vertices[v].m_bitangentSign;
 
-        _outTangentVectorArray[index] = Helper::Set(t.m_x, t.m_y, t.m_z, 0.0f);
+        _outTangentVectorArray[index] = MathFunctions::Set(t.m_x, t.m_y, t.m_z, 0.0f);
         _outTangentSignArray[index] = s;
     }
 }

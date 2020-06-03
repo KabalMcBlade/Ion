@@ -92,13 +92,13 @@ void Transform::SetPosition(const Vector4& _position)
 void Transform::SetPosition(const ionFloat& _x, const ionFloat& _y, const ionFloat& _z)
 {
     m_dirty = true;
-    m_position = Helper::Set(_x, _y, _z, 0.0f);
+    m_position = MathFunctions::Set(_x, _y, _z, 0.0f);
 }
 
 void Transform::SetScale(const ionFloat& _scale)
 {
     m_dirty = true;
-    m_scale = Helper::Splat(_scale);
+    m_scale = MathFunctions::Splat(_scale);
 }
 
 void Transform::SetScale(const Vector4& _scale)
@@ -110,7 +110,7 @@ void Transform::SetScale(const Vector4& _scale)
 void Transform::SetScale(const ionFloat& _x, const ionFloat& _y, const ionFloat& _z)
 {
     m_dirty = true;
-    m_scale = Helper::Set(_x, _y, _z, 0.0f);
+    m_scale = MathFunctions::Set(_x, _y, _z, 0.0f);
 }
 
 void Transform::SetRotation(const Quaternion& _rotation)

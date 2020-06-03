@@ -272,6 +272,7 @@
     <ClInclude Include="Dependencies\Miscellaneous\stb_image.h" />
     <ClInclude Include="Dependencies\Miscellaneous\stb_image_write.h" />
     <ClInclude Include="Dependencies\Miscellaneous\tiny_gltf.h" />
+    <ClInclude Include="Dependencies\Nix\Nix\MathAligned.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Constants.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Conversion.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Core\Architecture.h" />
@@ -279,7 +280,7 @@
     <ClInclude Include="Dependencies\Nix\Nix\Core\BasicDefines.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Core\BasicTypes.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Dependencies\sse_mathfun.h" />
-    <ClInclude Include="Dependencies\Nix\Nix\Helper.h" />
+    <ClInclude Include="Dependencies\Nix\Nix\BasicMathFunctions.h" />
     <ClInclude Include="Dependencies\Nix\Nix\MathHelper.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Matrix4x4.h" />
     <ClInclude Include="Dependencies\Nix\Nix\MatrixHelper.h" />

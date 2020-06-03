@@ -195,9 +195,6 @@
     <ClInclude Include="Renderer\StorageBufferObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\Nix\Nix\Helper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Dependencies\Nix\Nix\Swizzle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -355,6 +352,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\Nix\Nix\Matrix4x4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Nix\Nix\MathAligned.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Nix\Nix\BasicMathFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

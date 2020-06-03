@@ -249,7 +249,7 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
                             Vector4 m1 = sampler.GetLinearPath(i + 1) * td;
                             Vector4 u(t);
 
-                            Vector4 position = Helper::HermiteCubicSpline(p0, m0, p1, m1, u);
+                            Vector4 position = MathFunctions::HermiteCubicSpline(p0, m0, p1, m1, u);
 
                             channel.GetNode()->GetTransform().SetPosition(position);
                             break;
@@ -262,7 +262,7 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
                             Vector4 m1 = sampler.GetLinearPath(i + 1) * td;
                             Vector4 u(t);
 
-                            Vector4 scale = Helper::HermiteCubicSpline(p0, m0, p1, m1, u);
+                            Vector4 scale = MathFunctions::HermiteCubicSpline(p0, m0, p1, m1, u);
 
                             channel.GetNode()->GetTransform().SetScale(scale);
                             break;
@@ -276,7 +276,7 @@ void AnimationRenderer::UpdateAnimation(ionU32 _animationIndex, ionFloat _animat
                             Quaternion m1 = sampler.GetLinearPath(i + 1) * td;
                             Vector4 u(t);
 
-                            Quaternion rotation = Helper::HermiteCubicSpline(p0, m0, p1, m1, u);
+                            Quaternion rotation = MathFunctions::HermiteCubicSpline(p0, m0, p1, m1, u);
                             rotation = rotation.Normalize();
 
                             channel.GetNode()->GetTransform().SetRotation(rotation);

@@ -345,7 +345,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
     {
         const Vector4& v = GetNormal();
         Vector4 b = v.Cross(GetTangent());
-        SetBiTangentSign(Helper::ExtractX(b.Dot3(_tangent)));
+        SetBiTangentSign(MathFunctions::ExtractX(b.Dot3(_tangent)));
     }
 
     ION_INLINE void SetBiTangent(ionFloat _x, ionFloat _y, ionFloat _z)
@@ -402,8 +402,8 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
     ION_INLINE void SetTexCoordUV0(const Vector4& _uvuv)
     {
-        SetTexCoordU0(Helper::ExtractX(_uvuv));
-        SetTexCoordV0(Helper::ExtractY(_uvuv));
+        SetTexCoordU0(MathFunctions::ExtractX(_uvuv));
+        SetTexCoordV0(MathFunctions::ExtractY(_uvuv));
     }
 
     ION_INLINE void SetTexCoordU1(ionFloat _u)
@@ -424,8 +424,8 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
     ION_INLINE void SetTexCoordUV1(const Vector4& _uvuv)
     {
-        SetTexCoordU1(Helper::ExtractX(_uvuv));
-        SetTexCoordV1(Helper::ExtractY(_uvuv));
+        SetTexCoordU1(MathFunctions::ExtractX(_uvuv));
+        SetTexCoordV1(MathFunctions::ExtractY(_uvuv));
     }
 
     ION_INLINE void SetJoint0(ionFloat _joint)
@@ -463,17 +463,17 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
     {
         const Vector4 t(_t);
 
-        m_position = Helper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
+        m_position = MathFunctions::Lerp(_a.GetPosition(), _b.GetPosition(), t);
 
         const Vector4 aUVUV0 = _a.GetTexCoordUVUV0();
         const Vector4 bUVUV0 = _b.GetTexCoordUVUV0();
-        const Vector4 lerpUV0 = Helper::Lerp(aUVUV0, bUVUV0, t);
-        SetTexCoordUV0(Helper::ExtractX(lerpUV0), Helper::ExtractY(lerpUV0));
+        const Vector4 lerpUV0 = MathFunctions::Lerp(aUVUV0, bUVUV0, t);
+        SetTexCoordUV0(MathFunctions::ExtractX(lerpUV0), MathFunctions::ExtractY(lerpUV0));
 
         const Vector4 aUVUV1 = _a.GetTexCoordUVUV1();
         const Vector4 bUVUV1 = _b.GetTexCoordUVUV1();
-        const Vector4 lerpUV1 = Helper::Lerp(aUVUV1, bUVUV1, t);
-        SetTexCoordUV1(Helper::ExtractX(lerpUV1), Helper::ExtractY(lerpUV1));
+        const Vector4 lerpUV1 = MathFunctions::Lerp(aUVUV1, bUVUV1, t);
+        SetTexCoordUV1(MathFunctions::ExtractX(lerpUV1), MathFunctions::ExtractY(lerpUV1));
     }
 
 
@@ -483,9 +483,9 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
         const Vector4 t(_t);
 
-        Vector4 normal = Helper::Lerp(_a.GetNormal(), _b.GetNormal(), t);
-        Vector4 tangent = Helper::Lerp(_a.GetTangent(), _b.GetTangent(), t);
-        Vector4 bitangent = Helper::Lerp(_a.GetBiTangent(), _b.GetBiTangent(), t);
+        Vector4 normal = MathFunctions::Lerp(_a.GetNormal(), _b.GetNormal(), t);
+        Vector4 tangent = MathFunctions::Lerp(_a.GetTangent(), _b.GetTangent(), t);
+        Vector4 bitangent = MathFunctions::Lerp(_a.GetBiTangent(), _b.GetBiTangent(), t);
         normal.Normalize();
         tangent.Normalize();
         bitangent.Normalize();
@@ -683,8 +683,8 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
 
     ION_INLINE void SetTexCoordUV(const Vector4& _uvuv)
     {
-        SetTexCoordU(Helper::ExtractX(_uvuv));
-        SetTexCoordV(Helper::ExtractY(_uvuv));
+        SetTexCoordU(MathFunctions::ExtractX(_uvuv));
+        SetTexCoordV(MathFunctions::ExtractY(_uvuv));
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -694,12 +694,12 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
     {
         const Vector4 t(_t);
 
-        m_position = Helper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
+        m_position = MathFunctions::Lerp(_a.GetPosition(), _b.GetPosition(), t);
 
         const Vector4 aUVUV = _a.GetTexCoordUVUV();
         const Vector4 bUVUV = _b.GetTexCoordUVUV();
-        const Vector4 lerpUV = Helper::Lerp(aUVUV, bUVUV, t);
-        SetTexCoordUV(Helper::ExtractX(lerpUV), Helper::ExtractY(lerpUV));
+        const Vector4 lerpUV = MathFunctions::Lerp(aUVUV, bUVUV, t);
+        SetTexCoordUV(MathFunctions::ExtractX(lerpUV), MathFunctions::ExtractY(lerpUV));
     }
 };
 
@@ -772,7 +772,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexNormal
     ION_INLINE void Lerp(const VertexNormal& _a, const VertexNormal& _b, const ionFloat _t)
     {
         const Vector4 t(_t);
-        m_position = Helper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
+        m_position = MathFunctions::Lerp(_a.GetPosition(), _b.GetPosition(), t);
     }
 };
 
@@ -842,7 +842,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexColored
     {
         const Vector4 t(_t);
 
-        m_position = Helper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
+        m_position = MathFunctions::Lerp(_a.GetPosition(), _b.GetPosition(), t);
     }
 };
 
@@ -924,15 +924,15 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexUV
 
     ION_INLINE void SetTexCoordUV(const Vector4& _uvuv)
     {
-        SetTexCoordU(Helper::ExtractX(_uvuv));
-        SetTexCoordV(Helper::ExtractY(_uvuv));
+        SetTexCoordU(MathFunctions::ExtractX(_uvuv));
+        SetTexCoordV(MathFunctions::ExtractY(_uvuv));
     }
 
     ION_INLINE void Lerp(const VertexUV& _a, const VertexUV& _b, const ionFloat _t)
     {
         const Vector4 t(_t);
 
-        m_position = Helper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
+        m_position = MathFunctions::Lerp(_a.GetPosition(), _b.GetPosition(), t);
     }
 };
 
@@ -972,7 +972,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexPlain
     {
         const Vector4 t(_t);
 
-        m_position = Helper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
+        m_position = MathFunctions::Lerp(_a.GetPosition(), _b.GetPosition(), t);
     }
 };
 
@@ -1067,7 +1067,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
     {
         const Vector4& v = GetNormal();
         Vector4 b = v.Cross(GetTangent());
-        SetBiTangentSign(Helper::ExtractX(b.Dot3(_tangent)));
+        SetBiTangentSign(MathFunctions::ExtractX(b.Dot3(_tangent)));
     }
 
     ION_INLINE void SetBiTangent(ionFloat _x, ionFloat _y, ionFloat _z)
@@ -1082,7 +1082,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
     {
         const Vector4 t(_t);
 
-        m_position = Helper::Lerp(_a.GetPosition(), _b.GetPosition(), t);
+        m_position = MathFunctions::Lerp(_a.GetPosition(), _b.GetPosition(), t);
     }
 
     ION_INLINE void LerpAll(const Vertex& _a, const Vertex& _b, const ionFloat _t)
@@ -1091,9 +1091,9 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
 
         const Vector4 t(_t);
 
-        Vector4 normal = Helper::Lerp(_a.GetNormal(), _b.GetNormal(), t);
-        Vector4 tangent = Helper::Lerp(_a.GetTangent(), _b.GetTangent(), t);
-        Vector4 bitangent = Helper::Lerp(_a.GetBiTangent(), _b.GetBiTangent(), t);
+        Vector4 normal = MathFunctions::Lerp(_a.GetNormal(), _b.GetNormal(), t);
+        Vector4 tangent = MathFunctions::Lerp(_a.GetTangent(), _b.GetTangent(), t);
+        Vector4 bitangent = MathFunctions::Lerp(_a.GetBiTangent(), _b.GetBiTangent(), t);
         normal.Normalize();
         tangent.Normalize();
         bitangent.Normalize();

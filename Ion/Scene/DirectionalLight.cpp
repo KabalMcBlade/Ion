@@ -29,7 +29,7 @@ DirectionalLight::~DirectionalLight()
 
 void DirectionalLight::SetColor(ionFloat _r, ionFloat _g, ionFloat _b, ionFloat _a)
 {
-    m_color = Helper::Set(_r, _g, _b, _a);
+    m_color = MathFunctions::Set(_r, _g, _b, _a);
 }
 
 Vector4 DirectionalLight::GetLightDirection() const

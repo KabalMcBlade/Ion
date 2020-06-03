@@ -39,9 +39,9 @@ void Ray::Set(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector4& _wo
 {
     Vector4 screenPos(_relMousePosX * 2.0f - 1.0f, _relMousePosY * 2.0f - 1.0f, 1.0f, 1.0f);
     Vector4 worldPos = _inverseMatrix * screenPos;
-    Vector4 worldPosWWWW = Helper::ExtractW(worldPos);
+    Vector4 worldPosWWWW = MathFunctions::ExtractW(worldPos);
     worldPos /= worldPosWWWW;
-    Set(_worldRayOrigin, Helper::Normalize(worldPos - _worldRayOrigin));
+    Set(_worldRayOrigin, MathFunctions::Normalize(worldPos - _worldRayOrigin));
 }
 
 ION_NAMESPACE_END

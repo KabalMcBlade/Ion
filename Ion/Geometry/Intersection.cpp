@@ -11,12 +11,12 @@ ION_NAMESPACE_BEGIN
 ionBool Intersection::IntersectRayPlane(const Ray& _ray, const Vector4& _planeNormal, const Vector4& _pointOnPlane, Vector4& _outIntersectionPoint)
 {
     ionFloat denom = 0;
-    _mm_store_ss(&denom, Helper::Dot(_planeNormal, _ray.GetDirection()));
+    _mm_store_ss(&denom, MathFunctions::Dot(_planeNormal, _ray.GetDirection()));
 
     if (std::abs(denom) > NIX_EPSILON)
     {
         ionFloat t = 0;
-        _mm_store_ss(&t, Helper::Dot(_pointOnPlane - _ray.GetOrigin(), _planeNormal));
+        _mm_store_ss(&t, MathFunctions::Dot(_pointOnPlane - _ray.GetOrigin(), _planeNormal));
         t /= denom;
 
         if (t >= 0.0f)
@@ -34,14 +34,14 @@ ionBool Intersection::IntersectRayBoundingBox(const Ray& _ray, const BoundingBox
     const Vector4& l1 = (_box.GetMin() - _ray.GetOrigin()) * _ray.GetInverseDirection();
     const Vector4& l2 = (_box.GetMax() - _ray.GetOrigin()) * _ray.GetInverseDirection();
 
-    const Vector4& filtered_l1a = Helper::Min(l1, kPlusInf);
-    const Vector4& filtered_l2a = Helper::Min(l2, kPlusInf);
+    const Vector4& filtered_l1a = MathFunctions::Min(l1, kPlusInf);
+    const Vector4& filtered_l2a = MathFunctions::Min(l2, kPlusInf);
 
-    const Vector4& filtered_l1b = Helper::Max(l1, kMinusInf);
-    const Vector4& filtered_l2b = Helper::Max(l2, kMinusInf);
+    const Vector4& filtered_l1b = MathFunctions::Max(l1, kMinusInf);
+    const Vector4& filtered_l2b = MathFunctions::Max(l2, kMinusInf);
 
-    Vector4 lmax = Helper::Max(filtered_l1a, filtered_l2a);
-    Vector4 lmin = Helper::Min(filtered_l1b, filtered_l2b);
+    Vector4 lmax = MathFunctions::Max(filtered_l1a, filtered_l2a);
+    Vector4 lmin = MathFunctions::Min(filtered_l1b, filtered_l2b);
 
 
     // a,b,c,d -> b,c,d,a

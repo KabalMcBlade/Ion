@@ -91,7 +91,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
     if (_node.matrix.size() == 16)
     {
         ionFloat scaleFactor = std::sqrtf((ionFloat)_node.matrix.data()[0] * (ionFloat)_node.matrix.data()[0] + (ionFloat)_node.matrix.data()[1] * (ionFloat)_node.matrix.data()[1] + (ionFloat)_node.matrix.data()[2] * (ionFloat)_node.matrix.data()[2]);
-        scale = Helper::Set(scaleFactor, scaleFactor, scaleFactor, 0.0f);
+        scale = MathFunctions::Set(scaleFactor, scaleFactor, scaleFactor, 0.0f);
 
         Matrix4x4 mat = Matrix4x4(
             (ionFloat)_node.matrix.data()[0], (ionFloat)_node.matrix.data()[1], (ionFloat)_node.matrix.data()[2], (ionFloat)_node.matrix.data()[3],
@@ -311,22 +311,22 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                             Vector4 normal;
                             if (morphTargetBufferNormals.size() > 0)
                             {
-                                normal = Helper::Set((&morphTargetBufferNormals[t][v * 3])[0], ((&morphTargetBufferNormals[t][v * 3])[1]), (&morphTargetBufferNormals[t][v * 3])[2], 0.0f);
+                                normal = MathFunctions::Set((&morphTargetBufferNormals[t][v * 3])[0], ((&morphTargetBufferNormals[t][v * 3])[1]), (&morphTargetBufferNormals[t][v * 3])[2], 0.0f);
                             }
                             else
                             {
-                                normal = Helper::Set(0.0f, 0.0f, 0.0f, 0.0f);
+                                normal = MathFunctions::Set(0.0f, 0.0f, 0.0f, 0.0f);
                             }
                             vert.SetNormal(normal);
 
                             Vector4 tangent;
                             if (morphTargetBufferTangent.size() > 0)
                             {
-                                tangent = Helper::Set((&morphTargetBufferTangent[t][v * 3])[0], ((&morphTargetBufferTangent[t][v * 3])[1]), (&morphTargetBufferTangent[t][v * 3])[2], 0.0f);
+                                tangent = MathFunctions::Set((&morphTargetBufferTangent[t][v * 3])[0], ((&morphTargetBufferTangent[t][v * 3])[1]), (&morphTargetBufferTangent[t][v * 3])[2], 0.0f);
                             }
                             else
                             {
-                                tangent = Helper::Set(0.0f, 0.0f, 0.0f, 0.0f);
+                                tangent = MathFunctions::Set(0.0f, 0.0f, 0.0f, 0.0f);
                             }
 
                             vert.SetTangent(tangent);
@@ -506,11 +506,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     Vector4 normal;
                     if (bufferNormals != nullptr)
                     {
-                        normal = Helper::Set((&bufferNormals[v * 3])[0], ((&bufferNormals[v * 3])[1]) , (&bufferNormals[v * 3])[2], 0.0f);
+                        normal = MathFunctions::Set((&bufferNormals[v * 3])[0], ((&bufferNormals[v * 3])[1]) , (&bufferNormals[v * 3])[2], 0.0f);
                     }
                     else
                     {
-                        normal = Helper::Set(0.0f, 0.0f, 0.0f, 0.0f);
+                        normal = MathFunctions::Set(0.0f, 0.0f, 0.0f, 0.0f);
                     }
 
                     if (!normalsAreMissing && tangentsAreMissing)
@@ -523,11 +523,11 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     Vector4 tangent;
                     if (bufferTangent != nullptr)
                     {
-                        tangent = Helper::Set((&bufferTangent[v * 3])[0], ((&bufferTangent[v * 3])[1]), (&bufferTangent[v * 3])[2], 0.0f);
+                        tangent = MathFunctions::Set((&bufferTangent[v * 3])[0], ((&bufferTangent[v * 3])[1]), (&bufferTangent[v * 3])[2], 0.0f);
                     }
                     else
                     {
-                        tangent = Helper::Set(0.0f, 0.0f, 0.0f, 0.0f);
+                        tangent = MathFunctions::Set(0.0f, 0.0f, 0.0f, 0.0f);
                     }
 
                     vert.SetTangent(tangent);
@@ -536,7 +536,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                     {
                         if (!uvAreMissing)
                         {
-                            Vector4 uvuv = Helper::Set((&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1], (&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1]);
+                            Vector4 uvuv = MathFunctions::Set((&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1], (&bufferTexCoordsFloat0[v * 2])[0], (&bufferTexCoordsFloat0[v * 2])[1]);
                             uvuvToCompute.push_back(uvuv);
                         }
 
@@ -548,7 +548,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                         {
                             if (!uvAreMissing)
                             {
-                                Vector4 uvuv = Helper::Set(ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f);
+                                Vector4 uvuv = MathFunctions::Set(ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[0]) / 65535.0f, ionFloat((&bufferTexCoordsU160[v * 2])[1]) / 65535.0f);
                                 uvuvToCompute.push_back(uvuv);
                             }
 
@@ -560,7 +560,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
                             {
                                 if (!uvAreMissing)
                                 {
-                                    Vector4 uvuv = Helper::Set(ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f);
+                                    Vector4 uvuv = MathFunctions::Set(ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[0]) / 255.0f, ionFloat((&bufferTexCoordsU80[v * 2])[1]) / 255.0f);
                                     uvuvToCompute.push_back(uvuv);
                                 }
 
