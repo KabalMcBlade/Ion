@@ -119,13 +119,13 @@ void ShaderProgramManager::Shutdown()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-const Matrix& ShaderProgramManager::GetRenderParamMatrix(const ionString& _param)
+const Matrix4x4& ShaderProgramManager::GetRenderParamMatrix(const ionString& _param)
 {
     const ionSize hash = std::hash<ionString>{}(_param);
     return GetRenderParamMatrix(hash);
 }
 
-const Matrix& ShaderProgramManager::GetRenderParamMatrix(ionSize _paramHash)
+const Matrix4x4& ShaderProgramManager::GetRenderParamMatrix(ionSize _paramHash)
 {
     return m_uniformsMatrix[_paramHash];
 }
@@ -165,13 +165,13 @@ const ionS32 ShaderProgramManager::GetRenderParamInteger(ionSize _paramHash)
 
 //////////////////////////////////////////////////////////////////////////
 
-void ShaderProgramManager::SetRenderParamMatrix(const ionString& _param, const Matrix& _value)
+void ShaderProgramManager::SetRenderParamMatrix(const ionString& _param, const Matrix4x4& _value)
 {
     const ionSize hash = std::hash<ionString>{}(_param);
     SetRenderParamMatrix(hash, _value);
 }
 
-void ShaderProgramManager::SetRenderParamMatrix(ionSize _paramHash, const Matrix& _value)
+void ShaderProgramManager::SetRenderParamMatrix(ionSize _paramHash, const Matrix4x4& _value)
 {
     m_uniformsMatrix[_paramHash] = _value;
 }
@@ -184,7 +184,7 @@ void ShaderProgramManager::SetRenderParamMatrix(const ionString& _param, const i
 
 void ShaderProgramManager::SetRenderParamMatrix(ionSize _paramHash, const ionFloat* _value)
 {
-    Matrix m(_value[0], _value[1], _value[2], _value[3], _value[4], _value[5], _value[6], _value[7], _value[8], _value[9], _value[10], _value[11], _value[12], _value[13], _value[14], _value[15]);
+    Matrix4x4 m(_value[0], _value[1], _value[2], _value[3], _value[4], _value[5], _value[6], _value[7], _value[8], _value[9], _value[10], _value[11], _value[12], _value[13], _value[14], _value[15]);
     m_uniformsMatrix[_paramHash] = m;
 }
 
@@ -199,9 +199,9 @@ void ShaderProgramManager::SetRenderParamsMatrix(const ionString& _param, const 
     }
 }
 
-void ShaderProgramManager::SetRenderParamsMatrix(const ionString& _param, const ionVector<Matrix, ShaderProgramManagerAllocator, GetAllocator>& _values)
+void ShaderProgramManager::SetRenderParamsMatrix(const ionString& _param, const ionVector<Matrix4x4, ShaderProgramManagerAllocator, GetAllocator>& _values)
 {
-    typedef ionVector<Matrix, ShaderProgramManagerAllocator, GetAllocator>::size_type count_type;
+    typedef ionVector<Matrix4x4, ShaderProgramManagerAllocator, GetAllocator>::size_type count_type;
     const count_type count = _values.size();
     for (count_type i = 0; i < count; ++i)
     {
@@ -756,7 +756,7 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
     */
 
     const ionSize numParmsMatrix = counterForType[EBufferParameterType_Matrix];
-    const ionSize sizeMatrix = numParmsMatrix * sizeof(Matrix);
+    const ionSize sizeMatrix = numParmsMatrix * sizeof(Matrix4x4);
 
     const ionSize numParmsVector = counterForType[EBufferParameterType_Vector];
     const ionSize sizeVector = numParmsVector * sizeof(Vector4);
@@ -776,25 +776,25 @@ void ShaderProgramManager::AllocUniformParametersBlockBuffer(const RenderCore& _
     _ubo.ReferenceTo(*m_uniformBuffer, m_currentParmBufferOffset, alignedSize);
 
 
-    Matrix* uniformsMatrix = (Matrix*)_ubo.MapBuffer(EBufferMappingType_Write);
+    Matrix4x4* uniformsMatrix = (Matrix4x4*)_ubo.MapBuffer(EBufferMappingType_Write);
     for (ionSize i = 0; i < numParmsMatrix; ++i)
     {
         uniformsMatrix[i] = GetRenderParamMatrix(_uniform.m_runtimeParameters[indexForType[EBufferParameterType_Matrix][i]]);
     }
 
-    Vector4* uniformsVector = (Vector4*)_ubo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix) * numParmsMatrix));
+    Vector4* uniformsVector = (Vector4*)_ubo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix4x4) * numParmsMatrix));
     for (ionSize i = 0; i < numParmsVector; ++i)
     {
         uniformsVector[i] = GetRenderParamVector(_uniform.m_runtimeParameters[indexForType[EBufferParameterType_Vector][i]]);
     }
 
-    ionFloat* uniformsFloat = (ionFloat*)_ubo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix) * numParmsMatrix) + (sizeof(Vector4) * numParmsVector));
+    ionFloat* uniformsFloat = (ionFloat*)_ubo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix4x4) * numParmsMatrix) + (sizeof(Vector4) * numParmsVector));
     for (ionSize i = 0; i < numParmsFloat; ++i)
     {
         uniformsFloat[i] = GetRenderParamFloat(_uniform.m_runtimeParameters[indexForType[EBufferParameterType_Float][i]]);
     }
 
-    ionS32* uniformsInt = (ionS32*)_ubo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix) * numParmsMatrix) + (sizeof(Vector4) * numParmsVector) + (sizeof(ionFloat) * numParmsFloat));
+    ionS32* uniformsInt = (ionS32*)_ubo.MapBuffer(EBufferMappingType_Write, (sizeof(Matrix4x4) * numParmsMatrix) + (sizeof(Vector4) * numParmsVector) + (sizeof(ionFloat) * numParmsFloat));
     for (ionSize i = 0; i < numParmsInt; ++i)
     {
         uniformsInt[i] = GetRenderParamInteger(_uniform.m_runtimeParameters[indexForType[EBufferParameterType_Integer][i]]);

@@ -25,10 +25,10 @@ public:
 
     ~Transform();
 
-    void SetMatrixWS(const Matrix& _matrixWS) { m_matrixWS = _matrixWS; }
+    void SetMatrixWS(const Matrix4x4& _matrixWS) { m_matrixWS = _matrixWS; }
 
-    const Matrix& GetMatrixWS() const;
-    const Matrix& GetMatrix();
+    const Matrix4x4& GetMatrixWS() const;
+    const Matrix4x4& GetMatrix();
 
     const Vector4& GetPosition() const;
     const Vector4& GetScale() const;
@@ -48,8 +48,8 @@ private:
     Transform(const Transform& _orig) = delete;    
     Transform& operator = (const Transform&) = delete;
 
-    Matrix m_matrixWS;
-    Matrix m_matrix;
+    Matrix4x4 m_matrixWS;
+    Matrix4x4 m_matrix;
     Vector4 m_position;
     Vector4 m_scale;
     Quaternion m_rotation;

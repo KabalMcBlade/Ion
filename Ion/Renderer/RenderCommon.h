@@ -511,17 +511,17 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
 
     // 4 joints!
-    ION_INLINE Vertex GetSkinnedVertex(const Matrix* _joints)
+    ION_INLINE Vertex GetSkinnedVertex(const Matrix4x4* _joints)
     {
         if (_joints == nullptr)
         {
             return *this;
         }
 
-        const Matrix& j0 = _joints[static_cast<ionU32>(m_joints[0])];
-        const Matrix& j1 = _joints[static_cast<ionU32>(m_joints[1])];
-        const Matrix& j2 = _joints[static_cast<ionU32>(m_joints[2])];
-        const Matrix& j3 = _joints[static_cast<ionU32>(m_joints[3])];
+        const Matrix4x4& j0 = _joints[static_cast<ionU32>(m_joints[0])];
+        const Matrix4x4& j1 = _joints[static_cast<ionU32>(m_joints[1])];
+        const Matrix4x4& j2 = _joints[static_cast<ionU32>(m_joints[2])];
+        const Matrix4x4& j3 = _joints[static_cast<ionU32>(m_joints[3])];
 
         const ionFloat w0 = m_weights[0] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
         const ionFloat w1 = m_weights[1] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
@@ -529,7 +529,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
         const ionFloat w3 = m_weights[3] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
 
 
-        Matrix accum = j0 * w0;
+        Matrix4x4 accum = j0 * w0;
         accum += j1 * w1;
         accum += j2 * w2;
         accum += j3 * w3;
@@ -550,24 +550,24 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
     }
 
     // 4 joints!
-    ION_INLINE Vector4 GetSkinnedVertexPosition(const Matrix* _joints)
+    ION_INLINE Vector4 GetSkinnedVertexPosition(const Matrix4x4* _joints)
     {
         if (_joints == nullptr)
         {
             return m_position;
         }
 
-        const Matrix& j0 = _joints[static_cast<ionU32>(m_joints[0])];
-        const Matrix& j1 = _joints[static_cast<ionU32>(m_joints[1])];
-        const Matrix& j2 = _joints[static_cast<ionU32>(m_joints[2])];
-        const Matrix& j3 = _joints[static_cast<ionU32>(m_joints[3])];
+        const Matrix4x4& j0 = _joints[static_cast<ionU32>(m_joints[0])];
+        const Matrix4x4& j1 = _joints[static_cast<ionU32>(m_joints[1])];
+        const Matrix4x4& j2 = _joints[static_cast<ionU32>(m_joints[2])];
+        const Matrix4x4& j3 = _joints[static_cast<ionU32>(m_joints[3])];
 
         const ionFloat w0 = m_weights[0] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
         const ionFloat w1 = m_weights[1] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
         const ionFloat w2 = m_weights[2] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
         const ionFloat w3 = m_weights[3] * ION_NORMALIZED_VERTEX_DIV_WEIGHT;
 
-        Matrix accum = j0 * w0;
+        Matrix4x4 accum = j0 * w0;
         accum += j1 * w1;
         accum += j2 * w2;
         accum += j3 * w3;
@@ -1130,9 +1130,9 @@ class Node;
 
 struct DrawSurface final
 {
-    Matrix              m_modelMatrix;
-    Matrix              m_viewMatrix;
-    Matrix              m_projectionMatrix;
+    Matrix4x4              m_modelMatrix;
+    Matrix4x4              m_viewMatrix;
+    Matrix4x4              m_projectionMatrix;
     Vector4              m_mainCameraPos;
     Vector4              m_directionalLight;
     Vector4              m_directionalLightColor;

@@ -56,8 +56,8 @@ public:
 
     //////////////////////////////////////////////////////////////////////////
     // if parameter not found, return a vector 0 and create this new hash! BE CAREFUL!
-    const   Matrix& GetRenderParamMatrix(const ionString& _param);
-    const   Matrix& GetRenderParamMatrix(ionSize _paramHash);
+    const   Matrix4x4& GetRenderParamMatrix(const ionString& _param);
+    const   Matrix4x4& GetRenderParamMatrix(ionSize _paramHash);
 
     const   Vector4& GetRenderParamVector(const ionString& _param);
     const   Vector4& GetRenderParamVector(ionSize _paramHash);
@@ -68,12 +68,12 @@ public:
     const   ionS32 GetRenderParamInteger(const ionString& _param);
     const   ionS32 GetRenderParamInteger(ionSize _paramHash);
 
-    void    SetRenderParamMatrix(const ionString& _param, const Matrix& _value);
-    void    SetRenderParamMatrix(ionSize _paramHash, const Matrix& _value);
+    void    SetRenderParamMatrix(const ionString& _param, const Matrix4x4& _value);
+    void    SetRenderParamMatrix(ionSize _paramHash, const Matrix4x4& _value);
     void    SetRenderParamMatrix(const ionString& _param, const ionFloat* _value);
     void    SetRenderParamMatrix(ionSize _paramHash, const ionFloat* _value);
     void    SetRenderParamsMatrix(const ionString& _param, const ionFloat* _values, ionU32 _numValues);
-    void    SetRenderParamsMatrix(const ionString& _param, const ionVector<Matrix, ShaderProgramManagerAllocator, GetAllocator>& _values);
+    void    SetRenderParamsMatrix(const ionString& _param, const ionVector<Matrix4x4, ShaderProgramManagerAllocator, GetAllocator>& _values);
     //void    SetRenderParamsMatrix(ionSize _paramHash, const ionFloat* _values, ionU32 _numValues);
 
     void    SetRenderParamVector(const ionString& _param, const Vector4& _value);
@@ -129,7 +129,7 @@ private:
 
     // are a map where the key is the hash of the name of the uniform in the shader and the value the vector associated
     ionMap<ionSize, Vector4, ShaderProgramManagerAllocator, GetAllocator>     m_uniformsVector;
-    ionMap<ionSize, Matrix, ShaderProgramManagerAllocator, GetAllocator>     m_uniformsMatrix;
+    ionMap<ionSize, Matrix4x4, ShaderProgramManagerAllocator, GetAllocator>     m_uniformsMatrix;
     ionMap<ionSize, ionFloat, ShaderProgramManagerAllocator, GetAllocator>   m_uniformsFloat;
     ionMap<ionSize, ionS32, ShaderProgramManagerAllocator, GetAllocator>     m_uniformsInteger;
 

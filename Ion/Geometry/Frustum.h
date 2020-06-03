@@ -56,26 +56,26 @@ public:
     Frustum();
     ~Frustum();
 
-    void Update(const Matrix& _projection, const Matrix& _view);
+    void Update(const Matrix4x4& _projection, const Matrix4x4& _view);
 
     const Planes& GetFrustumPlanesViewSpace() const { return m_frustumPlanesViewSpace; }
     const Corners& GetFrustumCornersViewSpace() const { return m_frustumCornersViewSpace; }
     const Corners& GetFrustumCornersWorldSpace() const { return m_frustumCornersWorldSpace; }
 
 private:
-    void ExtractFrustumsCorners(const Matrix& _inverseMatrix, Corners& _outCorners);
-    void ExtractFrustumPlanes(const Matrix& _viewProjMatrix, Planes& _outFrustumPlanes);
+    void ExtractFrustumsCorners(const Matrix4x4& _inverseMatrix, Corners& _outCorners);
+    void ExtractFrustumPlanes(const Matrix4x4& _viewProjMatrix, Planes& _outFrustumPlanes);
 
 private:
     Planes  m_frustumPlanesViewSpace;
     Corners m_frustumCornersViewSpace;
     Corners m_frustumCornersWorldSpace;
 
-    Matrix  m_viewMatrix;
-    Matrix  m_projectionMatrix;
-    Matrix  m_inverseProjectionMatrix;
-    Matrix  m_viewProjectionMatrix;
-    Matrix  m_inverseViewProjectionMatrix;
+    Matrix4x4  m_viewMatrix;
+    Matrix4x4  m_projectionMatrix;
+    Matrix4x4  m_inverseProjectionMatrix;
+    Matrix4x4  m_viewProjectionMatrix;
+    Matrix4x4  m_inverseViewProjectionMatrix;
 };
 
 

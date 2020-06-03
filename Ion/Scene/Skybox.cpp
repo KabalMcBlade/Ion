@@ -110,7 +110,7 @@ Material* Skybox::GetMaterial()
     return m_mesh.GetMaterial();
 }
 
-void Skybox::UpdateUniformBuffer(const Matrix& _projection, const Matrix& _view, const Matrix& _model)
+void Skybox::UpdateUniformBuffer(const Matrix4x4& _projection, const Matrix4x4& _view, const Matrix4x4& _model)
 {
     m_drawSurface.m_modelMatrix = _model;
     m_drawSurface.m_viewMatrix = _view;

@@ -96,7 +96,7 @@ public:
     VertexCacheHandler    AllocVertex(const void* _data, ionSize _num, ionSize _size = sizeof(Vertex));
     VertexCacheHandler    AllocIndex(const void* _data, ionSize _num, ionSize _size = sizeof(Index));
     VertexCacheHandler    AllocStorage(const void* _data, ionSize _num, ionSize _size = sizeof(VertexMorphTarget));
-    VertexCacheHandler    AllocJoint(const void* _data, ionSize _num, ionSize _size = sizeof(Matrix));
+    VertexCacheHandler    AllocJoint(const void* _data, ionSize _num, ionSize _size = sizeof(Matrix4x4));
 
     // this data is valid until the next level load
     VertexCacheHandler    AllocStaticVertex(const void* _data, ionSize _bytes);

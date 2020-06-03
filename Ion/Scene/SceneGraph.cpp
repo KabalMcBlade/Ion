@@ -257,8 +257,8 @@ void SceneGraph::Update(ionFloat _deltaTime)
 
         cam->UpdateView();  // here is updated the sky box either
 
-        const Matrix& projection = cam->GetPerspectiveProjection();
-        const Matrix& view = cam->GetView();
+        const Matrix4x4& projection = cam->GetPerspectiveProjection();
+        const Matrix4x4& view = cam->GetView();
 
         const Vector4& cameraPos = cam->GetTransform().GetPosition();
 

@@ -93,7 +93,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
         ionFloat scaleFactor = std::sqrtf((ionFloat)_node.matrix.data()[0] * (ionFloat)_node.matrix.data()[0] + (ionFloat)_node.matrix.data()[1] * (ionFloat)_node.matrix.data()[1] + (ionFloat)_node.matrix.data()[2] * (ionFloat)_node.matrix.data()[2]);
         scale = Helper::Set(scaleFactor, scaleFactor, scaleFactor, 0.0f);
 
-        Matrix mat = Matrix(
+        Matrix4x4 mat = Matrix4x4(
             (ionFloat)_node.matrix.data()[0], (ionFloat)_node.matrix.data()[1], (ionFloat)_node.matrix.data()[2], (ionFloat)_node.matrix.data()[3],
             (ionFloat)_node.matrix.data()[4], (ionFloat)_node.matrix.data()[5], (ionFloat)_node.matrix.data()[6], (ionFloat)_node.matrix.data()[7],
             (ionFloat)_node.matrix.data()[8], (ionFloat)_node.matrix.data()[9], (ionFloat)_node.matrix.data()[10], (ionFloat)_node.matrix.data()[11],

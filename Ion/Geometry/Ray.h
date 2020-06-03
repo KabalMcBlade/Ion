@@ -19,7 +19,7 @@ class ION_DLL Ray
 public:
     Ray();
     Ray(const Vector4& _origin, const Vector4& _direction);
-    Ray(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector4& _worldRayOrigin, const Matrix& _inverseMatrix);
+    Ray(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector4& _worldRayOrigin, const Matrix4x4& _inverseMatrix);
     ~Ray();
 
     ION_INLINE const Vector4& GetOrigin() const { return m_origin;}
@@ -27,7 +27,7 @@ public:
     ION_INLINE const Vector4& GetInverseDirection() const { return m_inverseDirection; }
 
     void Set(const Vector4& _origin, const Vector4& _direction);
-    void Set(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector4& _worldRayOrigin, const Matrix& _inverseMatrix);
+    void Set(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector4& _worldRayOrigin, const Matrix4x4& _inverseMatrix);
 
 private:
     Vector4 m_origin;

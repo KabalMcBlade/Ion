@@ -43,25 +43,25 @@ Transform::~Transform()
 
 }
 
-const Matrix& Transform::GetMatrixWS() const
+const Matrix4x4& Transform::GetMatrixWS() const
 {
     return m_matrixWS;
 }
 
-const Matrix& Transform::GetMatrix()
+const Matrix4x4& Transform::GetMatrix()
 {
     if (m_dirty)
     {
-        static const Matrix identity;
+        static const Matrix4x4 identity;
 
-        const Matrix rotate = m_rotation.ToMatrix();
-        const Matrix translate = identity.Translate(m_position);
+        const Matrix4x4 rotate = m_rotation.ToMatrix();
+        const Matrix4x4 translate = identity.Translate(m_position);
         m_matrix =  rotate * translate;
         
         m_rotation.SetFromMatrix(m_matrix);
         m_rotation = m_rotation.Normalize();
 
-        const Matrix scale = identity.Scale(m_scale);
+        const Matrix4x4 scale = identity.Scale(m_scale);
         m_matrix = scale * m_matrix;
 
         m_dirty = false;

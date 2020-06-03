@@ -52,8 +52,8 @@ public:
     ionFloat GetFovDeg() const { return NIX_RAD_TO_DEG(m_fov); }
     ionFloat GetFovRad() const { return m_fov; }
 
-    const Matrix& GetPerspectiveProjection() const { return m_projection; }
-    const Matrix& GetView() const { return m_view; }
+    const Matrix4x4& GetPerspectiveProjection() const { return m_projection; }
+    const Matrix4x4& GetView() const { return m_view; }
 
     const Frustum& GetFrustum() const { return m_frustum; }
 
@@ -90,8 +90,8 @@ public:
     void EndRenderPass(RenderCore& _renderCore, VkCommandBuffer _commandBuffer);
 
 public:
-    static Matrix PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar);
-    static Matrix OrthographicProjectionMatrix(ionFloat _left, ionFloat _right, ionFloat _bottom, ionFloat _top, ionFloat _zNear, ionFloat _zFar);
+    static Matrix4x4 PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar);
+    static Matrix4x4 OrthographicProjectionMatrix(ionFloat _left, ionFloat _right, ionFloat _bottom, ionFloat _top, ionFloat _zNear, ionFloat _zFar);
 
 private:
     friend class RenderManager;
@@ -105,8 +105,8 @@ private:
     Camera& operator = (const Camera&) = delete;
 
 private:
-    Matrix  m_projection;
-    Matrix  m_view;
+    Matrix4x4  m_projection;
+    Matrix4x4  m_view;
 
     // render pass and framebuffer depending on camera type
     VkRenderPass                m_vkRenderPass;

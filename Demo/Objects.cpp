@@ -271,7 +271,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
             ionFloat velocity = m_movementSpeed * _deltaTime;
 
-            const Matrix& matrix = m_camera->GetTransform().GetMatrixWS();
+            const Matrix4x4& matrix = m_camera->GetTransform().GetMatrixWS();
             Vector4 right = matrix.GetOrtX();
             Vector4 up = matrix.GetOrtY();
 
@@ -286,7 +286,7 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
         {
             ionFloat velocity = m_movementSpeed * m_incresingWheelSpeed * _deltaTime;
 
-            const Matrix& matrix = m_camera->GetTransform().GetMatrixWS();
+            const Matrix4x4& matrix = m_camera->GetTransform().GetMatrixWS();
             Vector4 forward = matrix.GetOrtZ();
 
             const Vector4 dir = forward * _mouseState.m_wheel.m_distance;

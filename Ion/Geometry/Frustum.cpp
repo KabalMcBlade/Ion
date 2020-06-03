@@ -17,7 +17,7 @@ Frustum::~Frustum()
 
 }
 
-void Frustum::Update(const Matrix& _projection, const Matrix& _view)
+void Frustum::Update(const Matrix4x4& _projection, const Matrix4x4& _view)
 {
     m_viewProjectionMatrix = _projection * _view;
  
@@ -30,7 +30,7 @@ void Frustum::Update(const Matrix& _projection, const Matrix& _view)
     ExtractFrustumsCorners(m_inverseViewProjectionMatrix, m_frustumCornersWorldSpace);
 }
 
-void Frustum::ExtractFrustumsCorners(const Matrix& _inverseMatrix, Corners& _outCorners)
+void Frustum::ExtractFrustumsCorners(const Matrix4x4& _inverseMatrix, Corners& _outCorners)
 {
     _outCorners.m_corners[EFrustumCorner::EFrustumCorner_NearBottomLeft] = Vector4(-1.0f, -1.0f, 0.0f, 1.0f);
     _outCorners.m_corners[EFrustumCorner::EFrustumCorner_NearTopLeft] = Vector4(-1.0f, 1.0f, 0.0f, 1.0f);
@@ -51,7 +51,7 @@ void Frustum::ExtractFrustumsCorners(const Matrix& _inverseMatrix, Corners& _out
     }
 }
 
-void Frustum::ExtractFrustumPlanes(const Matrix& _viewProjMatrix, Planes& _outFrustumPlanes)
+void Frustum::ExtractFrustumPlanes(const Matrix4x4& _viewProjMatrix, Planes& _outFrustumPlanes)
 {
     Vector4 viewProjMatrixAxisX = _viewProjMatrix[0];
     Vector4 viewProjMatrixAxisY = _viewProjMatrix[1];

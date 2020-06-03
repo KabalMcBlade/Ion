@@ -128,7 +128,7 @@ void BoundingBox::GetCorners(ionVector<Vector4, BoundingBoxAllocator, GetAllocat
     _corners.push_back(_maxX_minY_maxZ_maxW);
 }
 
-BoundingBox BoundingBox::GetTransformed(const Matrix& _matrix)
+BoundingBox BoundingBox::GetTransformed(const Matrix4x4& _matrix)
 {
     BoundingBox transformedBoundingBox;
 

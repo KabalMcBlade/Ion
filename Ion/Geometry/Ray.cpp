@@ -17,7 +17,7 @@ Ray::Ray(const Vector4& _origin, const Vector4& _direction)
     Set(_origin, _direction);
 }
 
-Ray::Ray(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector4& _worldRayOrigin, const Matrix& _inverseMatrix)
+Ray::Ray(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector4& _worldRayOrigin, const Matrix4x4& _inverseMatrix)
 {
     Set(_relMousePosX, _relMousePosY, _worldRayOrigin, _inverseMatrix);
 }
@@ -35,7 +35,7 @@ void Ray::Set(const Vector4& _origin, const Vector4& _direction)
     m_inverseDirection = one / _direction;
 }
 
-void Ray::Set(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector4& _worldRayOrigin, const Matrix& _inverseMatrix)
+void Ray::Set(ionFloat _relMousePosX, ionFloat _relMousePosY, const Vector4& _worldRayOrigin, const Matrix4x4& _inverseMatrix)
 {
     Vector4 screenPos(_relMousePosX * 2.0f - 1.0f, _relMousePosY * 2.0f - 1.0f, 1.0f, 1.0f);
     Vector4 worldPos = _inverseMatrix * screenPos;

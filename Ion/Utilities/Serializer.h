@@ -100,7 +100,7 @@ namespace nlohmann {
             //opt = j.get<Quaternion>();
         }
 
-        static void to_json(json& j, const Matrix& opt)
+        static void to_json(json& j, const Matrix4x4& opt)
         {
 #ifdef _DEBUG
             std::ostringstream oss;
@@ -111,7 +111,7 @@ namespace nlohmann {
 #endif
         }
 
-        static void from_json(const json& j, Matrix& opt)
+        static void from_json(const json& j, Matrix4x4& opt)
         {
             //opt = j.get<Vector>();
         }
@@ -119,8 +119,8 @@ namespace nlohmann {
 
 
     template <>
-    struct adl_serializer<Matrix> {
-        static void to_json(json& j, const Matrix& opt)
+    struct adl_serializer<Matrix4x4> {
+        static void to_json(json& j, const Matrix4x4& opt)
         {
 #ifdef _DEBUG
             std::ostringstream oss;
@@ -131,7 +131,7 @@ namespace nlohmann {
 #endif
         }
 
-        static void from_json(const json& j, Matrix& opt)
+        static void from_json(const json& j, Matrix4x4& opt)
         {
             //opt = j.get<Vector>();
         }

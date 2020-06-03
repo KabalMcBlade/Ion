@@ -84,10 +84,10 @@ Camera::~Camera()
     m_vkFrameBuffers.clear();
 }
 
-Matrix Camera::PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar)
+Matrix4x4 Camera::PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionFloat _zNear, ionFloat _zFar)
 {
     const ionFloat field = 1.0f / tanf(0.5f * _fov);
-    Matrix perspective(
+    Matrix4x4 perspective(
         field / _aspect,    0.0f,        0.0f,                                  0.0f,
         0.0f,               -field,      0.0f,                                  0.0f,
         0.0f,               0.0f,        _zFar / (_zNear - _zFar),              -1.0f,
@@ -97,9 +97,9 @@ Matrix Camera::PerspectiveProjectionMatrix(ionFloat _fov, ionFloat _aspect, ionF
     return perspective; 
 }
 
-Matrix Camera::OrthographicProjectionMatrix(ionFloat _left, ionFloat _right, ionFloat _bottom, ionFloat _top, ionFloat _zNear, ionFloat _zFar)
+Matrix4x4 Camera::OrthographicProjectionMatrix(ionFloat _left, ionFloat _right, ionFloat _bottom, ionFloat _top, ionFloat _zNear, ionFloat _zFar)
 {
-    Matrix orthographic(
+    Matrix4x4 orthographic(
         2.0f / (_right - _left),                0.0f,                                   0.0f,                       0.0f,
         0.0f,                                   2.0f / (_bottom - _top),                0.0f,                       0.0f,
         0.0f,                                   0.0f,                                   1.0f / (_zNear - _zFar),    0.0f,
@@ -129,10 +129,10 @@ void Camera::SetCameraType(ECameraType _type)
 
 void Camera::UpdateView()
 {
-    static const Matrix identity;
+    static const Matrix4x4 identity;
 
-    const Matrix rotate = GetTransform().GetRotation().ToMatrix();
-    const Matrix translate = identity.Translate(GetTransform().GetPosition());
+    const Matrix4x4 rotate = GetTransform().GetRotation().ToMatrix();
+    const Matrix4x4 translate = identity.Translate(GetTransform().GetPosition());
 
     if (m_type == ECameraType::ECameraType_LookAt)
     {
@@ -147,7 +147,7 @@ void Camera::UpdateView()
 
     if (m_skybox != nullptr)
     {
-        const Matrix& model = GetTransform().GetMatrixWS();
+        const Matrix4x4& model = GetTransform().GetMatrixWS();
 
         m_skybox->UpdateUniformBuffer(m_projection, m_view, identity);
     }

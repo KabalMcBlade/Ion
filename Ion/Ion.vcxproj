@@ -281,7 +281,7 @@
     <ClInclude Include="Dependencies\Nix\Nix\Dependencies\sse_mathfun.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Helper.h" />
     <ClInclude Include="Dependencies\Nix\Nix\MathHelper.h" />
-    <ClInclude Include="Dependencies\Nix\Nix\Matrix.h" />
+    <ClInclude Include="Dependencies\Nix\Nix\Matrix4x4.h" />
     <ClInclude Include="Dependencies\Nix\Nix\MatrixHelper.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Nix.h" />
     <ClInclude Include="Dependencies\Nix\Nix\Permute.h" />

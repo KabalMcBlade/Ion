@@ -44,7 +44,7 @@ public:
     void SetMaterial(Material* _material);
     Material* GetMaterial();
 
-    void UpdateUniformBuffer(const Matrix& _projection, const Matrix& _view, const Matrix& _model);
+    void UpdateUniformBuffer(const Matrix4x4& _projection, const Matrix4x4& _view, const Matrix4x4& _model);
     void Draw(VkRenderPass _renderPass, RenderCore& _renderCore);
     void CustomDraw(RenderCore& _renderCore, VkCommandBuffer _commandBuffer, VkRenderPass _renderPass);
 

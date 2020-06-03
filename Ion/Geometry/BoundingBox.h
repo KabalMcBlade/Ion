@@ -95,7 +95,7 @@ public:
 
     void GetCorners(ionVector<Vector4, BoundingBoxAllocator, GetAllocator>& _corners) const;
 
-    BoundingBox GetTransformed(const Matrix& _matrix);
+    BoundingBox GetTransformed(const Matrix4x4& _matrix);
 
 private:
     Vector4 m_min;
