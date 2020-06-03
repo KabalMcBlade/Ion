@@ -174,14 +174,14 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
     ION_INLINE Vector4 GetNormal() const
     {
-        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]), 0.0f);
         v.Normalize();
         return v;
     }
 
     ION_INLINE Vector4 GetTangent() const
     {
-        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_tangent[0]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[1]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[2]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_tangent[0]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[1]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[2]), 0.0f);
         v.Normalize();
         return v;
     }
@@ -350,7 +350,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct Vertex
 
     ION_INLINE void SetBiTangent(ionFloat _x, ionFloat _y, ionFloat _z)
     {
-        Vector4 v(_x, _y, _z);
+        Vector4 v(_x, _y, _z, 0.0f);
         SetBiTangent(v);
     }
 
@@ -612,7 +612,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexSimple
 
     ION_INLINE Vector4 GetNormal() const
     {
-        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]), 0.0f);
         v.Normalize();
         return v;
     }
@@ -738,7 +738,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexNormal
 
     ION_INLINE Vector4 GetNormal() const
     {
-        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]), 0.0f);
         v.Normalize();
         return v;
     }
@@ -1009,14 +1009,14 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
 
     ION_INLINE Vector4 GetNormal() const
     {
-        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_normal[0]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[1]), ION_VERTEX_BYTE_TO_FLOAT(m_normal[2]), 0.0f);
         v.Normalize();
         return v;
     }
 
     ION_INLINE Vector4 GetTangent() const
     {
-        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_tangent[0]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[1]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[2]));
+        Vector4 v(ION_VERTEX_BYTE_TO_FLOAT(m_tangent[0]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[1]), ION_VERTEX_BYTE_TO_FLOAT(m_tangent[2]), 0.0f);
         v.Normalize();
         return v;
     }
@@ -1072,7 +1072,7 @@ ION_MEMORY_ALIGNMENT(ION_MEMORY_ALIGNMENT_SIZE) struct VertexMorphTarget
 
     ION_INLINE void SetBiTangent(ionFloat _x, ionFloat _y, ionFloat _z)
     {
-        Vector4 v(_x, _y, _z);
+        Vector4 v(_x, _y, _z, 0.0f);
         SetBiTangent(v);
     }
 

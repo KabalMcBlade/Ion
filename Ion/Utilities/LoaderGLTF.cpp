@@ -86,7 +86,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 {
     Vector4 position(0.0f, 0.0f, 0.0f, 1.0f);
     Quaternion rotation;
-    Vector4 scale(1.0f, 1.0f, 1.0f);
+    Vector4 scale(1.0f, 1.0f, 1.0f, 1.0f);
 
     if (_node.matrix.size() == 16)
     {
@@ -117,7 +117,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
 
         if (_node.scale.size() == 3)
         {
-            scale = Vector4((ionFloat)_node.scale[0], (ionFloat)_node.scale[1], (ionFloat)_node.scale[2]);
+            scale = Vector4((ionFloat)_node.scale[0], (ionFloat)_node.scale[1], (ionFloat)_node.scale[2], 1.0f);
         }
     }
     

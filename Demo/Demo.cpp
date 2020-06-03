@@ -182,7 +182,7 @@ int main(int argc, char **argv)
 
     //////////////////////////////////////////////////////////////////////////
     // Create Camera
-	static const Vector4 cameraPos(0.0f, 0.0f, -3.0f, 0.0f);
+	static const Vector4 cameraPos(0.0f, 0.0f, -3.0f, 1.0f);
 	const Quaternion identity;
 
     
