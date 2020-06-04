@@ -113,6 +113,7 @@ void RotatingEntity::OnUpdate(ionFloat _deltaTime)
 
 void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, ionFloat _deltaTime)
 {
+	static Scalar multiplier = 10.0f;
     if (!MainCamera::m_toggleLightRotation)
     {
         if (_keyboardState.m_state == ion::EKeyboardState_Up)
@@ -137,13 +138,13 @@ void RotatingEntity::OnKeyboardInput(const ion::KeyboardState& _keyboardState, i
 
             if (_keyboardState.m_key == ion::EKeyboardKey_I)
             {
-                Vector4 scale = GetTransform().GetScale() / 10.0f;
+                Vector4 scale = GetTransform().GetScale() / multiplier;
                 GetTransform().SetScale(scale);
             }
 
             if (_keyboardState.m_key == ion::EKeyboardKey_O)
             {
-                Vector4 scale = GetTransform().GetScale() * 10.0f;
+                Vector4 scale = GetTransform().GetScale() * multiplier;
                 GetTransform().SetScale(scale);
             }
 
@@ -250,13 +251,13 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
         if (_mouseState.m_buttons[1].IsPressed)
         {
-            ionFloat xOffset = _mouseState.m_position.m_delta.m_x;
-            ionFloat yOffset = _mouseState.m_position.m_delta.m_y;
+            Scalar xOffset = _mouseState.m_position.m_delta.m_x;
+			Scalar yOffset = _mouseState.m_position.m_delta.m_y;
 
             xOffset *= m_mouseSensitivity;
             yOffset *= m_mouseSensitivity;
 
-            ionFloat velocity = m_movementSpeed * _deltaTime;
+            Scalar velocity = m_movementSpeed * _deltaTime;
 
             const Matrix4x4& matrix = m_camera->GetTransform().GetMatrixWS();
             Vector4 right = matrix.GetOrtX();
@@ -271,12 +272,12 @@ void RotatingEntity::OnMouseInput(const ion::MouseState& _mouseState, ionFloat _
 
         if (_mouseState.m_wheel.m_wasMoved)
         {
-            ionFloat velocity = m_movementSpeed * m_incresingWheelSpeed * _deltaTime;
+            Scalar velocity = m_movementSpeed * m_incresingWheelSpeed * _deltaTime;
 
             const Matrix4x4& matrix = m_camera->GetTransform().GetMatrixWS();
             Vector4 forward = matrix.GetOrtZ();
 
-            const Vector4 dir = forward * _mouseState.m_wheel.m_distance;
+            const Vector4 dir = forward * Scalar(_mouseState.m_wheel.m_distance);
 
             const Vector4 pos = GetTransform().GetPosition() + dir * velocity;
 

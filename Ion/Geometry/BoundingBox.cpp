@@ -42,12 +42,13 @@ void BoundingBox::Set(const Vector4& _min, const Vector4& _max)
 {
     m_min = _min;
     m_max = _max;
+	Scalar half = 0.5f;
 
 	ionAssertReturnVoid((((uintptr_t)(&m_min)) & 15) == 0, "Pointer is misaligned");
 	ionAssertReturnVoid((((uintptr_t)(&m_max)) & 15) == 0, "Pointer is misaligned");
 
-    m_halfExtent = (m_max - m_min) * 0.5f;
-    m_center = (m_max + m_min) * 0.5f;
+    m_halfExtent = (m_max - m_min) * half;
+    m_center = (m_max + m_min) * half;
     m_size = m_max - m_min;
 
     /*

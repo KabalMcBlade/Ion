@@ -51,7 +51,7 @@ private:
 
     ionFloat m_animationSpeedMultiplier;
     ionFloat m_movementSpeed;
-    ionFloat m_mouseSensitivity;
+	Scalar m_mouseSensitivity;
     ionFloat m_incresingWheelSpeed;
 
     MainCamera* m_camera;
