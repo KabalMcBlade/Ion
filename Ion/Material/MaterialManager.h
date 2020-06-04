@@ -30,7 +30,7 @@ public:
     void        Init();
     void        Shutdown();
 
-    Material*   CreateMaterial(const ionString& _name, ionU64 _stateBits = 0);
+    Material*   CreateMaterial(const ionString& _name, ionU64 _stateBits = 0u);
     Material*   GetMaterial(const ionString& _name);
 
     // This call actually destroy/delete the material
