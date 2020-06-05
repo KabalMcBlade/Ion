@@ -758,7 +758,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
             }
 
             // add material and add all to primitive
-            if (_model.materials.size() > 0)
+            if (_model.materials.size() > 0 && primitive.material >= 0)
             {
                 Material* material = ionMaterialManger().GetMaterial(_materialIndexToMaterialName[primitive.material].c_str());
 
@@ -1125,7 +1125,7 @@ void LoadNode(const tinygltf::Node& _node, const tinygltf::Model& _model, MeshRe
             }
             else
             {
-                Material* material = ionMaterialManger().GetMaterial("Default");
+                Material* material = ionMaterialManger().GetMaterial(ION_DEFAULT_MATERIAL);
 
                 switch (primitive.mode)
                 {
@@ -2077,24 +2077,6 @@ ionBool LoaderGLTF::Load(const ionString & _filePath, Camera* _camToUpdatePtr, N
                 }
             }
         }
-    }
-    else
-    {
-        // DEFAULT MATERIAL
-        // For now is here, I need to more somewhere else!
-        Material* material = ionMaterialManger().CreateMaterial("Default", 0u);
-        material->GetBasePBR().SetBaseColor(1.0f, 1.0f, 1.0f, 1.0f);
-        material->GetBasePBR().SetMetallicFactor(1.0f);
-        material->GetBasePBR().SetRoughnessFactor(1.0f);
-        material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
-        material->GetAdvancePBR().SetAlphaCutoff(0.5f);
-        material->GetState().SetCullingMode(ECullingMode_Back);
-        material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
-        material->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
-        material->GetState().SetBlendStateMode(EBlendState_SourceBlend_One);
-        material->GetState().SetBlendStateMode(EBlendState_DestBlend_Zero);
-        material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
-        material->SetUnlit(true);
     }
     
     //

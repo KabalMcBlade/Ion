@@ -33,7 +33,21 @@ MaterialManager& MaterialManager::Instance()
 
 void MaterialManager::Init()
 {
-
+	// DEFAULT MATERIAL
+	// For now is here, I need to more somewhere else!
+	Material* material = CreateMaterial(ION_DEFAULT_MATERIAL);
+	material->GetBasePBR().SetBaseColor(1.0f, 1.0f, 1.0f, 1.0f);
+	material->GetBasePBR().SetMetallicFactor(1.0f);
+	material->GetBasePBR().SetRoughnessFactor(1.0f);
+	material->GetAdvancePBR().SetEmissiveColor(1.0f, 1.0f, 1.0f);
+	material->GetAdvancePBR().SetAlphaCutoff(0.5f);
+	material->GetState().SetCullingMode(ECullingMode_Back);
+	material->GetState().SetDepthFunctionMode(EDepthFunction_Less);
+	material->GetState().SetStencilFrontFunctionMode(EStencilFrontFunction_LesserOrEqual);
+	material->GetState().SetBlendStateMode(EBlendState_SourceBlend_One);
+	material->GetState().SetBlendStateMode(EBlendState_DestBlend_Zero);
+	material->GetState().SetBlendOperatorMode(EBlendOperator_Add);
+	material->SetUnlit(true);
 }
 
 void MaterialManager::Shutdown()

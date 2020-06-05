@@ -27,6 +27,19 @@ Another PBR test (model NOT supplied by this demo, but you can download from htt
 Another test NO PBR (model NOT supplied by this demo, but you can download from https://sketchfab.com, the name is zelda_-_breath_of_the_wild)
 <img src="./Screenshots/no_pbr.png">
 
+
+## GLTF Features engine support
+
+At this link you can find the basic features for support the glTF modl format: https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0#feature-test-models
+In my test, all the basic features are supported with the exception of:
+* Morph Primitives Test
+* Multi UV Test
+* Vertex Color Test
+I will going to fix it later. (NOTE: that if you want to test by yourself, sometimes looks like there is no model loadd... is actually very small and very far away from the camera!)
+
+About the advance features, at this link: https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0#extension-test-models
+Unfortunately none of them is supported at the moment: I am not quite sure if doing also this or not.
+
 ## Demo Controls
 
 The demo uses command line (or from VS command line argument under the property of the demo project) in order to render.

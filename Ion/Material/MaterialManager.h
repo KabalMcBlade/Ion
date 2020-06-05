@@ -9,6 +9,9 @@
 #include "Material.h"
 
 
+#define ION_DEFAULT_MATERIAL "DefaultMaterial"
+
+
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
