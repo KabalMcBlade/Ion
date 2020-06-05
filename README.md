@@ -35,6 +35,7 @@ In my test, all the basic features are supported with the exception of:
 * Morph Primitives Test
 * Multi UV Test
 * Vertex Color Test
+
 I will going to fix it later. (NOTE: that if you want to test by yourself, sometimes looks like there is no model loadd... is actually very small and very far away from the camera!)
 
 About the advance features, at this link: https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0#extension-test-models
