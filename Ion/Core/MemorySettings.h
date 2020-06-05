@@ -48,8 +48,8 @@ namespace Settings
 	static constexpr ionU32 kMaterialManagerAllocatorSize = ION_MEMORY_16_MB;
 	static constexpr ionU32 kRenderManagerAllocatorSize = ION_MEMORY_8_MB;
 	static constexpr ionU32 kCubeMapHelperAllocatorSize = ION_MEMORY_256_MB;
-	static constexpr ionU32 kTextureManagerAllocatorSize = ION_MEMORY_4_MB;
-	static constexpr ionU32 kGeometryHelperAllocatorSize = ION_MEMORY_64_MB;
+	static constexpr ionU32 kTextureManagerAllocatorSize = ION_MEMORY_128_MB;
+	static constexpr ionU32 kGeometryHelperAllocatorSize = ION_MEMORY_256_MB;
 	static constexpr ionU32 kShaderHelperAllocatorSize = ION_MEMORY_8_MB;
 
 	// Vulkan specific
