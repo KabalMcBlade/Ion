@@ -6,13 +6,14 @@
 #include "../GPU/GpuMemoryManager.h"
 #include "../GPU/GpuAllocator.h"
 
+#include "../Core/MemorySettings.h"
+
 EOS_USING_NAMESPACE
 
 ION_NAMESPACE_BEGIN
 
 
 StagingBufferManager::StagingBufferManager() :
-    m_maxBufferSize(0),
     m_vkGraphicsFamilyIndex(-1),
     m_mappedData(nullptr),
     m_vkDevice(VK_NULL_HANDLE),
@@ -27,9 +28,8 @@ StagingBufferManager::~StagingBufferManager()
 
 }
 
-ionBool StagingBufferManager::Init(ionSize _vkMaxBufferSize, VkDevice _vkDevice, VkQueue _vkGraphicsQueue, ionS32 _vkGraphicsFamilyIndex)
+ionBool StagingBufferManager::Init(VkDevice _vkDevice, VkQueue _vkGraphicsQueue, ionS32 _vkGraphicsFamilyIndex)
 {
-    m_maxBufferSize = _vkMaxBufferSize;
     m_vkDevice = _vkDevice;
     m_vkGraphicsQueue = _vkGraphicsQueue;
     m_vkGraphicsFamilyIndex = _vkGraphicsFamilyIndex;
@@ -39,7 +39,7 @@ ionBool StagingBufferManager::Init(ionSize _vkMaxBufferSize, VkDevice _vkDevice,
     {
         VkBufferCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        createInfo.size = m_maxBufferSize;
+        createInfo.size = Settings::kStagingBufferSize;
         createInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
         m_buffer.m_vkOffset = 0;
@@ -135,8 +135,6 @@ void StagingBufferManager::Shutdown()
     vkFreeCommandBuffers(m_vkDevice, m_vkCommandPool, 1, &m_buffer.m_vkCommandBuffer);
     
     vkDestroyCommandPool(m_vkDevice, m_vkCommandPool, vkMemory);
-
-    m_maxBufferSize = 0;
 }
 
 StagingBufferManager& StagingBufferManager::Instance()
@@ -148,7 +146,7 @@ StagingBufferManager& StagingBufferManager::Instance()
 
 ionU8* StagingBufferManager::Stage(ionSize _size, ionSize _alignment, VkCommandBuffer& _outVkCommandBuffer, VkBuffer& _outVkBuffer, ionSize& _outVkBufferOffset)
 {
-    ionAssertReturnValue(_size < m_maxBufferSize, "Size is outbound of total memory!", nullptr);
+    ionAssertReturnValue(_size < Settings::kStagingBufferSize, "Size is outbound of total memory!", nullptr);
 
     StagingBuffer& stagingBuffer = m_buffer;
 
@@ -157,7 +155,7 @@ ionU8* StagingBufferManager::Stage(ionSize _size, ionSize _alignment, VkCommandB
 
     stagingBuffer.m_vkOffset = uiSize;
 
-    if ((stagingBuffer.m_vkOffset + _size) >= (m_maxBufferSize) && !stagingBuffer.m_submitted)
+    if ((stagingBuffer.m_vkOffset + _size) >= (Settings::kStagingBufferSize) && !stagingBuffer.m_submitted)
     {
         Submit();
     }

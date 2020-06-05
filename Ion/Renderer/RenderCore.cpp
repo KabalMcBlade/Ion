@@ -1310,7 +1310,7 @@ void RenderCore::Clear()
     m_vkCommandBufferFences.clear();
 }
 
-ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize)
+ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer)
 {
     // this prevent a odd crash due steam validation layer
     _putenv("DISABLE_VK_LAYER_VALVE_steam_overlay_1=1");
@@ -1360,9 +1360,9 @@ ionBool RenderCore::Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU3
         return false;
     }
 
-    ionGPUMemoryManager().Init(m_vkGPU.m_vkPhysicalDevice, m_vkDevice, _vkDeviceLocalSize, _vkHostVisibleSize, m_vkGPU.m_vkPhysicalDeviceProps.limits.bufferImageGranularity);
+    ionGPUMemoryManager().Init(m_vkGPU.m_vkPhysicalDevice, m_vkDevice, m_vkGPU.m_vkPhysicalDeviceProps.limits.bufferImageGranularity);
 
-    ionStagingBufferManager().Init(_vkStagingBufferSize, m_vkDevice, m_vkGraphicsQueue, m_vkGraphicsFamilyIndex);
+    ionStagingBufferManager().Init(m_vkDevice, m_vkGraphicsQueue, m_vkGraphicsFamilyIndex);
 
     if (!CreateSemaphores())
     {

@@ -12,10 +12,6 @@
 //////////////////////////////////////////////////////////////////////////
 // APP VULKAN MEMORY
 
-#define VULKAN_GPU_DEVICE_LOCAL_MB  ION_MEMORY_1024_MB
-#define VULKAN_GPU_HOST_VISIBLE_MB  ION_MEMORY_1024_MB
-#define VULKAN_STAGING_BUFFER_MB    ION_MEMORY_512_MB
-
 #ifdef _DEBUG
 #   define ION_VULKAN_VALIDATION_LAYER true
 #else
@@ -165,7 +161,7 @@ int main(int argc, char **argv)
     if (window.Create(WndProc, L"Ion Demo - GLTF Viewer"))
     {
         window.SetInputMode(true, true);
-        rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), window.GetWidth(), window.GetHeight(), window.IsFullscreen(), ION_VULKAN_VALIDATION_LAYER, VULKAN_GPU_DEVICE_LOCAL_MB, VULKAN_GPU_HOST_VISIBLE_MB, VULKAN_STAGING_BUFFER_MB);
+        rendererInitialized = ionRenderManager().Init(window.GetInstance(), window.GetHandle(), window.GetWidth(), window.GetHeight(), window.IsFullscreen(), ION_VULKAN_VALIDATION_LAYER);
     }
 
     //////////////////////////////////////////////////////////////////////////

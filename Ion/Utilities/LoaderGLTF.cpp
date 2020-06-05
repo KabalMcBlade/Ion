@@ -2129,13 +2129,12 @@ ionBool LoaderGLTF::Load(const ionString & _filePath, Camera* _camToUpdatePtr, N
         {
             const tinygltf::Node node = model.nodes[scene.nodes[i]];
 
-			// this will generate memory leak
             Entity* child = CreateNode(Entity, node.name.c_str());
 			Node* nodePtr = dynamic_cast<Node*>(child);
             nodeIndexToNodePointer.insert(std::pair<ionU32, Node*>((ionU32)scene.nodes[i], child));
             LoadNode(node, model, meshRenderer, nodePtr, nodeIndexToNodePointer, textureIndexToTextureName, materialIndexToMaterialName);
 
-            child->AttachToParent(nodePtr);
+			child->AttachToParent(_entity);
         }
     }
 

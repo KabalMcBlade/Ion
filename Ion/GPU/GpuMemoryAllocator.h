@@ -23,7 +23,7 @@ public:
 	GpuMemoryAllocator();
 	~GpuMemoryAllocator();
 
-	void Init(const VkPhysicalDevice& _physicalDevice, const VkDevice& _device, size _deviceLocalSize, size _hostVisibleSize, size _granularity);
+	void Init(const VkPhysicalDevice& _physicalDevice, const VkDevice& _device, size _granularity);
 	void Shutdown();
 
 	GpuMemoryAllocation Alloc(const GpuMemoryCreateInfo& _createInfo);
@@ -43,8 +43,6 @@ private:
 	Vector<GpuMemoryList*, GpuNodeListFreeListAllocator, GetAllocator> m_gpuMemory[VK_MAX_MEMORY_TYPES];
 	VkPhysicalDevice m_physicalDevice;
 	VkDevice m_device;
-	size m_deviceLocalSize;
-	size m_hostVisibleSize;
 	size m_granularity;
 };
 

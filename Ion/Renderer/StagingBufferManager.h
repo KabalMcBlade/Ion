@@ -39,7 +39,7 @@ class StagingBufferManager final
 public:
     static StagingBufferManager& Instance();
 
-    ionBool Init(ionSize _vkMaxBufferSize, VkDevice _vkDevice, VkQueue _vkGraphicsQueue, ionS32 _vkGraphicsFamilyIndex);
+    ionBool Init(VkDevice _vkDevice, VkQueue _vkGraphicsQueue, ionS32 _vkGraphicsFamilyIndex);
     void    Shutdown();
 
     StagingBufferManager();
@@ -56,7 +56,6 @@ private:
     VkDevice        m_vkDevice;
     VkQueue         m_vkGraphicsQueue;
     ionS32          m_vkGraphicsFamilyIndex;
-    ionSize            m_maxBufferSize;
     ionU8*            m_mappedData;
     VkDeviceMemory    m_vkMemory;
     VkCommandPool    m_vkCommandPool;

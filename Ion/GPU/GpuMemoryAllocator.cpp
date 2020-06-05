@@ -30,13 +30,11 @@ GpuMemoryAllocator::~GpuMemoryAllocator()
 {
 }
 
-void GpuMemoryAllocator::Init(const VkPhysicalDevice& _physicalDevice, const VkDevice& _device, size _deviceLocalSize, size _hostVisibleSize, size _granularity)
+void GpuMemoryAllocator::Init(const VkPhysicalDevice& _physicalDevice, const VkDevice& _device, size _granularity)
 {
 	m_physicalDevice = _physicalDevice;
 	m_device = _device;
 
-	m_deviceLocalSize = _deviceLocalSize;
-	m_hostVisibleSize = _hostVisibleSize;
 	m_granularity = _granularity;
 
 	vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &m_memProperties);
@@ -150,7 +148,7 @@ GpuMemoryAllocation GpuMemoryAllocator::Alloc(const GpuMemoryCreateInfo& _create
 		}
 	}
 
-	VkDeviceSize logicSize = (_createInfo.m_usage == EMemoryUsage_GPU) ? m_deviceLocalSize : m_hostVisibleSize;
+	VkDeviceSize logicSize = (_createInfo.m_usage == EMemoryUsage_GPU) ? Settings::kGpuDeviceLocalSize : Settings::kGpuHostVisibleSize;
 
 	GpuMemoryList* list = eosNew(GpuMemoryList, GetAllocator(), m_device, memoryTypeIndex, logicSize, _createInfo.m_usage);
 

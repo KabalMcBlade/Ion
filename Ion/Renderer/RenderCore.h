@@ -36,7 +36,7 @@ public:
     RenderCore();
     ~RenderCore();
 
-    ionBool Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer, ionSize _vkDeviceLocalSize, ionSize _vkHostVisibleSize, ionSize _vkStagingBufferSize);
+    ionBool Init(HINSTANCE _instance, HWND _handle, ionU32 _width, ionU32 _height, ionBool _fullScreen, ionBool _enableValidationLayer);
     void    Shutdown();
     void    DestroyCommandBuffers();
     void    Recreate();

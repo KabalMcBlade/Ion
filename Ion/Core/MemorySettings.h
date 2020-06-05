@@ -55,6 +55,11 @@ namespace Settings
 	// Vulkan specific
 	static constexpr ionU32 kVulkanAllocatorSize = ION_MEMORY_16_MB;
 	static constexpr ionU32 kGPUListNodeAllocatorSize = ION_MEMORY_8_MB;
+
+	// these are not used from Eos allocator anywhere, but is to keep all the memory setting here
+	static constexpr ionU32 kStagingBufferSize = ION_MEMORY_512_MB;
+	static constexpr ionU32 kGpuDeviceLocalSize = ION_MEMORY_1024_MB;
+	static constexpr ionU32 kGpuHostVisibleSize = ION_MEMORY_1024_MB;
 }
 
 ION_NAMESPACE_END
