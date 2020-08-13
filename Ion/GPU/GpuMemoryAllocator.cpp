@@ -61,71 +61,7 @@ GpuMemoryAllocation GpuMemoryAllocator::Alloc(const GpuMemoryCreateInfo& _create
 	GpuMemoryAllocation allocation;
 	allocation.m_result = VK_ERROR_INITIALIZATION_FAILED;
 
-	uint32 memoryTypeIndex = UINT32_MAX;
-
-	VkMemoryPropertyFlags required = 0;
-	VkMemoryPropertyFlags preferred = 0;
-
-	switch (_createInfo.m_usage)
-	{
-	case EMemoryUsage_Unknown:
-		break;
-	case EMemoryUsage_GPU:
-		preferred |= VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-		break;
-	case EMemoryUsage_CPU:
-		preferred |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-		break;
-	case EMemoryUsage_CPU_to_GPU:
-		required |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-		preferred |= VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-		break;
-	case EMemoryUsage_GPU_to_CPU:
-		required |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-		preferred |= VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
-		break;
-	default:
-		break;
-	}
-
-	for (uint32 i = 0; i < m_memProperties.memoryTypeCount; ++i)
-	{
-		if (((_createInfo.m_memoryTypeBits >> i) & 1) == 0)
-		{
-			continue;
-		}
-
-		const VkMemoryPropertyFlags properties = m_memProperties.memoryTypes[i].propertyFlags;
-		if ((properties & required) != required)
-		{
-			continue;
-		}
-
-		if ((properties & preferred) != preferred)
-		{
-			continue;
-		}
-
-		memoryTypeIndex = i;
-	}
-
-
-	for (uint32 i = 0; i < m_memProperties.memoryTypeCount; ++i)
-	{
-		if (((_createInfo.m_memoryTypeBits >> i) & 1) == 0)
-		{
-			continue;
-		}
-
-		const VkMemoryPropertyFlags properties = m_memProperties.memoryTypes[i].propertyFlags;
-		if ((properties & required) != required)
-		{
-			continue;
-		}
-
-		memoryTypeIndex = i;
-	}
-
+	uint32 memoryTypeIndex = FindMemoryType(_createInfo);
 
 	eosAssertReturnValue(memoryTypeIndex != UINT32_MAX, allocation, "Unable to allocate memory for the create info passed.");
 

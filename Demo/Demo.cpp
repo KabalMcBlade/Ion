@@ -169,7 +169,7 @@ int main(int argc, char **argv)
 	ionString texturePath = ionFileSystemManager().GetTexturesPath();
 	texturePath.append("misty_pines_4k.hdr");
     const Texture* nullTextureMap = ionRenderManager().GenerateNullTexture();
-    const Texture* skyboxCubeMap = ionTextureManger().CreateTextureFromFile("misty_pines_4k", texturePath, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_ClampAlpha, ETextureUsage_SkyboxHDR, ETextureType_Cubic, 1);
+    const Texture* skyboxCubeMap = ionTextureManger().CreateTextureFromFile("misty_pines_4k", texturePath, ETextureFilterMin_Linear_MipMap_Linear, ETextureFilterMag_Linear, ETextureRepeat_Clamp, ETextureUsage_SkyboxHDR, ETextureType_Cubic, 1);
 
     Material* skyboxMaterial = ionMaterialManger().CreateMaterial("SkyBox");
 
