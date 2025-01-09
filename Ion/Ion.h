@@ -1,3 +1,8 @@
+// Copyright (c) 2025-2025 Michele Condo'
+// File: C:\Projects\Ion\Ion\Ion.h
+// Licensed under the GPL-3.0 License. See LICENSE file in the project root for full license information.
+
+
 // The following ifdef block is the standard way of creating macros which make exporting 
 // from a DLL simpler. All files within this DLL are compiled with the ION_EXPORTS
 // symbol defined on the command line. This symbol should not be defined on any project

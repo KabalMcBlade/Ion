@@ -1,3 +1,8 @@
+// Copyright (c) 2025-2025 Michele Condo'
+// File: C:\Projects\Ion\Demo\stdafx.h
+// Licensed under the GPL-3.0 License. See LICENSE file in the project root for full license information.
+
+
 // stdafx.h : include file for standard system include files,
 // or project specific include files that are used frequently, but
 // are changed infrequently

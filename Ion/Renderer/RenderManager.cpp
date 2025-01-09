@@ -1,4 +1,9 @@
-﻿#include "RenderManager.h"
+﻿// Copyright (c) 2025-2025 Michele Condo'
+// File: C:\Projects\Ion\Ion\Renderer\RenderManager.cpp
+// Licensed under the GPL-3.0 License. See LICENSE file in the project root for full license information.
+
+
+#include "RenderManager.h"
 
 #include "VertexCacheManager.h"
 #include "StagingBufferManager.h"
